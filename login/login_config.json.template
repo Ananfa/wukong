@@ -1,0 +1,21 @@
+{
+    "id": 1,                                    // 服务号（Login服唯一标识，与zookeeper注册发现有关）
+    "serviceIp": "0.0.0.0",                     // 对外提供http服务的IP
+    "servicePort": 11000,                       // 对外提供http服务的端口
+    "zookeeper": "127.0.0.1:2181",              // ZooKeeper
+    "workerThreadNum": 4,                       // http处理线程数（为0时表示在主线程进行http处理）
+    "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
+    "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+    "cache": {                                  // 缓存服务器
+        "host": "127.0.0.1",
+        "port": 6379,
+        "maxConnect": 8,                        // 最大连接数
+        "dbIndex": 0                            // 分库索引
+    },
+    "db": {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "maxConnect": 8,                        // 最大连接数
+        "dbIndex": 0                            // 分库索引
+    }
+}

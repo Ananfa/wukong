@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "corpc_option.proto";
+
+option cc_generic_services = true;
+
+package wukong.pb;
+
+message ForwardRequest {
+    int32 type = 1; // 消息类型
+    uint32 tag = 2; // 消息tag（用于客户端与服务器RPC）
+    repeated uint32 ids = 3; // 发送目标
+    bytes rawMsg = 4; // 原始消息数据
+}
+
+service TransitService {
+    option (corpc.global_service_id) = 3;
+
+    rpc forward(ForwardRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true; // default is false
+    }
+
+}

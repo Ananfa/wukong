@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package wukong.pb;
+
+message BoolValue {
+    bool value = 1;
+}
+
+message BoolValues {
+    repeated bool values = 1;
+}
+
+message Int32Value {
+    int32 value = 1;
+}
+
+message Int32Values {
+    repeated int32 values = 1;
+}
+
+message Int64Value {
+    int64 value = 1;
+}
+
+message Int64Values {
+    repeated int64 values = 1;
+}
+
+message Uint32Value {
+    uint32 value = 1;
+}
+
+message Uint32Values {
+    repeated uint32 values = 1;
+}
+
+message Uint64Value {
+    uint64 value = 1;
+}
+
+message Uint64Values {
+    repeated uint64 values = 1;
+}
+
+message StringValue {
+    string value = 1;
+}
+
+message StringValues {
+    repeated string values = 1;
+}

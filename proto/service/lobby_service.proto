@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "corpc_option.proto";
+import "common.proto";
+import "service_common.proto";
+
+option cc_generic_services = true;
+
+package wukong.pb;
+
+message LoadRoleRequest {
+    uint32 userId = 1;
+    uint32 roleId = 2;
+}
+
+// 玩家游戏对象所在服务器需要实现GameService服务
+service LobbyService {
+    option (corpc.global_service_id) = 2;
+
+    // 查询游戏对象是否存在（参数是roleId）
+    rpc isGameObjectExist(Uint32Value) returns(BoolValue)
+    {
+        option (corpc.timeout) = 2000; // default is 0
+    }
+
+    // 加载指定角色
+    rpc loadRole(LoadRoleRequest) returns(BoolValue)
+    {
+        option (corpc.need_coroutine) = true; // default is false
+    }
+
+    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
+    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+    {
+        option (corpc.timeout) = 1000; // default is 0
+    }
+
+    rpc forward(ForwardRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true; // default is false
+    }
+
+}

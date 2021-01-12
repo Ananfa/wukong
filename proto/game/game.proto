@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+//import "common.proto";
+
+package wukong.pb;
+
+// 登录
+message AuthRequest {
+    uint64 userId = 1;     // 玩家id
+    string token = 2;      // 登录token
+    string cipher = 3;     // 通信密码（经过RSA加密）
+    uint32 recvSerial = 4; // 客户端接收的最后消息序号
+}

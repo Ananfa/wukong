@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+import "corpc_option.proto";
+import "common.proto";
+import "service_common.proto";
+
+option cc_generic_services = true;
+
+package wukong.pb;
+
+service GatewayService {
+	option (corpc.global_service_id) = 1;
+
+    // 关服（关闭Gateway后，内部服务中的游戏对象会在心跳失败时销毁并存盘，因此只需对gateway进行shutdown）
+    rpc shutdown(corpc.Void) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true; // default is false
+    }
+
+    // 踢出指定玩家
+    rpc kick(Uint32Value) returns(BoolValue)
+    {
+        option (corpc.need_coroutine) = true; // default is false
+    }
+
+    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
+    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+    {
+        option (corpc.timeout) = 1000; // default is 0
+    }
+
+    rpc forward(ForwardRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true; // default is false
+    }
+
+}

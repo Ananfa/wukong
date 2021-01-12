@@ -1,0 +1,6 @@
+1. 需要先启动zookeeper
+   -- 如：运行zkServer.sh start
+2. zookeeper中需要先创建/login_server和/gateway_server节点
+   -- 运行zkCli.sh
+   -- create /login_server 1
+   -- create /gateway_server 1

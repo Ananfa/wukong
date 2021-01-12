@@ -1,0 +1,21 @@
+{
+    "id": 1,
+    "serviceIp": "0.0.0.0",
+    "servicePort": 11000,
+    "zookeeper": "127.0.0.1:2181",
+    "workerThreadNum": 4,
+    "ioRecvThreadNum": 2,
+    "ioSendThreadNum": 2,
+    "cache": {
+        "host": "192.168.92.221",
+        "port": 6379,
+        "maxConnect": 8,
+        "dbIndex": 0
+    },
+    "db": {
+        "host": "192.168.92.221",
+        "port": 6379,
+        "maxConnect": 8,
+        "dbIndex": 0
+    }
+}

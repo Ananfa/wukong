@@ -62,7 +62,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_game_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\ngame.proto\022\twukong.pb\"P\n\013AuthRequest\022\016"
   "\n\006userId\030\001 \001(\004\022\r\n\005token\030\002 \001(\t\022\016\n\006cipher\030"
-  "\003 \001(\t\022\022\n\nrecvSerial\030\004 \001(\rb\006proto3"
+  "\003 \001(\t\022\022\n\nrecvSerial\030\004 \001(\rB\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_game_2eproto_deps[1] = {
 };
@@ -71,7 +71,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_gam
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_game_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_game_2eproto = {
-  false, false, descriptor_table_protodef_game_2eproto, "game.proto", 113,
+  false, false, descriptor_table_protodef_game_2eproto, "game.proto", 118,
   &descriptor_table_game_2eproto_once, descriptor_table_game_2eproto_sccs, descriptor_table_game_2eproto_deps, 1, 0,
   schemas, file_default_instances, TableStruct_game_2eproto::offsets,
   file_level_metadata_game_2eproto, 1, file_level_enum_descriptors_game_2eproto, file_level_service_descriptors_game_2eproto,

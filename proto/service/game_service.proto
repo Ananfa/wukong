@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "corpc_option.proto";
+import "service_common.proto";
+
+option cc_generic_services = true;
+
+package wukong.pb;
+
+// 玩家游戏对象所在服务器需要实现GameService服务
+service GameService {
+    option (corpc.global_service_id) = 2;
+
+    rpc forward(ForwardRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true; // default is false
+    }
+
+}

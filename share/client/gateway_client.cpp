@@ -141,17 +141,18 @@ bool GatewayClient::setServers(const std::map<ServerId, AddressInfo>& addresses)
         const AddressInfo& address = kv.second;
         auto iter1 = _stubs.find(sid);
         if (iter1 != _stubs.end()) {
-            RpcClient::Channel *channel = (RpcClient::Channel *)iter1->second.stub->channel();
-            if (channel->getHost() == address.ip && channel->getPort() == address.port) {
+            if (iter1->second.ip == address.ip && iter1->second.port == address.port) {
                 stubs.insert(std::make_pair(sid, iter1->second));
                 continue;
             }
         }
 
         StubInfo stubInfo = {
-            std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::GatewayService::STUB_OWNS_CHANNEL),
+            address.ip,
+            address.port,
             address.outerAddr,
-            address.outerPort
+            address.outerPort,
+            std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::GatewayService::STUB_OWNS_CHANNEL)
         };
         stubs.insert(std::make_pair(sid, std::move(stubInfo)));
     }

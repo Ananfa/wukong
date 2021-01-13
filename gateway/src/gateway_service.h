@@ -18,8 +18,8 @@
 #define gateway_service_h
 
 #include "corpc_controller.h"
+#include "service_common.pb.h"
 #include "gateway_service.pb.h"
-#include "common_service.pb.h"
 #include "gateway_manager.h"
 
 namespace wukong {
@@ -48,16 +48,6 @@ namespace wukong {
                                     ::wukong::pb::Uint32Value* response,
                                     ::google::protobuf::Closure* done);
 
-    private:
-        GatewayManager *_manager;
-
-    };
-
-    class GatewayTransitServiceImpl : public pb::TransitService {
-
-    public:
-        GatewayTransitServiceImpl(GatewayManager *manager): _manager(manager) {}
-
         virtual void forward(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::ForwardRequest* request,
                              ::corpc::Void* response,
@@ -65,8 +55,8 @@ namespace wukong {
 
     private:
         GatewayManager *_manager;
-
     };
+
 }
 
 #endif /* gateway_service_h */

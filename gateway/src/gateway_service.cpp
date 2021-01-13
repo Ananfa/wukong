@@ -40,7 +40,7 @@ void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* contr
     // TODO: get online player count
 }
 
-void GatewayTransitServiceImpl::forward(::google::protobuf::RpcController* controller,
+void GatewayServiceImpl::forward(::google::protobuf::RpcController* controller,
                                         const ::wukong::pb::ForwardRequest* request,
                                         ::corpc::Void* response,
                                         ::google::protobuf::Closure* done) {

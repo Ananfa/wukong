@@ -17,6 +17,12 @@
 #ifndef route_object_h
 #define route_object_h
 
+#include "corpc_message_server.h"
+#include "share/define.h"
+#include "game_service.pb.h"
+
+using namespace corpc;
+
 namespace wukong {
     class RouteObject;
     class GatewayManager;
@@ -55,5 +61,6 @@ namespace wukong {
 
         GatewayManager *_manager; // 关联的manager
     };
+}
 
 #endif /* route_object_h */

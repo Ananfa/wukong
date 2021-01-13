@@ -26,7 +26,7 @@ void GatewayHandler::registerMessages(corpc::TcpMessageServer *server) {
     server->registerMessage(CORPC_MSG_TYPE_CONNECT, nullptr, false, std::bind(&GatewayHandler::connectHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     server->registerMessage(CORPC_MSG_TYPE_CLOSE, nullptr, true, std::bind(&GatewayHandler::closeHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     server->registerMessage(CORPC_MSG_TYPE_BANNED, nullptr, true, std::bind(&GatewayHandler::banHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    server->registerMessage(MESSAGE_ID_AUTH_REQ, new pb::AuthRequest, true, std::bind(&GatewayHandler::authHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    server->registerMessage(MESSAGE_ID_AUTH_REQ, new pb::AuthRequest(), true, std::bind(&GatewayHandler::authHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
     server->setOtherMessageHandle(std::bind(&GatewayHandler::bypassHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 }
@@ -211,7 +211,7 @@ void GatewayHandler::authHandle(int16_t type, uint8_t tag, std::shared_ptr<googl
 
     // 将路由对象登记到已连接表，登记完成后，游戏对象和客户端就能通过路由对象转发消息了
     _manager->addConnectedRouteObject(ro);
-    ro->open();
+    ro->start();
 
     // TODO: 通知游戏对象发开始游戏所需数据给客户端
     

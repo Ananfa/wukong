@@ -25,6 +25,7 @@
 #include "gateway_center.h"
 #include "gateway_handler.h"
 
+#include "lobby_client.h"
 #include "zk_client.h"
 #include "const.h"
 #include "define.h"
@@ -77,9 +78,9 @@ void gatewayThread(IO *rpc_io, IO *msg_io, ServerId gwid, uint16_t rpcPort, uint
     mgr->init();
 
     GatewayServiceImpl *gatewayServiceImpl = new GatewayServiceImpl(mgr);
-    GatewayTransitServiceImpl *transitServiceImpl = new GatewayTransitServiceImpl(mgr);
+    //GatewayTransitServiceImpl *transitServiceImpl = new GatewayTransitServiceImpl(mgr);
     server->registerService(gatewayServiceImpl);
-    server->registerService(transitServiceImpl);
+    //server->registerService(transitServiceImpl);
 
     // 启动消息服务，注册连接建立、断开、消息禁止、身份认证等消息处理，以及设置旁路处理（将消息转发给玩家游戏对象所在的服务器）
     corpc::TcpMessageServer *msgServer = new corpc::TcpMessageServer(msg_io, true, true, true, true, g_GatewayConfig.getExternalIp(), msgPort);

@@ -36,13 +36,16 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
+    ../share/client/lobby_client.cpp
     ../share/client/zk_client.cpp
     ../utils/utility.cpp
     ../utils/string_utils.cpp
     ../proto/common.pb.cc
-    ../proto/service/common_service.pb.cc
+    ../proto/game/game.pb.cc
+    ../proto/service/service_common.pb.cc
     ../proto/service/gateway_service.pb.cc
-    ../proto/game/game.pb.cc)
+    ../proto/service/game_service.pb.cc
+    ../proto/service/lobby_service.pb.cc)
 
 # Add source files
 aux_source_directory(./src SOURCE_FILES)

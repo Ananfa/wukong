@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "game_client.h"
+#include "lobby_client.h"
 #include "corpc_controller.h"
 #include "string_utils.h"
 
 using namespace wukong;
 
-std::map<ServerId, std::shared_ptr<pb::LobbyService_Stub>> LobbyClient::_stubs;
+std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_stubs;
 std::mutex LobbyClient::_stubsLock;
 std::atomic<uint32_t> LobbyClient::_stubChangeNum(0);
 thread_local uint32_t LobbyClient::_t_stubChangeNum = 0;
-thread_local std::map<ServerId, std::shared_ptr<pb::LobbyService_Stub>> LobbyClient::_t_stubs;
+thread_local std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_t_stubs;
 
 static void callDoneHandle(::google::protobuf::Message *request, Controller *controller) {
     delete controller;
@@ -35,7 +35,7 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
     std::vector<ServerInfo> infos;
 
     refreshStubs();
-    std::map<ServerId, std::shared_ptr<pb::LobbyService_Stub>> localStubs = _t_stubs;
+    std::map<ServerId, StubInfo> localStubs = _t_stubs;
     
     // 清除原来的信息
     infos.reserve(localStubs.size());
@@ -45,7 +45,7 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
         corpc::Void *request = new corpc::Void();
         pb::Uint32Value *response = new pb::Uint32Value();
         Controller *controller = new Controller();
-        kv.second->getOnlineCount(controller, request, response, nullptr);
+        kv.second.lobbyServiceStub->getOnlineCount(controller, request, response, nullptr);
         
         if (controller->Failed()) {
             ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
@@ -68,7 +68,7 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
 }
 
 void LobbyClient::forward(ServerId sid, int32_t type, const std::vector<RoleId> &roleIds, const std::string &msg) {
-    std::shared_ptr<pb::LobbyService_Stub> stub = getStub(sType, sid);
+    std::shared_ptr<pb::GameService_Stub> stub = getGameServiceStub(sid);
     
     if (!stub) {
         ERROR_LOG("LobbyClient server %d stub not avaliable, waiting.\n", sid);
@@ -95,20 +95,27 @@ bool LobbyClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {
         return false;
     }
 
-    std::map<ServerId, std::shared_ptr<pb::LobbyService_Stub>> stubs;
+    std::map<ServerId, StubInfo> stubs;
     for (const auto& kv : addresses) {
         ServerId sid = kv.first;
         const AddressInfo& address = kv.second;
         auto iter1 = _stubs.find(sid);
         if (iter1 != _stubs.end()) {
-            RpcClient::Channel *channel = (RpcClient::Channel *)iter1->second->channel();
-            if (channel->getHost() == address.ip && channel->getPort() == address.port) {
+            if (iter1->second.ip == address.ip && iter1->second.port == address.port) {
                 stubs.insert(std::make_pair(sid, iter1->second));
                 continue;
             }
         }
 
-        stubs.insert(std::make_pair(sid, std::make_shared<pb::GameService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::GameService::STUB_OWNS_CHANNEL)));
+        RpcClient::Channel *channel = new RpcClient::Channel(_client, address.ip, address.port, 1);
+
+        StubInfo stubInfo = {
+            address.ip,
+            address.port,
+            std::make_shared<pb::GameService_Stub>(channel, pb::GameService::STUB_OWNS_CHANNEL),
+            std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(*channel), pb::GameService::STUB_OWNS_CHANNEL)
+        };
+        stubs.insert(std::make_pair(sid, std::move(stubInfo)));
     }
     
     {
@@ -120,14 +127,24 @@ bool LobbyClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {
     return true;
 }
 
-std::shared_ptr<pb::GameService_Stub> LobbyClient::getStub(ServerId sid) {
+std::shared_ptr<pb::GameService_Stub> LobbyClient::getGameServiceStub(ServerId sid) {
     refreshStubs();
     auto iter = _t_stubs.find(sid);
     if (iter == _t_stubs.end()) {
         return nullptr;
     }
 
-    return iter->second;
+    return iter->second.gameServiceStub;
+}
+
+std::shared_ptr<pb::LobbyService_Stub> LobbyClient::getLobbyServiceStub(ServerId sid) {
+    refreshStubs();
+    auto iter = _t_stubs.find(sid);
+    if (iter == _t_stubs.end()) {
+        return nullptr;
+    }
+
+    return iter->second.lobbyServiceStub;
 }
 
 void LobbyClient::refreshStubs() {

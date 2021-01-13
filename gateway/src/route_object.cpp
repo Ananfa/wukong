@@ -45,7 +45,7 @@ void *RouteObject::heartbeatRoutine( void *arg ) {
 
         if (!ro->_running) {
             // 路由对象已被销毁
-            return;
+            return nullptr;
         }
 
         // 设置session超时
@@ -58,9 +58,9 @@ void *RouteObject::heartbeatRoutine( void *arg ) {
         } else {
             redisReply *reply;
             if (g_GatewayCenter.setSessionExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d", SET_SESSION_EXPIRE_CMD, userId, request->token().c_str(), 60);
+                reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d", SET_SESSION_EXPIRE_CMD, ro->_userId, ro->_token.c_str(), 60);
             } else {
-                reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d", g_GatewayCenter.setSessionExpireSha1(), userId, request->token().c_str(), 60);
+                reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d", g_GatewayCenter.setSessionExpireSha1(), ro->_userId, ro->_token.c_str(), 60);
             }
             
             if (!reply) {
@@ -90,4 +90,6 @@ void *RouteObject::heartbeatRoutine( void *arg ) {
             }
         }
     }
+
+    return nullptr;
 }

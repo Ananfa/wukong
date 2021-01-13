@@ -59,29 +59,26 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_lobby_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\023lobby_service.proto\022\twukong.pb\032\022corpc_"
-  "option.proto\032\014common.proto\032\024service_comm"
-  "on.proto\"1\n\017LoadRoleRequest\022\016\n\006userId\030\001 "
-  "\001(\r\022\016\n\006roleId\030\002 \001(\r2\231\002\n\014LobbyService\022H\n\021"
-  "isGameObjectExist\022\026.wukong.pb.Uint32Valu"
-  "e\032\024.wukong.pb.BoolValue\"\005\240\361\004\320\017\022B\n\010loadRo"
-  "le\022\032.wukong.pb.LoadRoleRequest\032\024.wukong."
-  "pb.BoolValue\"\004\220\361\004\001\022<\n\016getOnlineCount\022\013.c"
-  "orpc.Void\032\026.wukong.pb.Uint32Value\"\005\240\361\004\350\007"
-  "\0227\n\007forward\022\031.wukong.pb.ForwardRequest\032\013"
-  ".corpc.Void\"\004\230\361\004\001\032\004\200\361\004\002B\003\200\001\001b\006proto3"
+  "option.proto\032\014common.proto\"1\n\017LoadRoleRe"
+  "quest\022\016\n\006userId\030\001 \001(\r\022\016\n\006roleId\030\002 \001(\r2\340\001"
+  "\n\014LobbyService\022H\n\021isGameObjectExist\022\026.wu"
+  "kong.pb.Uint32Value\032\024.wukong.pb.BoolValu"
+  "e\"\005\240\361\004\320\017\022B\n\010loadRole\022\032.wukong.pb.LoadRol"
+  "eRequest\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\022<\n\016"
+  "getOnlineCount\022\013.corpc.Void\032\026.wukong.pb."
+  "Uint32Value\"\005\240\361\004\350\007\032\004\200\361\004\002B\003\200\001\001b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_lobby_5fservice_2eproto_deps[3] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_lobby_5fservice_2eproto_deps[2] = {
   &::descriptor_table_common_2eproto,
   &::descriptor_table_corpc_5foption_2eproto,
-  &::descriptor_table_service_5fcommon_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_lobby_5fservice_2eproto_sccs[1] = {
   &scc_info_LoadRoleRequest_lobby_5fservice_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_lobby_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_lobby_5fservice_2eproto = {
-  false, false, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 436,
-  &descriptor_table_lobby_5fservice_2eproto_once, descriptor_table_lobby_5fservice_2eproto_sccs, descriptor_table_lobby_5fservice_2eproto_deps, 1, 3,
+  false, false, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 357,
+  &descriptor_table_lobby_5fservice_2eproto_once, descriptor_table_lobby_5fservice_2eproto_sccs, descriptor_table_lobby_5fservice_2eproto_deps, 1, 2,
   schemas, file_default_instances, TableStruct_lobby_5fservice_2eproto::offsets,
   file_level_metadata_lobby_5fservice_2eproto, 1, file_level_enum_descriptors_lobby_5fservice_2eproto, file_level_service_descriptors_lobby_5fservice_2eproto,
 };
@@ -359,14 +356,6 @@ void LobbyService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* contro
   done->Run();
 }
 
-void LobbyService::forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::ForwardRequest*,
-                         ::corpc::Void*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method forward() not implemented.");
-  done->Run();
-}
-
 void LobbyService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
                              ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                              const ::PROTOBUF_NAMESPACE_ID::Message* request,
@@ -398,14 +387,6 @@ void LobbyService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* m
                  response),
              done);
       break;
-    case 3:
-      forward(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::ForwardRequest*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
-                 response),
-             done);
-      break;
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       break;
@@ -422,8 +403,6 @@ const ::PROTOBUF_NAMESPACE_ID::Message& LobbyService::GetRequestPrototype(
       return ::wukong::pb::LoadRoleRequest::default_instance();
     case 2:
       return ::corpc::Void::default_instance();
-    case 3:
-      return ::wukong::pb::ForwardRequest::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
@@ -441,8 +420,6 @@ const ::PROTOBUF_NAMESPACE_ID::Message& LobbyService::GetResponsePrototype(
       return ::wukong::pb::BoolValue::default_instance();
     case 2:
       return ::wukong::pb::Uint32Value::default_instance();
-    case 3:
-      return ::corpc::Void::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
@@ -480,13 +457,6 @@ void LobbyService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* c
                               ::wukong::pb::Uint32Value* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(2),
-                       controller, request, response, done);
-}
-void LobbyService_Stub::forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::ForwardRequest* request,
-                              ::corpc::Void* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(3),
                        controller, request, response, done);
 }
 

@@ -21,6 +21,7 @@
 #include <vector>
 #include "corpc_rpc_client.h"
 #include "service_common.pb.h"
+#include "game_service.pb.h"
 #include "lobby_service.pb.h"
 #include "define.h"
 
@@ -33,6 +34,13 @@ namespace wukong {
             uint16_t id;
             std::string ip;
             uint16_t port;
+        };
+
+        struct StubInfo {
+            std::string ip; // rpc服务ip
+            uint16_t port; // rpc服务port
+            std::shared_ptr<pb::GameService_Stub> gameServiceStub;
+            std::shared_ptr<pb::LobbyService_Stub> lobbyServiceStub;
         };
 
         struct ServerInfo {
@@ -55,8 +63,9 @@ namespace wukong {
     
         /* 加入Server */
         bool setServers(const std::map<ServerId, AddressInfo> &addresses);
-        /* 根据逻辑区服id获得GameServer的stub */
-        std::shared_ptr<pb::LobbyService_Stub> getStub(ServerId sid);
+        /* 根据逻辑区服id获得LobbyServer的stub */
+        std::shared_ptr<pb::LobbyService_Stub> getLobbyServiceStub(ServerId sid);
+        std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid);
         
         static bool parseAddress(const std::string &input, AddressInfo &addressInfo);
 
@@ -67,12 +76,12 @@ namespace wukong {
         RpcClient *_client = nullptr;
 
         /* 所有LobbyServer的Stub */
-        static std::map<ServerId, std::shared_ptr<pb::LobbyService_Stub>> _stubs;
+        static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;
         static std::atomic<uint32_t> _stubChangeNum;
         
         /* 当前可用的 */
-        static thread_local std::map<ServerId, std::shared_ptr<pb::LobbyService_Stub>> _t_stubs;
+        static thread_local std::map<ServerId, StubInfo> _t_stubs;
         static thread_local uint32_t _t_stubChangeNum;
 
     private:

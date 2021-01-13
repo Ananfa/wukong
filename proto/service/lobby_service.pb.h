@@ -35,7 +35,6 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "corpc_option.pb.h"
 #include "common.pb.h"
-#include "service_common.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_lobby_5fservice_2eproto
@@ -246,10 +245,6 @@ class LobbyService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        const ::corpc::Void* request,
                        ::wukong::pb::Uint32Value* response,
                        ::google::protobuf::Closure* done);
-  virtual void forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::ForwardRequest* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
 
   // implements Service ----------------------------------------------
 
@@ -290,10 +285,6 @@ class LobbyService_Stub : public LobbyService {
   void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
                        ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
-  void forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::ForwardRequest* request,
-                       ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
  private:
   ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;

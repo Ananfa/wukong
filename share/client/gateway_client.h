@@ -37,9 +37,11 @@ namespace wukong {
         };
 
         struct StubInfo {
-            std::shared_ptr<pb::GatewayService_Stub> stub;
+            std::string ip; // rpc服务ip
+            uint16_t port; // rpc服务port
             std::string outerAddr; // 客户端连接地址的ip或域名
             uint16_t outerPort; // 客户端连接地址的端口
+            std::shared_ptr<pb::GatewayService_Stub> stub;
         };
 
         struct ServerInfo {

@@ -116,7 +116,7 @@ int GatewayManager::tryChangeRouteObjectConn(UserId userId, const std::string &t
     auto it = _userId2RouteObjectMap.find(userId);
     if (it != _userId2RouteObjectMap.end()) {
         assert(_connection2RouteObjectMap.find(it->second->getConn().get()) != _connection2RouteObjectMap.end());
-        if (it->second->getToken().compare(token) == 0) {
+        if (it->second->getToken() == token) {
             _connection2RouteObjectMap.erase(it->second->getConn().get());
 
             if (it->second->getConn()->isOpen()) {
@@ -138,7 +138,7 @@ int GatewayManager::tryChangeRouteObjectConn(UserId userId, const std::string &t
     if (it1 != _disconnectedNodeMap.end()) {
         assert(_userId2RouteObjectMap.find(userId) == _userId2RouteObjectMap.end());
 
-        if (it1->second->data->getToken().compare(token) == 0) {
+        if (it1->second->data->getToken() == token) {
             // 转移消息缓存
             newConn->setMsgBuffer(it1->second->data->getConn()->getMsgBuffer());
             _userId2RouteObjectMap.insert(std::make_pair(userId, it1->second->data));
@@ -148,7 +148,7 @@ int GatewayManager::tryChangeRouteObjectConn(UserId userId, const std::string &t
             _disconnectedNodeMap.erase(userId);
             return 1;
         } else {
-            return -1
+            return -1;
         }
     }
 

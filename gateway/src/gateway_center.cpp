@@ -16,6 +16,7 @@
 
 #include "gateway_center.h"
 #include "gateway_config.h"
+#include "share/const.h"
 
 using namespace wukong;
 
@@ -49,7 +50,7 @@ void *GatewayCenter::initRoutine(void *arg) {
         return nullptr;
     }
 
-    self->_redisCheckSessionSha1 = reply->str;
+    self->_checkSessionSha1 = reply->str;
     freeReplyObject(reply);
 
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_EXPIRE_CMD);
@@ -66,7 +67,7 @@ void *GatewayCenter::initRoutine(void *arg) {
         return nullptr;
     }
 
-    self->_redisSetSessionExpireSha1 = reply->str;
+    self->_setSessionExpireSha1 = reply->str;
     freeReplyObject(reply);
 
     self->_cache->proxy.put(cache, false);

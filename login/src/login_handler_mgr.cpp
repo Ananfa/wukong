@@ -93,15 +93,15 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
 
     redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_CMD);
     if (!reply) {
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- script load failed for db error\n");
         self->_cache->proxy.put(cache, true);
+        ERROR_LOG("LoginHandlerMgr::initRoutine -- script load failed for db error\n");
         return nullptr;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- script load failed\n");
         freeReplyObject(reply);
         self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("LoginHandlerMgr::initRoutine -- script load failed\n");
         return nullptr;
     }
 
@@ -556,6 +556,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 /******************** http api end ********************/
 
 bool LoginHandlerMgr::randomGatewayServer(ServerId &serverId) {
+    refreshGatewayInfos();
     size_t serverNum = _t_gatewayInfos.size();
     if (!serverNum) return false;
     
@@ -631,15 +632,15 @@ void LoginHandlerMgr::_updateServerGroupData() {
 
     redisReply *reply = (redisReply *)redisCommand(redis, "GET ServerGroups");
     if (!reply) {
-        ERROR_LOG("update server group data failed for db error");
         _db->proxy.put(redis, true);
+        ERROR_LOG("update server group data failed for db error");
         return;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
-        ERROR_LOG("update server group data failed for invalid data type\n");
         freeReplyObject(reply);
         _db->proxy.put(redis, true);
+        ERROR_LOG("update server group data failed for invalid data type\n");
         return;
     }
 

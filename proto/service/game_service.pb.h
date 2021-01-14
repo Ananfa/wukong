@@ -32,6 +32,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/service.h>
 #include "corpc_option.pb.h"
+#include "common.pb.h"
 #include "service_common.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
@@ -82,6 +83,10 @@ class GameService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        const ::wukong::pb::ForwardRequest* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
+  virtual void enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::Uint32Value* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
 
   // implements Service ----------------------------------------------
 
@@ -113,6 +118,10 @@ class GameService_Stub : public GameService {
 
   void forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  void enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::Uint32Value* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
  private:

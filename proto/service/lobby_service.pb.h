@@ -233,10 +233,6 @@ class LobbyService : public ::PROTOBUF_NAMESPACE_ID::Service {
 
   static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
 
-  virtual void isGameObjectExist(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::Uint32Value* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
   virtual void loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::LoadRoleRequest* request,
                        ::wukong::pb::BoolValue* response,
@@ -274,10 +270,6 @@ class LobbyService_Stub : public LobbyService {
 
   // implements LobbyService ------------------------------------------
 
-  void isGameObjectExist(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::Uint32Value* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
   void loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::LoadRoleRequest* request,
                        ::wukong::pb::BoolValue* response,

@@ -50,6 +50,8 @@ namespace wukong {
         bool hasRouteObject(UserId userId); // 判断玩家路由对象是否存在（包括已连接及断线中）
         bool removeRouteObject(UserId userId); // 删除玩家路由对象（包括已连接及断线中）
 
+        std::shared_ptr<RouteObject> getRouteObject(UserId userId); // 获取玩家路由对象（包括已连接及断线中）
+
         // 获取已连接的路由对象
         std::shared_ptr<RouteObject> getConnectedRouteObject(UserId userId);
         std::shared_ptr<RouteObject> getConnectedRouteObject(std::shared_ptr<MessageServer::Connection> &conn);

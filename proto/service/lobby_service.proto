@@ -16,12 +16,6 @@ message LoadRoleRequest {
 service LobbyService {
     option (corpc.global_service_id) = 2;
 
-    // 查询游戏对象是否存在（参数是roleId）
-    rpc isGameObjectExist(Uint32Value) returns(BoolValue)
-    {
-        option (corpc.timeout) = 2000; // default is 0
-    }
-
     // 加载指定角色
     rpc loadRole(LoadRoleRequest) returns(BoolValue)
     {

@@ -60,13 +60,12 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_lobby_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\023lobby_service.proto\022\twukong.pb\032\022corpc_"
   "option.proto\032\014common.proto\"1\n\017LoadRoleRe"
-  "quest\022\016\n\006userId\030\001 \001(\r\022\016\n\006roleId\030\002 \001(\r2\340\001"
-  "\n\014LobbyService\022H\n\021isGameObjectExist\022\026.wu"
-  "kong.pb.Uint32Value\032\024.wukong.pb.BoolValu"
-  "e\"\005\240\361\004\320\017\022B\n\010loadRole\022\032.wukong.pb.LoadRol"
-  "eRequest\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\022<\n\016"
-  "getOnlineCount\022\013.corpc.Void\032\026.wukong.pb."
-  "Uint32Value\"\005\240\361\004\350\007\032\004\200\361\004\002B\003\200\001\001b\006proto3"
+  "quest\022\016\n\006userId\030\001 \001(\r\022\016\n\006roleId\030\002 \001(\r2\226\001"
+  "\n\014LobbyService\022B\n\010loadRole\022\032.wukong.pb.L"
+  "oadRoleRequest\032\024.wukong.pb.BoolValue\"\004\220\361"
+  "\004\001\022<\n\016getOnlineCount\022\013.corpc.Void\032\026.wuko"
+  "ng.pb.Uint32Value\"\005\240\361\004\350\007\032\004\200\361\004\002B\003\200\001\001b\006pro"
+  "to3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_lobby_5fservice_2eproto_deps[2] = {
   &::descriptor_table_common_2eproto,
@@ -77,7 +76,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_lob
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_lobby_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_lobby_5fservice_2eproto = {
-  false, false, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 357,
+  false, false, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 283,
   &descriptor_table_lobby_5fservice_2eproto_once, descriptor_table_lobby_5fservice_2eproto_sccs, descriptor_table_lobby_5fservice_2eproto_deps, 1, 2,
   schemas, file_default_instances, TableStruct_lobby_5fservice_2eproto::offsets,
   file_level_metadata_lobby_5fservice_2eproto, 1, file_level_enum_descriptors_lobby_5fservice_2eproto, file_level_service_descriptors_lobby_5fservice_2eproto,
@@ -332,14 +331,6 @@ const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* LobbyService::GetDescriptor() 
   return descriptor();
 }
 
-void LobbyService::isGameObjectExist(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::Uint32Value*,
-                         ::wukong::pb::BoolValue*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method isGameObjectExist() not implemented.");
-  done->Run();
-}
-
 void LobbyService::loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                          const ::wukong::pb::LoadRoleRequest*,
                          ::wukong::pb::BoolValue*,
@@ -364,14 +355,6 @@ void LobbyService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* m
   GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_lobby_5fservice_2eproto[0]);
   switch(method->index()) {
     case 0:
-      isGameObjectExist(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::Uint32Value*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::BoolValue*>(
-                 response),
-             done);
-      break;
-    case 1:
       loadRole(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::LoadRoleRequest*>(
                  request),
@@ -379,7 +362,7 @@ void LobbyService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* m
                  response),
              done);
       break;
-    case 2:
+    case 1:
       getOnlineCount(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
                  request),
@@ -398,10 +381,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message& LobbyService::GetRequestPrototype(
   GOOGLE_DCHECK_EQ(method->service(), descriptor());
   switch(method->index()) {
     case 0:
-      return ::wukong::pb::Uint32Value::default_instance();
-    case 1:
       return ::wukong::pb::LoadRoleRequest::default_instance();
-    case 2:
+    case 1:
       return ::corpc::Void::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
@@ -417,8 +398,6 @@ const ::PROTOBUF_NAMESPACE_ID::Message& LobbyService::GetResponsePrototype(
     case 0:
       return ::wukong::pb::BoolValue::default_instance();
     case 1:
-      return ::wukong::pb::BoolValue::default_instance();
-    case 2:
       return ::wukong::pb::Uint32Value::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
@@ -438,25 +417,18 @@ LobbyService_Stub::~LobbyService_Stub() {
   if (owns_channel_) delete channel_;
 }
 
-void LobbyService_Stub::isGameObjectExist(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::Uint32Value* request,
-                              ::wukong::pb::BoolValue* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(0),
-                       controller, request, response, done);
-}
 void LobbyService_Stub::loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::wukong::pb::LoadRoleRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(1),
+  channel_->CallMethod(descriptor()->method(0),
                        controller, request, response, done);
 }
 void LobbyService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::corpc::Void* request,
                               ::wukong::pb::Uint32Value* response,
                               ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(2),
+  channel_->CallMethod(descriptor()->method(1),
                        controller, request, response, done);
 }
 

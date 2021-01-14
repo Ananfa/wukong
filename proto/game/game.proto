@@ -13,3 +13,8 @@ message AuthRequest {
     string cipher = 3;     // 通信密码（经过RSA加密）
     uint32 recvSerial = 4; // 客户端接收的最后消息序号
 }
+
+// 消息屏蔽回复
+message BanResponse {
+    uint32 msgId = 1;      // 消息id
+}

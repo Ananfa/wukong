@@ -88,6 +88,20 @@ bool GatewayManager::removeRouteObject(UserId userId) {
     return false;
 }
 
+std::shared_ptr<RouteObject> GatewayManager::getRouteObject(UserId userId) {
+    auto it = _userId2RouteObjectMap.find(userId);
+    if (it != _userId2RouteObjectMap.end()) {
+        return it->second;
+    }
+
+    auto it2 = _disconnectedNodeMap.find(userId);
+    if (it2 != _disconnectedNodeMap.end()) {
+        return it2->second->data;
+    }
+
+    return nullptr;
+}
+
 std::shared_ptr<RouteObject> GatewayManager::getConnectedRouteObject(UserId userId) {
     auto it = _userId2RouteObjectMap.find(userId);
     if (it == _userId2RouteObjectMap.end()) {

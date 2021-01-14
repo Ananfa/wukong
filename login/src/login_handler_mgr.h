@@ -45,16 +45,6 @@ namespace wukong {
         std::string pData; // 角色画像数据
     };
 
-    struct Address {
-        std::string host; // ip或域名
-        uint16_t port; // 端口
-    };
-
-    struct ServerWeightInfo {
-        ServerId id;
-        uint32_t weight;
-    };
-
     class LoginHandlerMgr {
     public:
         static LoginHandlerMgr& Instance() {
@@ -63,17 +53,14 @@ namespace wukong {
         }
         
         void init(HttpServer *server);
-        void updateGatewayInfosVersion() { _gatewayInfosVersion++; };
-
-        void updateServerGroupDataVersion() { _serverGroupDataVersion++; }
-
+        
         void setLoginCheckHandler(LoginCheckHandler handler) { _loginCheck = handler; };
-
         void setCreateRoleHandler(CreateRoleHandler handler) { _createRole = handler; };
 
         RedisConnectPool *getCache() { return _cache; }
         RedisConnectPool *getDB() { return _db; }
 
+        bool randomGatewayServer(ServerId &serverId);
     private:
         // login接口：校验玩家身份，生成临时身份token，获取玩家在各逻辑服中的角色基本信息（角色列表），获取服务器列表，并将以上信息返回给客户端
         void login(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response);
@@ -86,8 +73,10 @@ namespace wukong {
         void setResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         void setErrorResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         
+        void updateGatewayInfosVersion() { _gatewayInfosVersion++; };
+        void updateServerGroupDataVersion() { _serverGroupDataVersion++; }
+
         // 利用"所有服务器的总在线人数 - 在线人数"做为分配权重
-        bool randomGatewayServer(ServerId &serverId);
         void refreshGatewayInfos();
 
         void updateServerGroupData(const std::string& topic, const std::string& msg);

@@ -53,6 +53,11 @@ namespace wukong {
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
 
+        virtual void heartbeat(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::HeartbeatRequest* request,
+                               ::corpc::Void* response,
+                               ::google::protobuf::Closure* done);
+
     private:
         GatewayManager *_manager;
     };

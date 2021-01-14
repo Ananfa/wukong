@@ -27,12 +27,14 @@ static constexpr ::PROTOBUF_NAMESPACE_ID::Message* const* file_default_instances
 
 const char descriptor_table_protodef_game_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\022game_service.proto\022\twukong.pb\032\022corpc_o"
-  "ption.proto\032\024service_common.proto2L\n\013Gam"
-  "eService\0227\n\007forward\022\031.wukong.pb.ForwardR"
-  "equest\032\013.corpc.Void\"\004\230\361\004\001\032\004\200\361\004\002B\003\200\001\001b\006pr"
-  "oto3"
+  "ption.proto\032\014common.proto\032\024service_commo"
+  "n.proto2\204\001\n\013GameService\0227\n\007forward\022\031.wuk"
+  "ong.pb.ForwardRequest\032\013.corpc.Void\"\004\230\361\004\001"
+  "\0226\n\tenterGame\022\026.wukong.pb.Uint32Value\032\013."
+  "corpc.Void\"\004\230\361\004\001\032\004\200\361\004\002B\003\200\001\001b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_game_5fservice_2eproto_deps[2] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_game_5fservice_2eproto_deps[3] = {
+  &::descriptor_table_common_2eproto,
   &::descriptor_table_corpc_5foption_2eproto,
   &::descriptor_table_service_5fcommon_2eproto,
 };
@@ -40,8 +42,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_gam
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_game_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_game_5fservice_2eproto = {
-  false, false, descriptor_table_protodef_game_5fservice_2eproto, "game_service.proto", 164,
-  &descriptor_table_game_5fservice_2eproto_once, descriptor_table_game_5fservice_2eproto_sccs, descriptor_table_game_5fservice_2eproto_deps, 0, 2,
+  false, false, descriptor_table_protodef_game_5fservice_2eproto, "game_service.proto", 235,
+  &descriptor_table_game_5fservice_2eproto_once, descriptor_table_game_5fservice_2eproto_sccs, descriptor_table_game_5fservice_2eproto_deps, 0, 3,
   schemas, file_default_instances, TableStruct_game_5fservice_2eproto::offsets,
   file_level_metadata_game_5fservice_2eproto, 0, file_level_enum_descriptors_game_5fservice_2eproto, file_level_service_descriptors_game_5fservice_2eproto,
 };
@@ -72,6 +74,14 @@ void GameService::forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
   done->Run();
 }
 
+void GameService::enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::wukong::pb::Uint32Value*,
+                         ::corpc::Void*,
+                         ::google::protobuf::Closure* done) {
+  controller->SetFailed("Method enterGame() not implemented.");
+  done->Run();
+}
+
 void GameService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
                              ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                              const ::PROTOBUF_NAMESPACE_ID::Message* request,
@@ -82,6 +92,14 @@ void GameService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* me
     case 0:
       forward(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::ForwardRequest*>(
+                 request),
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
+                 response),
+             done);
+      break;
+    case 1:
+      enterGame(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::Uint32Value*>(
                  request),
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
                  response),
@@ -99,6 +117,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message& GameService::GetRequestPrototype(
   switch(method->index()) {
     case 0:
       return ::wukong::pb::ForwardRequest::default_instance();
+    case 1:
+      return ::wukong::pb::Uint32Value::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
@@ -111,6 +131,8 @@ const ::PROTOBUF_NAMESPACE_ID::Message& GameService::GetResponsePrototype(
   GOOGLE_DCHECK_EQ(method->service(), descriptor());
   switch(method->index()) {
     case 0:
+      return ::corpc::Void::default_instance();
+    case 1:
       return ::corpc::Void::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
@@ -135,6 +157,13 @@ void GameService_Stub::forward(::PROTOBUF_NAMESPACE_ID::RpcController* controlle
                               ::corpc::Void* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(0),
+                       controller, request, response, done);
+}
+void GameService_Stub::enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::wukong::pb::Uint32Value* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done) {
+  channel_->CallMethod(descriptor()->method(1),
                        controller, request, response, done);
 }
 

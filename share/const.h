@@ -1,6 +1,7 @@
 #ifndef const_h
 #define const_h
 
+#include "define.h"
 #include <string>
 
 namespace wukong {
@@ -16,11 +17,17 @@ namespace wukong {
     const std::string ZK_BATTLE_SERVER             = "/battle_server";
     const std::string ZK_SCENE_SERVER              = "/scene_server";
 
+    const GameServerType GAME_SERVER_TYPE_LOBBY    = 1;
+    const GameServerType GAME_SERVER_TYPE_SCENE    = 2;
+
     const std::string ZK_DEFAULT_VALUE             = "1";
     const int ZK_TIMEOUT                           = 3000;
 
-    // 消息ID定义
-    const uint16_t MESSAGE_ID_AUTH_REQ             = 1; // 客户端认证消息
+    // 客户端向服务器发的消息ID定义
+    const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息
+
+    // 服务器向客户端发的消息ID定义
+    const uint16_t S2C_MESSAGE_ID_BAN              = 1; // 消息被屏蔽消息
 
     const char SET_SESSION_CMD[] = "\
         local ret=redis.call('hsetnx',KEYS[1],'gToken',ARGV[1])\

@@ -31,6 +31,10 @@ static void callDoneHandle(::google::protobuf::Message *request, Controller *con
     delete request;
 }
 
+bool LobbyClient::loadRole(ServerId sid, RoleId roleId) {
+    // TODO:
+}
+
 std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
     std::vector<ServerInfo> infos;
 
@@ -67,7 +71,7 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
     return infos;
 }
 
-void LobbyClient::forward(ServerId sid, int32_t type, const std::vector<RoleId> &roleIds, const std::string &msg) {
+void LobbyClient::forward(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &msg) {
     std::shared_ptr<pb::GameService_Stub> stub = getGameServiceStub(sid);
     
     if (!stub) {
@@ -78,6 +82,11 @@ void LobbyClient::forward(ServerId sid, int32_t type, const std::vector<RoleId> 
     pb::ForwardRequest *request = new pb::ForwardRequest();
     Controller *controller = new Controller();
     request->set_type(type);
+
+    if (tag != 0) {
+        request->set_tag(tag);
+    }
+
     for (auto it = roleIds.begin(); it != roleIds.end(); it++) {
         request->add_ids(*it);
     }

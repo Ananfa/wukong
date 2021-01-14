@@ -41,8 +41,22 @@ void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* contr
 }
 
 void GatewayServiceImpl::forward(::google::protobuf::RpcController* controller,
-                                        const ::wukong::pb::ForwardRequest* request,
-                                        ::corpc::Void* response,
-                                        ::google::protobuf::Closure* done) {
+                                 const ::wukong::pb::ForwardRequest* request,
+                                 ::corpc::Void* response,
+                                 ::google::protobuf::Closure* done) {
     // TODO: forward message to player clients
+}
+
+void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
+                                   const ::wukong::pb::HeartbeatRequest* request,
+                                   ::corpc::Void* response,
+                                   ::google::protobuf::Closure* done) {
+    std::shared_ptr<RouteObject> ro = _manager->getRouteObject(request->userid());
+    if (ro) {
+        struct timeval t;
+        gettimeofday(&t, NULL);
+        ro->_gameObjectHeartbeatExpire = t.tv_sec + 60;
+        ro->setGameServerStub(request->servertype(), request->serverid());
+    }
+
 }

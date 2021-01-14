@@ -15,10 +15,25 @@ typedef uint64_t UserId;
 // 角色id
 typedef uint64_t RoleId;
 
+// 服务器类型
+typedef uint16_t GameServerType;
+
 enum ServerStatus {
     SERVER_STATUS_NORMAL = 1,
     SERVER_STATUS_FULL = 2,
     SERVER_STATUS_CLOSED = 3
 };
+
+namespace wukong {
+    struct Address {
+        std::string host; // ip或域名
+        uint16_t port; // 端口
+    };
+
+    struct ServerWeightInfo {
+        ServerId id;
+        uint32_t weight;
+    };
+}
 
 #endif /* define_h */

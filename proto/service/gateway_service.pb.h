@@ -28,9 +28,11 @@
 #include <google/protobuf/inlined_string_field.h>
 #include <google/protobuf/metadata_lite.h>
 #include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/service.h>
+#include <google/protobuf/unknown_field_set.h>
 #include "corpc_option.pb.h"
 #include "common.pb.h"
 #include "service_common.pb.h"
@@ -56,14 +58,178 @@ struct TableStruct_gateway_5fservice_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_gateway_5fservice_2eproto;
+namespace wukong {
+namespace pb {
+class HeartbeatRequest;
+class HeartbeatRequestDefaultTypeInternal;
+extern HeartbeatRequestDefaultTypeInternal _HeartbeatRequest_default_instance_;
+}  // namespace pb
+}  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
+template<> ::wukong::pb::HeartbeatRequest* Arena::CreateMaybeMessage<::wukong::pb::HeartbeatRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
 namespace pb {
 
 // ===================================================================
 
+class HeartbeatRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.HeartbeatRequest) */ {
+ public:
+  inline HeartbeatRequest() : HeartbeatRequest(nullptr) {};
+  virtual ~HeartbeatRequest();
 
+  HeartbeatRequest(const HeartbeatRequest& from);
+  HeartbeatRequest(HeartbeatRequest&& from) noexcept
+    : HeartbeatRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline HeartbeatRequest& operator=(const HeartbeatRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline HeartbeatRequest& operator=(HeartbeatRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const HeartbeatRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const HeartbeatRequest* internal_default_instance() {
+    return reinterpret_cast<const HeartbeatRequest*>(
+               &_HeartbeatRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(HeartbeatRequest& a, HeartbeatRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(HeartbeatRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(HeartbeatRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline HeartbeatRequest* New() const final {
+    return CreateMaybeMessage<HeartbeatRequest>(nullptr);
+  }
+
+  HeartbeatRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<HeartbeatRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const HeartbeatRequest& from);
+  void MergeFrom(const HeartbeatRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(HeartbeatRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.HeartbeatRequest";
+  }
+  protected:
+  explicit HeartbeatRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_gateway_5fservice_2eproto);
+    return ::descriptor_table_gateway_5fservice_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUserIdFieldNumber = 1,
+    kServerTypeFieldNumber = 2,
+    kServerIdFieldNumber = 3,
+  };
+  // uint32 userId = 1;
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 serverType = 2;
+  void clear_servertype();
+  ::PROTOBUF_NAMESPACE_ID::uint32 servertype() const;
+  void set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_servertype() const;
+  void _internal_set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 serverId = 3;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.HeartbeatRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 servertype_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_gateway_5fservice_2eproto;
+};
 // ===================================================================
 
 class GatewayService_Stub;
@@ -93,6 +259,10 @@ class GatewayService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        ::google::protobuf::Closure* done);
   virtual void forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  virtual void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::HeartbeatRequest* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
 
@@ -140,6 +310,10 @@ class GatewayService_Stub : public GatewayService {
                        const ::wukong::pb::ForwardRequest* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
+  void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::HeartbeatRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
  private:
   ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
   bool owns_channel_;
@@ -156,6 +330,68 @@ class GatewayService_Stub : public GatewayService {
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// HeartbeatRequest
+
+// uint32 userId = 1;
+inline void HeartbeatRequest::clear_userid() {
+  userid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 HeartbeatRequest::_internal_userid() const {
+  return userid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 HeartbeatRequest::userid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.HeartbeatRequest.userId)
+  return _internal_userid();
+}
+inline void HeartbeatRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  userid_ = value;
+}
+inline void HeartbeatRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.HeartbeatRequest.userId)
+}
+
+// uint32 serverType = 2;
+inline void HeartbeatRequest::clear_servertype() {
+  servertype_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 HeartbeatRequest::_internal_servertype() const {
+  return servertype_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 HeartbeatRequest::servertype() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.HeartbeatRequest.serverType)
+  return _internal_servertype();
+}
+inline void HeartbeatRequest::_internal_set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  servertype_ = value;
+}
+inline void HeartbeatRequest::set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_servertype(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.HeartbeatRequest.serverType)
+}
+
+// uint32 serverId = 3;
+inline void HeartbeatRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 HeartbeatRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 HeartbeatRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.HeartbeatRequest.serverId)
+  return _internal_serverid();
+}
+inline void HeartbeatRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void HeartbeatRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.HeartbeatRequest.serverId)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "corpc_option.proto";
+import "common.proto";
 import "service_common.proto";
 
 option cc_generic_services = true;
@@ -13,7 +14,12 @@ service GameService {
 
     rpc forward(ForwardRequest) returns(corpc.Void)
     {
-        option (corpc.not_care_response) = true; // default is false
+        option (corpc.not_care_response) = true;
     }
 
+    // 注意：enterGame方法用于告诉游戏服向客户端发角色初始化数据，该方法可以重复调用，不应改变数据
+    rpc enterGame(Uint32Value) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+    }
 }

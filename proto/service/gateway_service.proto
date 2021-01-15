@@ -2,7 +2,6 @@ syntax = "proto3";
 
 import "corpc_option.proto";
 import "common.proto";
-import "service_common.proto";
 
 option cc_generic_services = true;
 
@@ -10,8 +9,21 @@ package wukong.pb;
 
 message HeartbeatRequest {
     uint32 userId = 1;
-    uint32 serverType = 2;
-    uint32 serverId = 3;
+    uint32 roleId = 2;
+    uint32 serverType = 3;
+    uint32 serverId = 4;
+}
+
+message ForwardOutTarget {
+    uint32 userId = 1;
+    uint32 roleId = 2;
+}
+
+message ForwardOutRequest {
+    int32 type = 1; // 消息类型
+    uint32 tag = 2; // 消息tag（用于客户端与服务器RPC）
+    repeated ForwardOutTarget targets = 3; // 发送目标
+    bytes rawMsg = 4; // 原始消息数据
 }
 
 service GatewayService {
@@ -35,14 +47,11 @@ service GatewayService {
         option (corpc.timeout) = 2000; // default is 0
     }
 
-    rpc forward(ForwardRequest) returns(corpc.Void)
+    rpc forwardOut(ForwardOutRequest) returns(corpc.Void)
     {
         option (corpc.not_care_response) = true; // default is false
     }
 
     // 玩家游戏对象向路由对象定时报告位置
-    rpc heartbeat(HeartbeatRequest) returns(corpc.Void)
-    {
-        option (corpc.not_care_response) = true; // default is false
-    }
+    rpc heartbeat(HeartbeatRequest) returns(BoolValue);
 }

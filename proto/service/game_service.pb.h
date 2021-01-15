@@ -28,12 +28,13 @@
 #include <google/protobuf/inlined_string_field.h>
 #include <google/protobuf/metadata_lite.h>
 #include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/service.h>
+#include <google/protobuf/unknown_field_set.h>
 #include "corpc_option.pb.h"
 #include "common.pb.h"
-#include "service_common.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_game_5fservice_2eproto
@@ -56,14 +57,219 @@ struct TableStruct_game_5fservice_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_game_5fservice_2eproto;
+namespace wukong {
+namespace pb {
+class ForwardInRequest;
+class ForwardInRequestDefaultTypeInternal;
+extern ForwardInRequestDefaultTypeInternal _ForwardInRequest_default_instance_;
+}  // namespace pb
+}  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
+template<> ::wukong::pb::ForwardInRequest* Arena::CreateMaybeMessage<::wukong::pb::ForwardInRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
 namespace pb {
 
 // ===================================================================
 
+class ForwardInRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.ForwardInRequest) */ {
+ public:
+  inline ForwardInRequest() : ForwardInRequest(nullptr) {};
+  virtual ~ForwardInRequest();
 
+  ForwardInRequest(const ForwardInRequest& from);
+  ForwardInRequest(ForwardInRequest&& from) noexcept
+    : ForwardInRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline ForwardInRequest& operator=(const ForwardInRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ForwardInRequest& operator=(ForwardInRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const ForwardInRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const ForwardInRequest* internal_default_instance() {
+    return reinterpret_cast<const ForwardInRequest*>(
+               &_ForwardInRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(ForwardInRequest& a, ForwardInRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ForwardInRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ForwardInRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ForwardInRequest* New() const final {
+    return CreateMaybeMessage<ForwardInRequest>(nullptr);
+  }
+
+  ForwardInRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ForwardInRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const ForwardInRequest& from);
+  void MergeFrom(const ForwardInRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ForwardInRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.ForwardInRequest";
+  }
+  protected:
+  explicit ForwardInRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_game_5fservice_2eproto);
+    return ::descriptor_table_game_5fservice_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kIdsFieldNumber = 3,
+    kRawMsgFieldNumber = 4,
+    kTypeFieldNumber = 1,
+    kTagFieldNumber = 2,
+  };
+  // repeated uint32 ids = 3;
+  int ids_size() const;
+  private:
+  int _internal_ids_size() const;
+  public:
+  void clear_ids();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_ids() const;
+  void _internal_add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_ids();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::uint32 ids(int index) const;
+  void set_ids(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      ids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_ids();
+
+  // bytes rawMsg = 4;
+  void clear_rawmsg();
+  const std::string& rawmsg() const;
+  void set_rawmsg(const std::string& value);
+  void set_rawmsg(std::string&& value);
+  void set_rawmsg(const char* value);
+  void set_rawmsg(const void* value, size_t size);
+  std::string* mutable_rawmsg();
+  std::string* release_rawmsg();
+  void set_allocated_rawmsg(std::string* rawmsg);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_rawmsg();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_rawmsg(
+      std::string* rawmsg);
+  private:
+  const std::string& _internal_rawmsg() const;
+  void _internal_set_rawmsg(const std::string& value);
+  std::string* _internal_mutable_rawmsg();
+  public:
+
+  // int32 type = 1;
+  void clear_type();
+  ::PROTOBUF_NAMESPACE_ID::int32 type() const;
+  void set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_type() const;
+  void _internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // uint32 tag = 2;
+  void clear_tag();
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag() const;
+  void set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_tag() const;
+  void _internal_set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.ForwardInRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > ids_;
+  mutable std::atomic<int> _ids_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rawmsg_;
+  ::PROTOBUF_NAMESPACE_ID::int32 type_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 tag_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_game_5fservice_2eproto;
+};
 // ===================================================================
 
 class GameService_Stub;
@@ -79,8 +285,8 @@ class GameService : public ::PROTOBUF_NAMESPACE_ID::Service {
 
   static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
 
-  virtual void forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::ForwardRequest* request,
+  virtual void forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardInRequest* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   virtual void enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
@@ -116,8 +322,8 @@ class GameService_Stub : public GameService {
 
   // implements GameService ------------------------------------------
 
-  void forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::ForwardRequest* request,
+  void forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardInRequest* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   void enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
@@ -140,6 +346,176 @@ class GameService_Stub : public GameService {
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// ForwardInRequest
+
+// int32 type = 1;
+inline void ForwardInRequest::clear_type() {
+  type_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ForwardInRequest::_internal_type() const {
+  return type_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ForwardInRequest::type() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.type)
+  return _internal_type();
+}
+inline void ForwardInRequest::_internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  type_ = value;
+}
+inline void ForwardInRequest::set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.type)
+}
+
+// uint32 tag = 2;
+inline void ForwardInRequest::clear_tag() {
+  tag_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::_internal_tag() const {
+  return tag_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::tag() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.tag)
+  return _internal_tag();
+}
+inline void ForwardInRequest::_internal_set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  tag_ = value;
+}
+inline void ForwardInRequest::set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_tag(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.tag)
+}
+
+// repeated uint32 ids = 3;
+inline int ForwardInRequest::_internal_ids_size() const {
+  return ids_.size();
+}
+inline int ForwardInRequest::ids_size() const {
+  return _internal_ids_size();
+}
+inline void ForwardInRequest::clear_ids() {
+  ids_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::_internal_ids(int index) const {
+  return ids_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::ids(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.ids)
+  return _internal_ids(index);
+}
+inline void ForwardInRequest::set_ids(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  ids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.ids)
+}
+inline void ForwardInRequest::_internal_add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  ids_.Add(value);
+}
+inline void ForwardInRequest::add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_ids(value);
+  // @@protoc_insertion_point(field_add:wukong.pb.ForwardInRequest.ids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+ForwardInRequest::_internal_ids() const {
+  return ids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+ForwardInRequest::ids() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.ForwardInRequest.ids)
+  return _internal_ids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+ForwardInRequest::_internal_mutable_ids() {
+  return &ids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+ForwardInRequest::mutable_ids() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.ForwardInRequest.ids)
+  return _internal_mutable_ids();
+}
+
+// bytes rawMsg = 4;
+inline void ForwardInRequest::clear_rawmsg() {
+  rawmsg_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& ForwardInRequest::rawmsg() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.rawMsg)
+  return _internal_rawmsg();
+}
+inline void ForwardInRequest::set_rawmsg(const std::string& value) {
+  _internal_set_rawmsg(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.rawMsg)
+}
+inline std::string* ForwardInRequest::mutable_rawmsg() {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ForwardInRequest.rawMsg)
+  return _internal_mutable_rawmsg();
+}
+inline const std::string& ForwardInRequest::_internal_rawmsg() const {
+  return rawmsg_.Get();
+}
+inline void ForwardInRequest::_internal_set_rawmsg(const std::string& value) {
+  
+  rawmsg_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void ForwardInRequest::set_rawmsg(std::string&& value) {
+  
+  rawmsg_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:wukong.pb.ForwardInRequest.rawMsg)
+}
+inline void ForwardInRequest::set_rawmsg(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  rawmsg_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:wukong.pb.ForwardInRequest.rawMsg)
+}
+inline void ForwardInRequest::set_rawmsg(const void* value,
+    size_t size) {
+  
+  rawmsg_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:wukong.pb.ForwardInRequest.rawMsg)
+}
+inline std::string* ForwardInRequest::_internal_mutable_rawmsg() {
+  
+  return rawmsg_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* ForwardInRequest::release_rawmsg() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ForwardInRequest.rawMsg)
+  return rawmsg_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void ForwardInRequest::set_allocated_rawmsg(std::string* rawmsg) {
+  if (rawmsg != nullptr) {
+    
+  } else {
+    
+  }
+  rawmsg_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), rawmsg,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ForwardInRequest.rawMsg)
+}
+inline std::string* ForwardInRequest::unsafe_arena_release_rawmsg() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:wukong.pb.ForwardInRequest.rawMsg)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return rawmsg_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void ForwardInRequest::unsafe_arena_set_allocated_rawmsg(
+    std::string* rawmsg) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (rawmsg != nullptr) {
+    
+  } else {
+    
+  }
+  rawmsg_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      rawmsg, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:wukong.pb.ForwardInRequest.rawMsg)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__

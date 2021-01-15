@@ -16,42 +16,382 @@
 #include <google/protobuf/port_def.inc>
 namespace wukong {
 namespace pb {
+class ForwardInRequestDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ForwardInRequest> _instance;
+} _ForwardInRequest_default_instance_;
 }  // namespace pb
 }  // namespace wukong
-static constexpr ::PROTOBUF_NAMESPACE_ID::Metadata* file_level_metadata_game_5fservice_2eproto = nullptr;
+static void InitDefaultsscc_info_ForwardInRequest_game_5fservice_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::wukong::pb::_ForwardInRequest_default_instance_;
+    new (ptr) ::wukong::pb::ForwardInRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::wukong::pb::ForwardInRequest::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ForwardInRequest_game_5fservice_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_ForwardInRequest_game_5fservice_2eproto}, {}};
+
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_game_5fservice_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_game_5fservice_2eproto = nullptr;
 static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_game_5fservice_2eproto[1];
-const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_game_5fservice_2eproto::offsets[1] = {};
-static constexpr ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema* schemas = nullptr;
-static constexpr ::PROTOBUF_NAMESPACE_ID::Message* const* file_default_instances = nullptr;
+
+const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_game_5fservice_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, type_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, tag_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, ids_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, rawmsg_),
+};
+static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  { 0, -1, sizeof(::wukong::pb::ForwardInRequest)},
+};
+
+static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_ForwardInRequest_default_instance_),
+};
 
 const char descriptor_table_protodef_game_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\022game_service.proto\022\twukong.pb\032\022corpc_o"
-  "ption.proto\032\014common.proto\032\024service_commo"
-  "n.proto2\204\001\n\013GameService\0227\n\007forward\022\031.wuk"
-  "ong.pb.ForwardRequest\032\013.corpc.Void\"\004\230\361\004\001"
-  "\0226\n\tenterGame\022\026.wukong.pb.Uint32Value\032\013."
-  "corpc.Void\"\004\230\361\004\001\032\004\200\361\004\002B\003\200\001\001b\006proto3"
+  "ption.proto\032\014common.proto\"J\n\020ForwardInRe"
+  "quest\022\014\n\004type\030\001 \001(\005\022\013\n\003tag\030\002 \001(\r\022\013\n\003ids\030"
+  "\003 \003(\r\022\016\n\006rawMsg\030\004 \001(\0142\210\001\n\013GameService\022;\n"
+  "\tforwardIn\022\033.wukong.pb.ForwardInRequest\032"
+  "\013.corpc.Void\"\004\230\361\004\001\0226\n\tenterGame\022\026.wukong"
+  ".pb.Uint32Value\032\013.corpc.Void\"\004\230\361\004\001\032\004\200\361\004\002"
+  "B\003\200\001\001b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_game_5fservice_2eproto_deps[3] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_game_5fservice_2eproto_deps[2] = {
   &::descriptor_table_common_2eproto,
   &::descriptor_table_corpc_5foption_2eproto,
-  &::descriptor_table_service_5fcommon_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_game_5fservice_2eproto_sccs[1] = {
+  &scc_info_ForwardInRequest_game_5fservice_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_game_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_game_5fservice_2eproto = {
-  false, false, descriptor_table_protodef_game_5fservice_2eproto, "game_service.proto", 235,
-  &descriptor_table_game_5fservice_2eproto_once, descriptor_table_game_5fservice_2eproto_sccs, descriptor_table_game_5fservice_2eproto_deps, 0, 3,
+  false, false, descriptor_table_protodef_game_5fservice_2eproto, "game_service.proto", 293,
+  &descriptor_table_game_5fservice_2eproto_once, descriptor_table_game_5fservice_2eproto_sccs, descriptor_table_game_5fservice_2eproto_deps, 1, 2,
   schemas, file_default_instances, TableStruct_game_5fservice_2eproto::offsets,
-  file_level_metadata_game_5fservice_2eproto, 0, file_level_enum_descriptors_game_5fservice_2eproto, file_level_service_descriptors_game_5fservice_2eproto,
+  file_level_metadata_game_5fservice_2eproto, 1, file_level_enum_descriptors_game_5fservice_2eproto, file_level_service_descriptors_game_5fservice_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
 static bool dynamic_init_dummy_game_5fservice_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_game_5fservice_2eproto)), true);
 namespace wukong {
 namespace pb {
+
+// ===================================================================
+
+void ForwardInRequest::InitAsDefaultInstance() {
+}
+class ForwardInRequest::_Internal {
+ public:
+};
+
+ForwardInRequest::ForwardInRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
+  ids_(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:wukong.pb.ForwardInRequest)
+}
+ForwardInRequest::ForwardInRequest(const ForwardInRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      ids_(from.ids_) {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  rawmsg_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_rawmsg().empty()) {
+    rawmsg_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_rawmsg(),
+      GetArena());
+  }
+  ::memcpy(&type_, &from.type_,
+    static_cast<size_t>(reinterpret_cast<char*>(&tag_) -
+    reinterpret_cast<char*>(&type_)) + sizeof(tag_));
+  // @@protoc_insertion_point(copy_constructor:wukong.pb.ForwardInRequest)
+}
+
+void ForwardInRequest::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ForwardInRequest_game_5fservice_2eproto.base);
+  rawmsg_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  ::memset(&type_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&tag_) -
+      reinterpret_cast<char*>(&type_)) + sizeof(tag_));
+}
+
+ForwardInRequest::~ForwardInRequest() {
+  // @@protoc_insertion_point(destructor:wukong.pb.ForwardInRequest)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void ForwardInRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
+  rawmsg_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void ForwardInRequest::ArenaDtor(void* object) {
+  ForwardInRequest* _this = reinterpret_cast< ForwardInRequest* >(object);
+  (void)_this;
+}
+void ForwardInRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void ForwardInRequest::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const ForwardInRequest& ForwardInRequest::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ForwardInRequest_game_5fservice_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void ForwardInRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:wukong.pb.ForwardInRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ids_.Clear();
+  rawmsg_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  ::memset(&type_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&tag_) -
+      reinterpret_cast<char*>(&type_)) + sizeof(tag_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* ForwardInRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // int32 type = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          type_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 tag = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          tag_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated uint32 ids = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_ids(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24) {
+          _internal_add_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes rawMsg = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          auto str = _internal_mutable_rawmsg();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* ForwardInRequest::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.ForwardInRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 type = 1;
+  if (this->type() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_type(), target);
+  }
+
+  // uint32 tag = 2;
+  if (this->tag() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_tag(), target);
+  }
+
+  // repeated uint32 ids = 3;
+  {
+    int byte_size = _ids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          3, _internal_ids(), byte_size, target);
+    }
+  }
+
+  // bytes rawMsg = 4;
+  if (this->rawmsg().size() > 0) {
+    target = stream->WriteBytesMaybeAliased(
+        4, this->_internal_rawmsg(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.ForwardInRequest)
+  return target;
+}
+
+size_t ForwardInRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:wukong.pb.ForwardInRequest)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated uint32 ids = 3;
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->ids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _ids_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // bytes rawMsg = 4;
+  if (this->rawmsg().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_rawmsg());
+  }
+
+  // int32 type = 1;
+  if (this->type() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_type());
+  }
+
+  // uint32 tag = 2;
+  if (this->tag() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_tag());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void ForwardInRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:wukong.pb.ForwardInRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  const ForwardInRequest* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ForwardInRequest>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:wukong.pb.ForwardInRequest)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:wukong.pb.ForwardInRequest)
+    MergeFrom(*source);
+  }
+}
+
+void ForwardInRequest::MergeFrom(const ForwardInRequest& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.ForwardInRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  ids_.MergeFrom(from.ids_);
+  if (from.rawmsg().size() > 0) {
+    _internal_set_rawmsg(from._internal_rawmsg());
+  }
+  if (from.type() != 0) {
+    _internal_set_type(from._internal_type());
+  }
+  if (from.tag() != 0) {
+    _internal_set_tag(from._internal_tag());
+  }
+}
+
+void ForwardInRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:wukong.pb.ForwardInRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ForwardInRequest::CopyFrom(const ForwardInRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.ForwardInRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ForwardInRequest::IsInitialized() const {
+  return true;
+}
+
+void ForwardInRequest::InternalSwap(ForwardInRequest* other) {
+  using std::swap;
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  ids_.InternalSwap(&other->ids_);
+  rawmsg_.Swap(&other->rawmsg_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(ForwardInRequest, tag_)
+      + sizeof(ForwardInRequest::tag_)
+      - PROTOBUF_FIELD_OFFSET(ForwardInRequest, type_)>(
+          reinterpret_cast<char*>(&type_),
+          reinterpret_cast<char*>(&other->type_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata ForwardInRequest::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
 
 // ===================================================================
 
@@ -66,11 +406,11 @@ const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GameService::GetDescriptor() {
   return descriptor();
 }
 
-void GameService::forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::ForwardRequest*,
+void GameService::forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::wukong::pb::ForwardInRequest*,
                          ::corpc::Void*,
                          ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method forward() not implemented.");
+  controller->SetFailed("Method forwardIn() not implemented.");
   done->Run();
 }
 
@@ -90,8 +430,8 @@ void GameService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* me
   GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_game_5fservice_2eproto[0]);
   switch(method->index()) {
     case 0:
-      forward(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::ForwardRequest*>(
+      forwardIn(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::ForwardInRequest*>(
                  request),
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
                  response),
@@ -116,7 +456,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& GameService::GetRequestPrototype(
   GOOGLE_DCHECK_EQ(method->service(), descriptor());
   switch(method->index()) {
     case 0:
-      return ::wukong::pb::ForwardRequest::default_instance();
+      return ::wukong::pb::ForwardInRequest::default_instance();
     case 1:
       return ::wukong::pb::Uint32Value::default_instance();
     default:
@@ -152,8 +492,8 @@ GameService_Stub::~GameService_Stub() {
   if (owns_channel_) delete channel_;
 }
 
-void GameService_Stub::forward(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::ForwardRequest* request,
+void GameService_Stub::forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::wukong::pb::ForwardInRequest* request,
                               ::corpc::Void* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(0),
@@ -171,6 +511,9 @@ void GameService_Stub::enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* control
 }  // namespace pb
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
+template<> PROTOBUF_NOINLINE ::wukong::pb::ForwardInRequest* Arena::CreateMaybeMessage< ::wukong::pb::ForwardInRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::wukong::pb::ForwardInRequest >(arena);
+}
 PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)

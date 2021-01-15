@@ -20,7 +20,6 @@
 #include <map>
 #include <vector>
 #include "corpc_rpc_client.h"
-#include "service_common.pb.h"
 #include "game_service.pb.h"
 #include "lobby_service.pb.h"
 #include "define.h"
@@ -60,7 +59,7 @@ namespace wukong {
         /* 业务逻辑 */
         bool loadRole(ServerId sid, RoleId roleId); // 加载角色（游戏对象）
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
-        void forward(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &rawMsg);
+        void forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &rawMsg);
     
         /* 加入Server */
         bool setServers(const std::map<ServerId, AddressInfo> &addresses);

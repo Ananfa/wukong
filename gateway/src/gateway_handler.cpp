@@ -34,7 +34,7 @@ void GatewayHandler::registerMessages(corpc::TcpMessageServer *server) {
 
 void GatewayHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
     // 登记未认证连接
-    DEBUG_LOG("GatewayHandler::connectHandle - %d[%d]\n", conn.get(), conn->getfd());
+    DEBUG_LOG("GatewayHandler::connectHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
 
     if (_manager->isShutdown()) {
         conn->close();
@@ -42,12 +42,13 @@ void GatewayHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<g
         if (conn->isOpen()) {
             _manager->addUnauthConn(conn);
         } else {
-            DEBUG_LOG("GatewayHandler::connectHandle - conn %d[%d] is not open\n", conn.get(), conn->getfd());
+            DEBUG_LOG("GatewayHandler::connectHandle -- conn %d[%d] is not open\n", conn.get(), conn->getfd());
         }
     }
 }
 
 void GatewayHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+    DEBUG_LOG("GatewayHandler::closeHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
     assert(!conn->isOpen());
     if (_manager->isUnauth(conn)) {
         _manager->removeUnauthConn(conn);
@@ -58,6 +59,7 @@ void GatewayHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<goo
 }
 
 void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+    DEBUG_LOG("GatewayHandler::banHandle -- msgType:%d\n", type);
     // 向客户端发屏蔽消息
     std::shared_ptr<pb::BanResponse> response(new pb::BanResponse);
     response->set_msgid(type);
@@ -66,6 +68,7 @@ void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<googl
 }
 
 void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+    DEBUG_LOG("GatewayHandler::authHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
     if (_manager->isShutdown()) {
         ERROR_LOG("GatewayHandler::authHandle -- server shutdown\n");
         if (conn->isOpen()) {
@@ -287,6 +290,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 
 
 void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+    DEBUG_LOG("GatewayHandler::bypassHandle -- msgType:%d\n", type);
     std::shared_ptr<RouteObject> ro = _manager->getConnectedRouteObject(conn);
     if (!ro) {
         ERROR_LOG("GatewayHandler::bypassHandle -- route object not found\n");

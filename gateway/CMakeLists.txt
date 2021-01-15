@@ -42,7 +42,6 @@ set(SOURCE_FILES
     ../utils/string_utils.cpp
     ../proto/common.pb.cc
     ../proto/game/game.pb.cc
-    ../proto/service/service_common.pb.cc
     ../proto/service/gateway_service.pb.cc
     ../proto/service/game_service.pb.cc
     ../proto/service/lobby_service.pb.cc)

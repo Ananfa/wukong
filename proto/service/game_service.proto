@@ -2,17 +2,23 @@ syntax = "proto3";
 
 import "corpc_option.proto";
 import "common.proto";
-import "service_common.proto";
 
 option cc_generic_services = true;
 
 package wukong.pb;
 
+message ForwardInRequest {
+    int32 type = 1; // 消息类型
+    uint32 tag = 2; // 消息tag（用于客户端与服务器RPC）
+    repeated uint32 ids = 3; // 发送目标（角色号列表）
+    bytes rawMsg = 4; // 原始消息数据
+}
+
 // 玩家游戏对象所在服务器需要实现GameService服务
 service GameService {
     option (corpc.global_service_id) = 2;
 
-    rpc forward(ForwardRequest) returns(corpc.Void)
+    rpc forwardIn(ForwardInRequest) returns(corpc.Void)
     {
         option (corpc.not_care_response) = true;
     }

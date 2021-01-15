@@ -18,7 +18,6 @@
 #define gateway_service_h
 
 #include "corpc_controller.h"
-#include "service_common.pb.h"
 #include "gateway_service.pb.h"
 #include "gateway_manager.h"
 
@@ -48,14 +47,14 @@ namespace wukong {
                                     ::wukong::pb::Uint32Value* response,
                                     ::google::protobuf::Closure* done);
 
-        virtual void forward(::google::protobuf::RpcController* controller,
-                             const ::wukong::pb::ForwardRequest* request,
-                             ::corpc::Void* response,
-                             ::google::protobuf::Closure* done);
+        virtual void forwardOut(::google::protobuf::RpcController* controller,
+                                const ::wukong::pb::ForwardOutRequest* request,
+                                ::corpc::Void* response,
+                                ::google::protobuf::Closure* done);
 
         virtual void heartbeat(::google::protobuf::RpcController* controller,
                                const ::wukong::pb::HeartbeatRequest* request,
-                               ::corpc::Void* response,
+                               ::wukong::pb::BoolValue* response,
                                ::google::protobuf::Closure* done);
 
     private:

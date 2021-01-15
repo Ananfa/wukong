@@ -149,7 +149,7 @@ void RouteObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::str
         return;
     }
     
-    pb::ForwardRequest *request = new pb::ForwardRequest();
+    pb::ForwardInRequest *request = new pb::ForwardInRequest();
     Controller *controller = new Controller();
     request->set_type(type);
 
@@ -163,7 +163,7 @@ void RouteObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::str
         request->set_rawmsg(rawMsg->c_str());
     }
     
-    _gameServerStub->forward(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    _gameServerStub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
 }
 
 void RouteObject::enterGame() {

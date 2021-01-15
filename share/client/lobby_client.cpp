@@ -52,7 +52,7 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
         kv.second.lobbyServiceStub->getOnlineCount(controller, request, response, nullptr);
         
         if (controller->Failed()) {
-            ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+            ERROR_LOG("LobbyClient::getServerInfos -- Rpc Call Failed : %s\n", controller->ErrorText().c_str());
             continue;
         } else {
             infos.push_back({kv.first, response->value(), 0});
@@ -71,15 +71,15 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
     return infos;
 }
 
-void LobbyClient::forward(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &msg) {
+void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &msg) {
     std::shared_ptr<pb::GameService_Stub> stub = getGameServiceStub(sid);
     
     if (!stub) {
-        ERROR_LOG("LobbyClient server %d stub not avaliable, waiting.\n", sid);
+        ERROR_LOG("LobbyClient::forwardIn -- server %d stub not avaliable, waiting.\n", sid);
         return;
     }
     
-    pb::ForwardRequest *request = new pb::ForwardRequest();
+    pb::ForwardInRequest *request = new pb::ForwardInRequest();
     Controller *controller = new Controller();
     request->set_type(type);
 
@@ -95,12 +95,12 @@ void LobbyClient::forward(ServerId sid, int16_t type, uint16_t tag, const std::v
         request->set_rawmsg(msg);
     }
     
-    stub->forward(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
 }
 
 bool LobbyClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {
     if (!_client) {
-        ERROR_LOG("LobbyClient not init\n");
+        ERROR_LOG("LobbyClient::setServers -- not init\n");
         return false;
     }
 

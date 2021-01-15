@@ -107,7 +107,7 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
     return infos;
 }
 
-void GatewayClient::forward(ServerId gatewayId, int32_t type, const std::vector<UserId> &userIds, const std::string &msg) {
+void GatewayClient::forwardOut(ServerId gatewayId, int32_t type, const std::vector<std::pair<UserId, RoleId>> &targets, const std::string &msg) {
     std::shared_ptr<pb::GatewayService_Stub> stub = getStub(gatewayId);
     
     if (!stub) {
@@ -118,15 +118,38 @@ void GatewayClient::forward(ServerId gatewayId, int32_t type, const std::vector<
     pb::ForwardRequest *request = new pb::ForwardRequest();
     Controller *controller = new Controller();
     request->set_type(type);
-    for (auto it = userIds.begin(); it != userIds.end(); it++) {
-        request->add_ids(*it);
+    for (auto it = targets.begin(); it != targets.end(); it++) {
+        ::wukong::pb::ForwardOutTarget* target = request->add_targets();
+        target->set_userid(it->first);
+        target->set_roleid(it->second);
     }
     
     if (!msg.empty()) {
         request->set_rawmsg(msg);
     }
     
-    stub->forward(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    stub->forwardOut(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+}
+
+bool GatewayClient::heartbeat(ServerId gatewayId, UserId userId, RoleId roleId, GameServerType stype, ServerId sid) {
+    pb::HeartbeatRequest *request = new pb::HeartbeatRequest();
+    pb::BoolValue *response = new pb::BoolValue();
+    Controller *controller = new Controller();
+    kv.second.stub->heartbeat(controller, request, response, nullptr);
+    
+    bool ret;
+    if (controller->Failed()) {
+        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+        ret = false;
+    } else {
+        ret = response->value();
+    }
+    
+    delete controller;
+    delete response;
+    delete request;
+
+    return ret;
 }
 
 bool GatewayClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {

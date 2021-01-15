@@ -30,33 +30,52 @@ void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
                               const ::wukong::pb::Uint32Value* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
-    // TODO: kick out one player
+    // TODO: 踢出玩家（销毁路由对象）
 }
 
 void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                         const ::corpc::Void* request,
                                         ::wukong::pb::Uint32Value* response,
                                         ::google::protobuf::Closure* done) {
-    // TODO: get online player count
+    // get online player count
+    response->set_value(_manager->getRouteObjectNum());
 }
 
-void GatewayServiceImpl::forward(::google::protobuf::RpcController* controller,
-                                 const ::wukong::pb::ForwardRequest* request,
+void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controller,
+                                 const ::wukong::pb::ForwardOutRequest* request,
                                  ::corpc::Void* response,
                                  ::google::protobuf::Closure* done) {
-    // TODO: forward message to player clients
+    for (int i = 0; i < request->targets_size(); i++) {
+        // 不论路由对象是否断线都进行转发，消息会存到消息缓存中
+        auto ro = _manager->getRouteObject(request->targets(i).userid());
+        if (!ro) {
+            DEBUG_LOG("GatewayServiceImpl::forwardOut -- route object not found\n");
+            continue;
+        }
+
+        std::shared_ptr<std::string> msg(new std::string(request->rawmsg()));
+        ro->getConn()->send(request->type(), true, true, request->tag(), msg);
+    }
 }
 
 void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
                                    const ::wukong::pb::HeartbeatRequest* request,
-                                   ::corpc::Void* response,
+                                   ::wukong::pb::BoolValue* response,
                                    ::google::protobuf::Closure* done) {
     std::shared_ptr<RouteObject> ro = _manager->getRouteObject(request->userid());
-    if (ro) {
-        struct timeval t;
-        gettimeofday(&t, NULL);
-        ro->_gameObjectHeartbeatExpire = t.tv_sec + 60;
-        ro->setGameServerStub(request->servertype(), request->serverid());
+    if (!ro) {
+        ERROR_LOG("GatewayServiceImpl::heartbeat -- route object not found\n");
+        return;
     }
 
+    if (ro->getRoleId() == request->roleid()) {
+        ERROR_LOG("GatewayServiceImpl::heartbeat -- roleid not match\n");
+        return;
+    }
+
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    ro->_gameObjectHeartbeatExpire = t.tv_sec + 60;
+    ro->setGameServerStub(request->servertype(), request->serverid());
+    response->set_value(true);
 }

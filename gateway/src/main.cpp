@@ -147,9 +147,11 @@ int main(int argc, char * argv[]) {
     // 初始化全局资源
     g_GatewayCenter.init();
     
-    // TODO: 初始化rpc clients
+    // 初始化rpc clients
     RpcClient *client = RpcClient::create(io);
-    // TODO: lobby client初始化
+    // lobby client初始化
+    g_LobbyClient.init(client);
+    // TODO: 初始化其他game client（实现game service的服务器client）
 
     // 根据servers配置启动Gateway服务，每线程跑一个服务
     std::vector<std::thread> gwThreads;

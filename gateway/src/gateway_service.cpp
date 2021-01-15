@@ -23,21 +23,20 @@ void GatewayServiceImpl::shutdown(::google::protobuf::RpcController* controller,
                                   const ::corpc::Void* request,
                                   ::corpc::Void* response,
                                   ::google::protobuf::Closure* done) {
-    // TODO: shutdown gateway -- kick out all player and forbit new connection
+    _manager->shutdown();
 }
 
 void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
                               const ::wukong::pb::Uint32Value* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
-    // TODO: 踢出玩家（销毁路由对象）
+    response->set_value(_manager->removeRouteObject(request->value()));
 }
 
 void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                         const ::corpc::Void* request,
                                         ::wukong::pb::Uint32Value* response,
                                         ::google::protobuf::Closure* done) {
-    // get online player count
     response->set_value(_manager->getRouteObjectNum());
 }
 

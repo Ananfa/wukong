@@ -119,7 +119,7 @@ void *RouteObject::heartbeatRoutine( void *arg ) {
         }
 
         if (success) {
-            // TODO: 判断游戏对象心跳是否过期
+            // 判断游戏对象心跳是否过期
             gettimeofday(&t, NULL);
             success = t.tv_sec < ro->_gameObjectHeartbeatExpire;
             if (!success) {

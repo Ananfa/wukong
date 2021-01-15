@@ -23,12 +23,6 @@
 
 namespace wukong {
     class GatewayServiceImpl : public pb::GatewayService {
-        // TODO: 玩家路由对象表
-        // TODO: 消息处理（新建连接处理、连接关闭处理、身份校验消息）
-        // TODO: 消息屏蔽相关逻辑（若屏蔽的消息带了tag，返回“屏蔽”错误消息也需带上tag）
-        // TODO: 旁路消息处理
-        // TODO: 接收和返回带tag号的消息（与客户端的RPC机制，消息头部增加tag号，转发消息给内部服务器时需要把tag号带上）
-
     public:
         GatewayServiceImpl(GatewayManager *manager): _manager(manager) {}
         

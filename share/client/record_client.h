@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2021/1/11.
+ * Created by Xianke Liu on 2021/1/15.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef lobby_client_h
-#define lobby_client_h
+#ifndef record_client_h
+#define record_client_h
 
 #include <map>
 #include <vector>
 #include "corpc_rpc_client.h"
-#include "game_service.pb.h"
-#include "lobby_service.pb.h"
+#include "record_service.pb.h"
 #include "define.h"
 
 using namespace corpc;
 
 namespace wukong {
-    class LobbyClient {
+    class RecordClient {
     public:
         struct AddressInfo {
             uint16_t id;
@@ -38,8 +37,7 @@ namespace wukong {
         struct StubInfo {
             std::string ip; // rpc服务ip
             uint16_t port; // rpc服务port
-            std::shared_ptr<pb::GameService_Stub> gameServiceStub;
-            std::shared_ptr<pb::LobbyService_Stub> lobbyServiceStub;
+            std::shared_ptr<pb::RecordService_Stub> stub;
         };
 
         struct ServerInfo {
@@ -49,24 +47,21 @@ namespace wukong {
         };
 
     public:
-        static LobbyClient& Instance() {
-            static LobbyClient instance;
+        static RecordClient& Instance() {
+            static RecordClient instance;
             return instance;
         }
 
         void init(RpcClient *client) { _client = client; }
 
         /* 业务逻辑 */
-        void shutdown();
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
-        uint32_t initRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
-        void forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &rawMsg);
-    
+        bool loadRole(ServerId sid, RoleId roleId, uint32_t lToken, std::string &roleData); // 加载角色（游戏对象）
+
         /* 加入Server */
         bool setServers(const std::map<ServerId, AddressInfo> &addresses);
-        /* 根据逻辑区服id获得LobbyServer的stub */
-        std::shared_ptr<pb::LobbyService_Stub> getLobbyServiceStub(ServerId sid);
-        std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid);
+        /* 根据逻辑区服id获得RecordServer的stub */
+        std::shared_ptr<pb::RecordService_Stub> getStub(ServerId sid);
         
         static bool parseAddress(const std::string &input, AddressInfo &addressInfo);
 
@@ -86,15 +81,15 @@ namespace wukong {
         static thread_local uint32_t _t_stubChangeNum;
 
     private:
-        LobbyClient() = default;                                // ctor hidden
-        ~LobbyClient() = default;                               // destruct hidden
-        LobbyClient(LobbyClient const&) = delete;               // copy ctor delete
-        LobbyClient(LobbyClient &&) = delete;                   // move ctor delete
-        LobbyClient& operator=(LobbyClient const&) = delete;    // assign op. delete
-        LobbyClient& operator=(LobbyClient &&) = delete;        // move assign op. delete
+        RecordClient() = default;                                // ctor hidden
+        ~RecordClient() = default;                               // destruct hidden
+        RecordClient(RecordClient const&) = delete;               // copy ctor delete
+        RecordClient(RecordClient &&) = delete;                   // move ctor delete
+        RecordClient& operator=(RecordClient const&) = delete;    // assign op. delete
+        RecordClient& operator=(RecordClient &&) = delete;        // move assign op. delete
     };
 }
     
-#define g_LobbyClient wukong::LobbyClient::Instance()
+#define g_RecordClient wukong::RecordClient::Instance()
 
-#endif /* lobby_client_h */
+#endif /* record_client_h */

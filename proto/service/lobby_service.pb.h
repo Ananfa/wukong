@@ -59,36 +59,36 @@ struct TableStruct_lobby_5fservice_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_lobby_5fservice_2eproto;
 namespace wukong {
 namespace pb {
-class LoadRoleRequest;
-class LoadRoleRequestDefaultTypeInternal;
-extern LoadRoleRequestDefaultTypeInternal _LoadRoleRequest_default_instance_;
+class InitRoleRequest;
+class InitRoleRequestDefaultTypeInternal;
+extern InitRoleRequestDefaultTypeInternal _InitRoleRequest_default_instance_;
 }  // namespace pb
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
-template<> ::wukong::pb::LoadRoleRequest* Arena::CreateMaybeMessage<::wukong::pb::LoadRoleRequest>(Arena*);
+template<> ::wukong::pb::InitRoleRequest* Arena::CreateMaybeMessage<::wukong::pb::InitRoleRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
 namespace pb {
 
 // ===================================================================
 
-class LoadRoleRequest PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.LoadRoleRequest) */ {
+class InitRoleRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.InitRoleRequest) */ {
  public:
-  inline LoadRoleRequest() : LoadRoleRequest(nullptr) {};
-  virtual ~LoadRoleRequest();
+  inline InitRoleRequest() : InitRoleRequest(nullptr) {};
+  virtual ~InitRoleRequest();
 
-  LoadRoleRequest(const LoadRoleRequest& from);
-  LoadRoleRequest(LoadRoleRequest&& from) noexcept
-    : LoadRoleRequest() {
+  InitRoleRequest(const InitRoleRequest& from);
+  InitRoleRequest(InitRoleRequest&& from) noexcept
+    : InitRoleRequest() {
     *this = ::std::move(from);
   }
 
-  inline LoadRoleRequest& operator=(const LoadRoleRequest& from) {
+  inline InitRoleRequest& operator=(const InitRoleRequest& from) {
     CopyFrom(from);
     return *this;
   }
-  inline LoadRoleRequest& operator=(LoadRoleRequest&& from) noexcept {
+  inline InitRoleRequest& operator=(InitRoleRequest&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -106,20 +106,20 @@ class LoadRoleRequest PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const LoadRoleRequest& default_instance();
+  static const InitRoleRequest& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const LoadRoleRequest* internal_default_instance() {
-    return reinterpret_cast<const LoadRoleRequest*>(
-               &_LoadRoleRequest_default_instance_);
+  static inline const InitRoleRequest* internal_default_instance() {
+    return reinterpret_cast<const InitRoleRequest*>(
+               &_InitRoleRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     0;
 
-  friend void swap(LoadRoleRequest& a, LoadRoleRequest& b) {
+  friend void swap(InitRoleRequest& a, InitRoleRequest& b) {
     a.Swap(&b);
   }
-  inline void Swap(LoadRoleRequest* other) {
+  inline void Swap(InitRoleRequest* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -127,7 +127,7 @@ class LoadRoleRequest PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(LoadRoleRequest* other) {
+  void UnsafeArenaSwap(InitRoleRequest* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -135,17 +135,17 @@ class LoadRoleRequest PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline LoadRoleRequest* New() const final {
-    return CreateMaybeMessage<LoadRoleRequest>(nullptr);
+  inline InitRoleRequest* New() const final {
+    return CreateMaybeMessage<InitRoleRequest>(nullptr);
   }
 
-  LoadRoleRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<LoadRoleRequest>(arena);
+  InitRoleRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<InitRoleRequest>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const LoadRoleRequest& from);
-  void MergeFrom(const LoadRoleRequest& from);
+  void CopyFrom(const InitRoleRequest& from);
+  void MergeFrom(const InitRoleRequest& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -159,13 +159,13 @@ class LoadRoleRequest PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(LoadRoleRequest* other);
+  void InternalSwap(InitRoleRequest* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "wukong.pb.LoadRoleRequest";
+    return "wukong.pb.InitRoleRequest";
   }
   protected:
-  explicit LoadRoleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit InitRoleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -187,6 +187,7 @@ class LoadRoleRequest PROTOBUF_FINAL :
   enum : int {
     kUserIdFieldNumber = 1,
     kRoleIdFieldNumber = 2,
+    kGatewayIdFieldNumber = 3,
   };
   // uint32 userId = 1;
   void clear_userid();
@@ -206,7 +207,16 @@ class LoadRoleRequest PROTOBUF_FINAL :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // @@protoc_insertion_point(class_scope:wukong.pb.LoadRoleRequest)
+  // uint32 gatewayId = 3;
+  void clear_gatewayid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid() const;
+  void set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_gatewayid() const;
+  void _internal_set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.InitRoleRequest)
  private:
   class _Internal;
 
@@ -215,6 +225,7 @@ class LoadRoleRequest PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_lobby_5fservice_2eproto;
 };
@@ -233,12 +244,16 @@ class LobbyService : public ::PROTOBUF_NAMESPACE_ID::Service {
 
   static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
 
-  virtual void loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::LoadRoleRequest* request,
-                       ::wukong::pb::BoolValue* response,
+  virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+  virtual void initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::InitRoleRequest* request,
                        ::wukong::pb::Uint32Value* response,
                        ::google::protobuf::Closure* done);
 
@@ -270,12 +285,16 @@ class LobbyService_Stub : public LobbyService {
 
   // implements LobbyService ------------------------------------------
 
-  void loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::LoadRoleRequest* request,
-                       ::wukong::pb::BoolValue* response,
+  void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+  void initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::InitRoleRequest* request,
                        ::wukong::pb::Uint32Value* response,
                        ::google::protobuf::Closure* done);
  private:
@@ -294,46 +313,66 @@ class LobbyService_Stub : public LobbyService {
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// LoadRoleRequest
+// InitRoleRequest
 
 // uint32 userId = 1;
-inline void LoadRoleRequest::clear_userid() {
+inline void InitRoleRequest::clear_userid() {
   userid_ = 0u;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::_internal_userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::_internal_userid() const {
   return userid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::userid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleRequest.userId)
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::userid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.InitRoleRequest.userId)
   return _internal_userid();
 }
-inline void LoadRoleRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void InitRoleRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   
   userid_ = value;
 }
-inline void LoadRoleRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void InitRoleRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.userId)
+  // @@protoc_insertion_point(field_set:wukong.pb.InitRoleRequest.userId)
 }
 
 // uint32 roleId = 2;
-inline void LoadRoleRequest::clear_roleid() {
+inline void InitRoleRequest::clear_roleid() {
   roleid_ = 0u;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::_internal_roleid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::_internal_roleid() const {
   return roleid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::roleid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleRequest.roleId)
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::roleid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.InitRoleRequest.roleId)
   return _internal_roleid();
 }
-inline void LoadRoleRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void InitRoleRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   
   roleid_ = value;
 }
-inline void LoadRoleRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void InitRoleRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_roleid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.roleId)
+  // @@protoc_insertion_point(field_set:wukong.pb.InitRoleRequest.roleId)
+}
+
+// uint32 gatewayId = 3;
+inline void InitRoleRequest::clear_gatewayid() {
+  gatewayid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::_internal_gatewayid() const {
+  return gatewayid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::gatewayid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.InitRoleRequest.gatewayId)
+  return _internal_gatewayid();
+}
+inline void InitRoleRequest::_internal_set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  gatewayid_ = value;
+}
+inline void InitRoleRequest::set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_gatewayid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.InitRoleRequest.gatewayId)
 }
 
 #ifdef __GNUC__

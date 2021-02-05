@@ -45,9 +45,14 @@ namespace wukong {
                                 const ::wukong::pb::ForwardOutRequest* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done);
+        
+        virtual void setGameObjectPos(::google::protobuf::RpcController* controller,
+                                      const ::wukong::pb::SetGameObjectPosRequest* request,
+                                      ::wukong::pb::BoolValue* response,
+                                      ::google::protobuf::Closure* done);
 
         virtual void heartbeat(::google::protobuf::RpcController* controller,
-                               const ::wukong::pb::HeartbeatRequest* request,
+                               const ::wukong::pb::GSHeartbeatRequest* request,
                                ::wukong::pb::BoolValue* response,
                                ::google::protobuf::Closure* done);
 

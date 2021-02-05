@@ -7,16 +7,9 @@ option cc_generic_services = true;
 
 package wukong.pb;
 
-message HeartbeatRequest {
-    uint32 userId = 1;
-    uint32 roleId = 2;
-    uint32 serverType = 3;
-    uint32 serverId = 4;
-}
-
 message ForwardOutTarget {
     uint32 userId = 1;
-    uint32 roleId = 2;
+    uint32 lToken = 2;
 }
 
 message ForwardOutRequest {
@@ -24,6 +17,18 @@ message ForwardOutRequest {
     uint32 tag = 2; // 消息tag（用于客户端与服务器RPC）
     repeated ForwardOutTarget targets = 3; // 发送目标
     bytes rawMsg = 4; // 原始消息数据
+}
+
+message SetGameObjectPosRequest {
+    uint32 userId = 1;
+    uint32 lToken = 2;
+    uint32 serverType = 3;
+    uint32 serverId = 4;
+}
+
+message GSHeartbeatRequest {
+    uint32 userId = 1;
+    uint32 lToken = 2;
 }
 
 service GatewayService {
@@ -52,6 +57,13 @@ service GatewayService {
         option (corpc.not_care_response) = true; // default is false
     }
 
-    // 玩家游戏对象向路由对象定时报告位置
-    rpc heartbeat(HeartbeatRequest) returns(BoolValue);
+    // 设置游戏对象位置（切场景时位置会改变）
+    rpc setGameObjectPos(SetGameObjectPosRequest) returns(BoolValue);
+
+    // 玩家游戏对象向路由对象定时心跳查看路由对象是否存在（超时时间2秒，负载过高心跳失败导致游戏对象销毁）
+    rpc heartbeat(GSHeartbeatRequest) returns(BoolValue)
+    {
+        option (corpc.timeout) = 2000; // default is 0
+    }
+
 }

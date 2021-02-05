@@ -33,8 +33,8 @@ void GatewayManager::shutdown() {
     // 销毁所有未认证连接
     clearUnauth();
 
-    // 销毁所有路由对象
-    clearRouteObject();
+    // 销毁所有网关对象
+    clearGatewayObject();
 }
 
 void GatewayManager::addUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
@@ -72,19 +72,19 @@ void GatewayManager::clearUnauth() {
     _unauthNodeMap.clear();
 }
 
-bool GatewayManager::hasRouteObject(UserId userId) {
-    return _userId2RouteObjectMap.find(userId) != _userId2RouteObjectMap.end() || _disconnectedNodeMap.find(userId) != _disconnectedNodeMap.end();
+bool GatewayManager::hasGatewayObject(UserId userId) {
+    return _userId2GatewayObjectMap.find(userId) != _userId2GatewayObjectMap.end() || _disconnectedNodeMap.find(userId) != _disconnectedNodeMap.end();
 }
 
-bool GatewayManager::removeRouteObject(UserId userId) {
-    auto it = _userId2RouteObjectMap.find(userId);
-    if (it != _userId2RouteObjectMap.end()) {
-        auto it1 = _connection2RouteObjectMap.find(it->second->getConn().get());
-        assert(it1 != _connection2RouteObjectMap.end());
+bool GatewayManager::removeGatewayObject(UserId userId) {
+    auto it = _userId2GatewayObjectMap.find(userId);
+    if (it != _userId2GatewayObjectMap.end()) {
+        auto it1 = _connection2GatewayObjectMap.find(it->second->getConn().get());
+        assert(it1 != _connection2GatewayObjectMap.end());
         it->second->getConn()->close();
         it->second->stop();
-        _connection2RouteObjectMap.erase(it1);
-        _userId2RouteObjectMap.erase(it);
+        _connection2GatewayObjectMap.erase(it1);
+        _userId2GatewayObjectMap.erase(it);
         return true;
     }
 
@@ -99,18 +99,18 @@ bool GatewayManager::removeRouteObject(UserId userId) {
     return false;
 }
 
-size_t GatewayManager::getRouteObjectNum() {
-    return _userId2RouteObjectMap.size() + _disconnectedNodeMap.size();
+size_t GatewayManager::getGatewayObjectNum() {
+    return _userId2GatewayObjectMap.size() + _disconnectedNodeMap.size();
 }
 
-void GatewayManager::clearRouteObject() {
+void GatewayManager::clearGatewayObject() {
     // 销毁所有正常routeObject
-    for (auto it = _userId2RouteObjectMap.begin(); it != _userId2RouteObjectMap.end(); it++) {
+    for (auto it = _userId2GatewayObjectMap.begin(); it != _userId2GatewayObjectMap.end(); it++) {
         it->second->getConn()->close();
         it->second->stop();
     }
-    _userId2RouteObjectMap.clear();
-    _connection2RouteObjectMap.clear();
+    _userId2GatewayObjectMap.clear();
+    _connection2GatewayObjectMap.clear();
 
     // 销毁所有断线routeObject
     for (auto it = _disconnectedNodeMap.begin(); it != _disconnectedNodeMap.end(); it++) {
@@ -120,9 +120,9 @@ void GatewayManager::clearRouteObject() {
     _disconnectedLink.clear();
 }
 
-std::shared_ptr<RouteObject> GatewayManager::getRouteObject(UserId userId) {
-    auto it = _userId2RouteObjectMap.find(userId);
-    if (it != _userId2RouteObjectMap.end()) {
+std::shared_ptr<GatewayObject> GatewayManager::getGatewayObject(UserId userId) {
+    auto it = _userId2GatewayObjectMap.find(userId);
+    if (it != _userId2GatewayObjectMap.end()) {
         return it->second;
     }
 
@@ -134,36 +134,36 @@ std::shared_ptr<RouteObject> GatewayManager::getRouteObject(UserId userId) {
     return nullptr;
 }
 
-std::shared_ptr<RouteObject> GatewayManager::getConnectedRouteObject(UserId userId) {
-    auto it = _userId2RouteObjectMap.find(userId);
-    if (it == _userId2RouteObjectMap.end()) {
+std::shared_ptr<GatewayObject> GatewayManager::getConnectedGatewayObject(UserId userId) {
+    auto it = _userId2GatewayObjectMap.find(userId);
+    if (it == _userId2GatewayObjectMap.end()) {
         return nullptr;
     }
 
     return it->second;
 }
 
-std::shared_ptr<RouteObject> GatewayManager::getConnectedRouteObject(std::shared_ptr<MessageServer::Connection> &conn) {
-    auto it = _connection2RouteObjectMap.find(conn.get());
-    if (it == _connection2RouteObjectMap.end()) {
+std::shared_ptr<GatewayObject> GatewayManager::getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn) {
+    auto it = _connection2GatewayObjectMap.find(conn.get());
+    if (it == _connection2GatewayObjectMap.end()) {
         return nullptr;
     }
 
     return it->second;
 }
 
-void GatewayManager::addConnectedRouteObject(std::shared_ptr<RouteObject> &ro) {
-    _userId2RouteObjectMap.insert(std::make_pair(ro->getUserId(), ro));
-    _connection2RouteObjectMap.insert(std::make_pair(ro->getConn().get(), ro));
+void GatewayManager::addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj) {
+    _userId2GatewayObjectMap.insert(std::make_pair(obj->getUserId(), obj));
+    _connection2GatewayObjectMap.insert(std::make_pair(obj->getConn().get(), obj));
 }
 
-int GatewayManager::tryChangeRouteObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn) {
-    // 如果玩家路由对象已存在，将路由对象中的conn更换，并将原conn断线，转移消息缓存
-    auto it = _userId2RouteObjectMap.find(userId);
-    if (it != _userId2RouteObjectMap.end()) {
-        assert(_connection2RouteObjectMap.find(it->second->getConn().get()) != _connection2RouteObjectMap.end());
-        if (it->second->getToken() == token) {
-            _connection2RouteObjectMap.erase(it->second->getConn().get());
+int GatewayManager::tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn) {
+    // 如果玩家网关对象已存在，将网关对象中的conn更换，并将原conn断线，转移消息缓存
+    auto it = _userId2GatewayObjectMap.find(userId);
+    if (it != _userId2GatewayObjectMap.end()) {
+        assert(_connection2GatewayObjectMap.find(it->second->getConn().get()) != _connection2GatewayObjectMap.end());
+        if (it->second->getGToken() == token) {
+            _connection2GatewayObjectMap.erase(it->second->getConn().get());
 
             if (it->second->getConn()->isOpen()) {
                 it->second->getConn()->close();
@@ -172,23 +172,23 @@ int GatewayManager::tryChangeRouteObjectConn(UserId userId, const std::string &t
             // 转移消息缓存
             newConn->setMsgBuffer(it->second->getConn()->getMsgBuffer());
             it->second->setConn(newConn);
-            _connection2RouteObjectMap.insert(std::make_pair(newConn.get(), it->second));
+            _connection2GatewayObjectMap.insert(std::make_pair(newConn.get(), it->second));
             return 1;
         } else {
             return -1;
         }
     }
 
-    // 若路由对象处于断线状态中，从断线表移出，并移入正常表，设置路由对象中的conn
+    // 若网关对象处于断线状态中，从断线表移出，并移入正常表，设置网关对象中的conn
     auto it1 = _disconnectedNodeMap.find(userId);
     if (it1 != _disconnectedNodeMap.end()) {
-        assert(_userId2RouteObjectMap.find(userId) == _userId2RouteObjectMap.end());
+        assert(_userId2GatewayObjectMap.find(userId) == _userId2GatewayObjectMap.end());
 
-        if (it1->second->data->getToken() == token) {
+        if (it1->second->data->getGToken() == token) {
             // 转移消息缓存
             newConn->setMsgBuffer(it1->second->data->getConn()->getMsgBuffer());
-            _userId2RouteObjectMap.insert(std::make_pair(userId, it1->second->data));
-            _connection2RouteObjectMap.insert(std::make_pair(newConn.get(), it1->second->data));
+            _userId2GatewayObjectMap.insert(std::make_pair(userId, it1->second->data));
+            _connection2GatewayObjectMap.insert(std::make_pair(newConn.get(), it1->second->data));
 
             _disconnectedLink.erase(it1->second);
             _disconnectedNodeMap.erase(userId);
@@ -202,18 +202,18 @@ int GatewayManager::tryChangeRouteObjectConn(UserId userId, const std::string &t
 }
 
 bool GatewayManager::tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Connection> &conn) {
-    auto it = _connection2RouteObjectMap.find(conn.get());
-    if (it == _connection2RouteObjectMap.end()) {
+    auto it = _connection2GatewayObjectMap.find(conn.get());
+    if (it == _connection2GatewayObjectMap.end()) {
         return false;
     }
 
-    auto it1 = _userId2RouteObjectMap.find(it->second->getUserId());
-    assert(it1 != _userId2RouteObjectMap.end());
-    _userId2RouteObjectMap.erase(it1);
+    auto it1 = _userId2GatewayObjectMap.find(it->second->getUserId());
+    assert(it1 != _userId2GatewayObjectMap.end());
+    _userId2GatewayObjectMap.erase(it1);
 
-    RouteObjectTimeLink::Node *node = new RouteObjectTimeLink::Node;
+    GatewayObjectTimeLink::Node *node = new GatewayObjectTimeLink::Node;
     node->data = std::move(it->second);
-    _connection2RouteObjectMap.erase(it);
+    _connection2GatewayObjectMap.erase(it);
     _disconnectedLink.push(node);
     _disconnectedNodeMap.insert(std::make_pair(node->data->getUserId(), node));
     return true;
@@ -246,15 +246,15 @@ void *GatewayManager::clearExpiredDisconnectedRoutine( void *arg ) {
 
     time_t now;
     
-    // 每秒清理一次超时断线路由对象
+    // 每秒清理一次超时断线网关对象
     while (true) {
         sleep(1);
         
         time(&now);
         
-        RouteObjectTimeLink::Node *node = self->_disconnectedLink.getHead();
+        GatewayObjectTimeLink::Node *node = self->_disconnectedLink.getHead();
         while (node && node->time + g_GatewayConfig.getDisconnectTimeout() < now) {
-            self->removeRouteObject(node->data->getUserId());
+            self->removeGatewayObject(node->data->getUserId());
             node = self->_disconnectedLink.getHead();
         }
     }

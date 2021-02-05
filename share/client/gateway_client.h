@@ -61,10 +61,9 @@ namespace wukong {
 
         /* 业务逻辑 */
         void shutdown();
-        bool kick(ServerId gatewayId, UserId userId);
+        bool kick(ServerId sid, UserId userId);
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
-        void forwardOut(ServerId gatewayId, int32_t type, const std::vector<std::pair<UserId, RoleId>> &targets, const std::string &rawMsg);
-        bool heartbeat(ServerId gatewayId, UserId userId, RoleId roleId, GameServerType stype, ServerId sid);
+        void broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &rawMsg);
     
         /* 加入Server */
         bool setServers(const std::map<ServerId, AddressInfo> &addresses);

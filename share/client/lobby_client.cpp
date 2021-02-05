@@ -31,8 +31,16 @@ static void callDoneHandle(::google::protobuf::Message *request, Controller *con
     delete request;
 }
 
-bool LobbyClient::loadRole(ServerId sid, RoleId roleId) {
-    // TODO:
+void LobbyClient::shutdown() {
+    refreshStubs();
+    std::map<ServerId, LobbyClient::StubInfo> stubs = _t_stubs;
+    
+    for (const auto& kv : stubs) {
+        corpc::Void *request = new corpc::Void();
+        Controller *controller = new Controller();
+        
+        kv.second.lobbyServiceStub->shutdown(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    }
 }
 
 std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
@@ -71,11 +79,41 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
     return infos;
 }
 
+uint32_t LobbyClient::initRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId) {
+    std::shared_ptr<pb::LobbyService_Stub> stub = getLobbyServiceStub(sid);
+    uint32_t ret = 0;
+
+    if (!stub) {
+        ERROR_LOG("LobbyClient::initRole -- lobby server %d stub not avaliable, waiting.\n", sid);
+        return ret;
+    }
+
+    pb::InitRoleRequest *request = new pb::InitRoleRequest();
+    pb::Uint32Value *response = new pb::Uint32Value();
+    Controller *controller = new Controller();
+    request->set_userid(userId);
+    request->set_roleid(roleId);
+    request->set_gatewayid(gwId);
+    stub->initRole(controller, request, response, nullptr);
+
+    if (controller->Failed()) {
+        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+    } else {
+        ret = response->value();
+    }
+
+    delete controller;
+    delete response;
+    delete request;
+
+    return ret;
+}
+
 void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &msg) {
     std::shared_ptr<pb::GameService_Stub> stub = getGameServiceStub(sid);
     
     if (!stub) {
-        ERROR_LOG("LobbyClient::forwardIn -- server %d stub not avaliable, waiting.\n", sid);
+        ERROR_LOG("LobbyClient::forwardIn -- lobby server %d stub not avaliable, waiting.\n", sid);
         return;
     }
     

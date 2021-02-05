@@ -20,15 +20,14 @@
 #include "corpc_message_server.h"
 #include "corpc_redis.h"
 #include "timelink.h"
-#include "route_object.h"
+#include "gateway_object.h"
 #include "share/define.h"
-#include "game_service.pb.h"
 
 using namespace corpc;
 
 namespace wukong {
     typedef TimeLink<MessageServer::Connection> MessageConnectionTimeLink;
-    typedef TimeLink<RouteObject> RouteObjectTimeLink;
+    typedef TimeLink<GatewayObject> GatewayObjectTimeLink;
 
     class GatewayManager {
     public:
@@ -47,29 +46,29 @@ namespace wukong {
         void clearUnauth();
         size_t unauthSize() const { return _unauthNodeMap.size(); }
 
-        bool hasRouteObject(UserId userId); // 判断玩家路由对象是否存在（包括已连接及断线中）
-        bool removeRouteObject(UserId userId); // 删除玩家路由对象（包括已连接及断线中）
-        size_t getRouteObjectNum(); // 获取当前路由对象数
-        void clearRouteObject(); // 清理所有路由对象
+        bool hasGatewayObject(UserId userId); // 判断玩家网关对象是否存在（包括已连接及断线中）
+        bool removeGatewayObject(UserId userId); // 删除玩家网关对象（包括已连接及断线中）
+        size_t getGatewayObjectNum(); // 获取当前网关对象数
+        void clearGatewayObject(); // 清理所有网关对象
 
-        std::shared_ptr<RouteObject> getRouteObject(UserId userId); // 获取玩家路由对象（包括已连接及断线中）
+        std::shared_ptr<GatewayObject> getGatewayObject(UserId userId); // 获取玩家网关对象（包括已连接及断线中）
 
-        // 获取已连接的路由对象
-        std::shared_ptr<RouteObject> getConnectedRouteObject(UserId userId);
-        std::shared_ptr<RouteObject> getConnectedRouteObject(std::shared_ptr<MessageServer::Connection> &conn);
+        // 获取已连接的网关对象
+        std::shared_ptr<GatewayObject> getConnectedGatewayObject(UserId userId);
+        std::shared_ptr<GatewayObject> getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn);
 
-        void addConnectedRouteObject(std::shared_ptr<RouteObject> &ro);
+        void addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj);
 
-        // tryChangeRouteObjectConn方法当token一致时更新路由对象（包括已连接及断线中）的客户端连接
-        // 返回：-1.token不一致更换失败 0.路由对象不存在 1.更换成功
-        int tryChangeRouteObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn);
+        // tryChangeGatewayObjectConn方法当token一致时更新网关对象（包括已连接及断线中）的客户端连接
+        // 返回：-1.token不一致更换失败 0.网关对象不存在 1.更换成功
+        int tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn);
 
-        // tryMoveToDisconnectedLink将路由对象从已连接表转移到断线表，若没有找到返回false
+        // tryMoveToDisconnectedLink将网关对象从已连接表转移到断线表，若没有找到返回false
         bool tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Connection> &conn);
 
     private:
         static void *clearExpiredUnauthRoutine( void *arg );  // 清理过时未认证连接
-        static void *clearExpiredDisconnectedRoutine( void *arg ); // 清理过时断线路由对象
+        static void *clearExpiredDisconnectedRoutine( void *arg ); // 清理过时断线网关对象
 
     private:
         ServerId _id;       // gateway服务号
@@ -79,13 +78,13 @@ namespace wukong {
         MessageConnectionTimeLink _unauthLink;
         std::map<MessageServer::Connection*, MessageConnectionTimeLink::Node*> _unauthNodeMap;
     
-        // 断线中的路由对象相关数据结构（等待过期清理或者断线重连）
-        RouteObjectTimeLink _disconnectedLink;
-        std::map<UserId, RouteObjectTimeLink::Node*> _disconnectedNodeMap;
+        // 断线中的网关对象相关数据结构（等待过期清理或者断线重连）
+        GatewayObjectTimeLink _disconnectedLink;
+        std::map<UserId, GatewayObjectTimeLink::Node*> _disconnectedNodeMap;
 
-        // 正常路由对象列表
-        std::map<UserId, std::shared_ptr<RouteObject>> _userId2RouteObjectMap;
-        std::map<MessageServer::Connection*, std::shared_ptr<RouteObject>> _connection2RouteObjectMap;
+        // 正常网关对象列表
+        std::map<UserId, std::shared_ptr<GatewayObject>> _userId2GatewayObjectMap;
+        std::map<MessageServer::Connection*, std::shared_ptr<GatewayObject>> _connection2GatewayObjectMap;
     };
 
 }

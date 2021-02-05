@@ -30,14 +30,14 @@ void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
                               const ::wukong::pb::Uint32Value* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
-    response->set_value(_manager->removeRouteObject(request->value()));
+    response->set_value(_manager->removeGatewayObject(request->value()));
 }
 
 void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                         const ::corpc::Void* request,
                                         ::wukong::pb::Uint32Value* response,
                                         ::google::protobuf::Closure* done) {
-    response->set_value(_manager->getRouteObjectNum());
+    response->set_value(_manager->getGatewayObjectNum());
 }
 
 void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controller,
@@ -45,36 +45,63 @@ void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controlle
                                  ::corpc::Void* response,
                                  ::google::protobuf::Closure* done) {
     for (int i = 0; i < request->targets_size(); i++) {
-        // 不论路由对象是否断线都进行转发，消息会存到消息缓存中
-        auto ro = _manager->getRouteObject(request->targets(i).userid());
-        if (!ro) {
-            DEBUG_LOG("GatewayServiceImpl::forwardOut -- route object not found\n");
+        // 不论网关对象是否断线都进行转发，消息会存到消息缓存中
+        const ::wukong::pb::ForwardOutTarget& target = request->targets(i);
+        auto obj = _manager->getGatewayObject(target.userid());
+        if (!obj) {
+            DEBUG_LOG("GatewayServiceImpl::forwardOut -- gateway object not found\n");
+            continue;
+        }
+
+        if (obj->getLToken() != target.ltoken()) {
+            DEBUG_LOG("GatewayServiceImpl::forwardOut -- gateway object ltoken not match\n");
             continue;
         }
 
         std::shared_ptr<std::string> msg(new std::string(request->rawmsg()));
-        ro->getConn()->send(request->type(), true, true, request->tag(), msg);
+        obj->getConn()->send(request->type(), true, true, request->tag(), msg);
     }
 }
 
-void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
-                                   const ::wukong::pb::HeartbeatRequest* request,
-                                   ::wukong::pb::BoolValue* response,
-                                   ::google::protobuf::Closure* done) {
-    std::shared_ptr<RouteObject> ro = _manager->getRouteObject(request->userid());
-    if (!ro) {
-        ERROR_LOG("GatewayServiceImpl::heartbeat -- route object not found\n");
+void GatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController* controller,
+                                          const ::wukong::pb::SetGameObjectPosRequest* request,
+                                          ::wukong::pb::BoolValue* response,
+                                          ::google::protobuf::Closure* done) {
+    std::shared_ptr<GatewayObject> obj = _manager->getGatewayObject(request->userid());
+    if (!obj) {
+        ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- gateway object not found\n");
         return;
     }
 
-    if (ro->getRoleId() == request->roleid()) {
-        ERROR_LOG("GatewayServiceImpl::heartbeat -- roleid not match\n");
+    if (obj->getLToken() == request->ltoken()) {
+        ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- ltoken not match\n");
         return;
     }
 
     struct timeval t;
     gettimeofday(&t, NULL);
-    ro->_gameObjectHeartbeatExpire = t.tv_sec + 60;
-    ro->setGameServerStub(request->servertype(), request->serverid());
+    obj->_gameObjectHeartbeatExpire = t.tv_sec + 60;
+    obj->setGameServerStub(request->servertype(), request->serverid());
+    response->set_value(true);
+}
+
+void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
+                                   const ::wukong::pb::GSHeartbeatRequest* request,
+                                   ::wukong::pb::BoolValue* response,
+                                   ::google::protobuf::Closure* done) {
+    std::shared_ptr<GatewayObject> obj = _manager->getGatewayObject(request->userid());
+    if (!obj) {
+        ERROR_LOG("GatewayServiceImpl::heartbeat -- gateway object not found\n");
+        return;
+    }
+
+    if (obj->getLToken() == request->ltoken()) {
+        ERROR_LOG("GatewayServiceImpl::heartbeat -- ltoken not match\n");
+        return;
+    }
+
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    obj->_gameObjectHeartbeatExpire = t.tv_sec + 60;
     response->set_value(true);
 }

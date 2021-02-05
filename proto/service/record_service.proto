@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+import "corpc_option.proto";
+import "common.proto";
+
+option cc_generic_services = true;
+
+package wukong.pb;
+
+message LoadRoleRequest {
+    uint32 lToken = 1;
+    uint32 roleId = 2;
+}
+
+message LoadRoleResponse {
+    uint32 errCode = 1;
+    bytes data = 2;
+}
+
+message SyncData {
+    string key = 1;
+    bytes value = 2;
+}
+
+message SyncRequest {
+    uint32 lToken = 1;
+    uint32 roleId = 2;
+    repeated SyncData datas = 3;
+}
+
+message RSHeartbeatRequest {
+    uint32 roleId = 1;
+    uint32 lToken = 2;
+}
+
+// 玩家游戏对象所在服务器需要实现GameService服务
+service RecordService {
+    option (corpc.global_service_id) = 4;
+
+    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
+    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+    {
+        option (corpc.timeout) = 1000; // default is 0
+    }
+
+    // 加载指定角色
+    rpc loadRole(LoadRoleRequest) returns(LoadRoleResponse)
+    {
+        option (corpc.need_coroutine) = true; // default is false
+    }
+
+    // 保存数据
+    rpc sync(SyncRequest) returns(BoolValue)
+    {
+        option (corpc.timeout) = 2000; // default is 0
+    }
+
+    // 玩家游戏对象向路由对象定时心跳查看路由对象是否存在（超时时间2秒，负载过高心跳失败导致游戏对象销毁）
+    rpc heartbeat(RSHeartbeatRequest) returns(BoolValue)
+    {
+        option (corpc.timeout) = 2000; // default is 0
+    }
+}

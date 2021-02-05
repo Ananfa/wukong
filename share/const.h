@@ -21,7 +21,12 @@ namespace wukong {
     const GameServerType GAME_SERVER_TYPE_SCENE    = 2;
 
     const std::string ZK_DEFAULT_VALUE             = "1";
-    const int ZK_TIMEOUT                           = 3000;
+    const int ZK_TIMEOUT                           = 3000; // 单位毫秒
+
+    const int TOKEN_TIMEOUT                        = 60; // 令牌超时时间，单位秒
+    const int TOKEN_HEARTBEAT_PERIOD               = 20; // 令牌心跳周期，单位秒
+
+    const int SYNC_PERIOD                          = 5; // 游戏服向记录服同步数据周期，单位秒
 
     // 客户端向服务器发的消息ID定义
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息
@@ -32,9 +37,8 @@ namespace wukong {
     const char SET_SESSION_CMD[] = "\
         local ret=redis.call('hsetnx',KEYS[1],'gToken',ARGV[1])\
         if ret==1 then\
-          redis.call('hset',KEYS[1],'gateId',ARGV[2])\
-          redis.call('hset',KEYS[1],'roleId',ARGV[3])\
-          redis.call('expire',KEYS[1],60)\
+          redis.call('hmset',KEYS[1],'gateId',ARGV[2],'roleId',ARGV[3])\
+          redis.call('expire',KEYS[1],ARGV[4])\
           return 1\
         else\
           return 0\
@@ -73,8 +77,36 @@ namespace wukong {
         local ret = redis.call('expire',KEYS[1],ARGV[2])\
         return ret";
 
+    const char SET_LOCATION_CMD[] = "\
+        local ret = redis.call('hsetnx',KEYS[1],'lToken',ARGV[1])\
+        if ret==1 then\
+          redis.call('hset',KEYS[1],'loc',ARGV[2])\
+          redis.call('expire',KEYS[1],ARGV[3])\
+          return 1\
+        else\
+          return 0\
+        end";
 
+    const char UPDATE_LOCATION_CMD[] = "\
+        local lToken = redis.call('hget',KEYS[1],'lToken')\
+        if not lToken then\
+          return 0\
+        elseif lToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('hset',KEYS[1],'loc',ARGV[2])\
+        redis.call('expire',KEYS[1],ARGV[3])\
+        return 1";
 
+      const char SET_LOCATION_EXPIRE_CMD[] = "\
+        local lToken = redis.call('hget',KEYS[1],'lToken')\
+        if not lToken then\
+          return 0\
+        elseif lToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('expire',KEYS[1],ARGV[2])\
+        return 1";
 }
 
 #endif /* const_h */

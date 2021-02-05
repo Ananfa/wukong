@@ -43,11 +43,11 @@ void GatewayClient::shutdown() {
     }
 }
 
-bool GatewayClient::kick(ServerId gatewayId, UserId userId) {
-    std::shared_ptr<pb::GatewayService_Stub> stub = getStub(gatewayId);
+bool GatewayClient::kick(ServerId sid, UserId userId) {
+    std::shared_ptr<pb::GatewayService_Stub> stub = getStub(sid);
     
     if (!stub) {
-        ERROR_LOG("GatewayClient server %d stub not avaliable, waiting.\n", gatewayId);
+        ERROR_LOG("GatewayClient::kick -- server %d stub not avaliable, waiting.\n", sid);
         return false;
     }
 
@@ -107,21 +107,22 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
     return infos;
 }
 
-void GatewayClient::forwardOut(ServerId gatewayId, int32_t type, const std::vector<std::pair<UserId, RoleId>> &targets, const std::string &msg) {
-    std::shared_ptr<pb::GatewayService_Stub> stub = getStub(gatewayId);
+void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &msg) {
+    std::shared_ptr<pb::GatewayService_Stub> stub = getStub(sid);
     
     if (!stub) {
-        ERROR_LOG("GatewayClient server %d stub not avaliable, waiting.\n", gatewayId);
+        ERROR_LOG("GatewayClient::broadcast -- server %d stub not avaliable, waiting.\n", sid);
         return;
     }
     
-    pb::ForwardRequest *request = new pb::ForwardRequest();
+    pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
     Controller *controller = new Controller();
     request->set_type(type);
+    request->set_tag(tag);
     for (auto it = targets.begin(); it != targets.end(); it++) {
         ::wukong::pb::ForwardOutTarget* target = request->add_targets();
         target->set_userid(it->first);
-        target->set_roleid(it->second);
+        target->set_ltoken(it->second);
     }
     
     if (!msg.empty()) {
@@ -131,30 +132,9 @@ void GatewayClient::forwardOut(ServerId gatewayId, int32_t type, const std::vect
     stub->forwardOut(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
 }
 
-bool GatewayClient::heartbeat(ServerId gatewayId, UserId userId, RoleId roleId, GameServerType stype, ServerId sid) {
-    pb::HeartbeatRequest *request = new pb::HeartbeatRequest();
-    pb::BoolValue *response = new pb::BoolValue();
-    Controller *controller = new Controller();
-    kv.second.stub->heartbeat(controller, request, response, nullptr);
-    
-    bool ret;
-    if (controller->Failed()) {
-        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
-        ret = false;
-    } else {
-        ret = response->value();
-    }
-    
-    delete controller;
-    delete response;
-    delete request;
-
-    return ret;
-}
-
 bool GatewayClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {
     if (!_client) {
-        ERROR_LOG("GatewayClient not init\n");
+        ERROR_LOG("GatewayClient::setServers -- not init\n");
         return false;
     }
     

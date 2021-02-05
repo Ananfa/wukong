@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef route_object_h
-#define route_object_h
+#ifndef gateway_object_h
+#define gateway_object_h
 
 #include "corpc_message_server.h"
 #include "share/define.h"
@@ -24,20 +24,22 @@
 using namespace corpc;
 
 namespace wukong {
-    class RouteObject;
+    class GatewayObject;
     class GatewayManager;
 
-    struct RouteObjectHeartbeatInfo {
-        std::shared_ptr<RouteObject> ro;
+    struct GatewayObjectRoutineArg {
+        std::shared_ptr<GatewayObject> obj;
     };
 
-    class RouteObject: public std::enable_shared_from_this<RouteObject> {
+    class GatewayObject: public std::enable_shared_from_this<GatewayObject> {
     public:
-        RouteObject(UserId userId, RoleId roleId, const std::string &token, std::shared_ptr<MessageServer::Connection> &conn, GatewayManager *manager): _userId(userId), _roleId(roleId), _token(token), _conn(conn), _manager(manager), _running(false) {}
+        GatewayObject(UserId userId, RoleId roleId, const std::string &gToken, std::shared_ptr<MessageServer::Connection> &conn, GatewayManager *manager): _userId(userId), _roleId(roleId), _gToken(gToken), _conn(conn), _manager(manager), _running(false) {}
 
         std::shared_ptr<MessageServer::Connection> &getConn() { return _conn; }
         std::shared_ptr<pb::GameService_Stub> &getGameServerStub() { return _gameServerStub; }
-        const std::string &getToken() { return _token; }
+        const std::string &getGToken() { return _gToken; }
+        void setLToken(uint32_t lToken) { _lToken = lToken; }
+        uint32_t &getLToken() { return _lToken; }
         UserId getUserId() { return _userId; }
         RoleId getRoleId() { return _roleId; }
 
@@ -52,14 +54,15 @@ namespace wukong {
         void enterGame(); // 通知进入游戏
 
     private:
-        static void *heartbeatRoutine( void *arg );  // 心跳协程，周期对session重设超时时间，心跳失败时需通知Manager销毁路由对象
+        static void *heartbeatRoutine( void *arg );  // 心跳协程，周期对session重设超时时间，心跳失败时需通知Manager销毁网关对象
 
     private:
         std::shared_ptr<MessageServer::Connection> _conn; // 客户端连接
         std::shared_ptr<pb::GameService_Stub> _gameServerStub; // 游戏对象所在服务器stub
         GameServerType _gameServerType; // 游戏对象所在服务器类型
         ServerId _gameServerId; // 游戏对象所在服务器id
-        std::string _token; // 断线重连校验身份用
+        std::string _gToken; // 断线重连校验身份用
+        uint32_t _lToken; // 游戏对象唯一标识
         UserId _userId;
         RoleId _roleId;
 
@@ -74,4 +77,4 @@ namespace wukong {
     };
 }
 
-#endif /* route_object_h */
+#endif /* gateway_object_h */

@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "corpc_option.proto";
-import "common.proto";
 
 option cc_generic_services = true;
 
@@ -14,6 +13,12 @@ message ForwardInRequest {
     bytes rawMsg = 4; // 原始消息数据
 }
 
+message EnterGameRequest {
+    uint32 roleId = 1;
+    uint32 lToken = 2;
+    uint32 gatewayId = 3;
+}
+
 // 玩家游戏对象所在服务器需要实现GameService服务
 service GameService {
     option (corpc.global_service_id) = 2;
@@ -24,7 +29,7 @@ service GameService {
     }
 
     // 注意：enterGame方法用于告诉游戏服向客户端发角色初始化数据，该方法可以重复调用，不应改变数据
-    rpc enterGame(Uint32Value) returns(corpc.Void)
+    rpc enterGame(EnterGameRequest) returns(corpc.Void)
     {
         option (corpc.not_care_response) = true;
     }

@@ -510,9 +510,9 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     Address gatewayAddr = _t_gatewayAddrMap[gatewayId];
 
     if (_redisSetSessionSha1.empty()) {
-        reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gatewayId, roleId);
+        reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "evalsha %s 1 session:%d %s %d %d", _redisSetSessionSha1.c_str(), userId, gToken.c_str(), gatewayId, roleId);
+        reply = (redisReply *)redisCommand(cache, "evalsha %s 1 session:%d %s %d %d %d", _redisSetSessionSha1.c_str(), userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
     }
     
     if (!reply) {

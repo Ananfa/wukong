@@ -96,8 +96,8 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     pb::AuthRequest *request = static_cast<pb::AuthRequest*>(msg.get());
     UserId userId = request->userid();
 
-    // 若本地路由对象存在，直接跟本地路由对象的gToken比较，不需访问redis
-    int ret = _manager->tryChangeRouteObjectConn(userId, request->token(), conn);
+    // 若本地网关对象存在，直接跟本地网关对象的gToken比较，不需访问redis
+    int ret = _manager->tryChangeGatewayObjectConn(userId, request->token(), conn);
     if (ret == -1) {
         ERROR_LOG("GatewayHandler::authHandle -- reconnect token not match\n");
         if (conn->isOpen()) {
@@ -133,7 +133,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     if (g_GatewayCenter.checkSessionSha1().empty()) {
         reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %d %s %d", CHECK_SESSION_CMD, userId, _manager->getId(), request->token().c_str(), 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %d %s %d", g_GatewayCenter.checkSessionSha1(), userId, _manager->getId(), request->token().c_str(), 60);
+        reply = (redisReply *)redisCommand(cache, "evalsha %s 1 session:%d %d %s %d", g_GatewayCenter.checkSessionSha1(), userId, _manager->getId(), request->token().c_str(), 60);
     }
     
     if (!reply) {
@@ -158,31 +158,31 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 
     freeReplyObject(reply);
 
-    // 由于协程存在穿插执行的情况，程序执行到这里时可能已经产生了路由对象，在创建路由对象前应校验一下
-    if (_manager->hasRouteObject(userId)) {
+    // 由于协程存在穿插执行的情况，程序执行到这里时可能已经产生了网关对象，在创建网关对象前应校验一下
+    if (_manager->hasGatewayObject(userId)) {
         g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GatewayHandler::authHandle -- user %d route object already exist\n", userId);
+        ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist\n", userId);
         if (conn->isOpen()) {
             conn->close();
         }
         return;
     }
 
-    // 若连接已断线，则不再继续创建路由对象（注意：此时需等session过期后才允许重新登录游戏（1分钟））
+    // 若连接已断线，则不再继续创建网关对象（注意：此时需等session过期后才允许重新登录游戏（1分钟））
     if (!conn->isOpen()) {
         g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected before create route object\n", userId);
+        ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected before create gateway object\n", userId);
         return;
     }
 
-    // 创建玩家路由对象
-    std::shared_ptr<RouteObject> ro = std::make_shared<RouteObject>(userId, roleId, request->token(), conn, _manager);
+    // 创建玩家网关对象
+    std::shared_ptr<GatewayObject> obj = std::make_shared<GatewayObject>(userId, roleId, request->token(), conn, _manager);
 
     // 查询玩家角色游戏对象所在（cache中key为location:<roleId>，值为<server type>|<server id>，由游戏对象负责维持心跳）
-    //    若查到，设置玩家路由对象中的gameServerStub
+    //    若查到，设置玩家网关对象中的gameServerStub
     //    若没有查到，分配一个大厅服，并通知大厅服加载玩家游戏对象
     //       若返回失败，则登录失败
-    reply = (redisReply *)redisCommand(cache, "GET location:%d", roleId);
+    reply = (redisReply *)redisCommand(cache, "HMGET location:%d lToken loc", roleId);
     if (!reply) {
         g_GatewayCenter.getCachePool()->proxy.put(cache, true);
         ERROR_LOG("GatewayHandler::authHandle -- get location failed for db error\n");
@@ -192,9 +192,21 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         return;
     }
 
-    if (reply->type == REDIS_REPLY_STRING) {
-        // 这里不再向游戏对象所在服发RPC（极端情况是游戏对象刚巧销毁导致路由对象指向了不存在的游戏对象的游戏服务器，路由对象一段时间没有收到游戏对象心跳后销毁）
-        std::string location = reply->str;
+    if (reply->type != REDIS_REPLY_ARRAY || reply->elements != 2) {
+        freeReplyObject(reply);
+        g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+        ERROR_LOG("GatewayHandler::authHandle -- get location failed for invalid data type\n");
+        if (conn->isOpen()) {
+            conn->close();
+        }
+        return;
+    }
+
+    if (reply->element[0]->type == REDIS_REPLY_STRING) {
+        assert(reply->element[1]->type == REDIS_REPLY_STRING);
+        // 这里不再向游戏对象所在服发RPC（极端情况是游戏对象刚巧销毁导致网关对象指向了不存在的游戏对象的游戏服务器，网关对象一段时间没有收到游戏对象心跳后销毁）
+        uint32_t lToken = atoi(reply->element[0]->str);
+        std::string location = reply->element[1]->str;
         std::vector<std::string> output;
         StringUtils::split(location, "|", output);
         if (output.size() != 2) {
@@ -209,7 +221,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 
         GameServerType stype = std::stoi(output[0]);
         ServerId sid = std::stoi(output[1]);
-        if (!ro->setGameServerStub(stype, sid)) {
+        if (!obj->setGameServerStub(stype, sid)) {
             freeReplyObject(reply);
             g_GatewayCenter.getCachePool()->proxy.put(cache, false);
             ERROR_LOG("GatewayHandler::authHandle -- set game server stub failed\n");
@@ -218,7 +230,11 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             }
             return;
         }
-    } else if (reply->type == REDIS_REPLY_NIL) {
+        obj->setLToken(lToken);
+    } else {
+        assert(reply->element[0]->type == REDIS_REPLY_NIL);
+        assert(reply->element[1]->type == REDIS_REPLY_NIL);
+
         // 分配一个Lobby服，并通知Lobby服加载玩家游戏对象
         ServerId sid = 0;
         if (!g_GatewayCenter.randomLobbyServer(sid)) {
@@ -231,7 +247,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             return;
         }
 
-        if (!ro->setGameServerStub(GAME_SERVER_TYPE_LOBBY, sid)) {
+        if (!obj->setGameServerStub(GAME_SERVER_TYPE_LOBBY, sid)) {
             freeReplyObject(reply);
             g_GatewayCenter.getCachePool()->proxy.put(cache, false);
             ERROR_LOG("GatewayHandler::authHandle -- set lobby server stub failed\n");
@@ -242,7 +258,8 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         }
 
         // 通知Lobby服加载玩家游戏对象
-        if (!g_LobbyClient.loadRole(sid, roleId)) {
+        uint32_t lToken = g_LobbyClient.initRole(sid, userId, roleId, _manager->getId());
+        if (lToken == 0) {
             freeReplyObject(reply);
             g_GatewayCenter.getCachePool()->proxy.put(cache, false);
             ERROR_LOG("GatewayHandler::authHandle -- load role failed\n");
@@ -251,23 +268,15 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             }
             return;
         }
-
-    } else {
-        freeReplyObject(reply);
-        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GatewayHandler::authHandle -- get location failed for invalid data type\n");
-        if (conn->isOpen()) {
-            conn->close();
-        }
-        return;
+        obj->setLToken(lToken);
     }
 
     freeReplyObject(reply);
     g_GatewayCenter.getCachePool()->proxy.put(cache, false);
 
-    // 由于进行过能导致协程切换的redis操作，这里需要再次确认中途没有路由对象登记到已连接表
-    if (_manager->hasRouteObject(userId)) {
-        ERROR_LOG("GatewayHandler::authHandle -- user %d route object already exist after get role %d location\n", userId, roleId);
+    // 由于进行过能导致协程切换的redis操作，这里需要再次确认中途没有网关对象登记到已连接表
+    if (_manager->hasGatewayObject(userId)) {
+        ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist after get role %d location\n", userId, roleId);
         if (conn->isOpen()) {
             conn->close();
         }
@@ -276,26 +285,26 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 
     // 由于进行过能导致协程切换的redis操作，在登记到已连接表之前，需要再判断一次是否断线
     if (!conn->isOpen()) {
-        ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected when creating route object\n", userId);
+        ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected when creating gateway object\n", userId);
         return;
     }
 
-    // 将路由对象登记到已连接表，登记完成后，游戏对象和客户端就能通过路由对象转发消息了
-    _manager->addConnectedRouteObject(ro);
-    ro->start();
+    // 将网关对象登记到已连接表，登记完成后，游戏对象和客户端就能通过网关对象转发消息了
+    _manager->addConnectedGatewayObject(obj);
+    obj->start();
 
     // 通知游戏对象发开始游戏所需数据给客户端
-    ro->enterGame();
+    obj->enterGame();
 }
 
 
 void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
     DEBUG_LOG("GatewayHandler::bypassHandle -- msgType:%d\n", type);
-    std::shared_ptr<RouteObject> ro = _manager->getConnectedRouteObject(conn);
-    if (!ro) {
-        ERROR_LOG("GatewayHandler::bypassHandle -- route object not found\n");
+    std::shared_ptr<GatewayObject> obj = _manager->getConnectedGatewayObject(conn);
+    if (!obj) {
+        ERROR_LOG("GatewayHandler::bypassHandle -- gateway object not found\n");
         return;
     }
 
-    ro->forwardIn(type, tag, rawMsg);
+    obj->forwardIn(type, tag, rawMsg);
 }

@@ -36,7 +36,8 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-    ../share/client/lobby_client.cpp
+    ../share/client/gateway_client.cpp
+    ../share/client/record_client.cpp
     ../share/client/zk_client.cpp
     ../utils/utility.cpp
     ../utils/string_utils.cpp
@@ -44,9 +45,11 @@ set(SOURCE_FILES
     ../proto/game/game.pb.cc
     ../proto/service/gateway_service.pb.cc
     ../proto/service/game_service.pb.cc
-    ../proto/service/lobby_service.pb.cc)
+    ../proto/service/lobby_service.pb.cc
+    ../proto/service/record_service.pb.cc)
 
 # Add source files
+aux_source_directory(../share/game SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -68,6 +71,7 @@ include_directories(/usr/local/include/hiredis)
 include_directories(/usr/local/include/zookeeper)
 include_directories(..)
 include_directories(../share)
+include_directories(../share/game)
 include_directories(../share/client)
 include_directories(../share/http)
 include_directories(../utils)
@@ -77,7 +81,7 @@ include_directories(../proto/service)
 include_directories(../deps/rapidjson/include)
 
 # Add target
-add_executable(gatewayd ${SOURCE_FILES})
+add_executable(lobbyd ${SOURCE_FILES})
 
 set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lzookeeper_st -lprotobuf -lcorpc_redis -lcorpc -lco -ldl)
-target_link_libraries(gatewayd ${MY_LINK_LIBRARIES})
+target_link_libraries(lobbyd ${MY_LINK_LIBRARIES})

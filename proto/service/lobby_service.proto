@@ -7,25 +7,32 @@ option cc_generic_services = true;
 
 package wukong.pb;
 
-message LoadRoleRequest {
+message InitRoleRequest {
     uint32 userId = 1;
     uint32 roleId = 2;
+    uint32 gatewayId = 3;
 }
 
 // 玩家游戏对象所在服务器需要实现GameService服务
 service LobbyService {
-    option (corpc.global_service_id) = 2;
+    option (corpc.global_service_id) = 3;
 
-    // 加载指定角色
-    rpc loadRole(LoadRoleRequest) returns(BoolValue)
+    // 关闭lobby服
+    rpc shutdown(corpc.Void) returns(corpc.Void)
     {
-        option (corpc.need_coroutine) = true; // default is false
+        option (corpc.not_care_response) = true; // default is false
     }
 
     // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
     rpc getOnlineCount(corpc.Void) returns(Uint32Value)
     {
         option (corpc.timeout) = 1000; // default is 0
+    }
+
+    // 初始化指定角色，返回临时唯一标识（失败时为空）
+    rpc initRole(InitRoleRequest) returns(Uint32Value)
+    {
+        option (corpc.need_coroutine) = true; // default is false
     }
 
 }

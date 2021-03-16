@@ -25,7 +25,7 @@ void LobbyServiceImpl::shutdown(::google::protobuf::RpcController* controller,
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-    // TODO:
+    // TODO: 踢出所有玩家，等所有玩家下线后关服
 }
 
 void LobbyServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
@@ -49,12 +49,11 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         return;
     }
 
-    // TODO: 
-    // 先加载角色数据
-    //   查询记录对象位置
+    // 查询记录对象位置
     //   若记录对象不存在，分配（负载均衡）record服
-    //   加载玩家数据（附带创建记录对象）
-    // 尝试设置location（在这里才设置location是避免在加载数据前设置可能导致location过期）
+    // 尝试设置location
+    // 设置成功时加载玩家数据（附带创建记录对象）
+    // 重新设置location过期（若这里不设置，后面创建的GameObject会等到第一次心跳时才销毁）
     // 创建GameObject
     redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
     if (!cache) {
@@ -133,6 +132,18 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
 
     // 这里是否需要加一次对location超时设置，避免加载数据时location过期？
     // 如果这里不加检测，创建的GameObject会等到第一次心跳设置location时才销毁
+    // 如果加检测会让登录流程延长
+    // cache = g_GameCenter.getCachePool()->proxy.take();
+    // reply = (redisReply *)redisCommand(cache, "EXPIRE location:%d %d", roleId, 60);
+    // if (reply->integer != 1) {
+    //     // 设置超时失败，可能是key已经过期
+    //     freeReplyObject(reply);
+    //     g_GameCenter.getCachePool()->proxy.put(cache, false);
+    //     ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d load role data failed for cant set location expire\n", userId, roleId);
+    //     return;
+    // }
+    // freeReplyObject(reply);
+    // g_GameCenter.getCachePool()->proxy.put(cache, false);
 
     // 创建GameObject
     if (!_manager->create(userId, roleId, lToken, gwId, rdId, roleData)) {

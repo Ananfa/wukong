@@ -26,7 +26,8 @@ namespace wukong {
     const int TOKEN_TIMEOUT                        = 60; // 令牌超时时间，单位秒
     const int TOKEN_HEARTBEAT_PERIOD               = 20; // 令牌心跳周期，单位秒
 
-    const int SYNC_PERIOD                          = 5; // 游戏服向记录服同步数据周期，单位秒
+    const int SYNC_PERIOD                          = 1; // 游戏服向记录服同步数据周期，单位秒
+    const int CACHE_PERIOD                         = 10; // 记录服向redis缓存脏数据的周期，单位秒
 
     // 客户端向服务器发的消息ID定义
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息
@@ -98,7 +99,7 @@ namespace wukong {
         redis.call('expire',KEYS[1],ARGV[3])\
         return 1";
 
-      const char SET_LOCATION_EXPIRE_CMD[] = "\
+    const char SET_LOCATION_EXPIRE_CMD[] = "\
         local lToken = redis.call('hget',KEYS[1],'lToken')\
         if not lToken then\
           return 0\
@@ -107,6 +108,26 @@ namespace wukong {
         end\
         redis.call('expire',KEYS[1],ARGV[2])\
         return 1";
+
+    const char SET_RECORD_CMD[] = "\
+        local ret = redis.call('hsetnx',KEYS[1],'rToken',ARGV[1])\
+        if ret==1 then\
+          redis.call('expire',KEYS[1],ARGV[3])\
+          return 1\
+        else\
+          return 0\
+        end";
+
+    const char SET_RECORD_EXPIRE_CMD[] = "\
+        local rToken = redis.call('hget',KEYS[1],'rToken')\
+        if not rToken then\
+          return 0\
+        elseif rToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('expire',KEYS[1],ARGV[3])\
+        return 1";
+
 }
 
 #endif /* const_h */

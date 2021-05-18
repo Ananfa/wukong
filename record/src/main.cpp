@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2021/1/15.
+ * Created by Xianke Liu on 2021/5/6.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,11 @@
  */
 
 #include "corpc_routine_env.h"
-#include "corpc_rpc_client.h"
 #include "corpc_rpc_server.h"
 
-#include "lobby_config.h"
-#include "lobby_service.h"
-#include "game_service.h"
-#include "game_center.h"
-#include "game_object_manager.h"
+#include "record_config.h"
+#include "record_service.h"
 
-#include "gateway_client.h"
-#include "record_client.h"
 #include "zk_client.h"
 #include "const.h"
 #include "define.h"
@@ -38,11 +32,11 @@ using namespace corpc;
 using namespace wukong;
 
 void enterZoo() {
-    g_ZkClient.init(g_LobbyConfig.getZookeeper(), ZK_TIMEOUT, []() {
+    g_ZkClient.init(g_RecordConfig.getZookeeper(), ZK_TIMEOUT, []() {
         // 对servers配置中每一个server进行节点注册
-        const std::vector<LobbyConfig::ServerInfo> &serverInfos = g_LobbyConfig.getServerInfos();
-        for (const LobbyConfig::ServerInfo &info : serverInfos) {
-            std::string zooPath = ZK_LOBBY_SERVER + "/" + std::to_string(info.id) + "|" + g_LobbyConfig.getIp() + ":" + std::to_string(info.rpcPort);
+        const std::vector<RecordConfig::ServerInfo> &serverInfos = g_RecordConfig.getServerInfos();
+        for (const RecordConfig::ServerInfo &info : serverInfos) {
+            std::string zooPath = ZK_RECORD_SERVER + "/" + std::to_string(info.id) + "|" + g_RecordConfig.getIp() + ":" + std::to_string(info.rpcPort);
             g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
                 if (ret) {
                     LOG("create rpc node:[%s] sucessful\n", path.c_str());
@@ -51,36 +45,18 @@ void enterZoo() {
                 }
             });
         }
-
-        g_ZkClient.watchChildren(ZK_GATEWAY_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
-            std::map<uint16_t, GatewayClient::AddressInfo> addresses;
-            for (const std::string &value : values) {
-                GatewayClient::AddressInfo address;
-
-                if (GatewayClient::parseAddress(value, address)) {
-                    addresses[address.id] = std::move(address);
-                } else {
-                    ERROR_LOG("zkclient parse gateway server address error, info = %s\n", value.c_str());
-                }
-            }
-            g_GatewayClient.setServers(addresses);
-        });
-        
-        // TODO: watch other servers
     });
 }
 
-void lobbyThread(IO *rpc_io, IO *msg_io, ServerId lbid, uint16_t rpcPort) {
+void recordThread(IO *rpc_io, IO *msg_io, ServerId rcid, uint16_t rpcPort) {
     // 启动RPC服务
-    RpcServer *server = RpcServer::create(rpc_io, 0, g_LobbyConfig.getIp(), rpcPort);
+    RpcServer *server = RpcServer::create(rpc_io, 0, g_RecordConfig.getIp(), rpcPort);
     
-    GameObjectManager *mgr = new GameObjectManager(lbid);
+    RecordManager *mgr = new RecordManager(rcid);
     mgr->init();
 
-    LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl(mgr);
-    GameServiceImpl *gameServiceImpl = new GameServiceImpl(mgr);
-    server->registerService(lobbyServiceImpl);
-    server->registerService(gameServiceImpl);
+    RecordServiceImpl *recordServiceImpl = new RecordServiceImpl(mgr);
+    server->registerService(recordServiceImpl);
 
     RoutineEnvironment::runEventLoop();
 }
@@ -129,27 +105,22 @@ int main(int argc, char * argv[]) {
     }
     
     // parse config file content to config object
-    if (!g_LobbyConfig.parse(configFileName)) {
+    if (!g_RecordConfig.parse(configFileName)) {
         ERROR_LOG("Parse config error\n");
         return -1;
     }
     
     // create IO layer
-    IO *io = IO::create(g_LobbyConfig.getIoRecvThreadNum(), g_LobbyConfig.getIoSendThreadNum());
+    IO *io = IO::create(g_RecordConfig.getIoRecvThreadNum(), g_RecordConfig.getIoSendThreadNum());
 
     // 初始化全局资源
-    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
+    g_RecordCenter.init();
 
-    // 初始化rpc clients
-    RpcClient *client = RpcClient::create(io);
-    g_GatewayClient.init(client);
-    g_RecordClient.init(client);
-
-    // 根据servers配置启动Lobby服务，每线程跑一个服务
-    std::vector<std::thread> lbThreads;
-    const std::vector<LobbyConfig::ServerInfo> &lobbyInfos = g_LobbyConfig.getServerInfos();
-    for (auto iter = lobbyInfos.begin(); iter != lobbyInfos.end(); iter++) {
-        lbThreads.push_back(std::thread(lobbyThread, io, io, iter->id, iter->rpcPort));
+    // 根据servers配置启动Record服务，每线程跑一个服务
+    std::vector<std::thread> rcThreads;
+    const std::vector<RecordConfig::ServerInfo> &recordInfos = g_RecordConfig.getServerInfos();
+    for (auto iter = recordInfos.begin(); iter != recordInfos.end(); iter++) {
+        rcThreads.push_back(std::thread(recordThread, io, io, iter->id, iter->rpcPort));
     }
 
     enterZoo();

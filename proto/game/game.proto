@@ -1,8 +1,7 @@
 syntax = "proto3";
 
 //import "common.proto";
-
-option cc_generic_services = true;
+//option cc_generic_services = true;
 
 package wukong.pb;
 

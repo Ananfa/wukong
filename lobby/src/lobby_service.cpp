@@ -25,7 +25,7 @@ void LobbyServiceImpl::shutdown(::google::protobuf::RpcController* controller,
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-    // TODO: 踢出所有玩家，等所有玩家下线后关服
+    _manager->shutdown();
 }
 
 void LobbyServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
@@ -68,11 +68,11 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         return;
     }
 
-    ServerId rdId;
+    ServerId rcId;
     if (reply->type == REDIS_REPLY_STRING) {
-        rdId = std::stoi(reply->str);
+        rcId = std::stoi(reply->str);
     } else if (reply->type == REDIS_REPLY_NIL) {
-        if (!g_GameCenter.randomRecordServer(rdId)) {
+        if (!g_GameCenter.randomRecordServer(rcId)) {
             freeReplyObject(reply);
             g_GameCenter.getCachePool()->proxy.put(cache, false);
             ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d random record server failed\n", userId, roleId);
@@ -125,7 +125,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
 
     // 向Record服发加载数据RPC
     std::string roleData;
-    if (!g_RecordClient.loadRole(rdId, roleId, lToken, roleData)) {
+    if (!g_RecordClient.loadRole(rcId, roleId, lToken, roleData)) {
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d load role data failed\n", userId, roleId);
         return;
     }
@@ -146,7 +146,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
     // g_GameCenter.getCachePool()->proxy.put(cache, false);
 
     // 创建GameObject
-    if (!_manager->create(userId, roleId, lToken, gwId, rdId, roleData)) {
+    if (!_manager->create(userId, roleId, lToken, gwId, rcId, roleData)) {
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d create game object failed\n", userId, roleId);
         return;
     }

@@ -694,6 +694,7 @@ class SyncRequest PROTOBUF_FINAL :
 
   enum : int {
     kDatasFieldNumber = 3,
+    kRemovesFieldNumber = 4,
     kLTokenFieldNumber = 1,
     kRoleIdFieldNumber = 2,
   };
@@ -714,6 +715,30 @@ class SyncRequest PROTOBUF_FINAL :
   ::wukong::pb::SyncData* add_datas();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::SyncData >&
       datas() const;
+
+  // repeated string removes = 4;
+  int removes_size() const;
+  private:
+  int _internal_removes_size() const;
+  public:
+  void clear_removes();
+  const std::string& removes(int index) const;
+  std::string* mutable_removes(int index);
+  void set_removes(int index, const std::string& value);
+  void set_removes(int index, std::string&& value);
+  void set_removes(int index, const char* value);
+  void set_removes(int index, const char* value, size_t size);
+  std::string* add_removes();
+  void add_removes(const std::string& value);
+  void add_removes(std::string&& value);
+  void add_removes(const char* value);
+  void add_removes(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& removes() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_removes();
+  private:
+  const std::string& _internal_removes(int index) const;
+  std::string* _internal_add_removes();
+  public:
 
   // uint32 lToken = 1;
   void clear_ltoken();
@@ -741,6 +766,7 @@ class SyncRequest PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::SyncData > datas_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> removes_;
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -909,6 +935,10 @@ class RecordService : public ::PROTOBUF_NAMESPACE_ID::Service {
 
   static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
 
+  virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
   virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
                        ::wukong::pb::Uint32Value* response,
@@ -954,6 +984,10 @@ class RecordService_Stub : public RecordService {
 
   // implements RecordService ------------------------------------------
 
+  void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
   void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
                        ::wukong::pb::Uint32Value* response,
@@ -1380,6 +1414,80 @@ inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::SyncData >
 SyncRequest::datas() const {
   // @@protoc_insertion_point(field_list:wukong.pb.SyncRequest.datas)
   return datas_;
+}
+
+// repeated string removes = 4;
+inline int SyncRequest::_internal_removes_size() const {
+  return removes_.size();
+}
+inline int SyncRequest::removes_size() const {
+  return _internal_removes_size();
+}
+inline void SyncRequest::clear_removes() {
+  removes_.Clear();
+}
+inline std::string* SyncRequest::add_removes() {
+  // @@protoc_insertion_point(field_add_mutable:wukong.pb.SyncRequest.removes)
+  return _internal_add_removes();
+}
+inline const std::string& SyncRequest::_internal_removes(int index) const {
+  return removes_.Get(index);
+}
+inline const std::string& SyncRequest::removes(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.SyncRequest.removes)
+  return _internal_removes(index);
+}
+inline std::string* SyncRequest::mutable_removes(int index) {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.SyncRequest.removes)
+  return removes_.Mutable(index);
+}
+inline void SyncRequest::set_removes(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:wukong.pb.SyncRequest.removes)
+  removes_.Mutable(index)->assign(value);
+}
+inline void SyncRequest::set_removes(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:wukong.pb.SyncRequest.removes)
+  removes_.Mutable(index)->assign(std::move(value));
+}
+inline void SyncRequest::set_removes(int index, const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  removes_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:wukong.pb.SyncRequest.removes)
+}
+inline void SyncRequest::set_removes(int index, const char* value, size_t size) {
+  removes_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:wukong.pb.SyncRequest.removes)
+}
+inline std::string* SyncRequest::_internal_add_removes() {
+  return removes_.Add();
+}
+inline void SyncRequest::add_removes(const std::string& value) {
+  removes_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:wukong.pb.SyncRequest.removes)
+}
+inline void SyncRequest::add_removes(std::string&& value) {
+  removes_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:wukong.pb.SyncRequest.removes)
+}
+inline void SyncRequest::add_removes(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  removes_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:wukong.pb.SyncRequest.removes)
+}
+inline void SyncRequest::add_removes(const char* value, size_t size) {
+  removes_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:wukong.pb.SyncRequest.removes)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+SyncRequest::removes() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.SyncRequest.removes)
+  return removes_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+SyncRequest::mutable_removes() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.SyncRequest.removes)
+  return &removes_;
 }
 
 // -------------------------------------------------------------------

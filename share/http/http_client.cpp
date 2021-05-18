@@ -215,7 +215,7 @@ void HttpRequest::urlEncode(const std::string &input, std::string &output) {
 void HttpRequest::paramsJoin(std::string &output) {
     std::vector<QueryParam>::iterator it, end = m_queryParams.end();
     
-    for(it = m_queryParams.begin(); it != end; it++) {
+    for(it = m_queryParams.begin(); it != end; ++it) {
         if (it != m_queryParams.begin()) {
             output += "&";
         }

@@ -25,7 +25,8 @@ message SyncData {
 message SyncRequest {
     uint32 lToken = 1;
     uint32 roleId = 2;
-    repeated SyncData datas = 3;
+    repeated SyncData datas = 3;    // 增加或修改的数据
+    repeated string removes = 4;    // 删除的数据
 }
 
 message RSHeartbeatRequest {
@@ -36,6 +37,12 @@ message RSHeartbeatRequest {
 // 玩家游戏对象所在服务器需要实现GameService服务
 service RecordService {
     option (corpc.global_service_id) = 4;
+
+    // 关闭record服
+    rpc shutdown(corpc.Void) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true; // default is false
+    }
 
     // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
     rpc getOnlineCount(corpc.Void) returns(Uint32Value)

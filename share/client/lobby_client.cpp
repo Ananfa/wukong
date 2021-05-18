@@ -125,7 +125,7 @@ void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, const std:
         request->set_tag(tag);
     }
 
-    for (auto it = roleIds.begin(); it != roleIds.end(); it++) {
+    for (auto it = roleIds.begin(); it != roleIds.end(); ++it) {
         request->add_ids(*it);
     }
     

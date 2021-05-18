@@ -144,6 +144,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_record_5fservice_2eproto::offs
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SyncRequest, ltoken_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SyncRequest, roleid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SyncRequest, datas_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::SyncRequest, removes_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::RSHeartbeatRequest, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -157,7 +158,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 7, -1, sizeof(::wukong::pb::LoadRoleResponse)},
   { 14, -1, sizeof(::wukong::pb::SyncData)},
   { 21, -1, sizeof(::wukong::pb::SyncRequest)},
-  { 29, -1, sizeof(::wukong::pb::RSHeartbeatRequest)},
+  { 30, -1, sizeof(::wukong::pb::RSHeartbeatRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -174,18 +175,19 @@ const char descriptor_table_protodef_record_5fservice_2eproto[] PROTOBUF_SECTION
   "equest\022\016\n\006lToken\030\001 \001(\r\022\016\n\006roleId\030\002 \001(\r\"1"
   "\n\020LoadRoleResponse\022\017\n\007errCode\030\001 \001(\r\022\014\n\004d"
   "ata\030\002 \001(\014\"&\n\010SyncData\022\013\n\003key\030\001 \001(\t\022\r\n\005va"
-  "lue\030\002 \001(\014\"Q\n\013SyncRequest\022\016\n\006lToken\030\001 \001(\r"
+  "lue\030\002 \001(\014\"b\n\013SyncRequest\022\016\n\006lToken\030\001 \001(\r"
   "\022\016\n\006roleId\030\002 \001(\r\022\"\n\005datas\030\003 \003(\0132\023.wukong"
-  ".pb.SyncData\"4\n\022RSHeartbeatRequest\022\016\n\006ro"
-  "leId\030\001 \001(\r\022\016\n\006lToken\030\002 \001(\r2\244\002\n\rRecordSer"
-  "vice\022<\n\016getOnlineCount\022\013.corpc.Void\032\026.wu"
-  "kong.pb.Uint32Value\"\005\240\361\004\350\007\022I\n\010loadRole\022\032"
-  ".wukong.pb.LoadRoleRequest\032\033.wukong.pb.L"
-  "oadRoleResponse\"\004\220\361\004\001\022;\n\004sync\022\026.wukong.p"
-  "b.SyncRequest\032\024.wukong.pb.BoolValue\"\005\240\361\004"
-  "\320\017\022G\n\theartbeat\022\035.wukong.pb.RSHeartbeatR"
-  "equest\032\024.wukong.pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361\004"
-  "\004B\003\200\001\001b\006proto3"
+  ".pb.SyncData\022\017\n\007removes\030\004 \003(\t\"4\n\022RSHeart"
+  "beatRequest\022\016\n\006roleId\030\001 \001(\r\022\016\n\006lToken\030\002 "
+  "\001(\r2\320\002\n\rRecordService\022*\n\010shutdown\022\013.corp"
+  "c.Void\032\013.corpc.Void\"\004\230\361\004\001\022<\n\016getOnlineCo"
+  "unt\022\013.corpc.Void\032\026.wukong.pb.Uint32Value"
+  "\"\005\240\361\004\350\007\022I\n\010loadRole\022\032.wukong.pb.LoadRole"
+  "Request\032\033.wukong.pb.LoadRoleResponse\"\004\220\361"
+  "\004\001\022;\n\004sync\022\026.wukong.pb.SyncRequest\032\024.wuk"
+  "ong.pb.BoolValue\"\005\240\361\004\320\017\022G\n\theartbeat\022\035.w"
+  "ukong.pb.RSHeartbeatRequest\032\024.wukong.pb."
+  "BoolValue\"\005\240\361\004\320\017\032\004\200\361\004\004B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_record_5fservice_2eproto_deps[2] = {
   &::descriptor_table_common_2eproto,
@@ -200,7 +202,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_rec
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_record_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_record_5fservice_2eproto = {
-  false, false, descriptor_table_protodef_record_5fservice_2eproto, "record_service.proto", 654,
+  false, false, descriptor_table_protodef_record_5fservice_2eproto, "record_service.proto", 715,
   &descriptor_table_record_5fservice_2eproto_once, descriptor_table_record_5fservice_2eproto_sccs, descriptor_table_record_5fservice_2eproto_deps, 5, 2,
   schemas, file_default_instances, TableStruct_record_5fservice_2eproto::offsets,
   file_level_metadata_record_5fservice_2eproto, 5, file_level_enum_descriptors_record_5fservice_2eproto, file_level_service_descriptors_record_5fservice_2eproto,
@@ -925,14 +927,16 @@ class SyncRequest::_Internal {
 
 SyncRequest::SyncRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
-  datas_(arena) {
+  datas_(arena),
+  removes_(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:wukong.pb.SyncRequest)
 }
 SyncRequest::SyncRequest(const SyncRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      datas_(from.datas_) {
+      datas_(from.datas_),
+      removes_(from.removes_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&ltoken_, &from.ltoken_,
     static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
@@ -979,6 +983,7 @@ void SyncRequest::Clear() {
   (void) cached_has_bits;
 
   datas_.Clear();
+  removes_.Clear();
   ::memset(&ltoken_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&roleid_) -
       reinterpret_cast<char*>(&ltoken_)) + sizeof(roleid_));
@@ -1017,6 +1022,20 @@ const char* SyncRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // repeated string removes = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            auto str = _internal_add_removes();
+            ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+            CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "wukong.pb.SyncRequest.removes"));
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -1067,6 +1086,16 @@ failure:
       InternalWriteMessage(3, this->_internal_datas(i), target, stream);
   }
 
+  // repeated string removes = 4;
+  for (int i = 0, n = this->_internal_removes_size(); i < n; i++) {
+    const auto& s = this->_internal_removes(i);
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      s.data(), static_cast<int>(s.length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "wukong.pb.SyncRequest.removes");
+    target = stream->WriteString(4, s, target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1088,6 +1117,14 @@ size_t SyncRequest::ByteSizeLong() const {
   for (const auto& msg : this->datas_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // repeated string removes = 4;
+  total_size += 1 *
+      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(removes_.size());
+  for (int i = 0, n = removes_.size(); i < n; i++) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      removes_.Get(i));
   }
 
   // uint32 lToken = 1;
@@ -1136,6 +1173,7 @@ void SyncRequest::MergeFrom(const SyncRequest& from) {
   (void) cached_has_bits;
 
   datas_.MergeFrom(from.datas_);
+  removes_.MergeFrom(from.removes_);
   if (from.ltoken() != 0) {
     _internal_set_ltoken(from._internal_ltoken());
   }
@@ -1166,6 +1204,7 @@ void SyncRequest::InternalSwap(SyncRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   datas_.InternalSwap(&other->datas_);
+  removes_.InternalSwap(&other->removes_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(SyncRequest, roleid_)
       + sizeof(SyncRequest::roleid_)
@@ -1423,6 +1462,14 @@ const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* RecordService::GetDescriptor()
   return descriptor();
 }
 
+void RecordService::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::corpc::Void*,
+                         ::corpc::Void*,
+                         ::google::protobuf::Closure* done) {
+  controller->SetFailed("Method shutdown() not implemented.");
+  done->Run();
+}
+
 void RecordService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                          const ::corpc::Void*,
                          ::wukong::pb::Uint32Value*,
@@ -1463,6 +1510,14 @@ void RecordService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* 
   GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_record_5fservice_2eproto[0]);
   switch(method->index()) {
     case 0:
+      shutdown(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
+                 request),
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
+                 response),
+             done);
+      break;
+    case 1:
       getOnlineCount(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
                  request),
@@ -1470,7 +1525,7 @@ void RecordService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* 
                  response),
              done);
       break;
-    case 1:
+    case 2:
       loadRole(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::LoadRoleRequest*>(
                  request),
@@ -1478,7 +1533,7 @@ void RecordService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* 
                  response),
              done);
       break;
-    case 2:
+    case 3:
       sync(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::SyncRequest*>(
                  request),
@@ -1486,7 +1541,7 @@ void RecordService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* 
                  response),
              done);
       break;
-    case 3:
+    case 4:
       heartbeat(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::RSHeartbeatRequest*>(
                  request),
@@ -1507,10 +1562,12 @@ const ::PROTOBUF_NAMESPACE_ID::Message& RecordService::GetRequestPrototype(
     case 0:
       return ::corpc::Void::default_instance();
     case 1:
-      return ::wukong::pb::LoadRoleRequest::default_instance();
+      return ::corpc::Void::default_instance();
     case 2:
-      return ::wukong::pb::SyncRequest::default_instance();
+      return ::wukong::pb::LoadRoleRequest::default_instance();
     case 3:
+      return ::wukong::pb::SyncRequest::default_instance();
+    case 4:
       return ::wukong::pb::RSHeartbeatRequest::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
@@ -1524,12 +1581,14 @@ const ::PROTOBUF_NAMESPACE_ID::Message& RecordService::GetResponsePrototype(
   GOOGLE_DCHECK_EQ(method->service(), descriptor());
   switch(method->index()) {
     case 0:
-      return ::wukong::pb::Uint32Value::default_instance();
+      return ::corpc::Void::default_instance();
     case 1:
-      return ::wukong::pb::LoadRoleResponse::default_instance();
+      return ::wukong::pb::Uint32Value::default_instance();
     case 2:
-      return ::wukong::pb::BoolValue::default_instance();
+      return ::wukong::pb::LoadRoleResponse::default_instance();
     case 3:
+      return ::wukong::pb::BoolValue::default_instance();
+    case 4:
       return ::wukong::pb::BoolValue::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
@@ -1549,32 +1608,39 @@ RecordService_Stub::~RecordService_Stub() {
   if (owns_channel_) delete channel_;
 }
 
+void RecordService_Stub::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::corpc::Void* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done) {
+  channel_->CallMethod(descriptor()->method(0),
+                       controller, request, response, done);
+}
 void RecordService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::corpc::Void* request,
                               ::wukong::pb::Uint32Value* response,
                               ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(0),
+  channel_->CallMethod(descriptor()->method(1),
                        controller, request, response, done);
 }
 void RecordService_Stub::loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::wukong::pb::LoadRoleRequest* request,
                               ::wukong::pb::LoadRoleResponse* response,
                               ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(1),
+  channel_->CallMethod(descriptor()->method(2),
                        controller, request, response, done);
 }
 void RecordService_Stub::sync(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::wukong::pb::SyncRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(2),
+  channel_->CallMethod(descriptor()->method(3),
                        controller, request, response, done);
 }
 void RecordService_Stub::heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::wukong::pb::RSHeartbeatRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(3),
+  channel_->CallMethod(descriptor()->method(4),
                        controller, request, response, done);
 }
 

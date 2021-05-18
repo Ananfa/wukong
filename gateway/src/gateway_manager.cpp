@@ -28,6 +28,10 @@ void GatewayManager::init() {
 }
 
 void GatewayManager::shutdown() {
+    if (_shutdown) {
+        return;
+    }
+
     _shutdown = true;
 
     // 销毁所有未认证连接
@@ -105,7 +109,7 @@ size_t GatewayManager::getGatewayObjectNum() {
 
 void GatewayManager::clearGatewayObject() {
     // 销毁所有正常routeObject
-    for (auto it = _userId2GatewayObjectMap.begin(); it != _userId2GatewayObjectMap.end(); it++) {
+    for (auto it = _userId2GatewayObjectMap.begin(); it != _userId2GatewayObjectMap.end(); ++it) {
         it->second->getConn()->close();
         it->second->stop();
     }
@@ -113,7 +117,7 @@ void GatewayManager::clearGatewayObject() {
     _connection2GatewayObjectMap.clear();
 
     // 销毁所有断线routeObject
-    for (auto it = _disconnectedNodeMap.begin(); it != _disconnectedNodeMap.end(); it++) {
+    for (auto it = _disconnectedNodeMap.begin(); it != _disconnectedNodeMap.end(); ++it) {
         it->second->data->stop();
     }
     _disconnectedNodeMap.clear();

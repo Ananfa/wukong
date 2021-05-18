@@ -55,6 +55,7 @@ namespace wukong {
         void init(RpcClient *client) { _client = client; }
 
         /* 业务逻辑 */
+        void shutdown();
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
         bool loadRole(ServerId sid, RoleId roleId, uint32_t lToken, std::string &roleData); // 加载角色（游戏对象）
 

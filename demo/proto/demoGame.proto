@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package demo.pb;
+
+message Currency {
+    uint32 c1 = 1; // 货币1
+    uint32 c2 = 2; // 货币2
+    uint32 c3 = 3; // 货币3
+    uint32 c4 = 4; // 货币4
+    uint32 c5 = 5; // 货币5
+}
+
+message Card {
+    uint32 cardId = 1;
+    uint32 star = 2;
+    uint32 lv = 3;
+}
+
+message Cards {
+    repeated Card cards = 1;
+}
+
+message Pet {
+    uint32 petId = 1;
+    uint32 defId = 2;
+    uint32 exp = 3;
+    uint32 lv = 4;
+}
+
+message Pets {
+    repeated Pet pets = 1;
+}
+
+message SignInActivity {
+    repeated uint32 days = 1;
+}

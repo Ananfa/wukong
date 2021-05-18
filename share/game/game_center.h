@@ -20,6 +20,7 @@
 #include "corpc_redis.h"
 #include "record_client.h"
 #include "game_object.h"
+#include "game_object_manager_h"
 #include "share/define.h"
 
 #include <vector>
@@ -29,7 +30,7 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, uint32_t, GameObjectManager*)> CreateGameObjectHandler;
+    typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, uint32_t, GameObjectManager*, const std::string &data)> CreateGameObjectHandler;
 
     class GameCenter
     {

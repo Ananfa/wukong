@@ -27,9 +27,13 @@ void GameObjectManager::init() {
 }
 
 void GameObjectManager::shutdown() {
+    if (_shutdown) {
+        return;
+    }
+
     _shutdown = true;
 
-    for (auto it = _roleId2GameObjectMap.begin(); it != _roleId2GameObjectMap.end(); it++) {
+    for (auto it = _roleId2GameObjectMap.begin(); it != _roleId2GameObjectMap.end(); ++it) {
         it->second->stop();
     }
 
@@ -55,7 +59,7 @@ std::shared_ptr<GameObject> GameObjectManager::getGameObject(RoleId roleId) {
 
 std::shared_ptr<GameObject> GameObjectManager::create(UserId userId, RoleId roleId, uint32_t lToken, ServerId gatewayId, ServerId recordId, const std::string &data) {
     if (_shutdown) {
-        WARN_LOG("GameObjectManager::create -- not set createGameObjectHandler\n");
+        WARN_LOG("GameObjectManager::create -- already shutdown\n");
         return nullptr;
     }
 
@@ -70,7 +74,7 @@ std::shared_ptr<GameObject> GameObjectManager::create(UserId userId, RoleId role
     }
 
     // 创建GameObject
-    auto obj = g_GameCenter.getCreateGameObjectHandler()(userId, roleId, lToken, this);
+    auto obj = g_GameCenter.getCreateGameObjectHandler()(userId, roleId, lToken, this, data);
 
     // 设置gateway和record stub
     if (!obj->setGatewayServerStub(gatewayId)) {

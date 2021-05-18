@@ -36,6 +36,8 @@ namespace wukong {
         GameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _lToken(lToken), _manager(manager), _running(false) {}
         virtual ~GameObject() = 0;
 
+        virtual bool initData(const std::string &data) = 0;
+
         UserId getUserId() { return _userId; }
         RoleId getRoleId() { return _roleId; }
         uint32_t getLToken() { return _lToken; }
@@ -47,7 +49,7 @@ namespace wukong {
         void stop(); // 停止心跳
 
         virtual bool update(uint64_t nowSec) {} // 周期处理逻辑
-        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
+        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
 
         virtual void onEnterGame() = 0;
 
@@ -57,7 +59,7 @@ namespace wukong {
         bool heartbeatToGateway();
         bool heartbeatToRecord();
 
-        bool sync(std::list<std::pair<std::string, std::string>> &datas);
+        bool sync(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes);
 
         static void *heartbeatRoutine(void *arg);  // 心跳协程，周期对location重设超时时间，心跳失败时需通知Manager销毁游戏对象
 
@@ -70,14 +72,17 @@ namespace wukong {
         ServerId _gatewayId; // 网关对象所在服务器id
         std::shared_ptr<pb::RecordService_Stub> _recordServerStub; // 网关对象所在服务器stub
         ServerId _recordId; // 记录对象所在服务器id
-        UserId _userId;
-        RoleId _roleId;
         uint32_t _lToken;
 
         bool _running;
 
         GameObjectManager *_manager; // 关联的manager
 
+    protected:
+        UserId _userId;
+        RoleId _roleId;
+        
+        std::map<std::string, bool> _dirty_map;
     public:
         friend class GameServiceImpl;
     };

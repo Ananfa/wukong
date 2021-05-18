@@ -99,7 +99,7 @@ void GameObject::forwardOut(int32_t type, uint16_t tag, const std::vector<std::p
     Controller *controller = new Controller();
     request->set_type(type);
     request->set_tag(tag);
-    for (auto it = targets.begin(); it != targets.end(); it++) {
+    for (auto it = targets.begin(); it != targets.end(); ++it) {
         ::wukong::pb::ForwardOutTarget* target = request->add_targets();
         target->set_userid(it->first);
         target->set_ltoken(it->second);
@@ -170,7 +170,7 @@ bool GameObject::heartbeatToGateway() {
     return ret;
 }
 
-bool GameObject::sync(std::list<std::pair<std::string, std::string>> &datas) {
+bool GameObject::sync(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {
     if (!_recordServerStub) {
         ERROR_LOG("GameObject::sync -- record stub not set\n");
         return false;
@@ -181,10 +181,13 @@ bool GameObject::sync(std::list<std::pair<std::string, std::string>> &datas) {
     Controller *controller = new Controller();
     request->set_ltoken(_lToken);
     request->set_roleid(_roleId);
-    for (auto it = datas.begin(); it != datas.end(); it++) {
+    for (auto it = datas.begin(); it != datas.end(); ++it) {
         auto data = request->add_datas();
         data->set_key(it->first);
         data->set_value(it->second);
+    }
+    for (auto it = removes.begin(); it != removes.end(); ++it) {
+        request->add_removes(*it);
     }
 
     _recordServerStub->sync(controller, request, response, nullptr);
@@ -290,7 +293,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
             if (obj->_running) {
                 if (!obj->_manager->remove(obj->_roleId)) {
                     assert(false);
-                    ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d remove game object failed\n", obj->_roleId, obj->_roleId);
+                    ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d remove game object failed\n", obj->_userId, obj->_roleId);
                 }
 
                 obj->_running = false;
@@ -307,23 +310,26 @@ void *GameObject::syncRoutine(void *arg) {
     delete routineArg;
 
     std::list<std::pair<std::string, std::string>> syncDatas;
+    std::list<std::string> removes;
 
     while (obj->_running) {
-        sleep(SYNC_PERIOD);
+        for (int i = 0; i < SYNC_PERIOD; i++) {
+            sleep(1);
 
-        if (!obj->_running) {
-            // 游戏对象已被销毁
-            break;
+            if (!obj->_running) {
+                break;
+            }
         }
 
-        obj->buildSyncDatas(syncDatas);
-        if (!syncDatas.empty()) {
-            obj->sync(syncDatas);
+        // 向记录服同步数据（销毁前也应该将脏数据同步给记录服）
+        obj->buildSyncDatas(syncDatas, removes);
+        if (!syncDatas.empty() || !removes.empty()) {
+            obj->sync(syncDatas, removes);
+            syncDatas.clear();
+            removes.clear();
         }
 
     }
-
-    // TODO: 向记录服同步数据
 }
 
 void *GameObject::updateRoutine(void *arg) {

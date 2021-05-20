@@ -130,5 +130,52 @@ bool RecordConfig::parse(const char *path) {
     }
     _cache.maxConnect = cache["maxConnect"].GetUint();
     
+    if (!doc.HasMember("db")) {
+        ERROR_LOG("config error -- db not define\n");
+        return false;
+    }
+    
+    const Value& db = doc["db"];
+    if (!db.IsObject()) {
+        ERROR_LOG("config error -- db not object\n");
+        return false;
+    }
+    
+    if (!db.HasMember("host")) {
+        ERROR_LOG("config error -- db.host not define\n");
+        return false;
+    }
+    _db.host = db["host"].GetString();
+    
+    if (!db.HasMember("port")) {
+        ERROR_LOG("config error -- db.port not define\n");
+        return false;
+    }
+    _db.port = db["port"].GetUint();
+    
+    if (!db.HasMember("user")) {
+        ERROR_LOG("config error -- db.user not define\n");
+        return false;
+    }
+    _db.user = db["user"].GetString();
+    
+    if (!db.HasMember("pwd")) {
+        ERROR_LOG("config error -- db.pwd not define\n");
+        return false;
+    }
+    _db.pwd = db["pwd"].GetString();
+    
+    if (!db.HasMember("maxConnect")) {
+        ERROR_LOG("config error -- db.maxConnect not define\n");
+        return false;
+    }
+    _db.maxConnect = db["maxConnect"].GetUint();
+    
+    if (!db.HasMember("dbName")) {
+        ERROR_LOG("config error -- db.dbName not define\n");
+        return false;
+    }
+    _db.dbName = db["dbName"].GetString();
+    
     return true;
 }

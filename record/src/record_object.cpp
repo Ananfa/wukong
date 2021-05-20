@@ -50,6 +50,11 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
     std::shared_ptr<RecordObject> obj = std::move(routineArg->obj);
     delete routineArg;
 
+    struct timeval t;
+    gettimeofday(&t, NULL);
+
+    obj->_gameObjectHeartbeatExpire = t.tv_sec + RECORD_TIMEOUT;
+
     while (obj->_running) {
         sleep(TOKEN_HEARTBEAT_PERIOD); // 游戏对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源）
 
@@ -68,9 +73,9 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
         } else {
             redisReply *reply;
             if (g_RecordCenter.setRecordExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "eval %s 1 record:%d %d %d", SET_RECORD_EXPIRE_CMD, obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 record:%d %d %d", SET_RECORD_EXPIRE_CMD, obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "evalsha %s 1 record:%d %d %d", g_RecordCenter.setRecordExpireSha1(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 record:%d %d %d", g_RecordCenter.setRecordExpireSha1(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             }
             
             if (!reply) {
@@ -136,6 +141,13 @@ void *RecordObject::syncRoutine(void *arg) {
         if (!syncDatas.empty() || !removes.empty()) {
             if (obj->cacheData(syncDatas)) {
                 obj->_dirty_map.clear();
+                _cacheFailNum = 0;
+            } else {
+                // 增加失败计数，若连续3次失败则销毁记录对象，防止长时间回档
+                ++_cacheFailNum;
+                if _cacheFailNum > 3 {
+                    obj->stop();
+                }
             }
 
             syncDatas.clear();
@@ -165,5 +177,70 @@ void *RecordObject::updateRoutine(void *arg) {
 }
 
 bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &datas) {
-    // TODO: 将数据存到cache中
+    // 将数据存到cache中，并且加入相应的存盘时间队列
+    std::vector<const char *> argv;
+    std::vector<size_t> argvlen;
+    int argNum = datas.size() * 2 + 2;
+    argv.reserve(argNum);
+    argvlen.reserve(argNum);
+    argv.push_back("hmset");
+    argvlen.push_back(5);
+
+    char tmpStr[50];
+    sprintf(tmpStr,"role:%d", _roleId);
+    argv.push_back(tmpStr);
+    argvlen.push_back(strlen(tmpStr));
+
+    for (auto it = datas.begin; it != datas.end(); ++it)
+    {
+        argv.push_back(it->first.c_str());
+        argvlen.push_back(it->first.length());
+        argv.push_back(it->second.c_str());
+        argvlen.push_back(it->second.length());
+    }
+    
+    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+    if (!cache) {
+        ERROR_LOG("RecordObject::cacheData -- role %d connect to cache failed\n", _roleId);
+
+        return false;
+    } else {
+        redisReply *reply = (redisReply *)redisCommandArgv(cache, argv.size(), &(argv[0]), &(argvlen[0]));
+        
+        if (!reply) {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("RecordObject::cacheData -- role %d cache data failed for db error\n", _roleId);
+
+            return false;
+        } else if (strcmp(reply->str, "OK")) {
+            ERROR_LOG("RecordObject::cacheData -- role %d cache data failed: %s\n", _roleId, reply->str);
+            freeReplyObject(reply);
+            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+
+            return false;
+        }
+
+        freeReplyObject(reply);
+    }
+
+    // 加入相应的落地队列，等待落地任务将玩家数据存到mysql。当数据有修改过5分钟再进行落地
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    int nowMinute = t.tv_sec / 60;
+    if (nowMinute >= _saveMinute) {
+        int nextSaveMinute = nowMinute + SAVE_PERIOD;
+        redisReply *reply = (redisReply *)redisCommand(cache, "SADD save:%d %d", nextSaveMinute, _roleId);
+        if (!reply) {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", _roleId);
+        } else {
+            _saveMinute = nextSaveMinute;
+            freeReplyObject(reply);
+            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+        }
+    } else {
+        g_RecordCenter.getCachePool()->proxy.put(cache, false);
+    }
+
+    return true;
 }

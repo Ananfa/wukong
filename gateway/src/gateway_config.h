@@ -35,7 +35,7 @@ namespace wukong {
             uint16_t outerPort;     // 提供给客户端的连接端口，不配置或为0时复用msgPort
         };
 
-        struct DBInfo {
+        struct RedisInfo {
             std::string host;       // db服务器host
             uint16_t port;          // db服务器port
             uint16_t dbIndex;       // db分库索引
@@ -61,7 +61,7 @@ namespace wukong {
         uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
         uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
 
-        const DBInfo& getCache() const { return _cache; }
+        const RedisInfo& getCache() const { return _cache; }
         
     private:
         std::string _internalIp;    // 提供rpc服务的ip
@@ -76,7 +76,7 @@ namespace wukong {
         uint32_t _ioRecvThreadNum;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
-        DBInfo _cache; // 缓存库配置
+        RedisInfo _cache; // 缓存库配置
 
     private:
         GatewayConfig() = default;                            // ctor hidden

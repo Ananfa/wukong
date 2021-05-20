@@ -175,7 +175,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
         return setErrorResponse(response, "connect to db failed");
     }
 
-    redisReply *reply = (redisReply *)redisCommand(redis, "GET O2U:%s", openid.c_str());
+    redisReply *reply = (redisReply *)redisCommand(redis, "GET O2U:{%s}", openid.c_str());
     if (!reply) {
         _db->proxy.put(redis, true);
         return setErrorResponse(response, "get user id from db failed");
@@ -188,21 +188,29 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             // 若userId不存在，为玩家生成userId并记录openid与userId的关联关系（setnx）
             freeReplyObject(reply);
 
+            // TODO: 将openid与userid的关系存到mysql中。是否需要通过分库分表来提高负载能力？云数据库（分布式数据库）应该有这个能力
+            // 另外进行日志记录（tlog）方便查询和找回
+            
+            // TODO: 从mysql查询openid对应的userid，若查到记录到redis中然后再查角色画像数据，若查不到则产生userid并记录到mysql和redis中
+
             userId = RedisUtils::CreateUserID(redis);
             if (userId == 0) {
                 _db->proxy.put(redis, true);
                 return setErrorResponse(response, "create user id failed");
             }
 
-            reply = (redisReply *)redisCommand(redis, "SET O2U:%s %d NX", openid.c_str(), userId);
+            reply = (redisReply *)redisCommand(redis, "SET O2U:{%s} %d NX", openid.c_str(), userId);
             if (!reply) {
                 _db->proxy.put(redis, true);
                 return setErrorResponse(response, "set user id for openid failed");
             } else if (strcmp(reply->str, "OK")) {
                 freeReplyObject(reply);
                 _db->proxy.put(redis, false); // 归还连接
+
                 return setErrorResponse(response, "set userid for openid failed for already exist");
             }
+
+            // TODO: tlog记录openid与userid的关系
 
             freeReplyObject(reply);
             break;
@@ -219,7 +227,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             }
 
             // 获取角色id列表
-            reply = (redisReply *)redisCommand(redis, "SMEMBERS RoleIds:%d", userId);
+            reply = (redisReply *)redisCommand(redis, "SMEMBERS RoleIds:{%d}", userId);
             if (!reply) {
                 _db->proxy.put(redis, true);
                 return setErrorResponse(response, "get role id list failed");
@@ -250,7 +258,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
             // 查询轮廓数据
             for (RoleInfo &info : roles){
-                reply = (redisReply *)redisCommand(redis, "HGETALL RoleInfo:%d", info.roleId);
+                reply = (redisReply *)redisCommand(redis, "HGETALL RoleInfo:{%d}", info.roleId);
                 if (!reply) {
                     _db->proxy.put(redis, true);
                     return setErrorResponse(response, "get role info failed");
@@ -368,11 +376,22 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     }
 
     // 创角
+    // TODO: 这里应该用std::list<std::pair<std::string, std::string>>作为创建角色的返回数据
+    // TODO: 应该先生成roleId，再创建数据
     std::string pData;
     RoleId roleId = _createRole(request, pData);
     if (roleId == 0) {
         return setErrorResponse(response, "create role failed");
     }
+
+    // TODO: 通过redis lua脚本让1和2一起完成，3和4一起完成
+    //       1. 将roleId加入ServerRoleIds:<serverid>:{<userid>}中，保证玩家角色数量不超过区服角色数量限制
+    //       2. 将roleId加入RoleIds:{<userid>}
+    //       3. 将角色数据记录到Role:{<roleid>}中，并加入相应的存盘列表
+    //       4. 记录角色轮廓数据RoleInfo:{<roleid>}
+    // 只有3和4能一起操作，这样有可能出现1操作完成但2和3没有操作，此时只能玩家找客服后通过工具修复玩家的RoleIds数据了
+
+    // TODO: 将role存盘mysql
 
     RoleInfo role = {
         serverId: serverId,
@@ -510,9 +529,9 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     Address gatewayAddr = _t_gatewayAddrMap[gatewayId];
 
     if (_redisSetSessionSha1.empty()) {
-        reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "evalsha %s 1 session:%d %s %d %d %d", _redisSetSessionSha1.c_str(), userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 session:%d %s %d %d %d", _redisSetSessionSha1.c_str(), userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
     }
     
     if (!reply) {

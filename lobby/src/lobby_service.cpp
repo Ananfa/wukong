@@ -94,9 +94,9 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
 
     // 尝试设置location
     if (g_GameCenter.setLocationSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "eval %s 1 location:%d %s %d %d", SET_LOCATION_CMD, roleId, lToken, _manager->getId(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 location:%d %s %d %d", SET_LOCATION_CMD, roleId, lToken, _manager->getId(), 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "evalsha %s 1 location:%d %s %d %d %d", g_GameCenter.setLocationSha1().c_str(), roleId, lToken, _manager->getId(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 location:%d %s %d %d", g_GameCenter.setLocationSha1().c_str(), roleId, lToken, _manager->getId(), 60);
     }
     
     if (!reply) {

@@ -131,9 +131,9 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     // 用lua脚本校验session信息——进行服务器号和token比较，设置超时时间，返回roleId
     redisReply *reply;
     if (g_GatewayCenter.checkSessionSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %d %s %d", CHECK_SESSION_CMD, userId, _manager->getId(), request->token().c_str(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 session:%d %d %s %d", CHECK_SESSION_CMD, userId, _manager->getId(), request->token().c_str(), 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "evalsha %s 1 session:%d %d %s %d", g_GatewayCenter.checkSessionSha1(), userId, _manager->getId(), request->token().c_str(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 session:%d %d %s %d", g_GatewayCenter.checkSessionSha1(), userId, _manager->getId(), request->token().c_str(), 60);
     }
     
     if (!reply) {

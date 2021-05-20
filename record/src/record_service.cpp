@@ -39,21 +39,116 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
                                  const ::wukong::pb::LoadRoleRequest* request,
                                  ::wukong::pb::LoadRoleResponse* response,
                                  ::google::protobuf::Closure* done) {
+    uint32_t roleId = request->roleid;
+
     if (_manager->isShutdown()) {
+        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] server is shutdown\n", roleId);
         response->set_errcode(1);
         return;
     }
 
+    std::list<std::pair<std::string, std::string>> datas;
+
+    // 查看是否有本地缓存的record object
+    std::shared_ptr<RecordObject> obj = _manager->getRecordObject(roleId);
+    if (obj) {
+        obj->setLToken(request->ltoken());
+
+        obj->buildAllDatas(datas);
+
+        auto msg = new wukong::pb::DataFragments;
+        for (auto it = datas.begin(); it != datas.end(); ++it) {
+            auto fragment = msg->add_fragments();
+            fragment->set_fragname(std::move(it->first));
+            fragment->set_fragdata(std::move(it->second));
+        }
+
+        int msgSize = msg->ByteSize();
+        std::string msgData(msgSize, 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        msg->SerializeWithCachedSizesToArray(buf);
+        response->set_data(std::move(msgData));
+        delete msg;
+        return;
+    }
+    
+    // 设置record
+    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+    if (!cache) {
+        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] connect to cache failed\n", roleId);
+        response->set_errcode(2);
+        return;
+    }
+
+    // 生成rToken（直接用当前时间）
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    uint32_t rToken = t.tv_sec;
+
+    // 尝试设置record
+    if (g_RecordCenter.setRecordSha1().empty()) {
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 record:%d %s %d", SET_RECORD_CMD, roleId, rToken, 60);
+    } else {
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 record:%d %s %d", g_RecordCenter.setRecordSha1().c_str(), roleId, rToken, 60);
+    }
+    
+    if (!reply) {
+        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] set record failed\n", roleId);
+        response->set_errcode(3);
+        return;
+    }
+
+    if (reply->type != REDIS_REPLY_INTEGER) {
+        freeReplyObject(reply);
+        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] set record failed for return type invalid\n", roleId);
+        response->set_errcode(4);
+        return;
+    }
+
+    if (reply->integer == 0) {
+        // 设置失败
+        freeReplyObject(reply);
+        g_RecordCenter.getCachePool()->proxy.put(cache, false);
+        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] set record failed for already set\n", roleId);
+        response->set_errcode(5);
+        return;
+    }
+
+    freeReplyObject(reply);
+
+    // 注意：mysql中的role表中需要记录role所属userId
+
+
+
+    g_RecordCenter.getCachePool()->proxy.put(cache, false);
+
+
+
+
     // TODO: 加载玩家数据
-    // 先从redis加载玩家数据
+    // 先从redis加载玩家数据，若redis没有，则从mysql加载并缓存到redis中
 }
 
 void RecordServiceImpl::sync(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::SyncRequest* request,
                              ::wukong::pb::BoolValue* response,
                              ::google::protobuf::Closure* done) {
-    // TODO: 同步数据
-    // 将收到的脏数据修改本地数据，并且同步到redis的完整数据和待落地数据中
+    // 数据同步
+    std::shared_ptr<RecordObject> obj = _manager->getRecordObject(request->roleid());
+    if (!obj) {
+        ERROR_LOG("RecordServiceImpl::sync -- record object not found\n");
+        return;
+    }
+
+    if (obj->getLToken() == request->ltoken()) {
+        ERROR_LOG("RecordServiceImpl::sync -- ltoken not match\n");
+        return;
+    }
+
+    obj->syncIn(request);
+    response->set_value(true);
 }
 
 void RecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
@@ -73,6 +168,7 @@ void RecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
 
     struct timeval t;
     gettimeofday(&t, NULL);
-    obj->_gameObjectHeartbeatExpire = t.tv_sec + 60;
+    // 注意：对于记录对象来说，当游戏对象销毁后记录对象可以缓存久一些，减轻数据库压力，这里设置10分钟
+    obj->_gameObjectHeartbeatExpire = t.tv_sec + RECORD_TIMEOUT;
     response->set_value(true);
 }

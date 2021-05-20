@@ -97,9 +97,9 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
         } else {
             redisReply *reply;
             if (g_GatewayCenter.setSessionExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "eval %s 1 session:%d %s %d", SET_SESSION_EXPIRE_CMD, obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 session:%d %s %d", SET_SESSION_EXPIRE_CMD, obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "evalsha %s 1 session:%d %s %d", g_GatewayCenter.setSessionExpireSha1(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 session:%d %s %d", g_GatewayCenter.setSessionExpireSha1(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             }
             
             if (!reply) {

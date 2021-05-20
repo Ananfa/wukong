@@ -18,10 +18,10 @@ namespace demoGame {
         virtual ~DemoRecordObject() {}
 
         virtual bool initData(const std::string &data);
-
         virtual void syncIn(const ::wukong::pb::SyncRequest* request);
-
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas);
+        virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
+        
     private:
         std::string _name;
         uint32_t _exp;

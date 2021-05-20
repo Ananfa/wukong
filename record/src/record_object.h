@@ -32,7 +32,7 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(RoleId roleId, uint32_t rToken, RecordObjectManager *manager): _roleId(roleId), _rToken(rToken), _manager(manager), _running(false) {}
+        RecordObject(RoleId roleId, uint32_t rToken, RecordObjectManager *manager): _roleId(roleId), _rToken(rToken), _manager(manager), _running(false), _saveMinute(0), _cacheFailNum(0) {}
         virtual ~RecordObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
@@ -41,11 +41,13 @@ namespace wukong {
 
         RoleId getRoleId() { return _roleId; }
         void setLToken(uint32_t lToken) { _lToken = lToken; }
+        uint32_t getLToken() { return _lToken; }
 
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
 
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
+        virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
 
     private:
         static void *heartbeatRoutine(void *arg);  // 心跳协程，周期对record key重设超时时间，如果一段时间没收到游戏对象的心跳时可销毁存储对象
@@ -64,6 +66,8 @@ namespace wukong {
         bool _running;
 
         uint64_t _gameObjectHeartbeatExpire; // 游戏对象心跳超时时间
+        uint64_t _saveMinute; // 落地时间分钟号
+        int _cacheFailNum; // 累计cache失败计数
 
         RecordObjectManager *_manager; // 关联的manager
     };

@@ -24,7 +24,7 @@ namespace wukong {
     // 单例模式实现
     class LoginConfig {
     public:
-        struct DBInfo {
+        struct RedisInfo {
             std::string host;       // db服务器host
             uint16_t port;          // db服务器port
             uint16_t dbIndex;       // db分库索引
@@ -50,8 +50,8 @@ namespace wukong {
         uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
         uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
 
-        const DBInfo& getCache() const { return _cache; }
-        const DBInfo& getDB() const { return _db; }
+        const RedisInfo& getCache() const { return _cache; }
+        const RedisInfo& getDB() const { return _db; }
 
     private:
         uint32_t _id;       // 服务号（Login服唯一标识，与zookeeper注册发现有关）
@@ -65,8 +65,8 @@ namespace wukong {
         uint32_t _ioRecvThreadNum;  // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t _ioSendThreadNum;  // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
-        DBInfo _cache;
-        DBInfo _db;
+        RedisInfo _cache;
+        RedisInfo _db;
     private:
         LoginConfig() = default;                            // ctor hidden
         LoginConfig(LoginConfig const&) = delete;            // copy ctor hidden

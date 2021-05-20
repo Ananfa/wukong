@@ -31,7 +31,7 @@ namespace wukong {
             uint16_t rpcPort;       // rpc服务端口
         };
 
-        struct DBInfo {
+        struct RedisInfo {
             std::string host;       // db服务器host
             uint16_t port;          // db服务器port
             uint16_t dbIndex;       // db分库索引
@@ -54,7 +54,7 @@ namespace wukong {
         uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
         uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
 
-        const DBInfo& getCache() const { return _cache; }
+        const RedisInfo& getCache() const { return _cache; }
 
         uint32_t getUpdatePeriod() const { return _updatePeriod; }
         
@@ -68,7 +68,7 @@ namespace wukong {
         uint32_t _ioRecvThreadNum;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
-        DBInfo _cache; // 缓存库配置
+        RedisInfo _cache; // 缓存库配置
 
         uint32_t _updatePeriod; // 游戏对象update方法调用周期，单位毫秒，0表示不进行update
     private:

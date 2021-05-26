@@ -64,7 +64,7 @@ namespace wukong {
         uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
 
         const RedisInfo& getCache() const { return _cache; }
-        const MysqlInfo& getDB() const { return _db; }
+        const MysqlInfo& getMysql() const { return _mysql; }
         
     private:
         std::string _ip;    // 提供rpc服务的ip
@@ -77,7 +77,7 @@ namespace wukong {
         uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
         RedisInfo _cache; // 缓存库配置
-        MysqlInfo _db; // 数据库配置
+        MysqlInfo _mysql; // 数据库配置
 
     private:
         RecordConfig() = default;                                 // ctor hidden

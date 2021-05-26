@@ -5,15 +5,32 @@
 using namespace wukong;
 
 uint64_t RedisUtils::CreateUserID(redisContext *redis) {
-	int r = rand() % 100;
+    int r = rand() % 100;
     redisReply *reply = (redisReply *)redisCommand(redis, "INCR UIDGEN:USER:%d", r);
     if (!reply) {
-    	return 0;
+        return 0;
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
-    	freeReplyObject(reply);
-    	return 0;
+        freeReplyObject(reply);
+        return 0;
+    }
+
+    uint64_t ret = reply->integer * 100 + r;
+    freeReplyObject(reply);
+    return ret;
+}
+
+uint64_t RedisUtils::CreateRoleID(redisContext *redis) {
+    int r = rand() % 100;
+    redisReply *reply = (redisReply *)redisCommand(redis, "INCR UIDGEN:ROLE:%d", r);
+    if (!reply) {
+        return 0;
+    }
+
+    if (reply->type != REDIS_REPLY_INTEGER) {
+        freeReplyObject(reply);
+        return 0;
     }
 
     uint64_t ret = reply->integer * 100 + r;

@@ -23,7 +23,7 @@
         "maxConnect": 8,                        // 最大连接数
         "dbIndex": 0                            // 分库索引
     },
-    "db": {
+    "mysql": {
         "host": "127.0.0.1",
         "port": 3306,
         "user": "root",

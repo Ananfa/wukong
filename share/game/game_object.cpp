@@ -99,10 +99,10 @@ void GameObject::forwardOut(int32_t type, uint16_t tag, const std::vector<std::p
     Controller *controller = new Controller();
     request->set_type(type);
     request->set_tag(tag);
-    for (auto it = targets.begin(); it != targets.end(); ++it) {
+    for (auto &t : targets) {
         ::wukong::pb::ForwardOutTarget* target = request->add_targets();
-        target->set_userid(it->first);
-        target->set_ltoken(it->second);
+        target->set_userid(t.first);
+        target->set_ltoken(t.second);
     }
     
     if (!msg.empty()) {
@@ -181,13 +181,13 @@ bool GameObject::sync(std::list<std::pair<std::string, std::string>> &datas, std
     Controller *controller = new Controller();
     request->set_ltoken(_lToken);
     request->set_roleid(_roleId);
-    for (auto it = datas.begin(); it != datas.end(); ++it) {
+    for (auto &d : datas) {
         auto data = request->add_datas();
-        data->set_key(it->first);
-        data->set_value(it->second);
+        data->set_key(d.first);
+        data->set_value(d.second);
     }
-    for (auto it = removes.begin(); it != removes.end(); ++it) {
-        request->add_removes(*it);
+    for (auto &r : removes) {
+        request->add_removes(r);
     }
 
     _recordServerStub->sync(controller, request, response, nullptr);

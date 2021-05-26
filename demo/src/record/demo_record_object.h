@@ -19,7 +19,7 @@ namespace demoGame {
 
         virtual bool initData(const std::string &data);
         virtual void syncIn(const ::wukong::pb::SyncRequest* request);
-        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas);
+        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::pair<std::string, std::string>> &profileDatas);
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
         
     private:

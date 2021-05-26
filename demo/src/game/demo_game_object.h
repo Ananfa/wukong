@@ -58,7 +58,6 @@ namespace demo {
         std::map<uint32_t, demoGame::pb::Card*> _card_map;
         std::map<uint32_t, demoGame::pb::Pet*> _pet_map;
         demoGame::pb::SignInActivity* _signinactivity;
-
     };
 
 }

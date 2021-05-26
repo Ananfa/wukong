@@ -135,8 +135,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             auto msg = new wukong::pb::StringValue;
             msg->set_value(_name);
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
@@ -146,8 +145,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_exp);
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
@@ -157,16 +155,14 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_lv);
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
             datas.insert(std::make_pair("lv", std::move(msgData)));
             delete msg;
         } else if (it->first.compare("currency") == 0) {
-            int msgSize = _currency->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(_currency->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _currency->SerializeWithCachedSizesToArray(buf);
 
@@ -176,8 +172,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             uint32_t id = atoi(idStr.c_str());
             auto it1 = _card_map.find(id);
             if (it1 != _card_map.end()) {
-                int msgSize = it1->second->ByteSize();
-                std::string msgData(msgSize, 0);
+                std::string msgData(it1->second->ByteSize(), 0);
                 uint8_t *buf = (uint8_t *)msgData.data();
                 it1->second->SerializeWithCachedSizesToArray(buf);
 
@@ -190,8 +185,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             uint32_t id = atoi(idStr.c_str());
             auto it1 = _pet_map.find(id);
             if (it1 != _pet_map.end()) {
-                int msgSize = it1->second->ByteSize();
-                std::string msgData(msgSize, 0);
+                std::string msgData(it1->second->ByteSize(), 0);
                 uint8_t *buf = (uint8_t *)msgData.data();
                 it1->second->SerializeWithCachedSizesToArray(buf);
 
@@ -200,8 +194,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
                 removes.insert(it->first);
             }
         } else if (it->first.compare("signinactivity") == 0) {
-            int msgSize = _signinactivity->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(_signinactivity->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _signinactivity->SerializeWithCachedSizesToArray(buf);
 
@@ -347,4 +340,12 @@ demoGame::pb::SignInActivity* DemoGameObject::getSignInActivity() {
 
 void DemoGameObject::setSignInActivityDirty() {
     _dirty_map["signinactivity"] = true;
+}
+
+demoGame::pb::RoleProfile* DemoGameObject::getRoleProfile() {
+    return _roleprofile;
+}
+
+void DemoGameObject::setRoleProfileDirty() {
+    _profile_dirty = true;
 }

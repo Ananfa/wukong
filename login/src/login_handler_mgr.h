@@ -18,12 +18,15 @@
 #define login_handler_mgr_h
 
 #include "corpc_redis.h"
+#include "corpc_mysql.h"
 #include "http_server.h"
 #include "http_message.h"
 #include "gateway_client.h"
 #include "share/define.h"
 
 #include <vector>
+#include <list>
+#include <map>
 #include <mutex>
 #include <atomic>
 
@@ -31,7 +34,7 @@ using namespace corpc;
 
 namespace wukong {
     typedef std::function<bool (std::shared_ptr<RequestMessage>&)> LoginCheckHandler;
-    typedef std::function<RoleId (std::shared_ptr<RequestMessage>&, std::string&)> CreateRoleHandler;
+    typedef std::function<bool (std::shared_ptr<RequestMessage>&, std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> CreateRoleHandler;
 
     struct LogicServerInfo {
         uint16_t id; // 逻辑服id
@@ -58,7 +61,8 @@ namespace wukong {
         void setCreateRoleHandler(CreateRoleHandler handler) { _createRole = handler; };
 
         RedisConnectPool *getCache() { return _cache; }
-        RedisConnectPool *getDB() { return _db; }
+        RedisConnectPool *getRedis() { return _redis; }
+        MysqlConnectPool *getMysql() { return _mysql; }
 
         bool randomGatewayServer(ServerId &serverId);
     private:
@@ -85,6 +89,8 @@ namespace wukong {
 
         bool checkToken(UserId userId, const std::string& token);
 
+        bool loadProfile(RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
+
         static void *updateRoutine(void *arg);
         void updateGatewayInfos();
 
@@ -110,12 +116,14 @@ namespace wukong {
         static thread_local std::map<ServerId, GroupId> _t_serverId2groupIdMap;
 
         RedisConnectPool *_cache;
-        RedisConnectPool *_db;
+        RedisConnectPool *_redis;
+        MysqlConnectPool *_mysql;
 
         LoginCheckHandler _loginCheck;
         CreateRoleHandler _createRole;
 
         std::string _redisSetSessionSha1; // 设置session的lua脚本sha1值
+        std::string _redisAddRoleIdSha1; // 添加roleId的lua脚本sha1值
 
     private:
         LoginHandlerMgr() = default;                                     // ctor hidden

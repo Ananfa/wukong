@@ -33,8 +33,8 @@ void GameObjectManager::shutdown() {
 
     _shutdown = true;
 
-    for (auto it = _roleId2GameObjectMap.begin(); it != _roleId2GameObjectMap.end(); ++it) {
-        it->second->stop();
+    for (auto &gameObj : _roleId2GameObjectMap) {
+        gameObj.stop();
     }
 
     _roleId2GameObjectMap.clear();

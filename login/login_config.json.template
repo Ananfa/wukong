@@ -6,16 +6,25 @@
     "workerThreadNum": 4,                       // http处理线程数（为0时表示在主线程进行http处理）
     "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
     "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
-    "cache": {                                  // 缓存服务器
+    "roleNumForPlayer": 1,                      // 每个玩家在一个区服中可创建的角色数量
+    "cache": {                                  // 缓存Redis库（不落地，可集群部署，支持发布订阅）
         "host": "127.0.0.1",
         "port": 6379,
         "maxConnect": 8,                        // 最大连接数
         "dbIndex": 0                            // 分库索引
     },
-    "db": {
+    "redis": {                                  // 落地Redis库（可集群部署）
         "host": "127.0.0.1",
         "port": 6379,
         "maxConnect": 8,                        // 最大连接数
         "dbIndex": 0                            // 分库索引
+    },
+    "mysql": {                                  // 落地mysql数据库
+        "host": "127.0.0.1",
+        "port": 3306,
+        "user": "root",
+        "pwd": "123456",
+        "maxConnect": 8,                        // 最大连接数
+        "dbName": "demo"
     }
 }

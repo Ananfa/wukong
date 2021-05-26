@@ -119,8 +119,8 @@ int main(int argc, char * argv[]) {
     // 根据servers配置启动Record服务，每线程跑一个服务
     std::vector<std::thread> rcThreads;
     const std::vector<RecordConfig::ServerInfo> &recordInfos = g_RecordConfig.getServerInfos();
-    for (auto iter = recordInfos.begin(); iter != recordInfos.end(); iter++) {
-        rcThreads.push_back(std::thread(recordThread, io, io, iter->id, iter->rpcPort));
+    for (auto &info : recordInfos) {
+        rcThreads.push_back(std::thread(recordThread, io, io, info.id, info.rpcPort));
     }
 
     enterZoo();

@@ -78,6 +78,12 @@ bool LoginConfig::parse(const char *path) {
     }
     _ioSendThreadNum = doc["ioSendThreadNum"].GetUint();
 
+    if (!doc.HasMember("roleNumForPlayer")) {
+        ERROR_LOG("config error -- roleNumForPlayer not define\n");
+        return false;
+    }
+    _roleNumForPlayer = doc["roleNumForPlayer"].GetUint();
+
     if (!doc.HasMember("cache")) {
         ERROR_LOG("config error -- cache not define\n");
         return false;
@@ -113,40 +119,87 @@ bool LoginConfig::parse(const char *path) {
     }
     _cache.maxConnect = cache["maxConnect"].GetUint();
     
-    if (!doc.HasMember("db")) {
+    if (!doc.HasMember("redis")) {
         ERROR_LOG("config error -- db not define\n");
         return false;
     }
     
-    const Value& db = doc["db"];
-    if (!db.IsObject()) {
-        ERROR_LOG("config error -- db not object\n");
+    const Value& redis = doc["redis"];
+    if (!redis.IsObject()) {
+        ERROR_LOG("config error -- redis not object\n");
         return false;
     }
     
-    if (!db.HasMember("host")) {
-        ERROR_LOG("config error -- db.host not define\n");
+    if (!redis.HasMember("host")) {
+        ERROR_LOG("config error -- redis.host not define\n");
         return false;
     }
-    _db.host = db["host"].GetString();
+    _redis.host = redis["host"].GetString();
     
-    if (!db.HasMember("port")) {
-        ERROR_LOG("config error -- db.port not define\n");
+    if (!redis.HasMember("port")) {
+        ERROR_LOG("config error -- redis.port not define\n");
         return false;
     }
-    _db.port = db["port"].GetUint();
+    _redis.port = redis["port"].GetUint();
     
-    if (!db.HasMember("dbIndex")) {
-        ERROR_LOG("config error -- db.dbIndex not define\n");
+    if (!redis.HasMember("dbIndex")) {
+        ERROR_LOG("config error -- redis.dbIndex not define\n");
         return false;
     }
-    _db.dbIndex = db["dbIndex"].GetUint();
+    _redis.dbIndex = redis["dbIndex"].GetUint();
     
-    if (!db.HasMember("maxConnect")) {
-        ERROR_LOG("config error -- db.maxConnect not define\n");
+    if (!redis.HasMember("maxConnect")) {
+        ERROR_LOG("config error -- redis.maxConnect not define\n");
         return false;
     }
-    _db.maxConnect = db["maxConnect"].GetUint();
+    _redis.maxConnect = redis["maxConnect"].GetUint();
+    
+    if (!doc.HasMember("mysql")) {
+        ERROR_LOG("config error -- mysql not define\n");
+        return false;
+    }
+    
+    const Value& mysql = doc["mysql"];
+    if (!mysql.IsObject()) {
+        ERROR_LOG("config error -- mysql not object\n");
+        return false;
+    }
+    
+    if (!mysql.HasMember("host")) {
+        ERROR_LOG("config error -- mysql.host not define\n");
+        return false;
+    }
+    _mysql.host = mysql["host"].GetString();
+    
+    if (!mysql.HasMember("port")) {
+        ERROR_LOG("config error -- mysql.port not define\n");
+        return false;
+    }
+    _mysql.port = mysql["port"].GetUint();
+    
+    if (!mysql.HasMember("user")) {
+        ERROR_LOG("config error -- mysql.user not define\n");
+        return false;
+    }
+    _mysql.user = mysql["user"].GetString();
+    
+    if (!mysql.HasMember("pwd")) {
+        ERROR_LOG("config error -- mysql.pwd not define\n");
+        return false;
+    }
+    _mysql.pwd = mysql["pwd"].GetString();
+    
+    if (!mysql.HasMember("maxConnect")) {
+        ERROR_LOG("config error -- mysql.maxConnect not define\n");
+        return false;
+    }
+    _mysql.maxConnect = mysql["maxConnect"].GetUint();
+    
+    if (!mysql.HasMember("dbName")) {
+        ERROR_LOG("config error -- mysql.dbName not define\n");
+        return false;
+    }
+    _mysql.dbName = mysql["dbName"].GetString();
     
     return true;
 }

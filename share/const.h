@@ -131,6 +131,25 @@ namespace wukong {
         redis.call('expire',KEYS[1],ARGV[2])\
         return 1";
 
+    const char ADD_ROLEID_CMD[] = "\
+        local ret = redis.call('scard',KEYS[1])\
+        if ret<ARGV[2] then\
+          redis.call('sadd',KEYS[1],ARGV[1])\
+          redis.call('sadd',KEYS[2],ARGV[1])\
+          return 1\
+        else\
+          return 0\
+        end";
+
+    const char UPDATE_PROFILE_CMD[] = "\
+        local ret = redis.call('exists',KEYS[1])\
+        if ret==1 then\
+          redis.call('hmset',KEYS[1],table.unpack(ARGV,2))\
+          redis.call('expire',KEYS[1],ARGV[1])\
+          return 1\
+        else\
+          return 0\
+        end";
 }
 
 #endif /* const_h */

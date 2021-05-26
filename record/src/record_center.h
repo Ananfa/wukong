@@ -18,6 +18,7 @@
 #define record_center_h
 
 #include "corpc_redis.h"
+#include "corpc_mysql.h"
 #include "share/define.h"
 #include "record_manager.h"
 
@@ -41,9 +42,11 @@ namespace wukong {
         void init();
         
         RedisConnectPool *getCachePool() { return _cache; }
+        MysqlConnectPool *getMysqlPool() { return _mysql; }
 
         const std::string &setRecordSha1() { return _setRecordSha1; }
         const std::string &setRecordExpireSha1() { return _setRecordExpireSha1; }
+        const std::string &updateProfileSha1() { return _updateProfileSha1; }
 
         void setCreateRecordObjectHandler(CreateRecordObjectHandler handler) { _createRecordObjectHandler = handler; }
         CreateRecordObjectHandler getCreateRecordObjectHandler() { return _createRecordObjectHandler; }
@@ -53,9 +56,11 @@ namespace wukong {
 
     private:
         RedisConnectPool *_cache;
+        MysqlConnectPool *_mysql;
 
         std::string _setRecordSha1; // 设置Record key的lua脚本sha1值
-        std::string _setRecordExpireSha1; // 设置Record key的超时lua脚本sha1值
+        std::string _setRecordExpireSha1; // 设置Record key超时的lua脚本sha1值
+        std::string _updateProfileSha1; // 更新画像数据的lua脚本sha1值
 
         CreateRecordObjectHandler _createRecordObjectHandler;
     private:

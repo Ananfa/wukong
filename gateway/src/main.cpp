@@ -156,8 +156,8 @@ int main(int argc, char * argv[]) {
     // 根据servers配置启动Gateway服务，每线程跑一个服务
     std::vector<std::thread> gwThreads;
     const std::vector<GatewayConfig::ServerInfo> &gatewayInfos = g_GatewayConfig.getServerInfos();
-    for (auto iter = gatewayInfos.begin(); iter != gatewayInfos.end(); iter++) {
-        gwThreads.push_back(std::thread(gatewayThread, io, io, iter->id, iter->rpcPort, iter->msgPort));
+    for (auto &info : gatewayInfos) {
+        gwThreads.push_back(std::thread(gatewayThread, io, io, info.id, info.rpcPort, info.msgPort));
     }
 
     enterZoo();

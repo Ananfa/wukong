@@ -1,12 +1,3 @@
 syntax = "proto3";
 
 package wukong.pb;
-
-message DataFragment {
-    string fragName = 1;
-    bytes fragData = 2;
-}
-
-message DataFragments {
-    repeated DataFragment fragments = 1;
-}

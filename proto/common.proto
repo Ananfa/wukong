@@ -49,3 +49,12 @@ message StringValue {
 message StringValues {
     repeated string values = 1;
 }
+
+message DataFragment {
+    string fragName = 1;
+    bytes fragData = 2;
+}
+
+message DataFragments {
+    repeated DataFragment fragments = 1;
+}

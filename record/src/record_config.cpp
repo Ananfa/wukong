@@ -130,52 +130,52 @@ bool RecordConfig::parse(const char *path) {
     }
     _cache.maxConnect = cache["maxConnect"].GetUint();
     
-    if (!doc.HasMember("db")) {
-        ERROR_LOG("config error -- db not define\n");
+    if (!doc.HasMember("mysql")) {
+        ERROR_LOG("config error -- mysql not define\n");
         return false;
     }
     
-    const Value& db = doc["db"];
-    if (!db.IsObject()) {
-        ERROR_LOG("config error -- db not object\n");
+    const Value& mysql = doc["mysql"];
+    if (!mysql.IsObject()) {
+        ERROR_LOG("config error -- mysql not object\n");
         return false;
     }
     
-    if (!db.HasMember("host")) {
-        ERROR_LOG("config error -- db.host not define\n");
+    if (!mysql.HasMember("host")) {
+        ERROR_LOG("config error -- mysql.host not define\n");
         return false;
     }
-    _db.host = db["host"].GetString();
+    _mysql.host = mysql["host"].GetString();
     
-    if (!db.HasMember("port")) {
-        ERROR_LOG("config error -- db.port not define\n");
+    if (!mysql.HasMember("port")) {
+        ERROR_LOG("config error -- mysql.port not define\n");
         return false;
     }
-    _db.port = db["port"].GetUint();
+    _mysql.port = mysql["port"].GetUint();
     
-    if (!db.HasMember("user")) {
-        ERROR_LOG("config error -- db.user not define\n");
+    if (!mysql.HasMember("user")) {
+        ERROR_LOG("config error -- mysql.user not define\n");
         return false;
     }
-    _db.user = db["user"].GetString();
+    _mysql.user = mysql["user"].GetString();
     
-    if (!db.HasMember("pwd")) {
-        ERROR_LOG("config error -- db.pwd not define\n");
+    if (!mysql.HasMember("pwd")) {
+        ERROR_LOG("config error -- mysql.pwd not define\n");
         return false;
     }
-    _db.pwd = db["pwd"].GetString();
+    _mysql.pwd = mysql["pwd"].GetString();
     
-    if (!db.HasMember("maxConnect")) {
-        ERROR_LOG("config error -- db.maxConnect not define\n");
+    if (!mysql.HasMember("maxConnect")) {
+        ERROR_LOG("config error -- mysql.maxConnect not define\n");
         return false;
     }
-    _db.maxConnect = db["maxConnect"].GetUint();
+    _mysql.maxConnect = mysql["maxConnect"].GetUint();
     
-    if (!db.HasMember("dbName")) {
-        ERROR_LOG("config error -- db.dbName not define\n");
+    if (!mysql.HasMember("dbName")) {
+        ERROR_LOG("config error -- mysql.dbName not define\n");
         return false;
     }
-    _db.dbName = db["dbName"].GetString();
+    _mysql.dbName = mysql["dbName"].GetString();
     
     return true;
 }

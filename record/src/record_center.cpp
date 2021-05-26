@@ -63,6 +63,23 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_setRecordExpireSha1 = reply->str;
     freeReplyObject(reply);
 
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", UPDATE_PROFILE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("RecordCenter::initRoutine -- update-profile script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("RecordCenter::initRoutine -- update-profile script load failed\n");
+        return nullptr;
+    }
+
+    self->_updateProfileSha1 = reply->str;
+    freeReplyObject(reply);
+
     self->_cache->proxy.put(cache, false);
     
     return nullptr;
@@ -70,6 +87,7 @@ void *RecordCenter::initRoutine(void *arg) {
 
 void RecordCenter::init() {
     _cache = corpc::RedisConnectPool::create(g_RecordConfig.getCache().host.c_str(), g_RecordConfig.getCache().port, g_RecordConfig.getCache().dbIndex, g_RecordConfig.getCache().maxConnect);
+    _mysql = corpc::MysqlConnectPool::create(g_RecordConfig.getMysql().host.c_str(), g_RecordConfig.getMysql().user.c_str(), g_RecordConfig.getMysql().pwd.c_str(), g_RecordConfig.getMysql().dbName.c_str(), g_RecordConfig.getMysql().port, "", 0, g_RecordConfig.getMysql().maxConnect);
 
     // 初始化redis lua脚本sha1值
     RoutineEnvironment::startCoroutine(initRoutine, this);

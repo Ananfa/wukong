@@ -33,8 +33,8 @@ void RecordManager::shutdown() {
 
     _shutdown = true;
 
-    for (auto it = _roleId2RecordObjectMap.begin(); it != _roleId2RecordObjectMap.end(); ++it) {
-        it->second->stop();
+    for (auto &recordObj : _roleId2RecordObjectMap) {
+        recordObj.stop();
     }
 
     _roleId2RecordObjectMap.clear();

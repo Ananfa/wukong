@@ -46,7 +46,7 @@ namespace wukong {
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
 
-        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
+        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::pair<std::string, std::string>> &profileDatas) = 0;
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
 
     private:
@@ -55,6 +55,8 @@ namespace wukong {
         static void *syncRoutine(void *arg); // 存盘协程（每隔一段时间将脏数据存到Redis中）
 
         bool cacheData(std::list<std::pair<std::string, std::string>> &datas);
+        
+        bool cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas);
 
     protected:
         std::map<std::string, bool> _dirty_map;

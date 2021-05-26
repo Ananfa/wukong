@@ -33,7 +33,7 @@ namespace wukong {
 
     class GameObject: public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _lToken(lToken), _manager(manager), _running(false) {}
+        GameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _lToken(lToken), _manager(manager), _running(false), _profile_dirty(false) {}
         virtual ~GameObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
@@ -83,6 +83,7 @@ namespace wukong {
         RoleId _roleId;
         
         std::map<std::string, bool> _dirty_map;
+
     public:
         friend class GameServiceImpl;
     };

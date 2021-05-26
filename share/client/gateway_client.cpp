@@ -119,10 +119,10 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
     Controller *controller = new Controller();
     request->set_type(type);
     request->set_tag(tag);
-    for (auto it = targets.begin(); it != targets.end(); ++it) {
+    for (auto &t : targets) {
         ::wukong::pb::ForwardOutTarget* target = request->add_targets();
-        target->set_userid(it->first);
-        target->set_ltoken(it->second);
+        target->set_userid(t.first);
+        target->set_ltoken(t.second);
     }
     
     if (!msg.empty()) {

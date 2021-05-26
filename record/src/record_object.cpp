@@ -126,6 +126,7 @@ void *RecordObject::syncRoutine(void *arg) {
 
     // 每隔一段时间将脏数据存到redis数据库
     std::list<std::pair<std::string, std::string>> syncDatas;
+    std::list<std::pair<std::string, std::string>> profileDatas;
 
     while (obj->_running) {
         for (int i = 0; i < CACHE_PERIOD; i++) {
@@ -137,13 +138,14 @@ void *RecordObject::syncRoutine(void *arg) {
         }
 
         // 向记录服同步数据（销毁前也应将脏数据存盘）
-        obj->buildSyncDatas(syncDatas);
-        if (!syncDatas.empty() || !removes.empty()) {
+        obj->buildSyncDatas(syncDatas, profileDatas);
+        if (!syncDatas.empty()) {
             if (obj->cacheData(syncDatas)) {
                 obj->_dirty_map.clear();
                 _cacheFailNum = 0;
             } else {
                 // 增加失败计数，若连续3次失败则销毁记录对象，防止长时间回档
+                ERROR_LOG("RecordObject::syncRoutine -- role %d cache data failed\n", obj->_roleId);
                 ++_cacheFailNum;
                 if _cacheFailNum > 3 {
                     obj->stop();
@@ -153,26 +155,13 @@ void *RecordObject::syncRoutine(void *arg) {
             syncDatas.clear();
         }
 
-    }
-}
+        if (!profileDatas.empty()) {
+            if (!obj->cacheProfile(profileDatas)) {
+                ERROR_LOG("RecordObject::syncRoutine -- role %d save profile failed\n", obj->_roleId);
+            }
 
-void *RecordObject::updateRoutine(void *arg) {
-    RecordObjectRoutineArg* routineArg = (RecordObjectRoutineArg*)arg;
-    std::shared_ptr<RecordObject> obj = std::move(routineArg->obj);
-    delete routineArg;
-
-    struct timeval t;
-
-    while (obj->_running) {
-        msleep(g_GameCenter.getGameObjectUpdatePeriod());
-
-        if (!obj->_running) {
-            // 游戏对象已被销毁
-            break;
+            profileDatas.clear();
         }
-
-        gettimeofday(&t, NULL);
-        obj->update(t.tv_sec);
     }
 }
 
@@ -183,7 +172,7 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
     int argNum = datas.size() * 2 + 2;
     argv.reserve(argNum);
     argvlen.reserve(argNum);
-    argv.push_back("hmset");
+    argv.push_back("HMSET");
     argvlen.push_back(5);
 
     char tmpStr[50];
@@ -191,12 +180,11 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
     argv.push_back(tmpStr);
     argvlen.push_back(strlen(tmpStr));
 
-    for (auto it = datas.begin; it != datas.end(); ++it)
-    {
-        argv.push_back(it->first.c_str());
-        argvlen.push_back(it->first.length());
-        argv.push_back(it->second.c_str());
-        argvlen.push_back(it->second.length());
+    for (auto &data : datas) {
+        argv.push_back(data.first.c_str());
+        argvlen.push_back(data.first.length());
+        argv.push_back(data.second.c_str());
+        argvlen.push_back(data.second.length());
     }
     
     redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
@@ -243,4 +231,70 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
     }
 
     return true;
+}
+
+bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas) {
+    // 将轮廓数据存到cache中，若cache中没有找到则不需要更新轮廓数据
+    std::vector<const char *> argv;
+    std::vector<size_t> argvlen;
+    int argNum = profileDatas.size() * 2 + 5;
+    argv.reserve(argNum);
+    argvlen.reserve(argNum);
+    if (g_RecordCenter.updateProfileSha1().empty()) {
+        argv.push_back("EVAL");
+        argvlen.push_back(4);
+        argv.push_back(UPDATE_PROFILE_CMD);
+        argvlen.push_back(strlen(UPDATE_PROFILE_CMD));
+        argv.push_back("1");
+        argvlen.push_back(1);
+    } else {
+        argv.push_back("EVALSHA");
+        argvlen.push_back(7);
+        argv.push_back(g_RecordCenter.updateProfileSha1().c_str());
+        argvlen.push_back(g_RecordCenter.updateProfileSha1().length());
+        argv.push_back("1");
+        argvlen.push_back(1);
+    }
+
+    char tmpStr[50];
+    sprintf(tmpStr,"RoleInfo:{%d}", _roleId);
+    argv.push_back(tmpStr);
+    argvlen.push_back(strlen(tmpStr));
+
+    argv.push_back("86400");    // 1天超时时间
+    argvlen.push_back(5);
+
+    for (auto &data : profileDatas)
+    {
+        argv.push_back(data.first.c_str());
+        argvlen.push_back(data.first.length());
+        argv.push_back(data.second.c_str());
+        argvlen.push_back(data.second.length());
+    }
+    
+    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+    if (!cache) {
+        ERROR_LOG("RecordObject::cacheProfile -- role %d connect to cache failed\n", _roleId);
+
+        return false;
+    } else {
+        redisReply *reply = (redisReply *)redisCommandArgv(cache, argv.size(), &(argv[0]), &(argvlen[0]));
+        
+        if (!reply) {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("RecordObject::cacheProfile -- role %d cache data failed for db error\n", _roleId);
+
+            return false;
+        } else if (strcmp(reply->str, "OK")) {
+            ERROR_LOG("RecordObject::cacheProfile -- role %d cache data failed: %s\n", _roleId, reply->str);
+            freeReplyObject(reply);
+            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+
+            return false;
+        }
+
+        freeReplyObject(reply);
+        g_RecordCenter.getCachePool()->proxy.put(cache, false);
+        return true;
+    }
 }

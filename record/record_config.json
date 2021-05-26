@@ -1,20 +1,24 @@
 {
-    "id": 1,
-    "serviceIp": "0.0.0.0",
-    "servicePort": 11000,
+    "ip": "127.0.0.1",
+    "servers": [
+        {
+            "id": 10001,
+            "rpcPort": 11001
+        },
+        {
+            "id": 10002,
+            "rpcPort": 11002
+        },
+        {
+            "id": 10003,
+            "rpcPort": 11003
+        }
+    ],
     "zookeeper": "127.0.0.1:2181",
-    "workerThreadNum": 4,
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
-    "roleNumForPlayer": 1,
     "cache": {
-        "host": "192.168.92.221",
-        "port": 6379,
-        "maxConnect": 8,
-        "dbIndex": 0
-    },
-    "redis": {
-        "host": "192.168.92.221",
+        "host": "127.0.0.1",
         "port": 6379,
         "maxConnect": 8,
         "dbIndex": 0

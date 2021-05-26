@@ -148,8 +148,8 @@ int main(int argc, char * argv[]) {
     // 根据servers配置启动Lobby服务，每线程跑一个服务
     std::vector<std::thread> lbThreads;
     const std::vector<LobbyConfig::ServerInfo> &lobbyInfos = g_LobbyConfig.getServerInfos();
-    for (auto iter = lobbyInfos.begin(); iter != lobbyInfos.end(); iter++) {
-        lbThreads.push_back(std::thread(lobbyThread, io, io, iter->id, iter->rpcPort));
+    for (auto &info : lobbyInfos) {
+        lbThreads.push_back(std::thread(lobbyThread, io, io, info.id, info.rpcPort));
     }
 
     enterZoo();

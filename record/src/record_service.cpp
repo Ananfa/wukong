@@ -57,10 +57,10 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
         obj->buildAllDatas(datas);
 
         auto msg = new wukong::pb::DataFragments;
-        for (auto it = datas.begin(); it != datas.end(); ++it) {
+        for (auto &data : datas) {
             auto fragment = msg->add_fragments();
-            fragment->set_fragname(std::move(it->first));
-            fragment->set_fragdata(std::move(it->second));
+            fragment->set_fragname(std::move(data.first));
+            fragment->set_fragdata(std::move(data.second));
         }
 
         int msgSize = msg->ByteSize();

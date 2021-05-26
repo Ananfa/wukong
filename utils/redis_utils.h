@@ -8,8 +8,9 @@
 namespace wukong {
     
     class RedisUtils {
-    public :
+    public:
         static uint64_t CreateUserID(redisContext *redis);
+        static uint64_t CreateRoleID(redisContext *redis);
     };
 
 }

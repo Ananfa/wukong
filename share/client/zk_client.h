@@ -155,8 +155,8 @@ namespace wukong {
             }
             
             void setAll() const {
-                for (auto it = _watchMap.begin(); it != _watchMap.end(); ++it) {
-                    it->second->set();
+                for (auto &w : _watchMap) {
+                    w.set();
                 }
             }
             

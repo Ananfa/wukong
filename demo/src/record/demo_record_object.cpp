@@ -238,26 +238,25 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
     }
 }
 
-void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) {
+void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::pair<std::string, std::string>> &profileDatas) {
     // 将脏数据打包
     for (auto it = _dirty_map.begin(); it != _dirty_map.end(); ++it) {
         if (it->first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
             msg->set_value(_name);
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
+            profileDatas.insert(std::make_pair("name", msgData));
             datas.insert(std::make_pair("name", std::move(msgData)));
             delete msg;
         } else if (it->first.compare("exp") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_exp);
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
@@ -267,16 +266,15 @@ void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::stri
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_lv);
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
+            profileDatas.insert(std::make_pair("lv", msgData));
             datas.insert(std::make_pair("lv", std::move(msgData)));
             delete msg;
         } else if (it->first.compare("currency") == 0) {
-            int msgSize = _currency->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(_currency->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _currency->SerializeWithCachedSizesToArray(buf);
 
@@ -288,8 +286,7 @@ void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::stri
                 *card = *(it1->second);
             }
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
@@ -302,16 +299,14 @@ void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::stri
                 *pet = *(it1->second);
             }
 
-            int msgSize = msg->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(msg->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
             datas.insert(std::make_pair("pet", std::move(msgData)));
             delete msg;
         } else if (it->first.compare("signinactivity") == 0) {
-            int msgSize = _signinactivity->ByteSize();
-            std::string msgData(msgSize, 0);
+            std::string msgData(_signinactivity->ByteSize(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _signinactivity->SerializeWithCachedSizesToArray(buf);
 
@@ -326,8 +321,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         auto msg = new wukong::pb::StringValue;
         msg->set_value(_name);
 
-        int msgSize = msg->ByteSize();
-        std::string msgData(msgSize, 0);
+        std::string msgData(msg->ByteSize(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
@@ -339,8 +333,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(_exp);
 
-        int msgSize = msg->ByteSize();
-        std::string msgData(msgSize, 0);
+        std::string msgData(msg->ByteSize(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
@@ -352,8 +345,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(_lv);
 
-        int msgSize = msg->ByteSize();
-        std::string msgData(msgSize, 0);
+        std::string msgData(msg->ByteSize(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
@@ -362,8 +354,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
     }
 
     {
-        int msgSize = _currency->ByteSize();
-        std::string msgData(msgSize, 0);
+        std::string msgData(_currency->ByteSize(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         _currency->SerializeWithCachedSizesToArray(buf);
 
@@ -377,8 +368,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
             *card = *(it->second);
         }
 
-        int msgSize = msg->ByteSize();
-        std::string msgData(msgSize, 0);
+        std::string msgData(msg->ByteSize(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
@@ -393,8 +383,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
             *pet = *(it->second);
         }
 
-        int msgSize = msg->ByteSize();
-        std::string msgData(msgSize, 0);
+        std::string msgData(msg->ByteSize(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
@@ -403,8 +392,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
     }
 
     {
-        int msgSize = _signinactivity->ByteSize();
-        std::string msgData(msgSize, 0);
+        std::string msgData(_signinactivity->ByteSize(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         _signinactivity->SerializeWithCachedSizesToArray(buf);
 

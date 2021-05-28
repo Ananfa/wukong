@@ -5,12 +5,12 @@
 
 #include "record_object.h"
 #include "common.pb.h"
-#include "demoGame.pb.h"
+#include "demo.pb.h"
 #include <map>
 #include <string>
 #include <memory>
 
-namespace demoGame {
+namespace demo {
         
     class DemoRecordObject: public wukong::RecordObject {
     public:
@@ -26,10 +26,10 @@ namespace demoGame {
         std::string _name;
         uint32_t _exp;
         uint32_t _lv;
-        demoGame::pb::Currency* _currency;
-        std::map<uint32_t, demoGame::pb::Card*> _card_map;
-        std::map<uint32_t, demoGame::pb::Pet*> _pet_map;
-        demoGame::pb::SignInActivity* _signinactivity;
+        demo::pb::Currency* _currency;
+        std::map<uint32_t, demo::pb::Card*> _card_map;
+        std::map<uint32_t, demo::pb::Pet*> _pet_map;
+        demo::pb::SignInActivity* _signinactivity;
 
     };
 

@@ -116,6 +116,9 @@ int main(int argc, char * argv[]) {
     // 启动http服务
     HttpServer *httpServer = HttpServer::create(io, g_LoginConfig.getWorkerThreadNum(), g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
     g_LoginHandlerMgr.init(httpServer);
+    // TODO: g_LoginHandlerMgr.setLoginCheckHandler(...)
+    // TODO: g_LoginHandlerMgr.setCreateRoleHandler(...)
+    // TODO: g_LoginHandlerMgr.setLoadProfileHandler(...)
 
     enterZoo();
 

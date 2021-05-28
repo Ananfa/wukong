@@ -284,8 +284,9 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             // 查询轮廓数据
             for (RoleInfo &info : roles){
                 std::list<std::pair<std::string, std::string>> pDatas;
-                if (!loadProfile(info.roleId, info.serverId, pDatas)) {
-                    return setErrorResponse(response, "get role info failed");
+                if (!_loadProfile(_cache, _mysql, info.roleId, info.serverId, pDatas)) {
+                    ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed", info.roleId);
+                    continue;
                 }
 
                 info.pData = ProtoUtils::marshalDataFragments(pDatas);
@@ -509,6 +510,12 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
     RoleId roleId = std::stoi((*request)["roleId"]);
 
+    if (!request->has("serverId")) {
+        return setErrorResponse(response, "missing parameter serverId");
+    }
+
+    ServerId serverId = std::stoi((*request)["serverId"]);
+
     // 校验token
     if (!checkToken(userId, token)) {
         return setErrorResponse(response, "check token failed");
@@ -520,42 +527,26 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     }
 
     // 判断角色是否合法
-    ServerId serverId;
-    redisReply *reply = (redisReply *)redisCommand(redis, "HGETALL RoleInfo:{%d}", roleId);
+    redisReply *reply = (redisReply *)redisCommand(redis, "SISMEMBER RoleInfo:%d:{%d} %d", serverId, userId, roleId);
     if (!reply) {
         _redis->proxy.put(redis, true);
-        return setErrorResponse(response, "get role info failed");
+        return setErrorResponse(response, "check role info failed");
     }
 
-    if (reply->type != REDIS_REPLY_ARRAY || reply->elements % 2 != 0) {
+    if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
         _redis->proxy.put(redis, true);
-        return setErrorResponse(response, "get role info failed for return type invalid");
+        return setErrorResponse(response, "check role info failed for return type invalid");
     }
 
-    if (reply->elements > 0) {
-        bool role_valid = false;
-        for (int i = 0; i < reply->elements; i += 2) {
-            if (strcmp(reply->element[i]->str, "serverId") == 0) {
-                serverId = atoi(reply->element[i+1]->str);
-            } else if (strcmp(reply->element[i]->str, "userId") == 0) {
-                role_valid = atoi(reply->element[i+1]->str) == userId;
-            }
-        }
-
-        freeReplyObject(reply);
-
-        if (!role_valid) {
-            _redis->proxy.put(redis, false);
-            return setErrorResponse(response, "role invalid");
-        }
-    } else {
+    if (reply->integer != 1) {
         freeReplyObject(reply);
         _redis->proxy.put(redis, false);
 
-        return setErrorResponse(response, "role not exist");
+        return setErrorResponse(response, "role check failed");
     }
 
+    freeReplyObject(reply);
     _redis->proxy.put(redis, false);
 
     // 查询玩家Session（Session中记录了会话token，Gateway地址，角色id）
@@ -727,21 +718,21 @@ void LoginHandlerMgr::updateServerGroupData(const std::string& topic, const std:
 void LoginHandlerMgr::_updateServerGroupData() {
     redisContext *redis = _redis->proxy.take();
     if (!redis) {
-        ERROR_LOG("update server group data failed for cant connect db\n");
+        ERROR_LOG("LoginHandlerMgr::_updateServerGroupData -- update server group data failed for cant connect db\n");
         return;
     }
 
     redisReply *reply = (redisReply *)redisCommand(redis, "GET ServerGroups");
     if (!reply) {
         _redis->proxy.put(redis, true);
-        ERROR_LOG("update server group data failed for db error");
+        ERROR_LOG("LoginHandlerMgr::_updateServerGroupData -- update server group data failed for db error");
         return;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
         freeReplyObject(reply);
         _redis->proxy.put(redis, true);
-        ERROR_LOG("update server group data failed for invalid data type\n");
+        ERROR_LOG("LoginHandlerMgr::_updateServerGroupData -- update server group data failed for invalid data type\n");
         return;
     }
 
@@ -765,12 +756,12 @@ void LoginHandlerMgr::refreshServerGroupData() {
 
         Document doc;
         if (doc.Parse(serverGroupData.c_str()).HasParseError()) {
-            ERROR_LOG("parse server group data failed\n");
+            ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed\n");
             return;
         }
 
         if (!doc.IsArray()) {
-            ERROR_LOG("parse server group data failed for invalid type\n");
+            ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for invalid type\n");
             return;
         }
 
@@ -780,17 +771,17 @@ void LoginHandlerMgr::refreshServerGroupData() {
             const Value& group = doc[i];
 
             if (!doc.HasMember("id")) {
-                ERROR_LOG("parse server group data failed for lack of group id\n");
+                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for lack of group id\n");
                 return;
             }
 
             GroupId groupId = doc["id"].GetInt();
             if (groupStatusMap.find(groupId) != groupStatusMap.end()) {
-                ERROR_LOG("parse server group data failed for group id %d duplicate\n", groupId);
+                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group id %d duplicate\n", groupId);
                 return;
             }
             if (!doc.HasMember("status")) {
-                ERROR_LOG("parse server group data failed for group %d status not define\n", groupId);
+                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d status not define\n", groupId);
                 return;
             }
 
@@ -799,13 +790,13 @@ void LoginHandlerMgr::refreshServerGroupData() {
             groupStatusMap.insert(std::make_pair(groupId, status));
 
             if (!doc.HasMember("servers")) {
-                ERROR_LOG("parse server group data failed for group %d servers not define\n", groupId);
+                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not define\n", groupId);
                 return;
             }
 
             const Value& servers = doc["servers"];
             if (!servers.IsArray()) {
-                ERROR_LOG("parse server group data failed for group %d servers not array\n", groupId);
+                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not array\n", groupId);
                 return;
             }
 
@@ -813,18 +804,18 @@ void LoginHandlerMgr::refreshServerGroupData() {
                 const Value& server = servers[i];
 
                 if (!server.IsObject()) {
-                    ERROR_LOG("parse server group data failed for group %d servers[%d] not object\n", groupId, i);
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers[%d] not object\n", groupId, i);
                     return;
                 }
 
                 if (!server.HasMember("id")) {
-                    ERROR_LOG("parse server group data failed for group %d servers[%d] id not define\n", i);
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers[%d] id not define\n", i);
                     return;
                 }
 
                 ServerId serverId = server["id"].GetInt();
                 if (serverId2groupIdMap.find(serverId) != serverId2groupIdMap.end()) {
-                    ERROR_LOG("parse server id %d duplicate\n", serverId);
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server id %d duplicate\n", serverId);
                     return;
                 }
 
@@ -842,7 +833,7 @@ void LoginHandlerMgr::refreshServerGroupData() {
 bool LoginHandlerMgr::checkToken(UserId userId, const std::string& token) {
     redisContext *cache = _cache->proxy.take();
     if (!cache) {
-        ERROR_LOG("connect to cache failed\n");
+        ERROR_LOG("LoginHandlerMgr::checkToken -- connect to cache failed\n");
         return false;
     }
 
@@ -867,43 +858,6 @@ bool LoginHandlerMgr::checkToken(UserId userId, const std::string& token) {
     freeReplyObject(reply);
     _cache->proxy.put(cache, false);
     return true;
-}
-
-bool LoginHandlerMgr::loadProfile(RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas) {
-    // 先从cache中加载profile数据
-    // 
-    // 若cache中没有数据，则从mysql中加载数据并存入cache中
-    // 
-    // 返回查到的数据
-
-
-//    reply = (redisReply *)redisCommand(redis, "HGETALL RoleInfo:{%d}", info.roleId);
-//    if (!reply) {
-//        _redis->proxy.put(redis, true);
-//        return setErrorResponse(response, "get role info failed");
-//    }
-//
-//    if (reply->type != REDIS_REPLY_ARRAY || reply->elements % 2 != 0) {
-//        freeReplyObject(reply);
-//        _redis->proxy.put(redis, true);
-//        return setErrorResponse(response, "get role info failed for return type invalid");
-//    }
-//
-//    if (reply->elements > 0) {
-//        std::list<std::pair<std::string, std::string>> pDatas;
-//
-//        for (int i = 0; i < reply->elements; i += 2) {
-//            if (strcmp(reply->element[i]->str, "serverId") == 0) {
-//                info.serverId = atoi(reply->element[i+1]->str);
-//            } else {
-//                pDatas.push_back(std::make_pair(reply->element[i]->str, reply->element[i+1]->str));
-//            }
-//        }
-//
-//        info.pData = ProtoUtils::marshalDataFragments(pDatas);
-//    }
-//
-//    freeReplyObject(reply);
 }
 
 void LoginHandlerMgr::setResponse(std::shared_ptr<ResponseMessage>& response, const std::string &content) {

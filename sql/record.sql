@@ -9,5 +9,6 @@ CREATE TABLE `role` (
     `data` mediumblob,
     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `status` tinyint(1) unsigned NOT NULL DEFAULT 0, 
     PRIMARY KEY (`roleid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

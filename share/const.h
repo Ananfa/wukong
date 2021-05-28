@@ -150,6 +150,11 @@ namespace wukong {
         else\
           return 0\
         end";
+
+    const char SET_PROFILE_CMD[] = "\
+        redis.call('hmset',KEYS[1],table.unpack(ARGV,2))\
+        redis.call('expire',KEYS[1],ARGV[1])\
+        return 1";
 }
 
 #endif /* const_h */

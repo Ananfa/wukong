@@ -5,7 +5,7 @@
 
 #include "game_object.h"
 #include "common.pb.h"
-#include "demoGame.pb.h"
+#include "demo.pb.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -28,36 +28,36 @@ namespace demo {
         uint32_t getLv();
         void setLv(uint32_t lv);
 
-        demoGame::pb::Currency* getCurrency();
+        demo::pb::Currency* getCurrency();
         void setCurrencyDirty();
 
         std::vector<uint32_t> getAllCardKeys();
         bool hasCard(uint32_t cardid);
         uint32_t getCardNum();
-        demoGame::pb::Card* getCard(uint32_t cardid);
+        demo::pb::Card* getCard(uint32_t cardid);
         void setCardDirty(uint32_t cardid);
-        void addCard(demoGame::pb::Card* card);
+        void addCard(demo::pb::Card* card);
         void removeCard(uint32_t cardid);
 
         std::vector<uint32_t> getAllPetKeys();
         bool hasPet(uint32_t petid);
         uint32_t getPetNum();
-        demoGame::pb::Pet* getPet(uint32_t petid);
+        demo::pb::Pet* getPet(uint32_t petid);
         void setPetDirty(uint32_t petid);
-        void addPet(demoGame::pb::Pet* pet);
+        void addPet(demo::pb::Pet* pet);
         void removePet(uint32_t petid);
 
-        demoGame::pb::SignInActivity* getSignInActivity();
+        demo::pb::SignInActivity* getSignInActivity();
         void setSignInActivityDirty();
 
     private:
         std::string _name;
         uint32_t _exp;
         uint32_t _lv;
-        demoGame::pb::Currency* _currency;
-        std::map<uint32_t, demoGame::pb::Card*> _card_map;
-        std::map<uint32_t, demoGame::pb::Pet*> _pet_map;
-        demoGame::pb::SignInActivity* _signinactivity;
+        demo::pb::Currency* _currency;
+        std::map<uint32_t, demo::pb::Card*> _card_map;
+        std::map<uint32_t, demo::pb::Pet*> _pet_map;
+        demo::pb::SignInActivity* _signinactivity;
     };
 
 }

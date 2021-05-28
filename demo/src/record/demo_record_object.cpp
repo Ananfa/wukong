@@ -1,4 +1,5 @@
 // TODO：此文件通过工具生成
+#include "demo_record_object.h"
 
 DemoRecordObject::DemoRecordObject(RoleId roleId, RecordObjectManager *manager): wukong::RecordObject(roleId, manager) {
     // 设置属性初始值(基础类型可以有默认值)
@@ -280,7 +281,7 @@ void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::stri
 
             datas.insert(std::make_pair("currency", std::move(msgData)));
         } else if (it->first.compare("card") == 0) {
-            auto msg = new demoGame::pb::Cards;
+            auto msg = new demo::pb::Cards;
             for (auto it1 = _card_map.begin(); it1 != _card_map.end(); ++it1) {
                 auto card = msg->add_cards();
                 *card = *(it1->second);
@@ -293,7 +294,7 @@ void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::stri
             datas.insert(std::make_pair("card", std::move(msgData)));
             delete msg;
         } else if (it->first.compare("pet") == 0) {
-            auto msg = new demoGame::pb::Pets;
+            auto msg = new demo::pb::Pets;
             for (auto it1 = _pet_map.begin(); it1 != _pet_map.end(); ++it1) {
                 auto pet = msg->add_pets();
                 *pet = *(it1->second);
@@ -362,7 +363,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
     }
 
     {
-        auto msg = new demoGame::pb::Cards;
+        auto msg = new demo::pb::Cards;
         for (auto it = _card_map.begin(); it != _card_map.end(); ++it) {
             auto card = msg->add_cards();
             *card = *(it->second);
@@ -377,7 +378,7 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
     }
 
     {
-        auto msg = new demoGame::pb::Pets;
+        auto msg = new demo::pb::Pets;
         for (auto it = _pet_map.begin(); it != _pet_map.end(); ++it) {
             auto pet = msg->add_pets();
             *pet = *(it->second);

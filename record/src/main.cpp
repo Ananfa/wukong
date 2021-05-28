@@ -115,6 +115,7 @@ int main(int argc, char * argv[]) {
 
     // 初始化全局资源
     g_RecordCenter.init();
+    // TODO: g_RecordCenter.setCreateRecordObjectHandler(...)
 
     // 根据servers配置启动Record服务，每线程跑一个服务
     std::vector<std::thread> rcThreads;

@@ -35,6 +35,7 @@ using namespace corpc;
 namespace wukong {
     typedef std::function<bool (std::shared_ptr<RequestMessage>&)> LoginCheckHandler;
     typedef std::function<bool (std::shared_ptr<RequestMessage>&, std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> CreateRoleHandler;
+    typedef std::function<bool (RedisConnectPool*, MysqlConnectPool*, RoleId roleId, ServerId&, std::list<std::pair<std::string, std::string>>&)> LoadProfileHandler;
 
     struct LogicServerInfo {
         uint16_t id; // 逻辑服id
@@ -59,6 +60,7 @@ namespace wukong {
         
         void setLoginCheckHandler(LoginCheckHandler handler) { _loginCheck = handler; };
         void setCreateRoleHandler(CreateRoleHandler handler) { _createRole = handler; };
+        void setLoadProfileHandler(LoadProfileHandler handler) { _loadProfile = handler; };
 
         RedisConnectPool *getCache() { return _cache; }
         RedisConnectPool *getRedis() { return _redis; }
@@ -88,8 +90,6 @@ namespace wukong {
         void refreshServerGroupData();
 
         bool checkToken(UserId userId, const std::string& token);
-
-        bool loadProfile(RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
 
         static void *updateRoutine(void *arg);
         void updateGatewayInfos();
@@ -121,6 +121,7 @@ namespace wukong {
 
         LoginCheckHandler _loginCheck;
         CreateRoleHandler _createRole;
+        LoadProfileHandler _loadProfile;
 
         std::string _redisSetSessionSha1; // 设置session的lua脚本sha1值
         std::string _redisAddRoleIdSha1; // 添加roleId的lua脚本sha1值

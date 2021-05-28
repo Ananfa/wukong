@@ -139,6 +139,7 @@ int main(int argc, char * argv[]) {
 
     // 初始化全局资源
     g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
+    // TODO: g_GameCenter.setCreateGameObjectHandler();
 
     // 初始化rpc clients
     RpcClient *client = RpcClient::create(io);

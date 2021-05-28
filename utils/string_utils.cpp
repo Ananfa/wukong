@@ -1,7 +1,5 @@
 #include "string_utils.h"
 
-#include <vector>
-
 using namespace wukong;
 
 void StringUtils::split(const std::string &input, const std::string &seperator, std::vector<std::string> &output) {

@@ -1,4 +1,5 @@
 // TODO：此文件通过工具生成
+#include "demo_game_object.h"
 
 using namespace demo;
 
@@ -232,7 +233,7 @@ void DemoGameObject::setLv(uint32_t lv) {
     _dirty_map["lv"] = true;
 }
 
-demoGame::pb::Currency* DemoGameObject::getCurrency() {
+demo::pb::Currency* DemoGameObject::getCurrency() {
     return _currency;
 }
 
@@ -258,7 +259,7 @@ uint32_t DemoGameObject::getCardNum() {
     return _card_map.size();
 }
 
-demoGame::pb::Card* DemoGameObject::getCard(uint32_t cardid) {
+demo::pb::Card* DemoGameObject::getCard(uint32_t cardid) {
     auto it = _card_map.find(cardid);
     if (it != _card_map.end()) {
         return it->second;
@@ -273,7 +274,7 @@ void DemoGameObject::setCardDirty(uint32_t cardid) {
     _dirty_map[dirtykey] = true;
 }
 
-void DemoGameObject::addCard(demoGame::pb::Card* card) {
+void DemoGameObject::addCard(demo::pb::Card* card) {
     _card_map.insert(std::make_pair(card->cardid(), card));
     setCardDirty(card->cardid());
 }
@@ -305,7 +306,7 @@ uint32_t DemoGameObject::getPetNum() {
     return _pet_map.size();
 }
 
-demoGame::pb::Pet* DemoGameObject::getPet(uint32_t petid) {
+demo::pb::Pet* DemoGameObject::getPet(uint32_t petid) {
     auto it = _pet_map.find(petid);
     if (it != _pet_map.end()) {
         return it->second;
@@ -320,7 +321,7 @@ void DemoGameObject::setPetDirty(uint32_t petid) {
     _dirty_map[dirtykey] = true;
 }
 
-void DemoGameObject::addPet(demoGame::pb::Pet* pet) {
+void DemoGameObject::addPet(demo::pb::Pet* pet) {
     _pet_map.insert(std::make_pair(pet->petid(), pet));
     setCardDirty(pet->petid());
 }
@@ -334,7 +335,7 @@ void DemoGameObject::removePet(uint32_t petid) {
     }
 }
 
-demoGame::pb::SignInActivity* DemoGameObject::getSignInActivity() {
+demo::pb::SignInActivity* DemoGameObject::getSignInActivity() {
     return _signinactivity;
 }
 
@@ -342,7 +343,7 @@ void DemoGameObject::setSignInActivityDirty() {
     _dirty_map["signinactivity"] = true;
 }
 
-demoGame::pb::RoleProfile* DemoGameObject::getRoleProfile() {
+demo::pb::RoleProfile* DemoGameObject::getRoleProfile() {
     return _roleprofile;
 }
 

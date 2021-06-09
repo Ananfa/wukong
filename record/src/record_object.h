@@ -19,12 +19,14 @@
 
 #include "record_service.pb.h"
 #include "share/define.h"
+#include <list>
+#include <map>
 
 using namespace corpc;
 
 namespace wukong {
     class RecordObject;
-    class RecordObjectManager;
+    class RecordManager;
 
     struct RecordObjectRoutineArg {
         std::shared_ptr<RecordObject> obj;
@@ -32,7 +34,7 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(RoleId roleId, uint32_t rToken, RecordObjectManager *manager): _roleId(roleId), _rToken(rToken), _manager(manager), _running(false), _saveMinute(0), _cacheFailNum(0) {}
+        RecordObject(RoleId roleId, uint32_t rToken, RecordManager *manager): _roleId(roleId), _rToken(rToken), _manager(manager), _running(false), _saveMinute(0), _cacheFailNum(0) {}
         virtual ~RecordObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
@@ -59,10 +61,10 @@ namespace wukong {
         bool cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas);
 
     protected:
+        RoleId _roleId;
         std::map<std::string, bool> _dirty_map;
 
     private:
-        RoleId _roleId;
         uint32_t _lToken; // 游戏对象唯一标识
         uint32_t _rToken; // 记录对象唯一标识
         bool _running;
@@ -71,7 +73,10 @@ namespace wukong {
         uint64_t _saveMinute; // 落地时间分钟号
         int _cacheFailNum; // 累计cache失败计数
 
-        RecordObjectManager *_manager; // 关联的manager
+        RecordManager *_manager; // 关联的manager
+
+    public:
+        friend class RecordServiceImpl;
     };
 }
 

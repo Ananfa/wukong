@@ -34,7 +34,7 @@ void RecordManager::shutdown() {
     _shutdown = true;
 
     for (auto &recordObj : _roleId2RecordObjectMap) {
-        recordObj.stop();
+        recordObj.second->stop();
     }
 
     _roleId2RecordObjectMap.clear();
@@ -90,4 +90,5 @@ bool RecordManager::remove(RoleId roleId) {
 
     it->second->stop();
     _roleId2RecordObjectMap.erase(it);
+    return true;
 }

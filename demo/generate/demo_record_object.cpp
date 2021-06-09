@@ -1,7 +1,10 @@
 // TODO：此文件通过工具生成
 #include "demo_record_object.h"
+#include "corpc_utils.h"
 
-DemoRecordObject::DemoRecordObject(RoleId roleId, RecordObjectManager *manager): wukong::RecordObject(roleId, manager) {
+using namespace demo;
+
+DemoRecordObject::DemoRecordObject(RoleId roleId, uint32_t rToken, RecordManager *manager): wukong::RecordObject(roleId, rToken, manager) {
     // 设置属性初始值(基础类型可以有默认值)
     _name = "";
     _exp = 0;
@@ -74,7 +77,7 @@ bool DemoRecordObject::initData(const std::string &data) {
                 return false;
             }
 
-            cardNum = msg1->cards_size();
+            int cardNum = msg1->cards_size();
             for (int j = 0; j < cardNum; j++) {
                 auto card = new demo::pb::Card(msg1->cards(j));
                 _card_map.insert(std::make_pair(card->cardid(), card));
@@ -90,8 +93,8 @@ bool DemoRecordObject::initData(const std::string &data) {
                 return false;
             }
 
-            petNum = msg1->pets_size();
-            for (int j = 0; j < cardNum; j++) {
+            int petNum = msg1->pets_size();
+            for (int j = 0; j < petNum; j++) {
                 auto pet = new demo::pb::Pet(msg1->pets(j));
                 _pet_map.insert(std::make_pair(pet->petid(), pet));
             }
@@ -112,6 +115,7 @@ bool DemoRecordObject::initData(const std::string &data) {
     }
 
     delete msg;
+    return true;
 }
 
 void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
@@ -209,8 +213,8 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
     int removeNum = request->removes_size();
     for (int i = 0; i < removeNum; ++i) {
         auto &remove = request->removes(i);
-        if (remove.key().compare(0, 5, "card.") == 0) {
-            std::string idStr = remove.key().substr(5);
+        if (remove.compare(0, 5, "card.") == 0) {
+            std::string idStr = remove.substr(5);
             uint32_t id = atoi(idStr.c_str());
 
             auto it = _card_map.find(id);
@@ -221,8 +225,8 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
             } else {
                 WARN_LOG("DemoRecordObject::syncIn -- remove role:%d data--card %d not exist\n", _roleId, id);
             }
-        } else if (remove.key().compare(0, 4, "pet.") == 0) {
-            std::string idStr = remove.key().substr(4);
+        } else if (remove.compare(0, 4, "pet.") == 0) {
+            std::string idStr = remove.substr(4);
             uint32_t id = atoi(idStr.c_str());
 
             auto it = _pet_map.find(id);
@@ -234,84 +238,84 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
                 WARN_LOG("DemoRecordObject::syncIn -- remove role:%d data--pet %d not exist\n", _roleId, id);
             }
         } else {
-            ERROR_LOG("DemoRecordObject::syncIn -- remove role:%d data--unknown data: %s\n", _roleId, remove.key().c_str());
+            ERROR_LOG("DemoRecordObject::syncIn -- remove role:%d data--unknown data: %s\n", _roleId, remove.c_str());
         }
     }
 }
 
 void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::pair<std::string, std::string>> &profileDatas) {
     // 将脏数据打包
-    for (auto it = _dirty_map.begin(); it != _dirty_map.end(); ++it) {
-        if (it->first.compare("name") == 0) {
+    for (auto &pair : _dirty_map) {
+        if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
             msg->set_value(_name);
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            profileDatas.insert(std::make_pair("name", msgData));
-            datas.insert(std::make_pair("name", std::move(msgData)));
+            profileDatas.push_back(std::make_pair("name", msgData));
+            datas.push_back(std::make_pair("name", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("exp") == 0) {
+        } else if (pair.first.compare("exp") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_exp);
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("exp", std::move(msgData)));
+            datas.push_back(std::make_pair("exp", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("lv") == 0) {
+        } else if (pair.first.compare("lv") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_lv);
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            profileDatas.insert(std::make_pair("lv", msgData));
-            datas.insert(std::make_pair("lv", std::move(msgData)));
+            profileDatas.push_back(std::make_pair("lv", msgData));
+            datas.push_back(std::make_pair("lv", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("currency") == 0) {
-            std::string msgData(_currency->ByteSize(), 0);
+        } else if (pair.first.compare("currency") == 0) {
+            std::string msgData(_currency->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _currency->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("currency", std::move(msgData)));
-        } else if (it->first.compare("card") == 0) {
+            datas.push_back(std::make_pair("currency", std::move(msgData)));
+        } else if (pair.first.compare("card") == 0) {
             auto msg = new demo::pb::Cards;
-            for (auto it1 = _card_map.begin(); it1 != _card_map.end(); ++it1) {
+            for (auto &pair1 : _card_map) {
                 auto card = msg->add_cards();
-                *card = *(it1->second);
+                *card = *(pair1.second);
             }
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("card", std::move(msgData)));
+            datas.push_back(std::make_pair("card", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("pet") == 0) {
+        } else if (pair.first.compare("pet") == 0) {
             auto msg = new demo::pb::Pets;
-            for (auto it1 = _pet_map.begin(); it1 != _pet_map.end(); ++it1) {
+            for (auto &pair1 : _pet_map) {
                 auto pet = msg->add_pets();
-                *pet = *(it1->second);
+                *pet = *(pair1.second);
             }
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("pet", std::move(msgData)));
+            datas.push_back(std::make_pair("pet", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("signinactivity") == 0) {
-            std::string msgData(_signinactivity->ByteSize(), 0);
+        } else if (pair.first.compare("signinactivity") == 0) {
+            std::string msgData(_signinactivity->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _signinactivity->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("signinactivity", std::move(msgData)));
+            datas.push_back(std::make_pair("signinactivity", std::move(msgData)));
         }
     }
 }
@@ -322,11 +326,11 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         auto msg = new wukong::pb::StringValue;
         msg->set_value(_name);
 
-        std::string msgData(msg->ByteSize(), 0);
+        std::string msgData(msg->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
-        datas.insert(std::make_pair("name", std::move(msgData)));
+        datas.push_back(std::make_pair("name", std::move(msgData)));
         delete msg;
     }
 
@@ -334,11 +338,11 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(_exp);
 
-        std::string msgData(msg->ByteSize(), 0);
+        std::string msgData(msg->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
-        datas.insert(std::make_pair("exp", std::move(msgData)));
+        datas.push_back(std::make_pair("exp", std::move(msgData)));
         delete msg;
     }
 
@@ -346,58 +350,58 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(_lv);
 
-        std::string msgData(msg->ByteSize(), 0);
+        std::string msgData(msg->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
-        datas.insert(std::make_pair("lv", std::move(msgData)));
+        datas.push_back(std::make_pair("lv", std::move(msgData)));
         delete msg;
     }
 
     {
-        std::string msgData(_currency->ByteSize(), 0);
+        std::string msgData(_currency->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         _currency->SerializeWithCachedSizesToArray(buf);
 
-        datas.insert(std::make_pair("currency", std::move(msgData)));
+        datas.push_back(std::make_pair("currency", std::move(msgData)));
     }
 
     {
         auto msg = new demo::pb::Cards;
-        for (auto it = _card_map.begin(); it != _card_map.end(); ++it) {
+        for (auto &pair : _card_map) {
             auto card = msg->add_cards();
-            *card = *(it->second);
+            *card = *(pair.second);
         }
 
-        std::string msgData(msg->ByteSize(), 0);
+        std::string msgData(msg->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
-        datas.insert(std::make_pair("card", std::move(msgData)));
+        datas.push_back(std::make_pair("card", std::move(msgData)));
         delete msg;
     }
 
     {
         auto msg = new demo::pb::Pets;
-        for (auto it = _pet_map.begin(); it != _pet_map.end(); ++it) {
+        for (auto pair : _pet_map) {
             auto pet = msg->add_pets();
-            *pet = *(it->second);
+            *pet = *(pair.second);
         }
 
-        std::string msgData(msg->ByteSize(), 0);
+        std::string msgData(msg->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
 
-        datas.insert(std::make_pair("pet", std::move(msgData)));
+        datas.push_back(std::make_pair("pet", std::move(msgData)));
         delete msg;
     }
 
     {
-        std::string msgData(_signinactivity->ByteSize(), 0);
+        std::string msgData(_signinactivity->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         _signinactivity->SerializeWithCachedSizesToArray(buf);
 
-        datas.insert(std::make_pair("signinactivity", std::move(msgData)));
+        datas.push_back(std::make_pair("signinactivity", std::move(msgData)));
     }
 
 }

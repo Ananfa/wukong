@@ -20,7 +20,7 @@
 #include "corpc_message_server.h"
 #include "corpc_redis.h"
 #include "timelink.h"
-#include "gateway_object.h"
+#include "record_object.h"
 #include "share/define.h"
 
 using namespace corpc;

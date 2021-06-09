@@ -58,7 +58,6 @@ bool LoginConfig::parse(const char *path) {
         return false;
     }
     _zookeeper = doc["zookeeper"].GetString();
-    _zookeeperPath = ZK_LOGIN_SERVER + "/" + std::to_string(_id);
 
     if (!doc.HasMember("workerThreadNum")) {
         ERROR_LOG("config error -- workerThreadNum not define\n");

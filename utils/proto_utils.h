@@ -2,6 +2,7 @@
 #define wukong_proto_utils_h
 
 #include <string>
+#include <list>
 
 namespace wukong {
     

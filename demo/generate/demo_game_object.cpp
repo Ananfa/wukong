@@ -16,12 +16,12 @@ DemoGameObject::~DemoGameObject() {
     delete _currency;
     delete _signinactivity;
 
-    for (auto it = _card_map.begin(); it != _card_map.end(); ++it) {
-        delete it->second;
+    for (auto &pair : _card_map) {
+        delete pair.second;
     }
 
-    for (auto it = _pet_map.begin(); it != _pet_map.end(); ++it) {
-        delete it->second;
+    for (auto &pair : _pet_map) {
+        delete pair.second;
     }
 }
 
@@ -131,71 +131,71 @@ bool DemoGameObject::initData(const std::string &data) {
 
 void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {
     // 根据_dirty_map中记录打包数据
-    for (auto it = _dirty_map.begin(); it != _dirty_map.end(); ++it) {
-        if (it->first.compare("name") == 0) {
+    for (auto &pair : _dirty_map) {
+        if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
             msg->set_value(_name);
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
             datas.insert(std::make_pair("name", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("exp") == 0) {
+        } else if (pair.first.compare("exp") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_exp);
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
             datas.insert(std::make_pair("exp", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("lv") == 0) {
+        } else if (pair.first.compare("lv") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             msg->set_value(_lv);
 
-            std::string msgData(msg->ByteSize(), 0);
+            std::string msgData(msg->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
             datas.insert(std::make_pair("lv", std::move(msgData)));
             delete msg;
-        } else if (it->first.compare("currency") == 0) {
-            std::string msgData(_currency->ByteSize(), 0);
+        } else if (pair.first.compare("currency") == 0) {
+            std::string msgData(_currency->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _currency->SerializeWithCachedSizesToArray(buf);
 
             datas.insert(std::make_pair("currency", std::move(msgData)));
-        } else if (it->first.compare(0, 5, "card.") == 0) {
-            std::string idStr = it->first.substr(5);
+        } else if (pair.first.compare(0, 5, "card.") == 0) {
+            std::string idStr = pair.first.substr(5);
             uint32_t id = atoi(idStr.c_str());
-            auto it1 = _card_map.find(id);
-            if (it1 != _card_map.end()) {
-                std::string msgData(it1->second->ByteSize(), 0);
+            auto it = _card_map.find(id);
+            if (it != _card_map.end()) {
+                std::string msgData(it->second->ByteSizeLong(), 0);
                 uint8_t *buf = (uint8_t *)msgData.data();
-                it1->second->SerializeWithCachedSizesToArray(buf);
+                it->second->SerializeWithCachedSizesToArray(buf);
 
-                datas.insert(std::make_pair(it->first, std::move(msgData)));
+                datas.insert(std::make_pair(pair.first, std::move(msgData)));
             } else {
-                removes.insert(it->first);
+                removes.insert(pair.first);
             }
-        } else if (it->first.compare(0, 4, "pet.") == 0) {
-            std::string idStr = it->first.substr(4);
+        } else if (pair.first.compare(0, 4, "pet.") == 0) {
+            std::string idStr = pair.first.substr(4);
             uint32_t id = atoi(idStr.c_str());
-            auto it1 = _pet_map.find(id);
-            if (it1 != _pet_map.end()) {
-                std::string msgData(it1->second->ByteSize(), 0);
+            auto it = _pet_map.find(id);
+            if (it != _pet_map.end()) {
+                std::string msgData(it->second->ByteSizeLong(), 0);
                 uint8_t *buf = (uint8_t *)msgData.data();
-                it1->second->SerializeWithCachedSizesToArray(buf);
+                it->second->SerializeWithCachedSizesToArray(buf);
 
-                datas.insert(std::make_pair(it->first, std::move(msgData)));
+                datas.insert(std::make_pair(pair.first, std::move(msgData)));
             } else {
-                removes.insert(it->first);
+                removes.insert(pair.first);
             }
-        } else if (it->first.compare("signinactivity") == 0) {
-            std::string msgData(_signinactivity->ByteSize(), 0);
+        } else if (pair.first.compare("signinactivity") == 0) {
+            std::string msgData(_signinactivity->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _signinactivity->SerializeWithCachedSizesToArray(buf);
 
@@ -242,10 +242,11 @@ void DemoGameObject::setCurrencyDirty() {
 }
 
 std::vector<uint32_t> DemoGameObject::getAllCardKeys() {
-    std::vector<uint32_t> keys(_card_map.size());
+    std::vector<uint32_t> keys;
+    keys.reserve(_card_map.size());
 
-    for (auto it = _card_map.begin(), int i = 0; it != _card_map.end(); ++it, ++i) {
-        keys[i] = it->first;
+    for (auto &pair : _card_map) {
+        keys.push_back(pair.first);
     }
 
     return keys;
@@ -289,10 +290,11 @@ void DemoGameObject::removeCard(uint32_t cardid) {
 }
 
 std::vector<uint32_t> DemoGameObject::getAllPetKeys() {
-    std::vector<uint32_t> keys(_pet_map.size());
+    std::vector<uint32_t> keys;
+    keys.reserve(_pet_map.size());
 
-    for (auto it = _pet_map.begin(), int i = 0; it != _pet_map.end(); ++it, ++i) {
-        keys[i] = it->first;
+    for (auto &pair : _pet_map) {
+        keys.push_back(pair.first);
     }
 
     return keys;
@@ -341,12 +343,4 @@ demo::pb::SignInActivity* DemoGameObject::getSignInActivity() {
 
 void DemoGameObject::setSignInActivityDirty() {
     _dirty_map["signinactivity"] = true;
-}
-
-demo::pb::RoleProfile* DemoGameObject::getRoleProfile() {
-    return _roleprofile;
-}
-
-void DemoGameObject::setRoleProfileDirty() {
-    _profile_dirty = true;
 }

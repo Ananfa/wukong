@@ -74,6 +74,7 @@ namespace wukong {
         class Watch {
         public:
             Watch(ZkClient *zkClient, const std::string &path);
+            virtual ~Watch() {}
             virtual void set() const = 0;
             
             const std::string &path() const { return _path; }
@@ -156,7 +157,7 @@ namespace wukong {
             
             void setAll() const {
                 for (auto &w : _watchMap) {
-                    w.set();
+                    w.second->set();
                 }
             }
             

@@ -47,12 +47,13 @@ namespace wukong {
         }
         
         bool parse(const char *path);
+
+        uint32_t getId() const { return _id; }
         
         const std::string& getServiceIp() const { return _serviceIp; }
         const uint16_t getServicePort() const { return _servicePort; }
         
         const std::string& getZookeeper() const { return _zookeeper; }
-        const std::string& getZookeeperPath() const { return _zookeeperPath; }
         
         uint32_t getWorkerThreadNum() const { return _workerThreadNum; }
         uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
@@ -70,7 +71,6 @@ namespace wukong {
         uint16_t _servicePort;     // 对外提供http服务的端口
 
         std::string _zookeeper;
-        std::string _zookeeperPath;
         
         uint32_t _workerThreadNum;  // http处理线程数（为0时表示在主线程进行http处理）
         uint32_t _ioRecvThreadNum;  // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）

@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2020/11/16.
+ * Created by Xianke Liu on 2021/6/7.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#include "login_server.h"
 #include "corpc_routine_env.h"
-#include "corpc_rpc_client.h"
 
 #include "login_config.h"
 #include "zk_client.h"
@@ -23,17 +23,16 @@
 #include "utility.h"
 
 #include "gateway_client.h"
-#include "http_server.h"
-#include "login_handler_mgr.h"
 
 #include <sys/stat.h>
 
 using namespace corpc;
 using namespace wukong;
 
-void enterZoo() {
+void LoginServer::enterZoo() {
     g_ZkClient.init(g_LoginConfig.getZookeeper(), ZK_TIMEOUT, []() {
-        g_ZkClient.createEphemeralNode(g_LoginConfig.getZookeeperPath(), ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
+        std::string zooPath = ZK_LOGIN_SERVER + "/" + std::to_string(g_LoginConfig.getId()) + "|" + g_LoginConfig.getServiceIp() + ":" + std::to_string(g_LoginConfig.getServicePort());
+        g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
             if (ret) {
                 LOG("create rpc node:[%s] sucessful\n", path.c_str());
             } else {
@@ -57,7 +56,13 @@ void enterZoo() {
     });
 }
 
-int main(int argc, char * argv[]) {
+bool LoginServer::init(int argc, char * argv[]) {
+    if (_inited) {
+        return false;
+    }
+
+    _inited = true;
+
     co_start_hook();
 
     struct sigaction sa;
@@ -77,7 +82,7 @@ int main(int argc, char * argv[]) {
             case 'l':
                 if (!Utility::mkdirp(optarg)) {
                     ERROR_LOG("Can't mkdir %s\n", optarg);
-                    return -1;
+                    return false;
                 }
                 
                 setLogPath(optarg);
@@ -90,37 +95,35 @@ int main(int argc, char * argv[]) {
     
     if (!configFileName) {
         ERROR_LOG("Please start with '-c configFile' argument\n");
-        return -1;
+        return false;
     }
     
     // check file exist
     struct stat buffer;
     if (stat(configFileName, &buffer) != 0) {
         ERROR_LOG("Can't open file %s for %d:%s\n", configFileName, errno, strerror(errno));
-        return -1;
+        return false;
     }
     
     // parse config file content to config object
     if (!g_LoginConfig.parse(configFileName)) {
         ERROR_LOG("Parse config error\n");
-        return -1;
+        return false;
     }
     
     // create IO layer
-    IO *io = IO::create(g_LoginConfig.getIoRecvThreadNum(), g_LoginConfig.getIoSendThreadNum());
+    _io = IO::create(g_LoginConfig.getIoRecvThreadNum(), g_LoginConfig.getIoSendThreadNum());
     
     // 初始化rpc clients
-    RpcClient *client = RpcClient::create(io);
-    g_GatewayClient.init(client);
+    _rpcClient = RpcClient::create(_io);
 
     // 启动http服务
-    HttpServer *httpServer = HttpServer::create(io, g_LoginConfig.getWorkerThreadNum(), g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
-    g_LoginHandlerMgr.init(httpServer);
-    // TODO: g_LoginHandlerMgr.setLoginCheckHandler(...)
-    // TODO: g_LoginHandlerMgr.setCreateRoleHandler(...)
-    // TODO: g_LoginHandlerMgr.setLoadProfileHandler(...)
+    _httpServer = HttpServer::create(_io, g_LoginConfig.getWorkerThreadNum(), g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
 
+    return true;
+}
+
+void LoginServer::run() {
     enterZoo();
-
     RoutineEnvironment::runEventLoop();
 }

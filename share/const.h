@@ -10,7 +10,7 @@ namespace wukong {
     const std::string ZK_GATEWAY_SERVER            = "/gateway_server";
     const std::string ZK_LOBBY_SERVER              = "/lobby_server";
     const std::string ZK_LOGIN_SERVER              = "/login_server";
-    const std::string ZK_MYSQL_DATA_SERVER         = "/mysql_data_server";
+    const std::string ZK_RECORD_SERVER             = "/record_server";
     const std::string ZK_PROFILE_SERVER            = "/profile_server";
 
     // TODO: other server
@@ -131,11 +131,21 @@ namespace wukong {
         redis.call('expire',KEYS[1],ARGV[2])\
         return 1";
 
-    const char ADD_ROLEID_CMD[] = "\
+    const char BIND_ROLE_CMD[] = "\
         local ret = redis.call('scard',KEYS[1])\
         if ret<ARGV[2] then\
           redis.call('sadd',KEYS[1],ARGV[1])\
           redis.call('sadd',KEYS[2],ARGV[1])\
+          return 1\
+        else\
+          return 0\
+        end";
+
+    const char SAVE_PROFILE_CMD[] = "\
+        local ret = redis.call('exists',KEYS[1])\
+        if ret==0 then\
+          redis.call('hmset',KEYS[1],table.unpack(ARGV,2))\
+          redis.call('expire',KEYS[1],ARGV[1])\
           return 1\
         else\
           return 0\
@@ -151,10 +161,24 @@ namespace wukong {
           return 0\
         end";
 
-    const char SET_PROFILE_CMD[] = "\
-        redis.call('hmset',KEYS[1],table.unpack(ARGV,2))\
-        redis.call('expire',KEYS[1],ARGV[1])\
-        return 1";
+    const char SAVE_ROLE_CMD[] = "\
+        local ret = redis.call('exists',KEYS[1])\
+        if ret==0 then\
+          redis.call('hmset',KEYS[1],table.unpack(ARGV))\
+          return 1\
+        else\
+          return 0\
+        end";
+
+    const char UPDATE_ROLE_CMD[] = "\
+        local ret = redis.call('exists',KEYS[1])\
+        if ret==1 then\
+          redis.call('hmset',KEYS[1],table.unpack(ARGV))\
+          return 1\
+        else\
+          return 0\
+        end";
+
 }
 
 #endif /* const_h */

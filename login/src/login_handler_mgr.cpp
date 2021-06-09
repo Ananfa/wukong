@@ -19,6 +19,7 @@
 #include "login_handler_mgr.h"
 #include "json_utils.h"
 #include "redis_utils.h"
+#include "mysql_utils.h"
 #include "uuid_utils.h"
 #include "proto_utils.h"
 #include "login_config.h"
@@ -34,7 +35,7 @@
 using namespace rapidjson;
 using namespace wukong;
 
-template<> void JsonWriter::put(const RoleInfo &value) {
+template<> void JsonWriter::put(const RoleProfile &value) {
     _writer.StartObject();
     _writer.Key("serverId");
     put(value.serverId);
@@ -95,18 +96,51 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- script load failed for cache error\n");
+        ERROR_LOG("LoginHandlerMgr::initRoutine -- set-session script load failed for cache error\n");
         return nullptr;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
         freeReplyObject(reply);
         self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- script load from cache failed\n");
+        DEBUG_LOG("LoginHandlerMgr::initRoutine -- set-session script load from cache failed\n");
         return nullptr;
     }
 
-    self->_redisSetSessionSha1 = reply->str;
+    self->_setSessionSha1 = reply->str;
+
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_PROFILE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("LoginHandlerMgr::initRoutine -- save-profile script load failed for cache error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("LoginHandlerMgr::initRoutine -- save-profile script load from cache failed\n");
+        return nullptr;
+    }
+
+    self->_saveProfileSha1 = reply->str;
+
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_ROLE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("LoginHandlerMgr::initRoutine -- save-role script load failed for cache error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("LoginHandlerMgr::initRoutine -- save-role script load from cache failed\n");
+        return nullptr;
+    }
+
+    self->_saveRoleSha1 = reply->str;
+
     self->_cache->proxy.put(cache, false);
 
     redisContext *redis = self->_redis->proxy.take();
@@ -115,7 +149,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
         return nullptr;
     }
 
-    reply = (redisReply *)redisCommand(redis, "SCRIPT LOAD %s", ADD_ROLEID_CMD);
+    reply = (redisReply *)redisCommand(redis, "SCRIPT LOAD %s", BIND_ROLE_CMD);
     if (!reply) {
         self->_redis->proxy.put(redis, true);
         ERROR_LOG("LoginHandlerMgr::initRoutine -- script load failed for redis error\n");
@@ -129,13 +163,75 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
         return nullptr;
     }
 
-    self->_redisAddRoleIdSha1 = reply->str;
+    self->_bindRoleSha1 = reply->str;
+
     self->_redis->proxy.put(redis, false);
 
     return nullptr;
 }
 
-void LoginHandlerMgr::init(HttpServer *server) {
+void *LoginHandlerMgr::saveUserRoutine(void *arg) {
+    LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
+
+    AccountUserIdInfoQueue& queue = self->_queue;
+
+    int readFd = queue.getReadFd();
+    co_register_fd(readFd);
+    co_set_timeout(readFd, -1, 1000);
+    int ret;
+    std::vector<char> buf(1024);
+    while (true) {
+        // 等待处理信号
+        ret = (int)read(readFd, &buf[0], 1024);
+        assert(ret != 0);
+        if (ret < 0) {
+            if (errno == EAGAIN) {
+                continue;
+            } else {
+                // 管道出错
+                ERROR_LOG("LoginHandlerMgr::saveUserRoutine -- read from pipe fd %d ret %d errno %d (%s)\n",
+                       readFd, ret, errno, strerror(errno));
+                
+                // TODO: 如何处理？退出协程？
+                // sleep 10 milisecond
+                msleep(10);
+            }
+        }
+
+        MYSQL* mysql = nullptr;
+        AccountUserIdInfo *msg = queue.pop();
+        while (msg) {
+            if (!mysql) {
+                mysql = self->_mysql->proxy.take();
+            }
+
+            bool saved = false;
+            if (mysql) {
+                saved = MysqlUtils::SaveUser(mysql, msg->account, msg->userId);
+            }
+
+            if (!saved) {
+                if (mysql) {
+                    self->_mysql->proxy.put(mysql, true);
+                    mysql = nullptr;
+                }
+
+                ERROR_LOG("LoginHandlerMgr::saveUserRoutine -- save account:[%s], userid:[%d] to mysql failed\n", msg->account.c_str(), msg->userId);
+            }
+
+            delete msg;
+            msg = queue.pop();
+        }
+
+        if (mysql) {
+            self->_mysql->proxy.put(mysql, false);
+        }
+    }
+}
+
+void LoginHandlerMgr::init(HttpServer *server, LoginDelegate delegate) {
+    _delegate = delegate;
+
     _cache = corpc::RedisConnectPool::create(g_LoginConfig.getCache().host.c_str(), g_LoginConfig.getCache().port, g_LoginConfig.getCache().dbIndex, g_LoginConfig.getCache().maxConnect);
     _redis = corpc::RedisConnectPool::create(g_LoginConfig.getRedis().host.c_str(), g_LoginConfig.getRedis().port, g_LoginConfig.getRedis().dbIndex, g_LoginConfig.getRedis().maxConnect);
     _mysql = corpc::MysqlConnectPool::create(g_LoginConfig.getMysql().host.c_str(), g_LoginConfig.getMysql().user.c_str(), g_LoginConfig.getMysql().pwd.c_str(), g_LoginConfig.getMysql().dbName.c_str(), g_LoginConfig.getMysql().port, "", 0, g_LoginConfig.getMysql().maxConnect);
@@ -144,6 +240,8 @@ void LoginHandlerMgr::init(HttpServer *server) {
 
     // 初始化redis lua脚本sha1值
     RoutineEnvironment::startCoroutine(initRoutine, this);
+
+    RoutineEnvironment::startCoroutine(saveUserRoutine, this);
 
     // 获取并订阅服务器组列表信息
     std::list<std::string> topics;
@@ -171,13 +269,6 @@ void LoginHandlerMgr::init(HttpServer *server) {
     // res: e.g. {"roleData": "xxx"}
     server->registerHandler("/enterGame", std::bind(&LoginHandlerMgr::enterGame, this, std::placeholders::_1, std::placeholders::_2));
 
-    _loginCheck = [](std::shared_ptr<RequestMessage> &request) -> bool {
-        return true;
-    };
-
-    _createRole = [](std::shared_ptr<RequestMessage> &request, std::string &pData) -> RoleId {
-        return 0;
-    };
 }
 
 /******************** http api start ********************/
@@ -190,7 +281,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     std::string openid = (*request)["openid"];
 
     // 校验玩家身份
-    if (!_loginCheck(request)) {
+    if (!_delegate.loginCheck(request)) {
         return setErrorResponse(response, "login check failed");
     }
 
@@ -206,7 +297,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
         return setErrorResponse(response, "get user id from db failed");
     }
 
-    std::vector<RoleInfo> roles;
+    std::vector<RoleProfile> roles;
     UserId userId;
     switch (reply->type) {
         case REDIS_REPLY_NIL: {
@@ -233,10 +324,17 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
                 return setErrorResponse(response, "set userid for openid failed for already exist");
             }
 
-            // TODO: tlog记录openid与userid的关系
-
             freeReplyObject(reply);
             _redis->proxy.put(redis, false);
+
+            // TODO: tlog记录openid与userid的关系
+
+            // 这里通过协程异步将信息存到mysql中，有可能存储失败，若存储失败查记录日志
+            AccountUserIdInfo *a2uInfo = new AccountUserIdInfo();
+            a2uInfo->account = openid;
+            a2uInfo->userId = userId;
+            _queue.push(a2uInfo);
+
             break;
         }
         case REDIS_REPLY_STRING: {
@@ -266,7 +364,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             if (reply->elements > 0) {
                 roles.reserve(reply->elements);
                 for (int i = 0; i < reply->elements; i++) {
-                    RoleInfo info;
+                    RoleProfile info;
                     info.serverId = 0;
                     info.roleId = atoi(reply->element[i]->str);
                     if (info.roleId == 0) {
@@ -282,9 +380,9 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             _redis->proxy.put(redis, false);
 
             // 查询轮廓数据
-            for (RoleInfo &info : roles){
+            for (RoleProfile &info : roles){
                 std::list<std::pair<std::string, std::string>> pDatas;
-                if (!_loadProfile(_cache, _mysql, info.roleId, info.serverId, pDatas)) {
+                if (!_delegate.loadProfile(_cache, _mysql, _saveProfileSha1, info.roleId, info.serverId, pDatas)) {
                     ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed", info.roleId);
                     continue;
                 }
@@ -384,8 +482,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
 
     // 创建角色数据
     std::list<std::pair<std::string, std::string>> roleDatas;
-    std::list<std::pair<std::string, std::string>> profileDatas;
-    if (!_createRole(request, roleDatas, profileDatas)) {
+    if (!_delegate.createRole(request, roleDatas)) {
         return setErrorResponse(response, "create role failed");
     }
 
@@ -401,13 +498,13 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
         return setErrorResponse(response, "lock create role failed");
     } else if (strcmp(reply->str, "OK")) {
         freeReplyObject(reply);
-        _cache->proxy.put(cache, false); // 归还连接
+        _cache->proxy.put(cache, false);
 
         return setErrorResponse(response, "create role lock is locked");
     }
 
     freeReplyObject(reply);
-    _cache->proxy.put(cache, false); // 归还连接
+    _cache->proxy.put(cache, false);
 
     // 判断同服角色数量限制
     redisContext *redis = _redis->proxy.take();
@@ -423,7 +520,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
 
     if (reply->integer >= g_LoginConfig.getRoleNumForPlayer()) {
         freeReplyObject(reply);
-        _redis->proxy.put(redis, false); // 归还连接
+        _redis->proxy.put(redis, false);
         return setErrorResponse(response, "reach the limit of the number of roles");
     }
 
@@ -436,47 +533,54 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
         return setErrorResponse(response, "create role id failed");
     }
     
-    // TODO: 1和2可以通过redis lua脚本一起完成，3、4、5由于是分别在cache、redis和mysql中需要分开操作
+    // 完成以下事情，其中1和2可以通过redis lua脚本一起完成。有可能出现1和2操作完成但3或4或5没有操作，此时只能玩家找客服后通过工具修复玩家的RoleIds数据了。
     //       1. 将roleId加入RoleIds:<serverid>:{<userid>}中，保证玩家角色数量不超过区服角色数量限制
     //       2. 将roleId加入RoleIds:{<userid>}
     //       3. 将角色数据存盘mysql（若存盘失败，将上面1、2步骤回退）
     //       4. 将角色数据记录到Role:{<roleid>}中，并加入相应的存盘列表
-    //       5. 记录角色轮廓数据RoleInfo:{<roleid>}（注意：记得加serverId）
-    // 有可能出现1和2操作完成但3或4或5没有操作，此时只能玩家找客服后通过工具修复玩家的RoleIds数据了
-    if (_redisAddRoleIdSha1.empty()) {
-        reply = (redisReply *)redisCommand(redis, "EVAL %s 2 RoleIds:%d:{%d} %d %d", ADD_ROLEID_CMD, serverId, userId, roleId, g_LoginConfig.getRoleNumForPlayer());
-    } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 2 RoleIds:%d:{%d} %d %d", _redisAddRoleIdSha1.c_str(), serverId, userId, roleId, g_LoginConfig.getRoleNumForPlayer());
-    }
+    //       5. 记录角色轮廓数据Profile:{<roleid>}（注意：记得加serverId）
     
-    if (!reply) {
+    // 绑定role，即上述第1和第2步
+    if (!RedisUtils::BindRole(redis, _bindRoleSha1, roleId, userId, serverId, g_LoginConfig.getRoleNumForPlayer())) {
         _redis->proxy.put(redis, true);
-        return setErrorResponse(response, "add roleid failed");
+        return setErrorResponse(response, "bind role failed");
     }
 
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        freeReplyObject(reply);
-        _redis->proxy.put(redis, true);
-        return setErrorResponse(response, "add roleid failed for return type invalid");
-    }
-
-    if (reply->integer == 0) {
-        // 设置失败
-        freeReplyObject(reply);
-        _redis->proxy.put(redis, false);
-        return setErrorResponse(response, "add roleid failed for reach the limit of the number of roles");
-    }
+    _redis->proxy.put(redis, false);
 
     std::string rData = ProtoUtils::marshalDataFragments(roleDatas);
     
-    // TODO: 3
+    MYSQL *mysql = _mysql->proxy.take();
+    if (!mysql) {
+        return setErrorResponse(response, "connect to mysql failed");
+    }
+    
+    // 保存role，即上述第3步
+    if (!MysqlUtils::CreateRole(mysql, roleId, userId, serverId, rData)) {
+        return setErrorResponse(response, "save role to mysql failed");
+    }
 
-    // TODO: 4
+    // 缓存role，即上述第4步
+    cache = _cache->proxy.take();
+    if (!cache) {
+        return setErrorResponse(response, "connect to cache failed");
+    }
 
-    // TODO: 5
+    if (!RedisUtils::SaveRole(cache, _saveRoleSha1, roleId, serverId, roleDatas)) {
+        _cache->proxy.put(cache, true);
+        return setErrorResponse(response, "cache role failed");
+    }
+
+    // 缓存profile，即上述第5步
+    std::list<std::pair<std::string, std::string>> profileDatas;
+    _delegate.makeProfile(roleDatas, profileDatas);
+    if (!RedisUtils::SaveProfile(cache, _saveRoleSha1, roleId, serverId, profileDatas)) {
+        _cache->proxy.put(cache, true);
+        return setErrorResponse(response, "cache profile failed");
+    }
     
     std::string pData = ProtoUtils::marshalDataFragments(profileDatas);
-    RoleInfo role = {
+    RoleProfile role = {
         serverId: serverId,
         roleId: roleId,
         pData: std::move(pData)
@@ -527,16 +631,16 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     }
 
     // 判断角色是否合法
-    redisReply *reply = (redisReply *)redisCommand(redis, "SISMEMBER RoleInfo:%d:{%d} %d", serverId, userId, roleId);
+    redisReply *reply = (redisReply *)redisCommand(redis, "SISMEMBER RoleIds:%d:{%d} %d", serverId, userId, roleId);
     if (!reply) {
         _redis->proxy.put(redis, true);
-        return setErrorResponse(response, "check role info failed");
+        return setErrorResponse(response, "check role failed");
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
         _redis->proxy.put(redis, true);
-        return setErrorResponse(response, "check role info failed for return type invalid");
+        return setErrorResponse(response, "check role failed for return type invalid");
     }
 
     if (reply->integer != 1) {
@@ -557,7 +661,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         return setErrorResponse(response, "connect to cache failed");
     }
 
-    reply = (redisReply *)redisCommand(cache, "HGETALL session:%d", userId);
+    reply = (redisReply *)redisCommand(cache, "HGETALL Session:%d", userId);
     if (!reply) {
         _cache->proxy.put(cache, true);
         return setErrorResponse(response, "get session failed");
@@ -601,10 +705,10 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
     Address gatewayAddr = _t_gatewayAddrMap[gatewayId];
 
-    if (_redisSetSessionSha1.empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
+    if (_setSessionSha1.empty()) {
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 session:%d %s %d %d %d", _redisSetSessionSha1.c_str(), userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d %d %d", _setSessionSha1.c_str(), userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
     }
     
     if (!reply) {

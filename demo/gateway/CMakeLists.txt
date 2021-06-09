@@ -36,20 +36,20 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-    ../share/client/gateway_client.cpp
-    ../share/client/zk_client.cpp
-    ../utils/url.cpp
-    ../utils/utility.cpp
-    ../utils/string_utils.cpp
-    ../utils/redis_utils.cpp
-    ../utils/uuid_utils.cpp
-    ../proto/common.pb.cc
-    ../proto/service/service_common.pb.cc
-    ../proto/service/gateway_service.pb.cc)
+    ../../share/client/game_client.cpp
+    ../../share/client/lobby_client.cpp
+    ../../share/client/zk_client.cpp
+    ../../utils/utility.cpp
+    ../../utils/string_utils.cpp
+    ../../proto/common.pb.cc
+    ../../proto/game/game.pb.cc
+    ../../proto/service/gateway_service.pb.cc
+    ../../proto/service/game_service.pb.cc
+    ../../proto/service/lobby_service.pb.cc)
 
 # Add source files
+aux_source_directory(../../gateway/src SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
-aux_source_directory(../share/http SOURCE_FILES)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -57,7 +57,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_MACOSX_RPATH 0)
 
 # Set cflags
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11 -fPIC -Wall -pthread")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11 -fPIC -Wall -Wno-reorder -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -O0 -DDEBUG=1 ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 ${CMAKE_CXX_FLAGS}")
 
@@ -68,17 +68,19 @@ include_directories(/usr/local/include/corpc)
 include_directories(/usr/local/include/corpc/proto)
 include_directories(/usr/local/include/hiredis)
 include_directories(/usr/local/include/zookeeper)
-include_directories(..)
-include_directories(../share)
-include_directories(../share/client)
-include_directories(../share/http)
-include_directories(../utils)
-include_directories(../proto)
-include_directories(../proto/service)
-include_directories(../deps/rapidjson/include)
+include_directories(../..)
+include_directories(../../gateway/src)
+include_directories(../../share)
+include_directories(../../share/client)
+include_directories(../../share/http)
+include_directories(../../utils)
+include_directories(../../proto)
+include_directories(../../proto/game)
+include_directories(../../proto/service)
+include_directories(../../deps/rapidjson/include)
 
 # Add target
-add_executable(logind ${SOURCE_FILES})
+add_executable(gatewayd ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -luuid -lhiredis -lcurl -lzookeeper_st -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
-target_link_libraries(logind ${MY_LINK_LIBRARIES})
+set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lzookeeper_st -lprotobuf -lcorpc_redis -lcorpc -lco -ldl)
+target_link_libraries(gatewayd ${MY_LINK_LIBRARIES})

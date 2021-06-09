@@ -47,6 +47,7 @@ namespace wukong {
         const std::string &setRecordSha1() { return _setRecordSha1; }
         const std::string &setRecordExpireSha1() { return _setRecordExpireSha1; }
         const std::string &updateProfileSha1() { return _updateProfileSha1; }
+        const std::string &updateRoleSha1() { return _updateRoleSha1; }
 
         void setCreateRecordObjectHandler(CreateRecordObjectHandler handler) { _createRecordObjectHandler = handler; }
         CreateRecordObjectHandler getCreateRecordObjectHandler() { return _createRecordObjectHandler; }
@@ -61,6 +62,7 @@ namespace wukong {
         std::string _setRecordSha1; // 设置Record key的lua脚本sha1值
         std::string _setRecordExpireSha1; // 设置Record key超时的lua脚本sha1值
         std::string _updateProfileSha1; // 更新画像数据的lua脚本sha1值
+        std::string _updateRoleSha1; // 更新角色数据的lua脚本sha1值
 
         CreateRecordObjectHandler _createRecordObjectHandler;
     private:

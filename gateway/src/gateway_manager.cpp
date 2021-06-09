@@ -109,16 +109,16 @@ size_t GatewayManager::getGatewayObjectNum() {
 
 void GatewayManager::clearGatewayObject() {
     // 销毁所有正常routeObject
-    for (auto it = _userId2GatewayObjectMap.begin(); it != _userId2GatewayObjectMap.end(); ++it) {
-        it->second->getConn()->close();
-        it->second->stop();
+    for (auto &pair : _userId2GatewayObjectMap) {
+        pair.second->getConn()->close();
+        pair.second->stop();
     }
     _userId2GatewayObjectMap.clear();
     _connection2GatewayObjectMap.clear();
 
     // 销毁所有断线routeObject
-    for (auto it = _disconnectedNodeMap.begin(); it != _disconnectedNodeMap.end(); ++it) {
-        it->second->data->stop();
+    for (auto &pair : _disconnectedNodeMap) {
+        pair.second->data->stop();
     }
     _disconnectedNodeMap.clear();
     _disconnectedLink.clear();

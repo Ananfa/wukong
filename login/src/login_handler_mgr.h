@@ -19,13 +19,11 @@
 
 #include "corpc_redis.h"
 #include "corpc_mysql.h"
+#include "login_delegate.h"
 #include "http_server.h"
-#include "http_message.h"
 #include "gateway_client.h"
-#include "share/define.h"
 
 #include <vector>
-#include <list>
 #include <map>
 #include <mutex>
 #include <atomic>
@@ -33,21 +31,28 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<bool (std::shared_ptr<RequestMessage>&)> LoginCheckHandler;
-    typedef std::function<bool (std::shared_ptr<RequestMessage>&, std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> CreateRoleHandler;
-    typedef std::function<bool (RedisConnectPool*, MysqlConnectPool*, RoleId roleId, ServerId&, std::list<std::pair<std::string, std::string>>&)> LoadProfileHandler;
-
     struct LogicServerInfo {
         uint16_t id; // 逻辑服id
         uint16_t group; // 组号（合服相关，多个逻辑服合服后它们有相同的group，逻辑服入口保留）
         std::string name; // 逻辑服名
     };
 
-    struct RoleInfo {
+    struct RoleProfile {
         ServerId serverId; // 所在服id
         RoleId roleId; // 角色id
         std::string pData; // 角色画像数据
     };
+
+    struct AccountUserIdInfo {
+        std::string account;
+        UserId userId;
+    };
+
+#ifdef USE_NO_LOCK_QUEUE
+    typedef Co_MPSC_NoLockQueue<AccountUserIdInfo*> AccountUserIdInfoQueue;
+#else
+    typedef CoSyncQueue<AccountUserIdInfo*> AccountUserIdInfoQueue;
+#endif
 
     class LoginHandlerMgr {
     public:
@@ -56,12 +61,8 @@ namespace wukong {
             return instance;
         }
         
-        void init(HttpServer *server);
+        void init(HttpServer *server, LoginDelegate delegate);
         
-        void setLoginCheckHandler(LoginCheckHandler handler) { _loginCheck = handler; };
-        void setCreateRoleHandler(CreateRoleHandler handler) { _createRole = handler; };
-        void setLoadProfileHandler(LoadProfileHandler handler) { _loadProfile = handler; };
-
         RedisConnectPool *getCache() { return _cache; }
         RedisConnectPool *getRedis() { return _redis; }
         MysqlConnectPool *getMysql() { return _mysql; }
@@ -96,6 +97,8 @@ namespace wukong {
 
         static void *initRoutine(void *arg);
 
+        static void *saveUserRoutine(void *arg); // 将account-userid对应关系信息存盘的协程
+
     private:
         static std::vector<GatewayClient::ServerInfo> _gatewayInfos;
         static std::mutex _gatewayInfosLock;
@@ -119,12 +122,15 @@ namespace wukong {
         RedisConnectPool *_redis;
         MysqlConnectPool *_mysql;
 
-        LoginCheckHandler _loginCheck;
-        CreateRoleHandler _createRole;
-        LoadProfileHandler _loadProfile;
+        LoginDelegate _delegate;
 
-        std::string _redisSetSessionSha1; // 设置session的lua脚本sha1值
-        std::string _redisAddRoleIdSha1; // 添加roleId的lua脚本sha1值
+        std::string _setSessionSha1; // 设置session的lua脚本sha1值
+        std::string _bindRoleSha1; // 添加roleId的lua脚本sha1值
+        std::string _saveRoleSha1; // 保存profile的lua脚本sha1值
+        std::string _saveProfileSha1; // 保存profile的lua脚本sha1值
+
+
+        AccountUserIdInfoQueue _queue;
 
     private:
         LoginHandlerMgr() = default;                                     // ctor hidden

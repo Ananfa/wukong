@@ -44,7 +44,7 @@ namespace wukong {
         RoleId getRoleId() { return _roleId; }
 
         void setConn(std::shared_ptr<MessageServer::Connection> &conn) { _conn = conn; }
-        bool setGameServerStub(GameServerType stype, ServerId sid);
+        bool setGameServerStub(GameServerType gsType, ServerId sid);
 
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳

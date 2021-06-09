@@ -16,7 +16,6 @@
 
 #include "lobby_client.h"
 #include "corpc_controller.h"
-#include "string_utils.h"
 
 using namespace wukong;
 
@@ -203,21 +202,4 @@ void LobbyClient::refreshStubs() {
             _t_stubChangeNum = _stubChangeNum;
         }
     }
-}
-
-bool LobbyClient::parseAddress(const std::string &input, AddressInfo &addressInfo) {
-    std::vector<std::string> output;
-    StringUtils::split(input, "|", output);
-    
-    if (output.size() != 2) return false;
-
-    std::vector<std::string> output1;
-    StringUtils::split(output[1], ":", output1);
-    if (output1.size() != 2) return false;
-
-    addressInfo.id = std::stoi(output[0]);
-    addressInfo.ip = output1[0];
-    addressInfo.port = std::stoi(output1[1]);
-
-    return true;
 }

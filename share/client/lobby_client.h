@@ -22,30 +22,20 @@
 #include "corpc_rpc_client.h"
 #include "game_service.pb.h"
 #include "lobby_service.pb.h"
+#include "game_client.h"
 #include "define.h"
+#include "const.h"
 
 using namespace corpc;
 
 namespace wukong {
-    class LobbyClient {
+    class LobbyClient: public GameClient {
     public:
-        struct AddressInfo {
-            uint16_t id;
-            std::string ip;
-            uint16_t port;
-        };
-
         struct StubInfo {
             std::string ip; // rpc服务ip
             uint16_t port; // rpc服务port
             std::shared_ptr<pb::GameService_Stub> gameServiceStub;
             std::shared_ptr<pb::LobbyService_Stub> lobbyServiceStub;
-        };
-
-        struct ServerInfo {
-            ServerId id;
-            uint32_t count; // 在线人数
-            uint32_t weight; // 分配权重(所有服务器的总在线人数 - 在线人数)
         };
 
     public:
@@ -54,28 +44,22 @@ namespace wukong {
             return instance;
         }
 
-        void init(RpcClient *client) { _client = client; }
+        virtual std::vector<ServerInfo> getServerInfos();
+        virtual bool setServers(const std::map<ServerId, AddressInfo> &addresses);
+        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &rawMsg);
 
-        /* 业务逻辑 */
-        void shutdown();
-        std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
-        uint32_t initRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
-        void forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &rawMsg);
-    
-        /* 加入Server */
-        bool setServers(const std::map<ServerId, AddressInfo> &addresses);
+        virtual std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid);
+        
         /* 根据逻辑区服id获得LobbyServer的stub */
         std::shared_ptr<pb::LobbyService_Stub> getLobbyServiceStub(ServerId sid);
-        std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid);
         
-        static bool parseAddress(const std::string &input, AddressInfo &addressInfo);
+        uint32_t initRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
+        void shutdown();
 
     private:
         void refreshStubs();
 
     private:
-        RpcClient *_client = nullptr;
-
         /* 所有LobbyServer的Stub */
         static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;
@@ -86,8 +70,8 @@ namespace wukong {
         static thread_local uint32_t _t_stubChangeNum;
 
     private:
-        LobbyClient() = default;                                // ctor hidden
-        ~LobbyClient() = default;                               // destruct hidden
+        LobbyClient(): GameClient(GAME_SERVER_TYPE_LOBBY, ZK_LOBBY_SERVER) {} // ctor hidden
+        virtual ~LobbyClient() = default;                       // destruct hidden
         LobbyClient(LobbyClient const&) = delete;               // copy ctor delete
         LobbyClient(LobbyClient &&) = delete;                   // move ctor delete
         LobbyClient& operator=(LobbyClient const&) = delete;    // assign op. delete

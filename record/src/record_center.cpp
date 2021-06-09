@@ -80,6 +80,23 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_updateProfileSha1 = reply->str;
     freeReplyObject(reply);
 
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", UPDATE_ROLE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("RecordCenter::initRoutine -- update-role script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("RecordCenter::initRoutine -- update-role script load failed\n");
+        return nullptr;
+    }
+
+    self->_updateRoleSha1 = reply->str;
+    freeReplyObject(reply);
+
     self->_cache->proxy.put(cache, false);
     
     return nullptr;

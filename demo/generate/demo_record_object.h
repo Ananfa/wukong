@@ -10,11 +10,13 @@
 #include <string>
 #include <memory>
 
+using namespace wukong;
+
 namespace demo {
         
     class DemoRecordObject: public wukong::RecordObject {
     public:
-        DemoRecordObject(RoleId roleId, RecordObjectManager *manager);
+        DemoRecordObject(RoleId roleId, uint32_t rToken, RecordManager *manager);
         virtual ~DemoRecordObject() {}
 
         virtual bool initData(const std::string &data);

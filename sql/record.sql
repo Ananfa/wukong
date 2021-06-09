@@ -2,6 +2,13 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/ `record` /*!40100 DEFAULT CHARACTER SET
 
 USE `record`;
 
+CREATE TABLE `user` (
+    `account` varchar(40) NOT NULL,
+    `userid` int(11) unsigned NOT NULL,
+    PRIMARY KEY (`account`),
+    UNIQUE KEY `userid` (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `role` (
     `roleid` int(11) unsigned NOT NULL,
     `userid` int(11) unsigned NOT NULL,

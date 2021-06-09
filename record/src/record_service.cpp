@@ -39,7 +39,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
                                  const ::wukong::pb::LoadRoleRequest* request,
                                  ::wukong::pb::LoadRoleResponse* response,
                                  ::google::protobuf::Closure* done) {
-    uint32_t roleId = request->roleid;
+    uint32_t roleId = request->roleid();
 
     if (_manager->isShutdown()) {
         ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] server is shutdown\n", roleId);
@@ -63,7 +63,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
             fragment->set_fragdata(std::move(data.second));
         }
 
-        int msgSize = msg->ByteSize();
+        int msgSize = msg->ByteSizeLong();
         std::string msgData(msgSize, 0);
         uint8_t *buf = (uint8_t *)msgData.data();
         msg->SerializeWithCachedSizesToArray(buf);
@@ -85,6 +85,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     gettimeofday(&t, NULL);
     uint32_t rToken = t.tv_sec;
 
+    redisReply *reply;
     // 尝试设置record
     if (g_RecordCenter.setRecordSha1().empty()) {
         reply = (redisReply *)redisCommand(cache, "EVAL %s 1 record:%d %s %d", SET_RECORD_CMD, roleId, rToken, 60);

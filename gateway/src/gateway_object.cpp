@@ -18,6 +18,7 @@
 #include "gateway_object.h"
 #include "gateway_center.h"
 #include "gateway_manager.h"
+#include "gateway_server.h"
 #include "lobby_client.h"
 #include "share/const.h"
 
@@ -30,26 +31,21 @@ static void callDoneHandle(::google::protobuf::Message *request, Controller *con
     delete request;
 }
 
-bool GatewayObject::setGameServerStub(GameServerType stype, ServerId sid) {
-    if (!_gameServerStub || _gameServerType != stype || _gameServerId != sid) {
-        _gameServerType = stype;
+bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
+    if (!_gameServerStub || _gameServerType != gsType || _gameServerId != sid) {
+        _gameServerType = gsType;
         _gameServerId = sid;
 
-        switch (stype) {
-            case GAME_SERVER_TYPE_LOBBY:
-                _gameServerStub = g_LobbyClient.getGameServiceStub(sid);
-
-                break;
-            case GAME_SERVER_TYPE_SCENE:
-                // TODO:
-            default:
-                ERROR_LOG("GatewayObject::setGameServerStub -- user %d unknown game server[stype:%d sid: %d]\n", _userId, stype, sid);
-                break;
+        GameClient *gameClient = g_GatewayServer.getGameClient(gsType);
+        if (gameClient) {
+            _gameServerStub = gameClient->getGameServiceStub(sid);
+        } else {
+            ERROR_LOG("GatewayObject::setGameServerStub -- user %d unknown game server[gsType:%d sid: %d]\n", _userId, gsType, sid);
         }
     }
 
     if (!_gameServerStub) {
-        ERROR_LOG("GatewayObject::setGameServerStub -- user %d game server[stype:%d sid: %d] not found\n", _userId, stype, sid);
+        ERROR_LOG("GatewayObject::setGameServerStub -- user %d game server[gsType:%d sid: %d] not found\n", _userId, gsType, sid);
         return false;
     }
 
@@ -97,9 +93,9 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
         } else {
             redisReply *reply;
             if (g_GatewayCenter.setSessionExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 session:%d %s %d", SET_SESSION_EXPIRE_CMD, obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 session:%d %s %d", g_GatewayCenter.setSessionExpireSha1(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_GatewayCenter.setSessionExpireSha1(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             }
             
             if (!reply) {

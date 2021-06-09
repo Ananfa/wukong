@@ -18,11 +18,14 @@
 #include "record_object.h"
 #include "record_center.h"
 #include "record_manager.h"
+#include "redis_utils.h"
 #include "share/const.h"
 
 #include <sys/time.h>
 
 using namespace wukong;
+
+RecordObject::~RecordObject() {}
 
 void RecordObject::start() {
     _running = true;
@@ -142,12 +145,12 @@ void *RecordObject::syncRoutine(void *arg) {
         if (!syncDatas.empty()) {
             if (obj->cacheData(syncDatas)) {
                 obj->_dirty_map.clear();
-                _cacheFailNum = 0;
+                obj->_cacheFailNum = 0;
             } else {
                 // 增加失败计数，若连续3次失败则销毁记录对象，防止长时间回档
                 ERROR_LOG("RecordObject::syncRoutine -- role %d cache data failed\n", obj->_roleId);
-                ++_cacheFailNum;
-                if _cacheFailNum > 3 {
+                ++obj->_cacheFailNum;
+                if (obj->_cacheFailNum > 3) {
                     obj->stop();
                 }
             }
@@ -163,60 +166,31 @@ void *RecordObject::syncRoutine(void *arg) {
             profileDatas.clear();
         }
     }
+
+    return nullptr;
 }
 
 bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &datas) {
     // 将数据存到cache中，并且加入相应的存盘时间队列
-    std::vector<const char *> argv;
-    std::vector<size_t> argvlen;
-    int argNum = datas.size() * 2 + 2;
-    argv.reserve(argNum);
-    argvlen.reserve(argNum);
-    argv.push_back("HMSET");
-    argvlen.push_back(5);
-
-    char tmpStr[50];
-    sprintf(tmpStr,"role:%d", _roleId);
-    argv.push_back(tmpStr);
-    argvlen.push_back(strlen(tmpStr));
-
-    for (auto &data : datas) {
-        argv.push_back(data.first.c_str());
-        argvlen.push_back(data.first.length());
-        argv.push_back(data.second.c_str());
-        argvlen.push_back(data.second.length());
-    }
-    
     redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
     if (!cache) {
         ERROR_LOG("RecordObject::cacheData -- role %d connect to cache failed\n", _roleId);
 
         return false;
-    } else {
-        redisReply *reply = (redisReply *)redisCommandArgv(cache, argv.size(), &(argv[0]), &(argvlen[0]));
-        
-        if (!reply) {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
-            ERROR_LOG("RecordObject::cacheData -- role %d cache data failed for db error\n", _roleId);
+    }
 
-            return false;
-        } else if (strcmp(reply->str, "OK")) {
-            ERROR_LOG("RecordObject::cacheData -- role %d cache data failed: %s\n", _roleId, reply->str);
-            freeReplyObject(reply);
-            g_RecordCenter.getCachePool()->proxy.put(cache, false);
-
-            return false;
-        }
-
-        freeReplyObject(reply);
+    if (!RedisUtils::UpdateRole(cache, g_RecordCenter.updateRoleSha1(), _roleId, datas)) {
+        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+        ERROR_LOG("RecordObject::cacheData -- role %d update data failed\n", _roleId);
+        return false;
     }
 
     // 加入相应的落地队列，等待落地任务将玩家数据存到mysql。当数据有修改过5分钟再进行落地
     struct timeval t;
     gettimeofday(&t, NULL);
-    int nowMinute = t.tv_sec / 60;
+    uint64_t nowMinute = t.tv_sec / 60;
     if (nowMinute >= _saveMinute) {
-        int nextSaveMinute = nowMinute + SAVE_PERIOD;
+        uint64_t nextSaveMinute = nowMinute + SAVE_PERIOD;
         redisReply *reply = (redisReply *)redisCommand(cache, "SADD save:%d %d", nextSaveMinute, _roleId);
         if (!reply) {
             g_RecordCenter.getCachePool()->proxy.put(cache, true);
@@ -234,67 +208,18 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
 }
 
 bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas) {
-    // 将轮廓数据存到cache中，若cache中没有找到则不需要更新轮廓数据
-    std::vector<const char *> argv;
-    std::vector<size_t> argvlen;
-    int argNum = profileDatas.size() * 2 + 5;
-    argv.reserve(argNum);
-    argvlen.reserve(argNum);
-    if (g_RecordCenter.updateProfileSha1().empty()) {
-        argv.push_back("EVAL");
-        argvlen.push_back(4);
-        argv.push_back(UPDATE_PROFILE_CMD);
-        argvlen.push_back(strlen(UPDATE_PROFILE_CMD));
-        argv.push_back("1");
-        argvlen.push_back(1);
-    } else {
-        argv.push_back("EVALSHA");
-        argvlen.push_back(7);
-        argv.push_back(g_RecordCenter.updateProfileSha1().c_str());
-        argvlen.push_back(g_RecordCenter.updateProfileSha1().length());
-        argv.push_back("1");
-        argvlen.push_back(1);
-    }
-
-    char tmpStr[50];
-    sprintf(tmpStr,"RoleInfo:{%d}", _roleId);
-    argv.push_back(tmpStr);
-    argvlen.push_back(strlen(tmpStr));
-
-    argv.push_back("86400");    // 1天超时时间
-    argvlen.push_back(5);
-
-    for (auto &data : profileDatas)
-    {
-        argv.push_back(data.first.c_str());
-        argvlen.push_back(data.first.length());
-        argv.push_back(data.second.c_str());
-        argvlen.push_back(data.second.length());
-    }
-    
     redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
     if (!cache) {
         ERROR_LOG("RecordObject::cacheProfile -- role %d connect to cache failed\n", _roleId);
-
         return false;
-    } else {
-        redisReply *reply = (redisReply *)redisCommandArgv(cache, argv.size(), &(argv[0]), &(argvlen[0]));
-        
-        if (!reply) {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
-            ERROR_LOG("RecordObject::cacheProfile -- role %d cache data failed for db error\n", _roleId);
-
-            return false;
-        } else if (strcmp(reply->str, "OK")) {
-            ERROR_LOG("RecordObject::cacheProfile -- role %d cache data failed: %s\n", _roleId, reply->str);
-            freeReplyObject(reply);
-            g_RecordCenter.getCachePool()->proxy.put(cache, false);
-
-            return false;
-        }
-
-        freeReplyObject(reply);
-        g_RecordCenter.getCachePool()->proxy.put(cache, false);
-        return true;
     }
+
+    if (!RedisUtils::UpdateProfile(cache, g_RecordCenter.updateProfileSha1(), _roleId, profileDatas)) {
+        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+        ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed\n", _roleId);
+        return false;
+    }
+
+    g_RecordCenter.getCachePool()->proxy.put(cache, false);
+    return true;
 }

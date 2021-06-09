@@ -30,9 +30,9 @@ namespace wukong {
     // 单例模式实现
     class GatewayServer {
     private:
-        bool _inited;
-        IO *_io;
-        RpcClient *_rpcClient;
+        bool _inited = false;
+        IO *_io = nullptr;
+        RpcClient *_rpcClient = nullptr;
 
         std::map<GameServerType, GameClient*> _gameClientMap;
         std::vector<std::thread> _threads;
@@ -57,7 +57,7 @@ namespace wukong {
         static void gatewayThread(IO *rpc_io, IO *msg_io, ServerId gwid, uint16_t rpcPort, uint16_t msgPort);
 
     private:
-        GatewayServer(): _inited(false), _io(nullptr), _rpcClient(nullptr) {}
+        GatewayServer() = default;                                  // ctor hidden
         GatewayServer(GatewayServer const&) = delete;               // copy ctor hidden
         GatewayServer(GatewayServer &&) = delete;                   // move ctor hidden
         GatewayServer& operator=(GatewayServer const&) = delete;    // assign op. hidden

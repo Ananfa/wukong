@@ -47,12 +47,12 @@ namespace wukong {
         void enterZoo();
 
     private:
-        LoginServer() {}
-        LoginServer(LoginServer const&) = delete;            // copy ctor hidden
-        LoginServer(LoginServer &&) = delete;       // move ctor hidden
-        LoginServer& operator=(LoginServer const&) = delete; // assign op. hidden
-        LoginServer& operator=(LoginServer &&) = delete; // move assign op. hidden
-        ~LoginServer() = default;                           // dtor hidden
+        LoginServer() = default;                                // ctor hidden
+        LoginServer(LoginServer const&) = delete;               // copy ctor hidden
+        LoginServer(LoginServer &&) = delete;                   // move ctor hidden
+        LoginServer& operator=(LoginServer const&) = delete;    // assign op. hidden
+        LoginServer& operator=(LoginServer &&) = delete;        // move assign op. hidden
+        ~LoginServer() = default;                               // dtor hidden
     };
 
     #define g_LoginServer LoginServer::Instance()

@@ -20,7 +20,7 @@
 #include "corpc_redis.h"
 #include "record_client.h"
 #include "game_object.h"
-#include "game_object_manager_h"
+#include "game_object_manager.h"
 #include "share/define.h"
 
 #include <vector>

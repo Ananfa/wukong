@@ -33,7 +33,7 @@ namespace wukong {
 
     class GameObject: public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _lToken(lToken), _manager(manager), _running(false), _profile_dirty(false) {}
+        GameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _lToken(lToken), _manager(manager) {}
         virtual ~GameObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
@@ -48,7 +48,7 @@ namespace wukong {
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
 
-        virtual bool update(uint64_t nowSec) {} // 周期处理逻辑
+        virtual bool update(uint64_t nowSec) = 0; // 周期处理逻辑
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
 
         virtual void onEnterGame() = 0;
@@ -74,7 +74,7 @@ namespace wukong {
         ServerId _recordId; // 记录对象所在服务器id
         uint32_t _lToken;
 
-        bool _running;
+        bool _running = false;
 
         GameObjectManager *_manager; // 关联的manager
 

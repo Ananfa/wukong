@@ -342,4 +342,5 @@ bool RedisUtils::UpdateRole(redisContext *redis, const std::string &cmdSha1, Rol
     }
 
     freeReplyObject(reply);
+    return true;
 }

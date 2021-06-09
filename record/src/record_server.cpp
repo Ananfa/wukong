@@ -123,7 +123,7 @@ bool RecordServer::init(int argc, char * argv[]) {
 }
 
 void RecordServer::run() {
-	// 根据servers配置启动Record服务，每线程跑一个服务
+    // 根据servers配置启动Record服务，每线程跑一个服务
     const std::vector<RecordConfig::ServerInfo> &recordInfos = g_RecordConfig.getServerInfos();
     for (auto &info : recordInfos) {
         _threads.push_back(std::thread(recordThread, _io, info.id, info.rpcPort));

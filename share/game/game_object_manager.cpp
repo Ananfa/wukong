@@ -34,7 +34,7 @@ void GameObjectManager::shutdown() {
     _shutdown = true;
 
     for (auto &gameObj : _roleId2GameObjectMap) {
-        gameObj.stop();
+        gameObj.second->stop();
     }
 
     _roleId2GameObjectMap.clear();
@@ -101,4 +101,6 @@ bool GameObjectManager::remove(RoleId roleId) {
 
     it->second->stop();
     _roleId2GameObjectMap.erase(it);
+
+    return true;
 }

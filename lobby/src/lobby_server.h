@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_server_h
-#define record_server_h
+#ifndef lobby_server_h
+#define lobby_server_h
 
 #include "corpc_rpc_client.h"
 #include "game_client.h"
@@ -28,15 +28,16 @@ using namespace corpc;
 namespace wukong {
 
     // 单例模式实现
-    class RecordServer {
+    class LobbyServer {
     private:
         bool _inited = false;
         IO *_io = nullptr;
+        RpcClient *_rpcClient = nullptr;
 
         std::vector<std::thread> _threads;
     public:
-        static RecordServer& Instance() {
-            static RecordServer theSingleton;
+        static LobbyServer& Instance() {
+            static LobbyServer theSingleton;
             return theSingleton;
         }
 
@@ -44,23 +45,24 @@ namespace wukong {
         void run();
 
         IO *getIO() { return _io; }
+        RpcClient *getRpcClient() { return _rpcClient; }
         
     private:
         void enterZoo();
 
-        static void recordThread(IO *rpc_io, ServerId rcid, uint16_t rpcPort);
+        static void lobbyThread(IO *rpc_io, ServerId lbid, uint16_t rpcPort);
 
     private:
-        RecordServer() = default;                                   // ctor hidden
-        RecordServer(RecordServer const&) = delete;                 // copy ctor hidden
-        RecordServer(RecordServer &&) = delete;                     // move ctor hidden
-        RecordServer& operator=(RecordServer const&) = delete;      // assign op. hidden
-        RecordServer& operator=(RecordServer &&) = delete;          // move assign op. hidden
-        ~RecordServer() = default;                                  // dtor hidden
+        LobbyServer() = default;                                // ctor hidden
+        LobbyServer(LobbyServer const&) = delete;               // copy ctor hidden
+        LobbyServer(LobbyServer &&) = delete;                   // move ctor hidden
+        LobbyServer& operator=(LobbyServer const&) = delete;    // assign op. hidden
+        LobbyServer& operator=(LobbyServer &&) = delete;        // move assign op. hidden
+        ~LobbyServer() = default;                               // dtor hidden
     };
 
-    #define g_RecordServer RecordServer::Instance()
+    #define g_LobbyServer LobbyServer::Instance()
 
 }
 
-#endif /* record_server_h */
+#endif /* lobby_server_h */

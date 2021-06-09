@@ -330,6 +330,8 @@ void *GameObject::syncRoutine(void *arg) {
         }
 
     }
+
+    return nullptr;
 }
 
 void *GameObject::updateRoutine(void *arg) {
@@ -350,4 +352,6 @@ void *GameObject::updateRoutine(void *arg) {
         gettimeofday(&t, NULL);
         obj->update(t.tv_sec);
     }
+
+    return nullptr;
 }

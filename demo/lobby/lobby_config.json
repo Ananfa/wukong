@@ -1,0 +1,27 @@
+{
+    "ip": "127.0.0.1",
+    "servers": [
+        {
+            "id": 10001,
+            "rpcPort": 10001
+        },
+        {
+            "id": 10002,
+            "rpcPort": 10002
+        },
+        {
+            "id": 10003,
+            "rpcPort": 10003
+        }
+    ],
+    "zookeeper": "127.0.0.1:2181",
+    "ioRecvThreadNum": 2,
+    "ioSendThreadNum": 2,
+    "cache": {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "maxConnect": 8,
+        "dbIndex": 0
+    },
+    "updatePeriod": 0
+}

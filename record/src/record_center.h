@@ -55,6 +55,8 @@ namespace wukong {
     private:
         static void *initRoutine(void *arg);
 
+        // TODO: 开一个协程定期将cache中数据落地到mysql中
+
     private:
         RedisConnectPool *_cache;
         MysqlConnectPool *_mysql;

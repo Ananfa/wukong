@@ -9,6 +9,7 @@ namespace wukong {
     class ProtoUtils {
     public:
         static std::string marshalDataFragments(std::list<std::pair<std::string, std::string>> &datas);
+        static bool unmarshalDataFragments(const std::string &data, std::list<std::pair<std::string, std::string>> &datas);
     };
 
 }

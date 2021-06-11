@@ -89,9 +89,9 @@ void GameObject::stop() {
     _running = false;
 }
 
-void GameObject::forwardOut(int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &msg) {
+void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
     if (!_gatewayServerStub) {
-        ERROR_LOG("GameObject::forwardOut -- gateway stub not set\n");
+        ERROR_LOG("GameObject::send -- gateway stub not set\n");
         return;
     }
     
@@ -99,17 +99,29 @@ void GameObject::forwardOut(int32_t type, uint16_t tag, const std::vector<std::p
     Controller *controller = new Controller();
     request->set_type(type);
     request->set_tag(tag);
-    for (auto &t : targets) {
-        ::wukong::pb::ForwardOutTarget* target = request->add_targets();
-        target->set_userid(t.first);
-        target->set_ltoken(t.second);
-    }
+
+    ::wukong::pb::ForwardOutTarget* target = request->add_targets();
+    target->set_userid(_userId);
+    target->set_ltoken(_lToken);
     
     if (!msg.empty()) {
         request->set_rawmsg(msg);
     }
     
     _gatewayServerStub->forwardOut(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+}
+
+void send(int32_t type, uint16_t tag, google::protobuf::Message &msg) {
+    if (!_gatewayServerStub) {
+        ERROR_LOG("GameObject::send -- gateway stub not set\n");
+        return;
+    }
+
+    std::string bufStr(msg.ByteSizeLong(), 0);
+    uint8_t *buf = (uint8_t *)bufStr.data();
+    msg.SerializeWithCachedSizesToArray(buf);
+
+    send(type, tag, bufStr);
 }
 
 bool GameObject::reportGameObjectPos() {

@@ -46,7 +46,7 @@ namespace wukong {
 
         virtual std::vector<ServerInfo> getServerInfos();
         virtual bool setServers(const std::map<ServerId, AddressInfo> &addresses);
-        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &rawMsg);
+        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &rawMsg);
 
         virtual std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid);
         

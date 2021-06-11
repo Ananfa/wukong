@@ -20,7 +20,7 @@
 #include "corpc_redis.h"
 #include "record_client.h"
 #include "game_object.h"
-#include "game_object_manager.h"
+#include "game_delegate.h"
 #include "share/define.h"
 
 #include <vector>
@@ -30,10 +30,16 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, uint32_t, GameObjectManager*, const std::string &data)> CreateGameObjectHandler;
-
     class GameCenter
     {
+        typedef std::function<void (uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandler;
+
+        struct RegisterMessageInfo {
+            google::protobuf::Message *proto;
+            MessageHandle handle;
+            bool needCoroutine;
+        };
+
     public:
         static GameCenter& Instance() {
             static GameCenter instance;
@@ -52,8 +58,13 @@ namespace wukong {
 
         bool randomRecordServer(ServerId &serverId);
 
-        void setCreateGameObjectHandler(CreateGameObjectHandler handler) { _createGameObjectHandler = handler; }
-        CreateGameObjectHandler getCreateGameObjectHandler() { return _createGameObjectHandler; }
+        void setDelegate(GameDelegate delegate) { _delegate = delegate; }
+        CreateGameObjectHandler getCreateGameObjectHandler() { return _delegate.createGameObject; }
+
+        bool registerMessage(int type,
+                             google::protobuf::Message *proto,
+                             bool needCoroutine,
+                             MessageHandle handle);
 
     private:
         void updateRecordInfosVersion() { _recordInfosVersion++; };
@@ -75,7 +86,9 @@ namespace wukong {
         std::string _updateLocationSha1; // 更新location的lua脚本sha1值
         std::string _setLocationExpireSha1; // 设置location的超时lua脚本sha1值
 
-        CreateGameObjectHandler _createGameObjectHandler;
+        GameDelegate _delegate; // 委托对象（不同游戏有不同的委托实现）
+
+        std::map<int, RegisterMessageInfo> _registerMessageMap;
     private:
         static std::vector<RecordClient::ServerInfo> _recordInfos;
         static std::mutex _recordInfosLock;

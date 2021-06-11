@@ -126,6 +126,7 @@ namespace wukong {
 
         std::string _setSessionSha1; // 设置session的lua脚本sha1值
         std::string _bindRoleSha1; // 添加roleId的lua脚本sha1值
+        std::string _loadRoleSha1; // 加载role的lua脚本sha1值
         std::string _saveRoleSha1; // 保存profile的lua脚本sha1值
         std::string _saveProfileSha1; // 保存profile的lua脚本sha1值
 

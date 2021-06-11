@@ -15,7 +15,7 @@ namespace demo {
     
     class DemoUtils {
     public:
-    	static bool LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mysqlPool, const std::string &saveProfileSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
+    	static bool LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mysqlPool, const std::string &loadRoleSha1, const std::string &saveProfileSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
     	static void MakeProfile(const std::list<std::pair<std::string, std::string>> &datas, std::list<std::pair<std::string, std::string>> &pDatas);
     };
 

@@ -20,7 +20,7 @@
 #include "corpc_redis.h"
 #include "corpc_mysql.h"
 #include "share/define.h"
-#include "record_manager.h"
+#include "record_delegate.h"
 
 #include <vector>
 #include <mutex>
@@ -29,8 +29,6 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<std::shared_ptr<RecordObject> (RoleId, uint32_t, RecordManager*, const std::string &data)> CreateRecordObjectHandler;
-
     class RecordCenter
     {
     public:
@@ -48,9 +46,11 @@ namespace wukong {
         const std::string &setRecordExpireSha1() { return _setRecordExpireSha1; }
         const std::string &updateProfileSha1() { return _updateProfileSha1; }
         const std::string &updateRoleSha1() { return _updateRoleSha1; }
+        const std::string &loadRoleSha1() { return _loadRoleSha1; }
+        const std::string &saveRoleSha1() { return _saveRoleSha1; }
 
-        void setCreateRecordObjectHandler(CreateRecordObjectHandler handler) { _createRecordObjectHandler = handler; }
-        CreateRecordObjectHandler getCreateRecordObjectHandler() { return _createRecordObjectHandler; }
+        void setDelegate(RecordDelegate delegate) { _delegate = delegate; }
+        CreateRecordObjectHandler getCreateRecordObjectHandler() { return _delegate.createRecordObject; }
 
     private:
         static void *initRoutine(void *arg);
@@ -65,8 +65,10 @@ namespace wukong {
         std::string _setRecordExpireSha1; // 设置Record key超时的lua脚本sha1值
         std::string _updateProfileSha1; // 更新画像数据的lua脚本sha1值
         std::string _updateRoleSha1; // 更新角色数据的lua脚本sha1值
+        std::string _loadRoleSha1; // 加载角色数据的lua脚本sha1值
+        std::string _saveRoleSha1; // 保存profile的lua脚本sha1值
 
-        CreateRecordObjectHandler _createRecordObjectHandler;
+        RecordDelegate _delegate;
     private:
         RecordCenter() = default;                                      // ctor hidden
         ~RecordCenter() = default;                                     // destruct hidden

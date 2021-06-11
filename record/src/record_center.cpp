@@ -97,6 +97,40 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_updateRoleSha1 = reply->str;
     freeReplyObject(reply);
 
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", LOAD_ROLE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("RecordCenter::initRoutine -- load-role script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("RecordCenter::initRoutine -- load-role script load failed\n");
+        return nullptr;
+    }
+
+    self->_loadRoleSha1 = reply->str;
+    freeReplyObject(reply);
+
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_ROLE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("RecordCenter::initRoutine -- save-role script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("RecordCenter::initRoutine -- save-role script load failed\n");
+        return nullptr;
+    }
+
+    self->_saveRoleSha1 = reply->str;
+    freeReplyObject(reply);
+
     self->_cache->proxy.put(cache, false);
     
     return nullptr;

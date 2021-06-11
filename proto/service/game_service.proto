@@ -9,7 +9,7 @@ package wukong.pb;
 message ForwardInRequest {
     int32 type = 1; // 消息类型
     uint32 tag = 2; // 消息tag（用于客户端与服务器RPC）
-    repeated uint32 ids = 3; // 发送目标（角色号列表）
+    uint32 roleId = 3; // 发送目标角色
     bytes rawMsg = 4; // 原始消息数据
 }
 

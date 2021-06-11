@@ -11,6 +11,7 @@ int main(int argc, char * argv[]) {
     }
 
     g_RecordCenter.init();
+    // TODO: g_RecordCenter.setDelegate
 
     g_RecordServer.run();
     return 0;

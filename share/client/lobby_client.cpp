@@ -108,7 +108,7 @@ uint32_t LobbyClient::initRole(ServerId sid, UserId userId, RoleId roleId, Serve
     return ret;
 }
 
-void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &msg) {
+void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &msg) {
     std::shared_ptr<pb::GameService_Stub> stub = getGameServiceStub(sid);
     
     if (!stub) {
@@ -124,9 +124,7 @@ void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, const std:
         request->set_tag(tag);
     }
 
-    for (auto roleId : roleIds) {
-        request->add_ids(roleId);
-    }
+    request->set_roleid(roleId);
     
     if (!msg.empty()) {
         request->set_rawmsg(msg);

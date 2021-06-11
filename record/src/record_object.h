@@ -34,16 +34,17 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(RoleId roleId, uint32_t rToken, RecordManager *manager): _roleId(roleId), _rToken(rToken), _manager(manager), _running(false), _saveMinute(0), _cacheFailNum(0) {}
+        RecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordManager *manager): _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
         virtual ~RecordObject() = 0;
 
-        virtual bool initData(const std::string &data) = 0;
+        virtual bool initData(std::list<std::pair<std::string, std::string>> &datas) = 0;
 
         virtual void syncIn(const ::wukong::pb::SyncRequest* request) = 0;
 
         RoleId getRoleId() { return _roleId; }
         void setLToken(uint32_t lToken) { _lToken = lToken; }
         uint32_t getLToken() { return _lToken; }
+        ServerId getServerId() { return _serverId; }
 
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
@@ -62,6 +63,7 @@ namespace wukong {
 
     protected:
         RoleId _roleId;
+        ServerId _serverId; // 角色所属区服ID
         std::map<std::string, bool> _dirty_map;
 
     private:
@@ -70,7 +72,7 @@ namespace wukong {
         bool _running;
 
         uint64_t _gameObjectHeartbeatExpire; // 游戏对象心跳超时时间
-        uint64_t _saveMinute; // 落地时间分钟号
+        uint64_t _saveTM; // 落地时间戳
         int _cacheFailNum; // 累计cache失败计数
 
         RecordManager *_manager; // 关联的manager

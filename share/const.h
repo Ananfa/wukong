@@ -27,10 +27,11 @@ namespace wukong {
     const int TOKEN_HEARTBEAT_PERIOD               = 20; // 令牌心跳周期，单位秒
 
     const int RECORD_TIMEOUT                       = 600; // 记录对象收不到游戏对象心跳的超时时间，单位秒
+    const int RECORD_EXPIRE                        = 86400; // 记录对象销毁后cache数据超时时长，单位秒
 
     const int SYNC_PERIOD                          = 1; // 游戏服向记录服同步数据周期，单位秒
     const int CACHE_PERIOD                         = 10; // 记录服向redis缓存脏数据的周期，单位秒
-    const int SAVE_PERIOD                          = 5; // 将redis数据落地到mysql的时间周期，单位分钟
+    const int SAVE_PERIOD                          = 600; // 将redis数据落地到mysql的时间周期，单位秒
 
     // 客户端向服务器发的消息ID定义
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息
@@ -179,6 +180,15 @@ namespace wukong {
           return 0\
         end";
 
+    const char LOAD_ROLE_CMD[] = "\
+        local ret = redis.call('exists',KEYS[1])\
+        if ret==0 then\
+          return {}\
+        end\
+        if ARGV[1]==\"1\" then\
+          redis.call('persist',KEYS[1])\
+        end\
+        return redis.call('hgetall',KEYS[1])";
 }
 
 #endif /* const_h */

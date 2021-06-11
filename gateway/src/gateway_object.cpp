@@ -153,7 +153,7 @@ void GatewayObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::s
         request->set_tag(tag);
     }
 
-    request->add_ids(_roleId);
+    request->set_roleid(_roleId);
     
     if (rawMsg && !rawMsg->empty()) {
         request->set_rawmsg(rawMsg->c_str());

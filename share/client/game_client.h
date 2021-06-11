@@ -50,7 +50,7 @@ namespace wukong {
 
         virtual std::vector<ServerInfo> getServerInfos() = 0; // 注意：这里直接定义返回vector类型，通过编译器RVO优化
         virtual bool setServers(const std::map<ServerId, AddressInfo> &addresses) = 0;
-        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, const std::vector<RoleId> &roleIds, const std::string &rawMsg) = 0;
+        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &rawMsg) = 0;
         virtual std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid) = 0;
 
         static bool parseAddress(const std::string &input, AddressInfo &addressInfo);

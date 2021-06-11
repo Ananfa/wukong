@@ -212,14 +212,22 @@ bool RedisUtils::UpdateProfile(redisContext *redis, const std::string &cmdSha1, 
     return true;
 }
 
-bool RedisUtils::LoadRole(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "HGETALL Role:{%d}", roleId);
+bool RedisUtils::LoadRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
+    redisReply *reply;
+    if (cmdSha1.empty()) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Role:{%d} %d", LOAD_ROLE_CMD, roleId, clearTTL ? 1 : 0);
+    } else {
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Role:{%d} %d", cmdSha1.c_str(), roleId, clearTTL ? 1 : 0);
+    }
+    
     if (!reply) {
+        ERROR_LOG("RedisUtils::LoadRole -- load role:[%d] failed\n", roleId);
         return false;
     }
 
     if (reply->type != REDIS_REPLY_ARRAY || reply->elements % 2 != 0) {
         freeReplyObject(reply);
+        ERROR_LOG("RedisUtils::LoadRole -- load role:[%d] failed for reply invalid\n", roleId);
         return false;
     }
 

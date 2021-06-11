@@ -23,6 +23,7 @@ void GameServiceImpl::forwardIn(::google::protobuf::RpcController* controller,
                                      ::corpc::Void* response,
                                      ::google::protobuf::Closure* done) {
     // TODO: 设计游戏对象的消息处理机制（是否使用注册消息处理）
+    
 }
 
 void GameServiceImpl::enterGame(::google::protobuf::RpcController* controller,

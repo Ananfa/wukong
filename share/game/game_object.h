@@ -33,7 +33,7 @@ namespace wukong {
 
     class GameObject: public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _lToken(lToken), _manager(manager) {}
+        GameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager) {}
         virtual ~GameObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
@@ -53,8 +53,10 @@ namespace wukong {
 
         virtual void onEnterGame() = 0;
 
+    protected:
+        void send(int32_t type, uint16_t tag, const std::string &rawMsg);
+        void send(int32_t type, uint16_t tag, google::protobuf::Message &msg);
     private:
-        void forwardOut(int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &rawMsg);
         bool reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
         bool heartbeatToGateway();
         bool heartbeatToRecord();
@@ -81,6 +83,7 @@ namespace wukong {
     protected:
         UserId _userId;
         RoleId _roleId;
+        ServerId _serverId;
         
         std::map<std::string, bool> _dirty_map;
 

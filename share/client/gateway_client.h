@@ -64,6 +64,7 @@ namespace wukong {
         bool kick(ServerId sid, UserId userId);
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
         void broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &rawMsg);
+        // TODO: 对全服的broadcast
     
         /* 加入Server */
         bool setServers(const std::map<ServerId, AddressInfo> &addresses);

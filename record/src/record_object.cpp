@@ -46,6 +46,23 @@ void RecordObject::start() {
 
 void RecordObject::stop() {
     _running = false;
+
+    // 设置cache数据超时时间
+    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+    if (!cache) {
+        ERROR_LOG("RecordObject::stop -- role %d connect to cache failed\n", _roleId);
+        return;
+    }
+
+    redisReply *reply = (redisReply *)redisCommand(cache, "EXPIRE Role:{%d} %d", _roleId, RECORD_EXPIRE);
+    if (!reply) {
+        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+        ERROR_LOG("RecordObject::stop -- role %d expire cache data failed for db error\n", _roleId);
+        return;
+    }
+
+    freeReplyObject(reply);
+    g_RecordCenter.getCachePool()->proxy.put(cache, false);
 }
 
 void *RecordObject::heartbeatRoutine( void *arg ) {
@@ -188,15 +205,15 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
     // 加入相应的落地队列，等待落地任务将玩家数据存到mysql。当数据有修改过5分钟再进行落地
     struct timeval t;
     gettimeofday(&t, NULL);
-    uint64_t nowMinute = t.tv_sec / 60;
-    if (nowMinute >= _saveMinute) {
-        uint64_t nextSaveMinute = nowMinute + SAVE_PERIOD;
-        redisReply *reply = (redisReply *)redisCommand(cache, "SADD save:%d %d", nextSaveMinute, _roleId);
+    uint64_t nowTM = t.tv_sec;
+    if (nowTM >= _saveTM) {
+        uint64_t nextSaveTM = nowTM + SAVE_PERIOD;
+        redisReply *reply = (redisReply *)redisCommand(cache, "SADD save:%d %d", nextSaveTM, _roleId);
         if (!reply) {
             g_RecordCenter.getCachePool()->proxy.put(cache, true);
             WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", _roleId);
         } else {
-            _saveMinute = nextSaveMinute;
+            _saveTM = nextSaveTM;
             freeReplyObject(reply);
             g_RecordCenter.getCachePool()->proxy.put(cache, false);
         }

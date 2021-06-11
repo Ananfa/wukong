@@ -62,7 +62,7 @@ std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
     return infos;
 }
 
-bool RecordClient::loadRole(ServerId sid, RoleId roleId, uint32_t lToken, std::string &roleData) {
+bool RecordClient::loadRole(ServerId sid, RoleId roleId, uint32_t lToken, ServerId &serverId, std::string &roleData) {
     std::shared_ptr<pb::RecordService_Stub> stub = getStub(sid);
     
     if (!stub) {
@@ -82,6 +82,7 @@ bool RecordClient::loadRole(ServerId sid, RoleId roleId, uint32_t lToken, std::s
         ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
     } else if (response->errcode() == 0) {
         result = true;
+        serverId = response->serverid();
         roleData = response->data();
     }
 

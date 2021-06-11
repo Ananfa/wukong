@@ -56,6 +56,7 @@ set(SOURCE_FILES
     ../../utils/string_utils.cpp
     ../../utils/redis_utils.cpp
     ../../utils/mysql_utils.cpp
+    ../../utils/proto_utils.cpp
     ../../proto/common.pb.cc
     ../../proto/game/game.pb.cc
     ../../proto/service/record_service.pb.cc

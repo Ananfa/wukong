@@ -43,7 +43,7 @@ namespace wukong {
         bool exist(RoleId roleId); 
 
         std::shared_ptr<RecordObject> getRecordObject(RoleId roleId); // 获取玩家存储对象
-        std::shared_ptr<RecordObject> create(RoleId roleId, uint32_t rToken, const std::string &data);
+        std::shared_ptr<RecordObject> create(RoleId roleId, ServerId serverId, uint32_t rToken, std::list<std::pair<std::string, std::string>> &datas);
         bool remove(RoleId roleId); // 删除玩家游戏对象
 
     private:

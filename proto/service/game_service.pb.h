@@ -188,33 +188,11 @@ class ForwardInRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdsFieldNumber = 3,
     kRawMsgFieldNumber = 4,
     kTypeFieldNumber = 1,
     kTagFieldNumber = 2,
+    kRoleIdFieldNumber = 3,
   };
-  // repeated uint32 ids = 3;
-  int ids_size() const;
-  private:
-  int _internal_ids_size() const;
-  public:
-  void clear_ids();
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ids(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-      _internal_ids() const;
-  void _internal_add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-      _internal_mutable_ids();
-  public:
-  ::PROTOBUF_NAMESPACE_ID::uint32 ids(int index) const;
-  void set_ids(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
-  void add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-      ids() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-      mutable_ids();
-
   // bytes rawMsg = 4;
   void clear_rawmsg();
   const std::string& rawmsg() const;
@@ -258,6 +236,15 @@ class ForwardInRequest PROTOBUF_FINAL :
   void _internal_set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
+  // uint32 roleId = 3;
+  void clear_roleid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
+  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_roleid() const;
+  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:wukong.pb.ForwardInRequest)
  private:
   class _Internal;
@@ -265,11 +252,10 @@ class ForwardInRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > ids_;
-  mutable std::atomic<int> _ids_cached_byte_size_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rawmsg_;
   ::PROTOBUF_NAMESPACE_ID::int32 type_;
   ::PROTOBUF_NAMESPACE_ID::uint32 tag_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_game_5fservice_2eproto;
 };
@@ -550,51 +536,24 @@ inline void ForwardInRequest::set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.tag)
 }
 
-// repeated uint32 ids = 3;
-inline int ForwardInRequest::_internal_ids_size() const {
-  return ids_.size();
+// uint32 roleId = 3;
+inline void ForwardInRequest::clear_roleid() {
+  roleid_ = 0u;
 }
-inline int ForwardInRequest::ids_size() const {
-  return _internal_ids_size();
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::_internal_roleid() const {
+  return roleid_;
 }
-inline void ForwardInRequest::clear_ids() {
-  ids_.Clear();
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::roleid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.roleId)
+  return _internal_roleid();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::_internal_ids(int index) const {
-  return ids_.Get(index);
+inline void ForwardInRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  roleid_ = value;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::ids(int index) const {
-  // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.ids)
-  return _internal_ids(index);
-}
-inline void ForwardInRequest::set_ids(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  ids_.Set(index, value);
-  // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.ids)
-}
-inline void ForwardInRequest::_internal_add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  ids_.Add(value);
-}
-inline void ForwardInRequest::add_ids(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_add_ids(value);
-  // @@protoc_insertion_point(field_add:wukong.pb.ForwardInRequest.ids)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-ForwardInRequest::_internal_ids() const {
-  return ids_;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
-ForwardInRequest::ids() const {
-  // @@protoc_insertion_point(field_list:wukong.pb.ForwardInRequest.ids)
-  return _internal_ids();
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-ForwardInRequest::_internal_mutable_ids() {
-  return &ids_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
-ForwardInRequest::mutable_ids() {
-  // @@protoc_insertion_point(field_mutable_list:wukong.pb.ForwardInRequest.ids)
-  return _internal_mutable_ids();
+inline void ForwardInRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_roleid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.roleId)
 }
 
 // bytes rawMsg = 4;

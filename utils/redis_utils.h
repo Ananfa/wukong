@@ -17,7 +17,7 @@ namespace wukong {
         static bool LoadProfile(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas);
         static bool SaveProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
         static bool UpdateProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas);
-        static bool LoadRole(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas);
+        static bool LoadRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL);
         static bool SaveRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
         static bool UpdateRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas);
     };

@@ -349,10 +349,11 @@ class LoadRoleResponse PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDataFieldNumber = 2,
+    kDataFieldNumber = 3,
     kErrCodeFieldNumber = 1,
+    kServerIdFieldNumber = 2,
   };
-  // bytes data = 2;
+  // bytes data = 3;
   void clear_data();
   const std::string& data() const;
   void set_data(const std::string& value);
@@ -386,6 +387,15 @@ class LoadRoleResponse PROTOBUF_FINAL :
   void _internal_set_errcode(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
+  // uint32 serverId = 2;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:wukong.pb.LoadRoleResponse)
  private:
   class _Internal;
@@ -395,6 +405,7 @@ class LoadRoleResponse PROTOBUF_FINAL :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
   ::PROTOBUF_NAMESPACE_ID::uint32 errcode_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_record_5fservice_2eproto;
 };
@@ -1086,7 +1097,27 @@ inline void LoadRoleResponse::set_errcode(::PROTOBUF_NAMESPACE_ID::uint32 value)
   // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleResponse.errCode)
 }
 
-// bytes data = 2;
+// uint32 serverId = 2;
+inline void LoadRoleResponse::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleResponse::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleResponse::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleResponse.serverId)
+  return _internal_serverid();
+}
+inline void LoadRoleResponse::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void LoadRoleResponse::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleResponse.serverId)
+}
+
+// bytes data = 3;
 inline void LoadRoleResponse::clear_data() {
   data_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }

@@ -65,11 +65,11 @@ void LobbyServer::enterZoo() {
     });
 }
 
-void LobbyServer::lobbyThread(IO *rpc_io, ServerId rcid, uint16_t rpcPort) {
+void LobbyServer::lobbyThread(IO *rpc_io, ServerId lbid, uint16_t rpcPort) {
     // 启动RPC服务
     RpcServer *server = RpcServer::create(rpc_io, 0, g_LobbyConfig.getIp(), rpcPort);
     
-    GameObjectManager *mgr = new GameObjectManager(rcid);
+    GameObjectManager *mgr = new GameObjectManager(lbid);
     mgr->init();
 
     LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl(mgr);

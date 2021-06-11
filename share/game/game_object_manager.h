@@ -40,7 +40,7 @@ namespace wukong {
 
         bool exist(RoleId roleId); 
         std::shared_ptr<GameObject> getGameObject(RoleId roleId);
-        std::shared_ptr<GameObject> create(UserId userId, RoleId roleId, uint32_t lToken, ServerId gatewayId, ServerId recordId, const std::string &data);
+        std::shared_ptr<GameObject> create(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, ServerId gatewayId, ServerId recordId, const std::string &data);
         bool remove(RoleId roleId); // 删除玩家游戏对象
     private:
         ServerId _id;       // lobby服务号

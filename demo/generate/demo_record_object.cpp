@@ -4,7 +4,7 @@
 
 using namespace demo;
 
-DemoRecordObject::DemoRecordObject(RoleId roleId, uint32_t rToken, RecordManager *manager): wukong::RecordObject(roleId, rToken, manager) {
+DemoRecordObject::DemoRecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordManager *manager): wukong::RecordObject(roleId, serverId, rToken, manager) {
     // 设置属性初始值(基础类型可以有默认值)
     _name = "";
     _exp = 0;
@@ -13,108 +13,91 @@ DemoRecordObject::DemoRecordObject(RoleId roleId, uint32_t rToken, RecordManager
     _signinactivity = new demo::pb::SignInActivity;
 }
 
-bool DemoRecordObject::initData(const std::string &data) {
-    auto msg = new wukong::pb::DataFragments;
-    if (!msg->ParseFromString(data)) {
-        ERROR_LOG("DemoGameObject::initData -- parse role:%d data failed\n", _roleId);
-        delete msg;
-        return false;
-    }
-
-    int fragmentNum = msg->fragments_size();
-    for (int i = 0; i < fragmentNum; i++) {
-        const ::wukong::pb::DataFragment& fragment = msg->fragments(i);
-        if (fragment.fragname().compare("name") == 0) {
-            auto msg1 = new wukong::pb::StringValue;
-            if (!msg1->ParseFromString(fragment.fragdata())) {
+bool DemoRecordObject::initData(std::list<std::pair<std::string, std::string>> &datas) {
+    for (auto &pair : datas) {
+        if (pair.first.compare("name") == 0) {
+            auto msg = new wukong::pb::StringValue;
+            if (!msg->ParseFromString(pair.second)) {
                 ERROR_LOG("DemoGameObject::initData -- parse role:%d data--name failed\n", _roleId);
-                delete msg1;
                 delete msg;
                 return false;
             }
 
-            _name = msg1->value();
-            delete msg1;
-        } else if (fragment.fragname().compare("exp") == 0) {
-            auto msg1 = new wukong::pb::Uint32Value;
-            if (!msg1->ParseFromString(fragment.fragdata())) {
+            _name = msg->value();
+            delete msg;
+        } else if (pair.first.compare("exp") == 0) {
+            auto msg = new wukong::pb::Uint32Value;
+            if (!msg->ParseFromString(pair.second)) {
                 ERROR_LOG("DemoGameObject::initData -- parse role:%d data--exp failed\n", _roleId);
-                delete msg1;
                 delete msg;
                 return false;
             }
 
-            _exp = msg1->value();
-            delete msg1;
-        } else if (fragment.fragname().compare("lv") == 0) {
-            auto msg1 = new wukong::pb::Uint32Value;
-            if (!msg1->ParseFromString(fragment.fragdata())) {
+            _exp = msg->value();
+            delete msg;
+        } else if (pair.first.compare("lv") == 0) {
+            auto msg = new wukong::pb::Uint32Value;
+            if (!msg->ParseFromString(pair.second)) {
                 ERROR_LOG("DemoGameObject::initData -- parse role:%d data--lv failed\n", _roleId);
-                delete msg1;
                 delete msg;
                 return false;
             }
 
-            _lv = msg1->value();
-            delete msg1;
-        } else if (fragment.fragname().compare("currency") == 0) {
-            auto msg1 = new demo::pb::Currency;
-            if (!msg1->ParseFromString(fragment.fragdata())) {
+            _lv = msg->value();
+            delete msg;
+        } else if (pair.first.compare("currency") == 0) {
+            auto msg = new demo::pb::Currency;
+            if (!msg->ParseFromString(pair.second)) {
                 ERROR_LOG("DemoGameObject::initData -- parse role:%d data--currency failed\n", _roleId);
-                delete msg1;
                 delete msg;
                 return false;
             }
 
             delete _currency;
-            _currency = msg1;
-        } else if (fragment.fragname().compare("card") == 0) {
-            auto msg1 = new demo::pb::Cards;
-            if (!msg1->ParseFromString(fragment.fragdata())) {
+            _currency = msg;
+        } else if (pair.first.compare("card") == 0) {
+            auto msg = new demo::pb::Cards;
+            if (!msg->ParseFromString(pair.second)) {
                 ERROR_LOG("DemoGameObject::initData -- parse role:%d data--card failed\n", _roleId);
-                delete msg1;
                 delete msg;
                 return false;
             }
 
-            int cardNum = msg1->cards_size();
+            int cardNum = msg->cards_size();
             for (int j = 0; j < cardNum; j++) {
-                auto card = new demo::pb::Card(msg1->cards(j));
+                auto card = new demo::pb::Card(msg->cards(j));
                 _card_map.insert(std::make_pair(card->cardid(), card));
             }
 
-            delete msg1;
-        } else if (fragment.fragname().compare("pet") == 0) {
-            auto msg1 = new demo::pb::Pets;
-            if (!msg1->ParseFromString(fragment.fragdata())) {
+            delete msg;
+        } else if (pair.first.compare("pet") == 0) {
+            auto msg = new demo::pb::Pets;
+            if (!msg->ParseFromString(pair.second)) {
                 ERROR_LOG("DemoGameObject::initData -- parse role:%d data--pet failed\n", _roleId);
-                delete msg1;
                 delete msg;
                 return false;
             }
 
-            int petNum = msg1->pets_size();
+            int petNum = msg->pets_size();
             for (int j = 0; j < petNum; j++) {
-                auto pet = new demo::pb::Pet(msg1->pets(j));
+                auto pet = new demo::pb::Pet(msg->pets(j));
                 _pet_map.insert(std::make_pair(pet->petid(), pet));
             }
 
-            delete msg1;
-        } else if (fragment.fragname().compare("signinactivity") == 0) {
-            auto msg1 = new demo::pb::SignInActivity;
-            if (!msg1->ParseFromString(fragment.fragdata())) {
+            delete msg;
+        } else if (pair.first.compare("signinactivity") == 0) {
+            auto msg = new demo::pb::SignInActivity;
+            if (!msg->ParseFromString(pair.second)) {
                 ERROR_LOG("DemoGameObject::initData -- parse role:%d data--signinactivity failed\n", _roleId);
-                delete msg1;
                 delete msg;
                 return false;
             }
 
             delete _signinactivity;
-            _signinactivity = msg1;
+            _signinactivity = msg;
         }
     }
 
-    delete msg;
     return true;
 }
 

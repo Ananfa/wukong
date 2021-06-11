@@ -108,6 +108,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     }
 
     self->_setSessionSha1 = reply->str;
+    freeReplyObject(reply);
 
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_PROFILE_CMD);
     if (!reply) {
@@ -124,6 +125,24 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     }
 
     self->_saveProfileSha1 = reply->str;
+    freeReplyObject(reply);
+
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", LOAD_ROLE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("LoginHandlerMgr::initRoutine -- load-role script load failed for cache error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("LoginHandlerMgr::initRoutine -- load-role script load from cache failed\n");
+        return nullptr;
+    }
+
+    self->_loadRoleSha1 = reply->str;
+    freeReplyObject(reply);
 
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_ROLE_CMD);
     if (!reply) {
@@ -140,6 +159,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     }
 
     self->_saveRoleSha1 = reply->str;
+    freeReplyObject(reply);
 
     self->_cache->proxy.put(cache, false);
 
@@ -164,6 +184,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     }
 
     self->_bindRoleSha1 = reply->str;
+    freeReplyObject(reply);
 
     self->_redis->proxy.put(redis, false);
 
@@ -382,7 +403,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             // 查询轮廓数据
             for (RoleProfile &info : roles){
                 std::list<std::pair<std::string, std::string>> pDatas;
-                if (!_delegate.loadProfile(_cache, _mysql, _saveProfileSha1, info.roleId, info.serverId, pDatas)) {
+                if (!_delegate.loadProfile(_cache, _mysql, _loadRoleSha1, _saveProfileSha1, info.roleId, info.serverId, pDatas)) {
                     ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed", info.roleId);
                     continue;
                 }

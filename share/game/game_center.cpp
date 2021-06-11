@@ -182,3 +182,21 @@ void GameCenter::refreshRecordInfos() {
         _t_recordTotalWeight = totalWeight;
     }
 }
+
+bool GameCenter::registerMessage(int type,
+                                    google::protobuf::Message *proto,
+                                    bool needCoroutine,
+                                    MessageHandle handle) {
+    if (_registerMessageMap.find(type) != _registerMessageMap.end()) {
+        return false;
+    }
+
+    RegisterMessageInfo info;
+    info.proto = proto;
+    info.needCoroutine = needCoroutine;
+    info.handle = handle;
+    
+    _registerMessageMap.insert(std::make_pair(type, info));
+    
+    return true;
+}

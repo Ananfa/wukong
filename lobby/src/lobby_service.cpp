@@ -125,7 +125,8 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
 
     // 向Record服发加载数据RPC
     std::string roleData;
-    if (!g_RecordClient.loadRole(rcId, roleId, lToken, roleData)) {
+    ServerId serverId; // 角色所属区服号
+    if (!g_RecordClient.loadRole(rcId, roleId, lToken, serverId, roleData)) {
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d load role data failed\n", userId, roleId);
         return;
     }
@@ -146,7 +147,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
     // g_GameCenter.getCachePool()->proxy.put(cache, false);
 
     // 创建GameObject
-    if (!_manager->create(userId, roleId, lToken, gwId, rcId, roleData)) {
+    if (!_manager->create(userId, roleId, serverId, lToken, gwId, rcId, roleData)) {
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d create game object failed\n", userId, roleId);
         return;
     }

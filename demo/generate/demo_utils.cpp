@@ -8,7 +8,7 @@
 using namespace demo;
 using namespace wukong;
 
-bool DemoUtils::LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mysqlPool, const std::string &saveProfileSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas) {
+bool DemoUtils::LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mysqlPool, const std::string &loadRoleSha1, const std::string &saveProfileSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas) {
     serverId = 0;
     pDatas.clear();
     // 先从cache中加载profile数据
@@ -32,7 +32,7 @@ bool DemoUtils::LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mysql
     std::list<std::pair<std::string, std::string>> rDatas;
 
     // cache中找不到profile数据，先从cache中尝试加载角色数据并存入cache中
-    if (!RedisUtils::LoadRole(cache, roleId, serverId, rDatas)) {
+    if (!RedisUtils::LoadRole(cache, loadRoleSha1, roleId, serverId, rDatas, false)) {
         cachePool->proxy.put(cache, true);
         ERROR_LOG("DemoUtils::LoadProfile -- load role data failed\n");
         return false;

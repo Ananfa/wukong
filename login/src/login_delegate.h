@@ -29,7 +29,7 @@ using namespace corpc;
 namespace wukong {
     typedef std::function<bool (std::shared_ptr<RequestMessage>&)> LoginCheckHandler;
     typedef std::function<bool (std::shared_ptr<RequestMessage>&, std::list<std::pair<std::string, std::string>>&)> CreateRoleHandler;
-    typedef std::function<bool (RedisConnectPool*, MysqlConnectPool*, const std::string&, RoleId roleId, ServerId&, std::list<std::pair<std::string, std::string>>&)> LoadProfileHandler;
+    typedef std::function<bool (RedisConnectPool*, MysqlConnectPool*, const std::string&, const std::string&, RoleId roleId, ServerId&, std::list<std::pair<std::string, std::string>>&)> LoadProfileHandler;
     typedef std::function<void (const std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> MakeProfileHandler;
 
     struct LoginDelegate {

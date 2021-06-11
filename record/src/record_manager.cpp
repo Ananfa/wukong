@@ -57,7 +57,7 @@ std::shared_ptr<RecordObject> RecordManager::getRecordObject(RoleId roleId) {
     return it->second;
 }
 
-std::shared_ptr<RecordObject> RecordManager::create(RoleId roleId, uint32_t rToken, const std::string &data) {
+std::shared_ptr<RecordObject> RecordManager::create(RoleId roleId, ServerId serverId, uint32_t rToken, std::list<std::pair<std::string, std::string>> &datas) {
     if (_shutdown) {
         WARN_LOG("RecordManager::create -- already shutdown\n");
         return nullptr;
@@ -74,7 +74,7 @@ std::shared_ptr<RecordObject> RecordManager::create(RoleId roleId, uint32_t rTok
     }
 
     // 创建RecordObject
-    auto obj = g_RecordCenter.getCreateRecordObjectHandler()(roleId, rToken, this, data);
+    auto obj = g_RecordCenter.getCreateRecordObjectHandler()(roleId, serverId, rToken, this, datas);
 
     _roleId2RecordObjectMap.insert(std::make_pair(roleId, obj));
     obj->start();

@@ -14,7 +14,8 @@ message LoadRoleRequest {
 
 message LoadRoleResponse {
     uint32 errCode = 1;
-    bytes data = 2;
+    uint32 serverId = 2;
+    bytes data = 3;
 }
 
 message SyncData {

@@ -62,8 +62,9 @@ set(SOURCE_FILES
     ../../utils/uuid_utils.cpp
     ../../proto/common.pb.cc
     ../../proto/service/gateway_service.pb.cc
-    ../../demo/generate/demo_utils.cpp
-    ../../demo/proto/demo.pb.cc)
+    ../generate/demp_role_builder.cpp
+    ../generate/demo_utils.cpp
+    ../proto/demo.pb.cc)
 
 # Add source files
 aux_source_directory(../../share/http SOURCE_FILES)
@@ -88,9 +89,9 @@ include_directories(/usr/local/include/corpc)
 include_directories(/usr/local/include/corpc/proto)
 include_directories(/usr/local/include/hiredis)
 include_directories(/usr/local/include/zookeeper)
+include_directories(../proto)
+include_directories(../generate)
 include_directories(../..)
-include_directories(../../demo/proto)
-include_directories(../../demo/generate)
 include_directories(../../login/src)
 include_directories(../../share)
 include_directories(../../share/client)

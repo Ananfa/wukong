@@ -1,9 +1,12 @@
 // TODO：此文件通过工具生成
 #include "demo_game_object.h"
+#include "proto_utils.h"
+#include "share/const.h"
 
+using namespace wukong;
 using namespace demo;
 
-DemoGameObject::DemoGameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager): wukong::GameObject(userId, roleId, lToken, manager) {
+DemoGameObject::DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager): wukong::GameObject(userId, roleId, serverId, lToken, manager) {
     // 设置属性初始值(基础类型可以有默认值)
     _name = "";
     _exp = 0;
@@ -89,7 +92,7 @@ bool DemoGameObject::initData(const std::string &data) {
                 return false;
             }
 
-            cardNum = msg1->cards_size();
+            int cardNum = msg1->cards_size();
             for (int j = 0; j < cardNum; j++) {
                 auto card = new demo::pb::Card(msg1->cards(j));
                 _card_map.insert(std::make_pair(card->cardid(), card));
@@ -105,8 +108,8 @@ bool DemoGameObject::initData(const std::string &data) {
                 return false;
             }
 
-            petNum = msg1->pets_size();
-            for (int j = 0; j < cardNum; j++) {
+            int petNum = msg1->pets_size();
+            for (int j = 0; j < petNum; j++) {
                 auto pet = new demo::pb::Pet(msg1->pets(j));
                 _pet_map.insert(std::make_pair(pet->petid(), pet));
             }
@@ -140,7 +143,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("name", std::move(msgData)));
+            datas.push_back(std::make_pair(pair.first, std::move(msgData)));
             delete msg;
         } else if (pair.first.compare("exp") == 0) {
             auto msg = new wukong::pb::Uint32Value;
@@ -150,7 +153,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("exp", std::move(msgData)));
+            datas.push_back(std::make_pair(pair.first, std::move(msgData)));
             delete msg;
         } else if (pair.first.compare("lv") == 0) {
             auto msg = new wukong::pb::Uint32Value;
@@ -160,14 +163,14 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
             uint8_t *buf = (uint8_t *)msgData.data();
             msg->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("lv", std::move(msgData)));
+            datas.push_back(std::make_pair(pair.first, std::move(msgData)));
             delete msg;
         } else if (pair.first.compare("currency") == 0) {
             std::string msgData(_currency->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _currency->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("currency", std::move(msgData)));
+            datas.push_back(std::make_pair(pair.first, std::move(msgData)));
         } else if (pair.first.compare(0, 5, "card.") == 0) {
             std::string idStr = pair.first.substr(5);
             uint32_t id = atoi(idStr.c_str());
@@ -177,9 +180,9 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
                 uint8_t *buf = (uint8_t *)msgData.data();
                 it->second->SerializeWithCachedSizesToArray(buf);
 
-                datas.insert(std::make_pair(pair.first, std::move(msgData)));
+                datas.push_back(std::make_pair(pair.first, std::move(msgData)));
             } else {
-                removes.insert(pair.first);
+                removes.push_back(pair.first);
             }
         } else if (pair.first.compare(0, 4, "pet.") == 0) {
             std::string idStr = pair.first.substr(4);
@@ -190,20 +193,113 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
                 uint8_t *buf = (uint8_t *)msgData.data();
                 it->second->SerializeWithCachedSizesToArray(buf);
 
-                datas.insert(std::make_pair(pair.first, std::move(msgData)));
+                datas.push_back(std::make_pair(pair.first, std::move(msgData)));
             } else {
-                removes.insert(pair.first);
+                removes.push_back(pair.first);
             }
         } else if (pair.first.compare("signinactivity") == 0) {
             std::string msgData(_signinactivity->ByteSizeLong(), 0);
             uint8_t *buf = (uint8_t *)msgData.data();
             _signinactivity->SerializeWithCachedSizesToArray(buf);
 
-            datas.insert(std::make_pair("signinactivity", std::move(msgData)));
+            datas.push_back(std::make_pair(pair.first, std::move(msgData)));
         }
     }
 
     _dirty_map.clear();
+}
+
+void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
+    // 将所有数据打包
+    {
+        auto msg = new wukong::pb::StringValue;
+        msg->set_value(_name);
+
+        std::string msgData(msg->ByteSizeLong(), 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        msg->SerializeWithCachedSizesToArray(buf);
+
+        datas.push_back(std::make_pair("name", std::move(msgData)));
+        delete msg;
+    }
+
+    {
+        auto msg = new wukong::pb::Uint32Value;
+        msg->set_value(_exp);
+
+        std::string msgData(msg->ByteSizeLong(), 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        msg->SerializeWithCachedSizesToArray(buf);
+
+        datas.push_back(std::make_pair("exp", std::move(msgData)));
+        delete msg;
+    }
+
+    {
+        auto msg = new wukong::pb::Uint32Value;
+        msg->set_value(_lv);
+
+        std::string msgData(msg->ByteSizeLong(), 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        msg->SerializeWithCachedSizesToArray(buf);
+
+        datas.push_back(std::make_pair("lv", std::move(msgData)));
+        delete msg;
+    }
+
+    {
+        std::string msgData(_currency->ByteSizeLong(), 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        _currency->SerializeWithCachedSizesToArray(buf);
+
+        datas.push_back(std::make_pair("currency", std::move(msgData)));
+    }
+
+    {
+        auto msg = new demo::pb::Cards;
+        for (auto &pair : _card_map) {
+            auto card = msg->add_cards();
+            *card = *(pair.second);
+        }
+
+        std::string msgData(msg->ByteSizeLong(), 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        msg->SerializeWithCachedSizesToArray(buf);
+
+        datas.push_back(std::make_pair("card", std::move(msgData)));
+        delete msg;
+    }
+
+    {
+        auto msg = new demo::pb::Pets;
+        for (auto pair : _pet_map) {
+            auto pet = msg->add_pets();
+            *pet = *(pair.second);
+        }
+
+        std::string msgData(msg->ByteSizeLong(), 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        msg->SerializeWithCachedSizesToArray(buf);
+
+        datas.push_back(std::make_pair("pet", std::move(msgData)));
+        delete msg;
+    }
+
+    {
+        std::string msgData(_signinactivity->ByteSizeLong(), 0);
+        uint8_t *buf = (uint8_t *)msgData.data();
+        _signinactivity->SerializeWithCachedSizesToArray(buf);
+
+        datas.push_back(std::make_pair("signinactivity", std::move(msgData)));
+    }
+
+}
+
+void DemoGameObject::onEnterGame() {
+    std::list<std::pair<std::string, std::string>> datas;
+    buildAllDatas(datas);
+    std::string msgData = ProtoUtils::marshalDataFragments(datas);
+    send(wukong::S2C_MESSAGE_ID_ENTERGAME, 0, msgData);
 }
 
 const std::string& DemoGameObject::getName() {

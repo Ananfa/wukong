@@ -183,11 +183,11 @@ void GameCenter::refreshRecordInfos() {
     }
 }
 
-bool GameCenter::registerMessage(int type,
+bool GameCenter::registerMessage(int msgType,
                                     google::protobuf::Message *proto,
                                     bool needCoroutine,
                                     MessageHandle handle) {
-    if (_registerMessageMap.find(type) != _registerMessageMap.end()) {
+    if (_registerMessageMap.find(msgType) != _registerMessageMap.end()) {
         return false;
     }
 
@@ -196,7 +196,52 @@ bool GameCenter::registerMessage(int type,
     info.needCoroutine = needCoroutine;
     info.handle = handle;
     
-    _registerMessageMap.insert(std::make_pair(type, info));
+    _registerMessageMap.insert(std::make_pair(msgType, info));
     
     return true;
+}
+
+void GameCenter::handleMessage(std::shared_ptr<GameObject> obj, int msgType, uint16_t tag, const std::string &rawMsg) {
+    auto iter = _registerMessageMap.find(msgType);
+    if (iter == _registerMessageMap.end()) {
+        ERROR_LOG("GameCenter::handleMessage -- unknown message type: %d\n", msgType);
+        return;
+    }
+
+    google::protobuf::Message *msg = nullptr;
+    if (iter->second.proto) {
+        msg = iter->second.proto->New();
+        if (!msg->ParseFromString(rawMsg)) {
+            // 出错处理
+            ERROR_LOG("GameCenter::handleMessage -- parse fail for message: %d\n", msgType);
+            delete msg;
+            return;
+        } else {
+            assert(rawMsg.empty());
+        }
+    }
+
+    std::shared_ptr<google::protobuf::Message> targetMsg = std::shared_ptr<google::protobuf::Message>(msg);
+
+    if (iter->second.needCoroutine) {
+        HandleMessageInfo *info = new HandleMessageInfo();
+        info->obj = obj;
+        info->msg = targetMsg;
+        info->tag = tag;
+        info->handle = iter->second.handle;
+
+        RoutineEnvironment::startCoroutine(handleMessageRoutine, info);
+        return;
+    }
+
+    iter->second.handle(obj, tag, targetMsg);
+}
+
+void *GameCenter::handleMessageRoutine(void *arg) {
+    HandleMessageInfo *info = (HandleMessageInfo *)arg;
+
+    info->handle(info->obj, info->tag, info->msg);
+    delete info;
+    
+    return nullptr;
 }

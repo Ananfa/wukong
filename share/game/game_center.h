@@ -23,6 +23,8 @@
 #include "game_delegate.h"
 #include "share/define.h"
 
+#include <google/protobuf/message.h>
+
 #include <vector>
 #include <mutex>
 #include <atomic>
@@ -32,12 +34,19 @@ using namespace corpc;
 namespace wukong {
     class GameCenter
     {
-        typedef std::function<void (uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandler;
+        typedef std::function<void (std::shared_ptr<GameObject>, uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandle;
 
         struct RegisterMessageInfo {
             google::protobuf::Message *proto;
             MessageHandle handle;
             bool needCoroutine;
+        };
+
+        struct HandleMessageInfo {
+            std::shared_ptr<GameObject> obj;
+            std::shared_ptr<google::protobuf::Message> msg;
+            uint16_t tag;
+            MessageHandle handle;
         };
 
     public:
@@ -59,12 +68,14 @@ namespace wukong {
         bool randomRecordServer(ServerId &serverId);
 
         void setDelegate(GameDelegate delegate) { _delegate = delegate; }
-        CreateGameObjectHandler getCreateGameObjectHandler() { return _delegate.createGameObject; }
+        CreateGameObjectHandle getCreateGameObjectHandle() { return _delegate.createGameObject; }
 
-        bool registerMessage(int type,
+        bool registerMessage(int msgType,
                              google::protobuf::Message *proto,
                              bool needCoroutine,
                              MessageHandle handle);
+
+        void handleMessage(std::shared_ptr<GameObject>, int msgType, uint16_t tag, const std::string &rawMsg);
 
     private:
         void updateRecordInfosVersion() { _recordInfosVersion++; };
@@ -76,6 +87,8 @@ namespace wukong {
         void updateRecordInfos();
 
         static void *initRoutine(void *arg);
+
+        static void *handleMessageRoutine( void * arg );
 
     private:
         GameServerType _type;

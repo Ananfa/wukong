@@ -68,13 +68,13 @@ std::shared_ptr<GameObject> GameObjectManager::create(UserId userId, RoleId role
         return nullptr;
     }
 
-    if (!g_GameCenter.getCreateGameObjectHandler()) {
-        ERROR_LOG("GameObjectManager::create -- not set createGameObjectHandler\n");
+    if (!g_GameCenter.getCreateGameObjectHandle()) {
+        ERROR_LOG("GameObjectManager::create -- not set CreateGameObjectHandle\n");
         return nullptr;
     }
 
     // 创建GameObject
-    auto obj = g_GameCenter.getCreateGameObjectHandler()(userId, roleId, serverId, lToken, this, data);
+    auto obj = g_GameCenter.getCreateGameObjectHandle()(userId, roleId, serverId, lToken, this, data);
 
     // 设置gateway和record stub
     if (!obj->setGatewayServerStub(gatewayId)) {

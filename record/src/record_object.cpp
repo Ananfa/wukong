@@ -158,7 +158,7 @@ void *RecordObject::syncRoutine(void *arg) {
         }
 
         // 向记录服同步数据（销毁前也应将脏数据存盘）
-        obj->buildSyncDatas(syncDatas, profileDatas);
+        obj->buildSyncDatas(syncDatas);
         if (!syncDatas.empty()) {
             if (obj->cacheData(syncDatas)) {
                 obj->_dirty_map.clear();
@@ -175,6 +175,7 @@ void *RecordObject::syncRoutine(void *arg) {
             syncDatas.clear();
         }
 
+        g_RecordCenter.getMakeProfileHandle()(syncDatas, profileDatas);
         if (!profileDatas.empty()) {
             if (!obj->cacheProfile(profileDatas)) {
                 ERROR_LOG("RecordObject::syncRoutine -- role %d save profile failed\n", obj->_roleId);

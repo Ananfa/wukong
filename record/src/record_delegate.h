@@ -24,10 +24,12 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, uint32_t, RecordManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandler;
+    typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, uint32_t, RecordManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandle;
+    typedef std::function<void (const std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> MakeProfileHandle;
 
     struct RecordDelegate {
-        CreateRecordObjectHandler createRecordObject;
+        CreateRecordObjectHandle createRecordObject;
+        MakeProfileHandle makeProfile;
     };
 
 }

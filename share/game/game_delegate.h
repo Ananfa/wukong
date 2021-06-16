@@ -24,10 +24,10 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, ServerId, uint32_t, GameObjectManager*, const std::string &data)> CreateGameObjectHandler;
+    typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, ServerId, uint32_t, GameObjectManager*, const std::string &data)> CreateGameObjectHandle;
 
     struct GameDelegate {
-        CreateGameObjectHandler createGameObject;
+        CreateGameObjectHandle createGameObject;
     };
 
 }

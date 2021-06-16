@@ -15,21 +15,27 @@
  */
 
 #include "game_service.h"
+#include "game_center.h"
 
 using namespace wukong;
 
 void GameServiceImpl::forwardIn(::google::protobuf::RpcController* controller,
-                                     const ::wukong::pb::ForwardInRequest* request,
-                                     ::corpc::Void* response,
-                                     ::google::protobuf::Closure* done) {
-    // TODO: 设计游戏对象的消息处理机制（是否使用注册消息处理）
-    
+                                const ::wukong::pb::ForwardInRequest* request,
+                                ::corpc::Void* response,
+                                ::google::protobuf::Closure* done) {
+    auto obj = _manager->getGameObject(request->roleid());
+    if (!obj) {
+        ERROR_LOG("GameServiceImpl::forwardIn -- game object not found\n");
+        return;
+    }
+
+    g_GameCenter.handleMessage(obj, request->type(), request->tag(), request->rawmsg());
 }
 
 void GameServiceImpl::enterGame(::google::protobuf::RpcController* controller,
-                                     const ::wukong::pb::EnterGameRequest* request,
-                                     ::corpc::Void* response,
-                                     ::google::protobuf::Closure* done) {
+                                const ::wukong::pb::EnterGameRequest* request,
+                                ::corpc::Void* response,
+                                ::google::protobuf::Closure* done) {
     // 获取GameObject
     auto obj = _manager->getGameObject(request->roleid());
     if (!obj) {

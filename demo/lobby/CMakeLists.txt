@@ -41,12 +41,16 @@ set(SOURCE_FILES
     ../../share/client/zk_client.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
+    ../../utils/proto_utils.cpp
     ../../proto/common.pb.cc
     ../../proto/game/game.pb.cc
     ../../proto/service/gateway_service.pb.cc
     ../../proto/service/game_service.pb.cc
     ../../proto/service/lobby_service.pb.cc
-    ../../proto/service/record_service.pb.cc)
+    ../../proto/service/record_service.pb.cc
+    ../proto/demo.pb.cc
+    ../generate/demo_game_object.cpp
+    ../generate/demo_utils.cpp)
 
 # Add source files
 aux_source_directory(../../share/game SOURCE_FILES)
@@ -70,9 +74,9 @@ include_directories(/usr/local/include/corpc)
 include_directories(/usr/local/include/corpc/proto)
 include_directories(/usr/local/include/hiredis)
 include_directories(/usr/local/include/zookeeper)
+include_directories(../proto)
+include_directories(../generate)
 include_directories(../..)
-include_directories(../../demo/proto)
-include_directories(../../demo/generate)
 include_directories(../../lobby/src)
 include_directories(../../share)
 include_directories(../../share/game)

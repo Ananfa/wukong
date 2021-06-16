@@ -5,7 +5,7 @@
 
 using namespace wukong;
 
-std::string ProtoUtils::marshalDataFragments(std::list<std::pair<std::string, std::string>> &datas) {
+std::string ProtoUtils::marshalDataFragments(const std::list<std::pair<std::string, std::string>> &datas) {
     wukong::pb::DataFragments fragments;
     for (auto &data : datas) {
         auto fragment = fragments.add_fragments();

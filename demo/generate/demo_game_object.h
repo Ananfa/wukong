@@ -4,22 +4,27 @@
 #define demo_game_object_h
 
 #include "game_object.h"
+#include "game_object_manager.h"
 #include "common.pb.h"
 #include "demo.pb.h"
 #include <map>
 #include <string>
 #include <vector>
 
+using namespace wukong;
+
 namespace demo {
     // 注意：此对象非线程安全
     class DemoGameObject: public wukong::GameObject {
     public:
-        DemoGameObject(UserId userId, RoleId roleId, uint32_t lToken, GameObjectManager *manager);
+        DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager);
         virtual ~DemoGameObject();
 
         virtual bool initData(const std::string &data);
 
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes);
+        virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
+        virtual void onEnterGame();
 
         const std::string& getName();
         void setName(const std::string& name);
@@ -54,10 +59,10 @@ namespace demo {
         std::string _name;
         uint32_t _exp;
         uint32_t _lv;
-        demo::pb::Currency* _currency;
+        demo::pb::Currency* _currency = nullptr;
         std::map<uint32_t, demo::pb::Card*> _card_map;
         std::map<uint32_t, demo::pb::Pet*> _pet_map;
-        demo::pb::SignInActivity* _signinactivity;
+        demo::pb::SignInActivity* _signinactivity = nullptr;
     };
 
 }

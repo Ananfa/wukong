@@ -3,6 +3,7 @@
 #include "gateway_client.h"
 #include "login_handler_mgr.h"
 #include "demo_utils.h"
+#include "demo_role_builder.h"
 
 using namespace wukong;
 
@@ -20,9 +21,19 @@ int main(int argc, char * argv[]) {
         return true;
     };
 
-    delegate.createRole = [](std::shared_ptr<RequestMessage> &request, std::list<std::pair<std::string, std::string>>&pData) -> bool {
+    delegate.createRole = [](std::shared_ptr<RequestMessage> &request, std::list<std::pair<std::string, std::string>>&datas) -> bool {
         // TODO:
-        return false;
+        DemoRoleBuilder builder;
+
+        if (!request->has("name")) {
+            ERROR_LOG("Can't create role for no name\n");
+            return false;
+        }
+
+        std::string name = (*request)["name"];
+
+        builder.buildDatas(datas);
+        return true;
     };
 
     delegate.loadProfile = demo::DemoUtils::LoadProfile;

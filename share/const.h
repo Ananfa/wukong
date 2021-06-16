@@ -38,6 +38,7 @@ namespace wukong {
 
     // 服务器向客户端发的消息ID定义
     const uint16_t S2C_MESSAGE_ID_BAN              = 1; // 消息被屏蔽消息
+    const uint16_t S2C_MESSAGE_ID_ENTERGAME        = 2; // 进入游戏消息
 
     const char SET_SESSION_CMD[] = "\
         local ret=redis.call('hsetnx',KEYS[1],'gToken',ARGV[1])\

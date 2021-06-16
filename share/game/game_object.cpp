@@ -31,6 +31,8 @@ static void callDoneHandle(::google::protobuf::Message *request, Controller *con
     delete request;
 }
 
+GameObject::~GameObject() {}
+
 bool GameObject::setGatewayServerStub(ServerId sid) {
     if (!_gatewayServerStub || _gatewayId != sid) {
         _gatewayId = sid;
@@ -111,7 +113,7 @@ void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
     _gatewayServerStub->forwardOut(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
 }
 
-void send(int32_t type, uint16_t tag, google::protobuf::Message &msg) {
+void GameObject::send(int32_t type, uint16_t tag, google::protobuf::Message &msg) {
     if (!_gatewayServerStub) {
         ERROR_LOG("GameObject::send -- gateway stub not set\n");
         return;

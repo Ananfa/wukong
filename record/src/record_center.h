@@ -50,7 +50,8 @@ namespace wukong {
         const std::string &saveRoleSha1() { return _saveRoleSha1; }
 
         void setDelegate(RecordDelegate delegate) { _delegate = delegate; }
-        CreateRecordObjectHandler getCreateRecordObjectHandler() { return _delegate.createRecordObject; }
+        CreateRecordObjectHandle getCreateRecordObjectHandle() { return _delegate.createRecordObject; }
+        MakeProfileHandle getMakeProfileHandle() { return _delegate.makeProfile; }
 
     private:
         static void *initRoutine(void *arg);

@@ -68,13 +68,13 @@ std::shared_ptr<RecordObject> RecordManager::create(RoleId roleId, ServerId serv
         return nullptr;
     }
 
-    if (!g_RecordCenter.getCreateRecordObjectHandler()) {
-        ERROR_LOG("RecordManager::create -- not set createRecordObjectHandler\n");
+    if (!g_RecordCenter.getCreateRecordObjectHandle()) {
+        ERROR_LOG("RecordManager::create -- not set CreateRecordObjectHandle\n");
         return nullptr;
     }
 
     // 创建RecordObject
-    auto obj = g_RecordCenter.getCreateRecordObjectHandler()(roleId, serverId, rToken, this, datas);
+    auto obj = g_RecordCenter.getCreateRecordObjectHandle()(roleId, serverId, rToken, this, datas);
 
     _roleId2RecordObjectMap.insert(std::make_pair(roleId, obj));
     obj->start();

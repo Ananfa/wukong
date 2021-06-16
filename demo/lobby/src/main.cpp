@@ -5,8 +5,10 @@
 #include "gateway_client.h"
 #include "record_client.h"
 #include "share/const.h"
+#include "message_handler.h"
 
 using namespace wukong;
+using namespace demo;
 
 int main(int argc, char * argv[]) {
     if (!g_LobbyServer.init(argc, argv)) {
@@ -18,6 +20,7 @@ int main(int argc, char * argv[]) {
     g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
     // TODO: g_GameCenter.setDelegate(xxx);
     // TODO: 注册消息处理
+    g_GameCenter.registerMessage(1000, new wukong::pb::Int32Value, false, MessageHandler::XXXHandle);
 
     g_GatewayClient.init(g_LobbyServer.getRpcClient());
     g_RecordClient.init(g_LobbyServer.getRpcClient());

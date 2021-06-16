@@ -18,9 +18,22 @@ int main(int argc, char * argv[]) {
 
     // 初始化全局资源
     g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
-    // TODO: g_GameCenter.setDelegate(xxx);
-    // TODO: 注册消息处理
-    g_GameCenter.registerMessage(1000, new wukong::pb::Int32Value, false, MessageHandler::XXXHandle);
+    
+    GameDelegate delegate;
+    delegate.createGameObject = [](UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
+        std::shared_ptr<GameObject> obj(new LobbyGameObject(userId, roleId, serverId, lToken, mgr));
+        if (!obj->initData(data)) {
+            ERROR_LOG("create game object failed because init data failed, role: %d\n", roleId);
+            return nullptr;
+        }
+
+        return obj;
+    };
+
+    g_GameCenter.setDelegate(delegate);
+
+    // 注册消息处理
+    MessageHandler::registerMessages();
 
     g_GatewayClient.init(g_LobbyServer.getRpcClient());
     g_RecordClient.init(g_LobbyServer.getRpcClient());

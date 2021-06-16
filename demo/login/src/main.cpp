@@ -2,9 +2,11 @@
 #include "login_server.h"
 #include "gateway_client.h"
 #include "login_handler_mgr.h"
+#include "demo_db_utils.h"
 #include "demo_utils.h"
 #include "demo_role_builder.h"
 
+using namespace demo;
 using namespace wukong;
 
 int main(int argc, char * argv[]) {
@@ -17,12 +19,11 @@ int main(int argc, char * argv[]) {
 
     LoginDelegate delegate;
     delegate.loginCheck = [](std::shared_ptr<RequestMessage> &request) -> bool {
-        // TODO:
+        // TODO: 进行登录账号校验
         return true;
     };
 
     delegate.createRole = [](std::shared_ptr<RequestMessage> &request, std::list<std::pair<std::string, std::string>>&datas) -> bool {
-        // TODO:
         DemoRoleBuilder builder;
 
         if (!request->has("name")) {
@@ -36,7 +37,7 @@ int main(int argc, char * argv[]) {
         return true;
     };
 
-    delegate.loadProfile = demo::DemoUtils::LoadProfile;
+    delegate.loadProfile = demo::DemoDBUtils::LoadProfile;
     
     delegate.makeProfile = demo::DemoUtils::MakeProfile;
 

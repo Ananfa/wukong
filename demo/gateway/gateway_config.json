@@ -12,12 +12,16 @@
         {
             "id": 10002,
             "rpcPort": 15002,
-            "msgPort": 16002
+            "msgPort": 16002,
+            "outerAddr": "127.0.0.1",
+            "outerPort": 16002
         },
         {
             "id": 10003,
             "rpcPort": 15003,
-            "msgPort": 16003
+            "msgPort": 16003,
+            "outerAddr": "127.0.0.1",
+            "outerPort": 16003
         }
     ],
     "zookeeper": "127.0.0.1:2181",
@@ -26,7 +30,7 @@
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
     "cache": {
-        "host": "127.0.0.1",
+        "host": "192.168.92.3",
         "port": 6379,
         "maxConnect": 8,
         "dbIndex": 0

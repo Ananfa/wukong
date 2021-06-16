@@ -295,6 +295,8 @@ void LoginHandlerMgr::init(HttpServer *server, LoginDelegate delegate) {
 /******************** http api start ********************/
 
 void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response) {
+    DEBUG_LOG("LoginHandlerMgr::login -- start ... \n");
+                    
     if (!request->has("openid")) {
         return setErrorResponse(response, "missing parameter openid");
     }
@@ -404,7 +406,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             for (RoleProfile &info : roles){
                 std::list<std::pair<std::string, std::string>> pDatas;
                 if (!_delegate.loadProfile(_cache, _mysql, _loadRoleSha1, _saveProfileSha1, info.roleId, info.serverId, pDatas)) {
-                    ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed", info.roleId);
+                    ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed\n", info.roleId);
                     continue;
                 }
 

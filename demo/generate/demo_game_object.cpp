@@ -130,6 +130,7 @@ bool DemoGameObject::initData(const std::string &data) {
     }
 
     delete msg;
+    return true;
 }
 
 void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {

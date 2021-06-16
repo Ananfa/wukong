@@ -18,7 +18,7 @@ namespace demo {
         DemoRecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordManager *manager);
         virtual ~DemoRecordObject() {}
 
-        virtual bool initData(std::list<std::pair<std::string, std::string>> &datas);
+        virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas);
         virtual void syncIn(const ::wukong::pb::SyncRequest* request);
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas);
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);

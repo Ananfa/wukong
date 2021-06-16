@@ -62,7 +62,8 @@ set(SOURCE_FILES
     ../../utils/uuid_utils.cpp
     ../../proto/common.pb.cc
     ../../proto/service/gateway_service.pb.cc
-    ../generate/demp_role_builder.cpp
+    ../generate/demo_role_builder.cpp
+    ../generate/demo_db_utils.cpp
     ../generate/demo_utils.cpp
     ../proto/demo.pb.cc)
 

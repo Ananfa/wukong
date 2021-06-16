@@ -25,6 +25,6 @@
         "user": "root",
         "pwd": "123456",
         "maxConnect": 8,                        // 最大连接数
-        "dbName": "demo"
+        "dbName": "record"
     }
 }

@@ -18,17 +18,17 @@
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
     "cache": {
-        "host": "127.0.0.1",
+        "host": "192.168.92.3",
         "port": 6379,
         "maxConnect": 8,
         "dbIndex": 0
     },
     "mysql": {
-        "host": "127.0.0.1",
+        "host": "192.168.92.3",
         "port": 3306,
         "user": "root",
         "pwd": "123456",
         "maxConnect": 8,
-        "dbName": "demo"
+        "dbName": "record"
     }
 }

@@ -56,9 +56,9 @@ namespace wukong {
 
         virtual void onEnterGame() = 0;
 
-    protected:
         void send(int32_t type, uint16_t tag, const std::string &rawMsg);
         void send(int32_t type, uint16_t tag, google::protobuf::Message &msg);
+        
     private:
         bool reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
         bool heartbeatToGateway();

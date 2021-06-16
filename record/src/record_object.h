@@ -37,7 +37,7 @@ namespace wukong {
         RecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordManager *manager): _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
         virtual ~RecordObject() = 0;
 
-        virtual bool initData(std::list<std::pair<std::string, std::string>> &datas) = 0;
+        virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas) = 0;
 
         virtual void syncIn(const ::wukong::pb::SyncRequest* request) = 0;
 

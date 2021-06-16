@@ -18,7 +18,7 @@
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
     "cache": {
-        "host": "127.0.0.1",
+        "host": "192.168.92.3",
         "port": 6379,
         "maxConnect": 8,
         "dbIndex": 0

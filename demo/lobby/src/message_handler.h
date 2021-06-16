@@ -9,7 +9,9 @@ using namespace wukong;
 namespace demo {
 	class MessageHandler {
 	public:
-		static void XXXHandle(std::shared_ptr<GameObject> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
+		static void registerMessages();
+
+		static void EchoHandle(std::shared_ptr<GameObject> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
 	};
 }
 

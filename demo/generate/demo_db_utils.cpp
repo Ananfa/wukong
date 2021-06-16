@@ -40,7 +40,7 @@ bool DemoDBUtils::LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mys
     }
     
     if (rDatas.size() > 0) {
-        MakeProfile(rDatas, pDatas);
+        DemoUtils::MakeProfile(rDatas, pDatas);
 
         if (!RedisUtils::SaveProfile(cache, saveProfileSha1, roleId, serverId, pDatas)) {
             cachePool->proxy.put(cache, true);

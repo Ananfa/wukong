@@ -3,9 +3,9 @@
 #ifndef demo_role_builder_h
 #define demo_role_builder_h
 
-#include "record_object.h"
 #include "common.pb.h"
 #include "demo.pb.h"
+#include <list>
 #include <map>
 #include <string>
 

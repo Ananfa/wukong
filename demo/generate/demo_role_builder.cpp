@@ -2,6 +2,8 @@
 
 #include "demo_role_builder.h"
 
+using namespace demo;
+
 DemoRoleBuilder::DemoRoleBuilder() {
 	_name = "";
     _exp = 0;

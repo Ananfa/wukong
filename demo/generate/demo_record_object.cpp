@@ -13,7 +13,7 @@ DemoRecordObject::DemoRecordObject(RoleId roleId, ServerId serverId, uint32_t rT
     _signinactivity = new demo::pb::SignInActivity;
 }
 
-bool DemoRecordObject::initData(std::list<std::pair<std::string, std::string>> &datas) {
+bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::string>> &datas) {
     for (auto &pair : datas) {
         if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;

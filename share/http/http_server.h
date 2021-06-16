@@ -119,6 +119,7 @@ namespace wukong {
         void registerFilter(HttpFilter filter);
         
         // 注册路由处理
+        // TODO: 分开Get和Post实现
         void registerHandler(const std::string& uri, HttpHandler handler);
         
     private:

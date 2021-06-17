@@ -296,7 +296,8 @@ void LoginHandlerMgr::init(HttpServer *server, LoginDelegate delegate) {
 
 void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response) {
     DEBUG_LOG("LoginHandlerMgr::login -- start ... \n");
-                    
+    request->printAll();
+    
     if (!request->has("openid")) {
         return setErrorResponse(response, "missing parameter openid");
     }
@@ -463,6 +464,9 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 }
 
 void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response) {
+    DEBUG_LOG("LoginHandlerMgr::createRole -- start ... \n");
+    request->printAll();
+
     if (!request->has("userId")) {
         return setErrorResponse(response, "missing parameter userId");
     }
@@ -480,6 +484,9 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     }
 
     ServerId serverId = std::stoi((*request)["serverId"]);
+
+    // 刷新逻辑服列表信息
+    refreshServerGroupData();
 
     // 判断服务器状态
     auto iter = _t_serverId2groupIdMap.find(serverId);
@@ -597,7 +604,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     // 缓存profile，即上述第5步
     std::list<std::pair<std::string, std::string>> profileDatas;
     _delegate.makeProfile(roleDatas, profileDatas);
-    if (!RedisUtils::SaveProfile(cache, _saveRoleSha1, roleId, serverId, profileDatas)) {
+    if (!RedisUtils::SaveProfile(cache, _saveProfileSha1, roleId, serverId, profileDatas)) {
         _cache->proxy.put(cache, true);
         return setErrorResponse(response, "cache profile failed");
     }
@@ -897,31 +904,31 @@ void LoginHandlerMgr::refreshServerGroupData() {
         for (SizeType i = 0; i < doc.Size(); i++) {
             const Value& group = doc[i];
 
-            if (!doc.HasMember("id")) {
+            if (!group.HasMember("id")) {
                 ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for lack of group id\n");
                 return;
             }
 
-            GroupId groupId = doc["id"].GetInt();
+            GroupId groupId = group["id"].GetInt();
             if (groupStatusMap.find(groupId) != groupStatusMap.end()) {
                 ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group id %d duplicate\n", groupId);
                 return;
             }
-            if (!doc.HasMember("status")) {
+            if (!group.HasMember("status")) {
                 ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d status not define\n", groupId);
                 return;
             }
 
-            uint32_t status = doc["status"].GetInt();
+            uint32_t status = group["status"].GetInt();
 
             groupStatusMap.insert(std::make_pair(groupId, status));
 
-            if (!doc.HasMember("servers")) {
+            if (!group.HasMember("servers")) {
                 ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not define\n", groupId);
                 return;
             }
 
-            const Value& servers = doc["servers"];
+            const Value& servers = group["servers"];
             if (!servers.IsArray()) {
                 ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not array\n", groupId);
                 return;

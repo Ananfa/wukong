@@ -75,6 +75,7 @@ namespace wukong {
         std::string m_requestBody;
         struct curl_slist *m_headers;
         std::vector<QueryParam> m_queryParams;
+        std::string m_param;
         
         // Response stuff
         CURLcode m_result;

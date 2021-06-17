@@ -32,6 +32,7 @@ int main(int argc, char * argv[]) {
         }
 
         std::string name = (*request)["name"];
+        builder.setName(name);
 
         builder.buildDatas(datas);
         return true;

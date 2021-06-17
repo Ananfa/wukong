@@ -15,7 +15,8 @@ HttpRequest::HttpRequest()
     , m_method("")
     , m_userAgent("")
     , m_responseBody("")
-    , m_requestBody("") {
+    , m_requestBody("")
+    , m_param("") {
     m_curl = curl_easy_init();
     
     curl_easy_setopt(m_curl, CURLOPT_COOKIELIST, "");
@@ -132,8 +133,8 @@ void HttpRequest::doPost(std::function<void(const HttpResponse&)> done) {
 void HttpRequest::prepare() {
     cleanupBefore();
     std::string fullUrl = m_url;
-    std::string params;
-    paramsJoin(params);
+    m_param = "";
+    paramsJoin(m_param);
     
     curl_easy_setopt(m_curl, CURLOPT_USERAGENT, m_userAgent.c_str());
     if (m_headers != nullptr) {
@@ -146,12 +147,12 @@ void HttpRequest::prepare() {
         curl_easy_setopt(m_curl, CURLOPT_POST, 1L);
         
         if (m_requestBody.empty()) {
-            curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, params.c_str());
-            curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE, params.size());
+            curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, m_param.c_str());
+            curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE, m_param.size());
         } else {
-            if (!params.empty()) {
+            if (!m_param.empty()) {
                 fullUrl += "?";
-                fullUrl += params;
+                fullUrl += m_param;
             }
             
             curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, m_requestBody.c_str());
@@ -161,16 +162,16 @@ void HttpRequest::prepare() {
     } else if (m_method == "GET") {
         curl_easy_setopt(m_curl, CURLOPT_HTTPGET, 1L);
         
-        if (!params.empty()) {
+        if (!m_param.empty()) {
             fullUrl += "?";
-            fullUrl += params;
+            fullUrl += m_param;
         }
     } else if (m_method == "PUT") {
         curl_easy_setopt(m_curl, CURLOPT_UPLOAD, 1L);
         
-        if (!params.empty()) {
+        if (!m_param.empty()) {
             fullUrl += "?";
-            fullUrl += params;
+            fullUrl += m_param;
         }
         
         curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, m_requestBody.c_str());

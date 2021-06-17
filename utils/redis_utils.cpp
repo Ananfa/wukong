@@ -43,24 +43,24 @@ uint64_t RedisUtils::CreateRoleID(redisContext *redis) {
 bool RedisUtils::BindRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
     redisReply *reply;
     if (cmdSha1.empty()) {
-        reply = (redisReply *)redisCommand(redis, "EVAL %s 2 RoleIds:%d:{%d} %d %d", BIND_ROLE_CMD, serverId, userId, roleId, maxRoleNum);
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 2 RoleIds:%d:{%d} RoleIds:{%d} %d %d", BIND_ROLE_CMD, serverId, userId, userId, roleId, maxRoleNum);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 2 RoleIds:%d:{%d} %d %d", cmdSha1.c_str(), serverId, userId, roleId, maxRoleNum);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 2 RoleIds:%d:{%d} RoleIds:{%d} %d %d", cmdSha1.c_str(), serverId, userId, userId, roleId, maxRoleNum);
     }
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::BindRoleId -- bind roleId:[%d] userId:[%d] serverId:[%d] failed\n", roleId, userId, serverId);
+        ERROR_LOG("RedisUtils::BindRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed\n", roleId, userId, serverId);
         return false;
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
-        ERROR_LOG("RedisUtils::BindRoleId -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for return type invalid\n", roleId, userId, serverId);
+        ERROR_LOG("RedisUtils::BindRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for return type[%d] invalid -- %s\n", roleId, userId, serverId, reply->type, reply->str);
         freeReplyObject(reply);
         return false;
     }
 
     if (reply->integer == 0) {
-        ERROR_LOG("RedisUtils::BindRoleId -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for reach the limit of the number of roles\n", roleId, userId, serverId);
+        ERROR_LOG("RedisUtils::BindRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for reach the limit of the number of roles\n", roleId, userId, serverId);
         // 设置失败
         freeReplyObject(reply);
         return false;
@@ -290,10 +290,10 @@ bool RedisUtils::SaveRole(redisContext *redis, const std::string &cmdSha1, RoleI
     redisReply *reply = (redisReply *)redisCommandArgv(redis, argv.size(), &(argv[0]), &(argvlen[0]));
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::SaveProfile -- role %d save role failed for db error\n", roleId);
+        ERROR_LOG("RedisUtils::SaveRole -- role %d save role failed for db error\n", roleId);
         return false;
     } else if (reply->integer == 0) {
-        ERROR_LOG("RedisUtils::SaveProfile -- role %d save role failed: %s\n", roleId, reply->str);
+        ERROR_LOG("RedisUtils::SaveRole -- role %d save role failed: %s\n", roleId, reply->str);
         freeReplyObject(reply);
 
         return false;

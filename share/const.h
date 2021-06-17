@@ -135,7 +135,7 @@ namespace wukong {
 
     const char BIND_ROLE_CMD[] = "\
         local ret = redis.call('scard',KEYS[1])\
-        if ret<ARGV[2] then\
+        if ret<tonumber(ARGV[2]) then\
           redis.call('sadd',KEYS[1],ARGV[1])\
           redis.call('sadd',KEYS[2],ARGV[1])\
           return 1\
@@ -146,7 +146,7 @@ namespace wukong {
     const char SAVE_PROFILE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==0 then\
-          redis.call('hmset',KEYS[1],table.unpack(ARGV,2))\
+          redis.call('hmset',KEYS[1],unpack(ARGV,2))\
           redis.call('expire',KEYS[1],ARGV[1])\
           return 1\
         else\
@@ -156,7 +156,7 @@ namespace wukong {
     const char UPDATE_PROFILE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==1 then\
-          redis.call('hmset',KEYS[1],table.unpack(ARGV,2))\
+          redis.call('hmset',KEYS[1],unpack(ARGV,2))\
           redis.call('expire',KEYS[1],ARGV[1])\
           return 1\
         else\
@@ -166,7 +166,7 @@ namespace wukong {
     const char SAVE_ROLE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==0 then\
-          redis.call('hmset',KEYS[1],table.unpack(ARGV))\
+          redis.call('hmset',KEYS[1],unpack(ARGV))\
           return 1\
         else\
           return 0\
@@ -175,7 +175,7 @@ namespace wukong {
     const char UPDATE_ROLE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==1 then\
-          redis.call('hmset',KEYS[1],table.unpack(ARGV))\
+          redis.call('hmset',KEYS[1],unpack(ARGV))\
           return 1\
         else\
           return 0\

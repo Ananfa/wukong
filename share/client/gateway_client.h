@@ -66,6 +66,7 @@ namespace wukong {
         void broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &rawMsg);
         // TODO: 对全服的broadcast
     
+        bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
         /* 加入Server */
         bool setServers(const std::map<ServerId, AddressInfo> &addresses);
         /* 根据逻辑区服id获得GameServer的stub */

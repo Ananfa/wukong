@@ -30,9 +30,16 @@ thread_local uint32_t GatewayCenter::_t_lobbyTotalWeight(0);
 void *GatewayCenter::updateRoutine(void *arg) {
     GatewayCenter *self = (GatewayCenter *)arg;
 
+    // 每秒检查是否有lobby的增加或减少，如果有马上刷新，否则每分钟刷新一次lobby的负载信息
+    int i = 0;
     while (true) {
-        self->updateLobbyInfos();
-        sleep(60);
+        i++;
+        if (g_LobbyClient.stubChanged() || i >= 60) {
+            self->updateLobbyInfos();
+            i = 0;
+        }
+
+        sleep(1);
     }
     
     return nullptr;

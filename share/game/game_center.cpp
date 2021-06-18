@@ -29,9 +29,16 @@ thread_local uint32_t GameCenter::_t_recordTotalWeight(0);
 void *GameCenter::updateRoutine(void *arg) {
     GameCenter *self = (GameCenter *)arg;
 
+    // 每秒检查是否有record的增加或减少，如果有马上刷新，否则每分钟刷新一次record的负载信息
+    int i = 0;
     while (true) {
-        self->updateRecordInfos();
-        sleep(60);
+        i++;
+        if (g_RecordClient.stubChanged() || i >= 60) {
+            self->updateRecordInfos();
+            i = 0;
+        }
+
+        sleep(1);
     }
     
     return nullptr;

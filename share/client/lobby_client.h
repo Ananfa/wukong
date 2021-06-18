@@ -56,6 +56,7 @@ namespace wukong {
         uint32_t initRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
         void shutdown();
 
+        bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
     private:
         void refreshStubs();
 

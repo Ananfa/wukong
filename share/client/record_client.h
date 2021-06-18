@@ -59,6 +59,7 @@ namespace wukong {
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
         bool loadRole(ServerId sid, RoleId roleId, uint32_t lToken, ServerId &serverId, std::string &roleData); // 加载角色（游戏对象）
 
+        bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
         /* 加入Server */
         bool setServers(const std::map<ServerId, AddressInfo> &addresses);
         /* 根据逻辑区服id获得RecordServer的stub */

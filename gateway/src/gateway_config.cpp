@@ -85,13 +85,13 @@ bool GatewayConfig::parse(const char *path) {
         }
         info.msgPort = server["msgPort"].GetUint();
         
-        if (!server.HasMember("outerAddr")) {
+        if (server.HasMember("outerAddr")) {
             info.outerAddr = server["outerAddr"].GetString();
         } else {
             info.outerAddr = _externalIp;
         }
 
-        if (!server.HasMember("outerPort")) {
+        if (server.HasMember("outerPort")) {
             info.outerPort = server["outerPort"].GetUint();
         } else {
             info.outerPort = info.msgPort;

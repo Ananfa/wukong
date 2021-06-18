@@ -66,9 +66,16 @@ void *LoginHandlerMgr::updateRoutine(void *arg) {
     LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
     self->_updateServerGroupData();
 
+    // 每秒检查是否有gateway增加或减少，如果有马上刷新，否则每分钟刷新一次gateway的负载信息
+    int i = 0;
     while (true) {
-        self->updateGatewayInfos();
-        sleep(60);
+        i++;
+        if (g_GatewayClient.stubChanged() || i >= 60) {
+            self->updateGatewayInfos();
+            i = 0;
+        }
+
+        sleep(1);
     }
     
     return nullptr;
@@ -76,6 +83,7 @@ void *LoginHandlerMgr::updateRoutine(void *arg) {
 
 void LoginHandlerMgr::updateGatewayInfos() {
     std::vector<GatewayClient::ServerInfo> infos = g_GatewayClient.getServerInfos();
+
     {
         std::unique_lock<std::mutex> lock(_gatewayInfosLock);
         _gatewayInfos = std::move(infos);
@@ -771,6 +779,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
     JsonWriter json;
     json.start();
+    json.put("retCode", 0);
     json.put("host", gatewayAddr.host);
     json.put("port", gatewayAddr.port);
     json.put("gToken", gToken);
@@ -819,6 +828,7 @@ bool LoginHandlerMgr::randomGatewayServer(ServerId &serverId) {
 
 void LoginHandlerMgr::refreshGatewayInfos() {
     if (_t_gatewayInfosVersion != _gatewayInfosVersion) {
+        LOG("refresh gateway info\n");
         _t_gatewayInfos.clear();
         _t_gatewayAddrMap.clear();
 
@@ -833,6 +843,7 @@ void LoginHandlerMgr::refreshGatewayInfos() {
         _t_gatewayInfos.reserve(gatewayInfos.size());
         uint32_t totalWeight = 0;
         for (auto &info : gatewayInfos) {
+            DEBUG_LOG("gateway id:%d\n", info.id);
             totalWeight += info.weight;
 
             _t_gatewayInfos.push_back({info.id, info.weight});

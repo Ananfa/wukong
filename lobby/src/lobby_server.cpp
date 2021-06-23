@@ -22,6 +22,7 @@
 #include "lobby_service.h"
 #include "game_service.h"
 #include "gateway_client.h"
+#include "record_client.h"
 
 #include "zk_client.h"
 #include "utility.h"
@@ -60,7 +61,21 @@ void LobbyServer::enterZoo() {
             }
             g_GatewayClient.setServers(addresses);
         });
-        
+
+        g_ZkClient.watchChildren(ZK_RECORD_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
+            std::map<uint16_t, RecordClient::AddressInfo> addresses;
+            for (const std::string &value : values) {
+                RecordClient::AddressInfo address;
+
+                if (RecordClient::parseAddress(value, address)) {
+                    addresses[address.id] = std::move(address);
+                } else {
+                    ERROR_LOG("zkclient parse record server address error, info = %s\n", value.c_str());
+                }
+            }
+            g_RecordClient.setServers(addresses);
+        });
+
         // TODO: watch game servers
     });
 }

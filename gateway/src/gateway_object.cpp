@@ -95,7 +95,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
             if (g_GatewayCenter.setSessionExpireSha1().empty()) {
                 reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_GatewayCenter.setSessionExpireSha1(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_GatewayCenter.setSessionExpireSha1().c_str(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             }
             
             if (!reply) {
@@ -163,6 +163,7 @@ void GatewayObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::s
 }
 
 void GatewayObject::enterGame() {
+DEBUG_LOG("GatewayObject::enterGame -----------------\n");
     if (!_gameServerStub) {
         ERROR_LOG("GatewayObject server stub not avaliable\n");
         return;

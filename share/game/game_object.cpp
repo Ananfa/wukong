@@ -273,7 +273,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
             if (g_GameCenter.setLocationExpireSha1().empty()) {
                 reply = (redisReply *)redisCommand(cache, "EVAL %s 1 location:%d %d %d", SET_LOCATION_EXPIRE_CMD, obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 location:%d %d %d", g_GameCenter.setLocationExpireSha1(), obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 location:%d %d %d", g_GameCenter.setLocationExpireSha1().c_str(), obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
             }
             
             if (!reply) {

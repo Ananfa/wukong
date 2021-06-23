@@ -172,7 +172,7 @@ int GatewayManager::tryChangeGatewayObjectConn(UserId userId, const std::string 
             if (it->second->getConn()->isOpen()) {
                 it->second->getConn()->close();
             }
-
+DEBUG_LOG("GatewayManager::tryChangeGatewayObjectConn -- setMsgBuffer 1\n");
             // 转移消息缓存
             newConn->setMsgBuffer(it->second->getConn()->getMsgBuffer());
             it->second->setConn(newConn);
@@ -190,6 +190,7 @@ int GatewayManager::tryChangeGatewayObjectConn(UserId userId, const std::string 
 
         if (it1->second->data->getGToken() == token) {
             // 转移消息缓存
+DEBUG_LOG("GatewayManager::tryChangeGatewayObjectConn -- setMsgBuffer 2\n");
             newConn->setMsgBuffer(it1->second->data->getConn()->getMsgBuffer());
             _userId2GatewayObjectMap.insert(std::make_pair(userId, it1->second->data));
             _connection2GatewayObjectMap.insert(std::make_pair(newConn.get(), it1->second->data));

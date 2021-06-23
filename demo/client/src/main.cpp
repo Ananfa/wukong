@@ -1,6 +1,11 @@
 #include "corpc_routine_env.h"
+#include "corpc_message_client.h"
 #include "http_client.h"
+#include "uuid_utils.h"
+#include "share/const.h"
 #include "rapidjson/document.h"
+#include "game.pb.h"
+#include "common.pb.h"
 #include <iostream>
 #include <ctime>
 
@@ -145,6 +150,36 @@ static void *test_login(void *arg) {
     }
 
     // TODO: 连接gateway，并发校验身份消息（收到包含角色完整数据的进入游戏消息）
+    std::string cipher = UUIDUtils::genUUID();
+    std::shared_ptr<Crypter> crypter = std::shared_ptr<Crypter>(new SimpleXORCrypter(cipher));
+    TcpClient client(gatewayHost, gatewayPort, true, true, true, true, crypter);
+    client.registerMessage(S2C_MESSAGE_ID_ENTERGAME, std::shared_ptr<google::protobuf::Message>(new pb::DataFragments));
+    
+    client.start();
+
+    // 发送身份认证消息
+    std::shared_ptr<pb::AuthRequest> authreq(new pb::AuthRequest);
+    authreq->set_userid(userId);
+    authreq->set_token(gToken.c_str());
+    authreq->set_cipher(cipher.c_str());
+    authreq->set_recvserial(0);
+
+    client.send(C2S_MESSAGE_ID_AUTH, 0, false, authreq);
+
+    // 接收处理从服务器发来
+    int16_t rType;
+    uint16_t recvTag;
+    std::shared_ptr<google::protobuf::Message> rMsg;
+    while (true) {
+        do {
+            client.recv(rType, recvTag, rMsg);
+            if (!rType) {
+                msleep(1);
+            }
+        } while (!rType);
+
+        LOG("recv msg: %d\n", rType);
+    }
 
     return nullptr;
 }

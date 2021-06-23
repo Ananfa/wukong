@@ -27,7 +27,9 @@ message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
     ../../share/http/http_client.cpp
+    ../../utils/uuid_utils.cpp
     ../../proto/common.pb.cc
+    ../../proto/game/game.pb.cc
     ../proto/demo.pb.cc)
 
 # Add source files
@@ -54,10 +56,11 @@ include_directories(../../share)
 include_directories(../../share/http)
 include_directories(../../utils)
 include_directories(../../proto)
+include_directories(../../proto/game)
 include_directories(../../deps/rapidjson/include)
 
 # Add target
 add_executable(demo_cli ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -lcurl -lprotobuf -lcorpc -lco -ldl)
+set(MY_LINK_LIBRARIES -L/usr/local/lib -luuid -lcurl -lprotobuf -lcorpc -lco -ldl)
 target_link_libraries(demo_cli ${MY_LINK_LIBRARIES})

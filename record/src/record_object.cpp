@@ -95,7 +95,7 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
             if (g_RecordCenter.setRecordExpireSha1().empty()) {
                 reply = (redisReply *)redisCommand(cache, "EVAL %s 1 record:%d %d %d", SET_RECORD_EXPIRE_CMD, obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 record:%d %d %d", g_RecordCenter.setRecordExpireSha1(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 record:%d %d %d", g_RecordCenter.setRecordExpireSha1().c_str(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             }
             
             if (!reply) {

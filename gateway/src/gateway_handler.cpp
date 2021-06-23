@@ -133,7 +133,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     if (g_GatewayCenter.checkSessionSha1().empty()) {
         reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %d %s %d", CHECK_SESSION_CMD, userId, _manager->getId(), request->token().c_str(), 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %d %s %d", g_GatewayCenter.checkSessionSha1(), userId, _manager->getId(), request->token().c_str(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %d %s %d", g_GatewayCenter.checkSessionSha1().c_str(), userId, _manager->getId(), request->token().c_str(), 60);
     }
     
     if (!reply) {
@@ -149,7 +149,6 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     if (reply->type != REDIS_REPLY_INTEGER || roleId == 0) {
         freeReplyObject(reply);
         g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-        DEBUG_LOG("GatewayHandler::authHandle -- check session failed\n");
         if (conn->isOpen()) {
             conn->close();
         }
@@ -201,8 +200,9 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         }
         return;
     }
-
+DEBUG_LOG("GatewayHandler::authHandle -- 1\n");
     if (reply->element[0]->type == REDIS_REPLY_STRING) {
+DEBUG_LOG("GatewayHandler::authHandle -- 2\n");
         assert(reply->element[1]->type == REDIS_REPLY_STRING);
         // 这里不再向游戏对象所在服发RPC（极端情况是游戏对象刚巧销毁导致网关对象指向了不存在的游戏对象的游戏服务器，网关对象一段时间没有收到游戏对象心跳后销毁）
         uint32_t lToken = atoi(reply->element[0]->str);
@@ -232,9 +232,10 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         }
         obj->setLToken(lToken);
     } else {
+DEBUG_LOG("GatewayHandler::authHandle -- 3\n");
         assert(reply->element[0]->type == REDIS_REPLY_NIL);
         assert(reply->element[1]->type == REDIS_REPLY_NIL);
-
+DEBUG_LOG("GatewayHandler::authHandle -- start random lobby server\n");
         // 分配一个Lobby服，并通知Lobby服加载玩家游戏对象
         ServerId sid = 0;
         if (!g_GatewayCenter.randomLobbyServer(sid)) {
@@ -246,6 +247,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             }
             return;
         }
+DEBUG_LOG("GatewayHandler::authHandle -- end random lobby server\n");
 
         if (!obj->setGameServerStub(GAME_SERVER_TYPE_LOBBY, sid)) {
             freeReplyObject(reply);
@@ -274,6 +276,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     freeReplyObject(reply);
     g_GatewayCenter.getCachePool()->proxy.put(cache, false);
 
+DEBUG_LOG("GatewayHandler::authHandle -- 4\n");
     // 由于进行过能导致协程切换的redis操作，这里需要再次确认中途没有网关对象登记到已连接表
     if (_manager->hasGatewayObject(userId)) {
         ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist after get role %d location\n", userId, roleId);
@@ -283,6 +286,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         return;
     }
 
+DEBUG_LOG("GatewayHandler::authHandle -- 5\n");
     // 由于进行过能导致协程切换的redis操作，在登记到已连接表之前，需要再判断一次是否断线
     if (!conn->isOpen()) {
         ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected when creating gateway object\n", userId);
@@ -293,6 +297,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     _manager->addConnectedGatewayObject(obj);
     obj->start();
 
+DEBUG_LOG("GatewayHandler::authHandle -- 6\n");
     // 通知游戏对象发开始游戏所需数据给客户端
     obj->enterGame();
 }

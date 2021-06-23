@@ -39,6 +39,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
                                 const ::wukong::pb::InitRoleRequest* request,
                                 ::wukong::pb::Uint32Value* response,
                                 ::google::protobuf::Closure* done) {
+ERROR_LOG("LobbyServiceImpl::initRole -- 1\n");
     UserId userId = request->userid();
     RoleId roleId = request->roleid();
     ServerId gwId = request->gatewayid();
@@ -48,7 +49,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d game object already exist\n", userId, roleId);
         return;
     }
-
+ERROR_LOG("LobbyServiceImpl::initRole -- 2\n");
     // 查询记录对象位置
     //   若记录对象不存在，分配（负载均衡）record服
     // 尝试设置location
@@ -67,7 +68,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d get record failed for db error\n", userId, roleId);
         return;
     }
-
+ERROR_LOG("LobbyServiceImpl::initRole -- 3\n");
     ServerId rcId;
     if (reply->type == REDIS_REPLY_STRING) {
         rcId = std::stoi(reply->str);
@@ -84,7 +85,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d get record failed for invalid data type\n", userId, roleId);
         return;
     }
-
+ERROR_LOG("LobbyServiceImpl::initRole -- 4\n");
     freeReplyObject(reply);
 
     // 生成lToken（直接用当前时间）
@@ -92,18 +93,21 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
     gettimeofday(&t, NULL);
     uint32_t lToken = t.tv_sec;
 
+ERROR_LOG("LobbyServiceImpl::initRole -- 4.1\n");
     // 尝试设置location
     if (g_GameCenter.setLocationSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 location:%d %s %d %d", SET_LOCATION_CMD, roleId, lToken, _manager->getId(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 location:%d %d %d %d", SET_LOCATION_CMD, roleId, lToken, _manager->getId(), 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 location:%d %s %d %d", g_GameCenter.setLocationSha1().c_str(), roleId, lToken, _manager->getId(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 location:%d %d %d %d", g_GameCenter.setLocationSha1().c_str(), roleId, lToken, _manager->getId(), 60);
     }
+ERROR_LOG("LobbyServiceImpl::initRole -- 4.2\n");
     
     if (!reply) {
         g_GameCenter.getCachePool()->proxy.put(cache, true);
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d set location failed\n", userId, roleId);
         return;
     }
+ERROR_LOG("LobbyServiceImpl::initRole -- 4.3\n");
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
@@ -111,6 +115,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d set location failed for return type invalid\n", userId, roleId);
         return;
     }
+ERROR_LOG("LobbyServiceImpl::initRole -- 4.4\n");
 
     if (reply->integer == 0) {
         // 设置失败
@@ -119,10 +124,11 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d set location failed for already set\n", userId, roleId);
         return;
     }
+ERROR_LOG("LobbyServiceImpl::initRole -- 4.5\n");
 
     freeReplyObject(reply);
     g_GameCenter.getCachePool()->proxy.put(cache, false);
-
+ERROR_LOG("LobbyServiceImpl::initRole -- 5\n");
     // 向Record服发加载数据RPC
     std::string roleData;
     ServerId serverId; // 角色所属区服号
@@ -130,7 +136,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d load role data failed\n", userId, roleId);
         return;
     }
-
+ERROR_LOG("LobbyServiceImpl::initRole -- 6\n");
     // 这里是否需要加一次对location超时设置，避免加载数据时location过期？
     // 如果这里不加检测，创建的GameObject会等到第一次心跳设置location时才销毁
     // 如果加检测会让登录流程延长
@@ -151,6 +157,6 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d create game object failed\n", userId, roleId);
         return;
     }
-
+ERROR_LOG("LobbyServiceImpl::initRole -- 7\n");
     response->set_value(lToken);
 }

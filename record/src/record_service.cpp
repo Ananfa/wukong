@@ -219,7 +219,7 @@ void RecordServiceImpl::sync(::google::protobuf::RpcController* controller,
         return;
     }
 
-    if (obj->getLToken() == request->ltoken()) {
+    if (obj->getLToken() != request->ltoken()) {
         ERROR_LOG("RecordServiceImpl::sync -- ltoken not match\n");
         return;
     }
@@ -238,7 +238,7 @@ void RecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
         return;
     }
 
-    if (obj->getLToken() == request->ltoken()) {
+    if (obj->getLToken() != request->ltoken()) {
         ERROR_LOG("RecordServiceImpl::heartbeat -- ltoken not match\n");
         return;
     }

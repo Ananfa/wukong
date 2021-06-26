@@ -203,6 +203,10 @@ DEBUG_LOG("GatewayManager::tryChangeGatewayObjectConn -- setMsgBuffer 2\n");
         }
     }
 
+    // 设置新连接的消息缓存
+    std::shared_ptr<MessageBuffer> msgBuf = std::shared_ptr<MessageBuffer>(new MessageBuffer(true));
+    newConn->setMsgBuffer(msgBuf);
+
     return 0;
 }
 

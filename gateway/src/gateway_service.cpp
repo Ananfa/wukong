@@ -73,7 +73,7 @@ void GatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController* con
         return;
     }
 
-    if (obj->getLToken() == request->ltoken()) {
+    if (obj->getLToken() != request->ltoken()) {
         ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- ltoken not match\n");
         return;
     }
@@ -95,8 +95,8 @@ void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller
         return;
     }
 
-    if (obj->getLToken() == request->ltoken()) {
-        ERROR_LOG("GatewayServiceImpl::heartbeat -- ltoken not match\n");
+    if (obj->getLToken() != request->ltoken()) {
+        ERROR_LOG("GatewayServiceImpl::heartbeat -- ltoken not match, local ltoken:%d, remote ltoken:%d\n", obj->getLToken(), request->ltoken());
         return;
     }
 

@@ -46,7 +46,6 @@ void RecordObject::start() {
 
 void RecordObject::stop() {
     if (_running) {
-DEBUG_LOG("RecordObject::stop() -- role[%d]\n", _roleId);
         _running = false;
 
         redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();

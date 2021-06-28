@@ -600,8 +600,11 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     
     // 保存role，即上述第3步
     if (!MysqlUtils::CreateRole(mysql, roleId, userId, serverId, rData)) {
+        _mysql->proxy.put(mysql, true);
         return setErrorResponse(response, "save role to mysql failed");
     }
+
+    _mysql->proxy.put(mysql, false);
 
     // 缓存role，即上述第4步
     cache = _cache->proxy.take();
@@ -621,6 +624,8 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
         _cache->proxy.put(cache, true);
         return setErrorResponse(response, "cache profile failed");
     }
+
+    _cache->proxy.put(cache, false);
     
     std::string pData = ProtoUtils::marshalDataFragments(profileDatas);
     RoleProfile role = {
@@ -889,6 +894,8 @@ void LoginHandlerMgr::_updateServerGroupData() {
     }
 
     std::string serverGroupData(reply->str, reply->len);
+    freeReplyObject(reply);
+    _redis->proxy.put(redis, false);
     {
         std::unique_lock<std::mutex> lock(_serverGroupDataLock);
         _serverGroupData = std::move(serverGroupData);

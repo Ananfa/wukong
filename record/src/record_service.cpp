@@ -187,10 +187,12 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     }
 
     if (!RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
+        g_RecordCenter.getCachePool()->proxy.put(cache, true);
         ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] cache role data failed\n", roleId);
         response->set_errcode(13);
         return;
     }
+    g_RecordCenter.getCachePool()->proxy.put(cache, false);
 
     // 创建record object
     obj = _manager->create(roleId, serverId, rToken, datas);

@@ -62,6 +62,7 @@ namespace wukong {
         RedisConnectPool *getCachePool() { return _cache; }
 
         const std::string &setLocationSha1() { return _setLocationSha1; }
+        const std::string &removeLocationSha1() { return _removeLocationSha1; }
         const std::string &updateLocationSha1() { return _updateLocationSha1; }
         const std::string &setLocationExpireSha1() { return _setLocationExpireSha1; }
 
@@ -96,6 +97,7 @@ namespace wukong {
         RedisConnectPool *_cache;
 
         std::string _setLocationSha1; // 设置location的lua脚本sha1值
+        std::string _removeLocationSha1; // 删除location的lua脚本sha1值
         std::string _updateLocationSha1; // 更新location的lua脚本sha1值
         std::string _setLocationExpireSha1; // 设置location的超时lua脚本sha1值
 

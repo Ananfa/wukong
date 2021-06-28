@@ -36,8 +36,6 @@ void GameServiceImpl::enterGame(::google::protobuf::RpcController* controller,
                                 const ::wukong::pb::EnterGameRequest* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-DEBUG_LOG("GameServiceImpl::enterGame -----------------\n");
-    sleep(1);
     // 获取GameObject
     auto obj = _manager->getGameObject(request->roleid());
     if (!obj) {

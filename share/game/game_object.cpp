@@ -88,7 +88,33 @@ void GameObject::start() {
 }
 
 void GameObject::stop() {
-    _running = false;
+    if (_running) {
+        _running = false;
+
+
+        redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
+        if (!cache) {
+            ERROR_LOG("GameObject::stop -- role[%d] connect to cache failed\n", _roleId);
+            return;
+        }
+
+        // 删除record标签
+        redisReply *reply;
+        if (g_GameCenter.removeLocationSha1().empty()) {
+            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d", REMOVE_RECORD_CMD, _roleId, _lToken);
+        } else {
+            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d", g_GameCenter.removeLocationSha1().c_str(), _roleId, _lToken);
+        }
+
+        if (!reply) {
+            g_GameCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("GameObject::stop -- role[%d] remove location failed", _roleId);
+            return;
+        }
+
+        freeReplyObject(reply);
+        g_GameCenter.getCachePool()->proxy.put(cache, false);
+    }
 }
 
 void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
@@ -253,6 +279,8 @@ void *GameObject::heartbeatRoutine( void *arg ) {
     std::shared_ptr<GameObject> obj = std::move(routineArg->obj);
     delete routineArg;
 
+    int gwHeartbeatFailCount = 0;
+
     while (obj->_running) {
         sleep(TOKEN_HEARTBEAT_PERIOD); // 游戏对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源）
 
@@ -271,9 +299,9 @@ void *GameObject::heartbeatRoutine( void *arg ) {
         } else {
             redisReply *reply;
             if (g_GameCenter.setLocationExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 location:%d %d %d", SET_LOCATION_EXPIRE_CMD, obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d %d", SET_LOCATION_EXPIRE_CMD, obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 location:%d %d %d", g_GameCenter.setLocationExpireSha1().c_str(), obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d", g_GameCenter.setLocationExpireSha1().c_str(), obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
             }
             
             if (!reply) {
@@ -294,7 +322,16 @@ void *GameObject::heartbeatRoutine( void *arg ) {
 
         if (success) {
             // 对网关对象进行心跳
-            success = obj->heartbeatToGateway();
+            // 三次心跳不到gateway对象才销毁
+            if (!obj->heartbeatToGateway()) {
+                gwHeartbeatFailCount++;
+
+                if (gwHeartbeatFailCount >= 3) {
+                    success = false;
+                }
+            } else {
+                gwHeartbeatFailCount = 0;
+            }
         }
 
         if (success) {

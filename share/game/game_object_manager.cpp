@@ -58,6 +58,7 @@ std::shared_ptr<GameObject> GameObjectManager::getGameObject(RoleId roleId) {
 }
 
 std::shared_ptr<GameObject> GameObjectManager::create(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, ServerId gatewayId, ServerId recordId, const std::string &data) {
+DEBUG_LOG("GameObjectManager::create -- 1\n");
     if (_shutdown) {
         WARN_LOG("GameObjectManager::create -- already shutdown\n");
         return nullptr;
@@ -67,12 +68,12 @@ std::shared_ptr<GameObject> GameObjectManager::create(UserId userId, RoleId role
         ERROR_LOG("GameObjectManager::create -- game object already exist\n");
         return nullptr;
     }
-
+DEBUG_LOG("GameObjectManager::create -- 2\n");
     if (!g_GameCenter.getCreateGameObjectHandle()) {
         ERROR_LOG("GameObjectManager::create -- not set CreateGameObjectHandle\n");
         return nullptr;
     }
-
+DEBUG_LOG("GameObjectManager::create -- 3\n");
     // 创建GameObject
     auto obj = g_GameCenter.getCreateGameObjectHandle()(userId, roleId, serverId, lToken, this, data);
 
@@ -81,7 +82,7 @@ std::shared_ptr<GameObject> GameObjectManager::create(UserId userId, RoleId role
         ERROR_LOG("GameObjectManager::create -- can't set gateway stub\n");
         return nullptr;
     }
-
+DEBUG_LOG("GameObjectManager::create -- 4\n");
     if (!obj->setRecordServerStub(recordId)) {
         ERROR_LOG("GameObjectManager::create -- can't set record stub\n");
         return nullptr;
@@ -89,7 +90,7 @@ std::shared_ptr<GameObject> GameObjectManager::create(UserId userId, RoleId role
 
     _roleId2GameObjectMap.insert(std::make_pair(roleId, obj));
     obj->start();
-
+DEBUG_LOG("GameObjectManager::create -- 5\n");
     return obj;
 }
 

@@ -42,7 +42,6 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
                                  const ::wukong::pb::LoadRoleRequest* request,
                                  ::wukong::pb::LoadRoleResponse* response,
                                  ::google::protobuf::Closure* done) {
-ERROR_LOG("RecordServiceImpl::loadRole -- 1\n");
     uint32_t roleId = request->roleid();
 
     if (_manager->isShutdown()) {
@@ -81,9 +80,9 @@ ERROR_LOG("RecordServiceImpl::loadRole -- 1\n");
     redisReply *reply;
     // 尝试设置record
     if (g_RecordCenter.setRecordSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 record:%d %d %d", SET_RECORD_CMD, roleId, rToken, 60);
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d", SET_RECORD_CMD, roleId, rToken, 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 record:%d %d %d", g_RecordCenter.setRecordSha1().c_str(), roleId, rToken, 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d", g_RecordCenter.setRecordSha1().c_str(), roleId, rToken, 60);
     }
     
     if (!reply) {

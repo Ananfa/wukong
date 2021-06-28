@@ -17,6 +17,10 @@
 extern PROTOBUF_INTERNAL_EXPORT_gateway_5fservice_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ForwardOutTarget_gateway_5fservice_2eproto;
 namespace wukong {
 namespace pb {
+class KickRequestDefaultTypeInternal {
+ public:
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<KickRequest> _instance;
+} _KickRequest_default_instance_;
 class ForwardOutTargetDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ForwardOutTarget> _instance;
@@ -78,6 +82,20 @@ static void InitDefaultsscc_info_GSHeartbeatRequest_gateway_5fservice_2eproto() 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_GSHeartbeatRequest_gateway_5fservice_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_GSHeartbeatRequest_gateway_5fservice_2eproto}, {}};
 
+static void InitDefaultsscc_info_KickRequest_gateway_5fservice_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::wukong::pb::_KickRequest_default_instance_;
+    new (ptr) ::wukong::pb::KickRequest();
+    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::wukong::pb::KickRequest::InitAsDefaultInstance();
+}
+
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_KickRequest_gateway_5fservice_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_KickRequest_gateway_5fservice_2eproto}, {}};
+
 static void InitDefaultsscc_info_SetGameObjectPosRequest_gateway_5fservice_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -92,11 +110,18 @@ static void InitDefaultsscc_info_SetGameObjectPosRequest_gateway_5fservice_2epro
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_SetGameObjectPosRequest_gateway_5fservice_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_SetGameObjectPosRequest_gateway_5fservice_2eproto}, {}};
 
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_gateway_5fservice_2eproto[4];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_gateway_5fservice_2eproto[5];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_gateway_5fservice_2eproto = nullptr;
 static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_gateway_5fservice_2eproto[1];
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_gateway_5fservice_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::KickRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::KickRequest, userid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::KickRequest, gtoken_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardOutTarget, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -131,13 +156,15 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_gateway_5fservice_2eproto::off
   PROTOBUF_FIELD_OFFSET(::wukong::pb::GSHeartbeatRequest, ltoken_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, sizeof(::wukong::pb::ForwardOutTarget)},
-  { 7, -1, sizeof(::wukong::pb::ForwardOutRequest)},
-  { 16, -1, sizeof(::wukong::pb::SetGameObjectPosRequest)},
-  { 25, -1, sizeof(::wukong::pb::GSHeartbeatRequest)},
+  { 0, -1, sizeof(::wukong::pb::KickRequest)},
+  { 7, -1, sizeof(::wukong::pb::ForwardOutTarget)},
+  { 14, -1, sizeof(::wukong::pb::ForwardOutRequest)},
+  { 23, -1, sizeof(::wukong::pb::SetGameObjectPosRequest)},
+  { 32, -1, sizeof(::wukong::pb::GSHeartbeatRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_KickRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_ForwardOutTarget_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_ForwardOutRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_SetGameObjectPosRequest_default_instance_),
@@ -146,48 +173,287 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_gateway_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\025gateway_service.proto\022\twukong.pb\032\022corp"
-  "c_option.proto\032\014common.proto\"2\n\020ForwardO"
-  "utTarget\022\016\n\006userId\030\001 \001(\r\022\016\n\006lToken\030\002 \001(\r"
-  "\"l\n\021ForwardOutRequest\022\014\n\004type\030\001 \001(\005\022\013\n\003t"
-  "ag\030\002 \001(\r\022,\n\007targets\030\003 \003(\0132\033.wukong.pb.Fo"
-  "rwardOutTarget\022\016\n\006rawMsg\030\004 \001(\014\"_\n\027SetGam"
-  "eObjectPosRequest\022\016\n\006userId\030\001 \001(\r\022\016\n\006lTo"
-  "ken\030\002 \001(\r\022\022\n\nserverType\030\003 \001(\r\022\020\n\010serverI"
-  "d\030\004 \001(\r\"4\n\022GSHeartbeatRequest\022\016\n\006userId\030"
-  "\001 \001(\r\022\016\n\006lToken\030\002 \001(\r2\222\003\n\016GatewayService"
-  "\022*\n\010shutdown\022\013.corpc.Void\032\013.corpc.Void\"\004"
-  "\230\361\004\001\022:\n\004kick\022\026.wukong.pb.Uint32Value\032\024.w"
-  "ukong.pb.BoolValue\"\004\220\361\004\001\022<\n\016getOnlineCou"
-  "nt\022\013.corpc.Void\032\026.wukong.pb.Uint32Value\""
-  "\005\240\361\004\320\017\022=\n\nforwardOut\022\034.wukong.pb.Forward"
-  "OutRequest\032\013.corpc.Void\"\004\230\361\004\001\022L\n\020setGame"
-  "ObjectPos\022\".wukong.pb.SetGameObjectPosRe"
-  "quest\032\024.wukong.pb.BoolValue\022G\n\theartbeat"
-  "\022\035.wukong.pb.GSHeartbeatRequest\032\024.wukong"
-  ".pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361\004\001B\003\200\001\001b\006proto3"
+  "c_option.proto\032\014common.proto\"-\n\013KickRequ"
+  "est\022\016\n\006userId\030\001 \001(\r\022\016\n\006gToken\030\002 \001(\t\"2\n\020F"
+  "orwardOutTarget\022\016\n\006userId\030\001 \001(\r\022\016\n\006lToke"
+  "n\030\002 \001(\r\"l\n\021ForwardOutRequest\022\014\n\004type\030\001 \001"
+  "(\005\022\013\n\003tag\030\002 \001(\r\022,\n\007targets\030\003 \003(\0132\033.wukon"
+  "g.pb.ForwardOutTarget\022\016\n\006rawMsg\030\004 \001(\014\"_\n"
+  "\027SetGameObjectPosRequest\022\016\n\006userId\030\001 \001(\r"
+  "\022\016\n\006lToken\030\002 \001(\r\022\022\n\nserverType\030\003 \001(\r\022\020\n\010"
+  "serverId\030\004 \001(\r\"4\n\022GSHeartbeatRequest\022\016\n\006"
+  "userId\030\001 \001(\r\022\016\n\006lToken\030\002 \001(\r2\222\003\n\016Gateway"
+  "Service\022*\n\010shutdown\022\013.corpc.Void\032\013.corpc"
+  ".Void\"\004\230\361\004\001\022:\n\004kick\022\026.wukong.pb.KickRequ"
+  "est\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\022<\n\016getOn"
+  "lineCount\022\013.corpc.Void\032\026.wukong.pb.Uint3"
+  "2Value\"\005\240\361\004\320\017\022=\n\nforwardOut\022\034.wukong.pb."
+  "ForwardOutRequest\032\013.corpc.Void\"\004\230\361\004\001\022L\n\020"
+  "setGameObjectPos\022\".wukong.pb.SetGameObje"
+  "ctPosRequest\032\024.wukong.pb.BoolValue\022G\n\the"
+  "artbeat\022\035.wukong.pb.GSHeartbeatRequest\032\024"
+  ".wukong.pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361\004\001B\003\200\001\001b\006"
+  "proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_gateway_5fservice_2eproto_deps[2] = {
   &::descriptor_table_common_2eproto,
   &::descriptor_table_corpc_5foption_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_gateway_5fservice_2eproto_sccs[4] = {
+static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_gateway_5fservice_2eproto_sccs[5] = {
   &scc_info_ForwardOutRequest_gateway_5fservice_2eproto.base,
   &scc_info_ForwardOutTarget_gateway_5fservice_2eproto.base,
   &scc_info_GSHeartbeatRequest_gateway_5fservice_2eproto.base,
+  &scc_info_KickRequest_gateway_5fservice_2eproto.base,
   &scc_info_SetGameObjectPosRequest_gateway_5fservice_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_gateway_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_gateway_5fservice_2eproto = {
-  false, false, descriptor_table_protodef_gateway_5fservice_2eproto, "gateway_service.proto", 799,
-  &descriptor_table_gateway_5fservice_2eproto_once, descriptor_table_gateway_5fservice_2eproto_sccs, descriptor_table_gateway_5fservice_2eproto_deps, 4, 2,
+  false, false, descriptor_table_protodef_gateway_5fservice_2eproto, "gateway_service.proto", 846,
+  &descriptor_table_gateway_5fservice_2eproto_once, descriptor_table_gateway_5fservice_2eproto_sccs, descriptor_table_gateway_5fservice_2eproto_deps, 5, 2,
   schemas, file_default_instances, TableStruct_gateway_5fservice_2eproto::offsets,
-  file_level_metadata_gateway_5fservice_2eproto, 4, file_level_enum_descriptors_gateway_5fservice_2eproto, file_level_service_descriptors_gateway_5fservice_2eproto,
+  file_level_metadata_gateway_5fservice_2eproto, 5, file_level_enum_descriptors_gateway_5fservice_2eproto, file_level_service_descriptors_gateway_5fservice_2eproto,
 };
 
 // Force running AddDescriptors() at dynamic initialization time.
 static bool dynamic_init_dummy_gateway_5fservice_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_gateway_5fservice_2eproto)), true);
 namespace wukong {
 namespace pb {
+
+// ===================================================================
+
+void KickRequest::InitAsDefaultInstance() {
+}
+class KickRequest::_Internal {
+ public:
+};
+
+KickRequest::KickRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:wukong.pb.KickRequest)
+}
+KickRequest::KickRequest(const KickRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  gtoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_gtoken().empty()) {
+    gtoken_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_gtoken(),
+      GetArena());
+  }
+  userid_ = from.userid_;
+  // @@protoc_insertion_point(copy_constructor:wukong.pb.KickRequest)
+}
+
+void KickRequest::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_KickRequest_gateway_5fservice_2eproto.base);
+  gtoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  userid_ = 0u;
+}
+
+KickRequest::~KickRequest() {
+  // @@protoc_insertion_point(destructor:wukong.pb.KickRequest)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void KickRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
+  gtoken_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void KickRequest::ArenaDtor(void* object) {
+  KickRequest* _this = reinterpret_cast< KickRequest* >(object);
+  (void)_this;
+}
+void KickRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void KickRequest::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const KickRequest& KickRequest::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_KickRequest_gateway_5fservice_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void KickRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:wukong.pb.KickRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  gtoken_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  userid_ = 0u;
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* KickRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // uint32 userId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string gToken = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          auto str = _internal_mutable_gtoken();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "wukong.pb.KickRequest.gToken"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* KickRequest::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.KickRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint32 userId = 1;
+  if (this->userid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_userid(), target);
+  }
+
+  // string gToken = 2;
+  if (this->gtoken().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_gtoken().data(), static_cast<int>(this->_internal_gtoken().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "wukong.pb.KickRequest.gToken");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_gtoken(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.KickRequest)
+  return target;
+}
+
+size_t KickRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:wukong.pb.KickRequest)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string gToken = 2;
+  if (this->gtoken().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_gtoken());
+  }
+
+  // uint32 userId = 1;
+  if (this->userid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_userid());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void KickRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:wukong.pb.KickRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  const KickRequest* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<KickRequest>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:wukong.pb.KickRequest)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:wukong.pb.KickRequest)
+    MergeFrom(*source);
+  }
+}
+
+void KickRequest::MergeFrom(const KickRequest& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.KickRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.gtoken().size() > 0) {
+    _internal_set_gtoken(from._internal_gtoken());
+  }
+  if (from.userid() != 0) {
+    _internal_set_userid(from._internal_userid());
+  }
+}
+
+void KickRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:wukong.pb.KickRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void KickRequest::CopyFrom(const KickRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.KickRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool KickRequest::IsInitialized() const {
+  return true;
+}
+
+void KickRequest::InternalSwap(KickRequest* other) {
+  using std::swap;
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  gtoken_.Swap(&other->gtoken_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  swap(userid_, other->userid_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata KickRequest::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
 
 // ===================================================================
 
@@ -1247,7 +1513,7 @@ void GatewayService::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller
 }
 
 void GatewayService::kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::Uint32Value*,
+                         const ::wukong::pb::KickRequest*,
                          ::wukong::pb::BoolValue*,
                          ::google::protobuf::Closure* done) {
   controller->SetFailed("Method kick() not implemented.");
@@ -1303,7 +1569,7 @@ void GatewayService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor*
       break;
     case 1:
       kick(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::Uint32Value*>(
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::KickRequest*>(
                  request),
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::BoolValue*>(
                  response),
@@ -1354,7 +1620,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& GatewayService::GetRequestPrototype(
     case 0:
       return ::corpc::Void::default_instance();
     case 1:
-      return ::wukong::pb::Uint32Value::default_instance();
+      return ::wukong::pb::KickRequest::default_instance();
     case 2:
       return ::corpc::Void::default_instance();
     case 3:
@@ -1412,7 +1678,7 @@ void GatewayService_Stub::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* contr
                        controller, request, response, done);
 }
 void GatewayService_Stub::kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::Uint32Value* request,
+                              const ::wukong::pb::KickRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(1),
@@ -1451,6 +1717,9 @@ void GatewayService_Stub::heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* cont
 }  // namespace pb
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
+template<> PROTOBUF_NOINLINE ::wukong::pb::KickRequest* Arena::CreateMaybeMessage< ::wukong::pb::KickRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::wukong::pb::KickRequest >(arena);
+}
 template<> PROTOBUF_NOINLINE ::wukong::pb::ForwardOutTarget* Arena::CreateMaybeMessage< ::wukong::pb::ForwardOutTarget >(Arena* arena) {
   return Arena::CreateMessageInternal< ::wukong::pb::ForwardOutTarget >(arena);
 }

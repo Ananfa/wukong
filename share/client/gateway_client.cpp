@@ -43,7 +43,7 @@ void GatewayClient::shutdown() {
     }
 }
 
-bool GatewayClient::kick(ServerId sid, UserId userId) {
+bool GatewayClient::kick(ServerId sid, UserId userId, const std::string &gToken) {
     std::shared_ptr<pb::GatewayService_Stub> stub = getStub(sid);
     
     if (!stub) {
@@ -52,10 +52,11 @@ bool GatewayClient::kick(ServerId sid, UserId userId) {
     }
 
     bool result = false;
-    pb::Uint32Value *request = new pb::Uint32Value();
+    pb::KickRequest *request = new pb::KickRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
-    request->set_value(userId);
+    request->set_userid(userId);
+    request->set_gtoken(gToken);
     stub->kick(controller, request, response, nullptr);
 
     if (controller->Failed()) {

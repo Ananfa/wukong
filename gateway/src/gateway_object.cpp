@@ -62,7 +62,32 @@ void GatewayObject::start() {
 }
 
 void GatewayObject::stop() {
-    _running = false;
+    if (_running) {
+        _running = false;
+
+        // 清除session
+        redisContext *cache = g_GatewayCenter.getCachePool()->proxy.take();
+        if (!cache) {
+            ERROR_LOG("GatewayObject::stop -- user[%d] connect to cache failed\n", _userId);
+            return;
+        }
+
+        redisReply *reply;
+        if (g_GatewayCenter.removeSessionSha1().empty()) {
+            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, _userId, _gToken.c_str());
+        } else {
+            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s", g_GatewayCenter.removeSessionSha1().c_str(), _userId, _gToken.c_str());
+        }
+
+        if (!reply) {
+            g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("GatewayObject::stop -- user[%d] remove session failed", _userId);
+            return;
+        }
+
+        freeReplyObject(reply);
+        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+    }
 }
 
 void *GatewayObject::heartbeatRoutine( void *arg ) {
@@ -87,7 +112,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
         bool success = true;
         redisContext *cache = g_GatewayCenter.getCachePool()->proxy.take();
         if (!cache) {
-            ERROR_LOG("GatewayObject::heartbeatRoutine -- user %d connect to cache failed\n", obj->_userId);
+            ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] connect to cache failed\n", obj->_userId);
 
             success = false;
         } else {
@@ -100,7 +125,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
             
             if (!reply) {
                 g_GatewayCenter.getCachePool()->proxy.put(cache, true);
-                ERROR_LOG("GatewayObject::heartbeatRoutine -- user %d check session failed for db error\n", obj->_userId);
+                ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed for db error\n", obj->_userId);
 
                 success = false;
             } else {
@@ -109,7 +134,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
                 g_GatewayCenter.getCachePool()->proxy.put(cache, false);
 
                 if (!success) {
-                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user %d check session failed\n", obj->_userId);
+                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed\n", obj->_userId);
                 }
             }
         }
@@ -119,7 +144,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
             gettimeofday(&t, NULL);
             success = t.tv_sec < obj->_gameObjectHeartbeatExpire;
             if (!success) {
-                ERROR_LOG("GatewayObject::heartbeatRoutine -- user %d heartbeat expired\n", obj->_userId);
+                ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] heartbeat expired\n", obj->_userId);
             }
         }
 
@@ -128,7 +153,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
             if (obj->_running) {
                 if (!obj->_manager->removeGatewayObject(obj->_userId)) {
                     assert(false);
-                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user %d remove route object failed\n", obj->_userId);
+                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] remove route object failed\n", obj->_userId);
                 }
 
                 obj->_running = false;

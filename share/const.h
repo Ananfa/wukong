@@ -50,6 +50,16 @@ namespace wukong {
           return 0\
         end";
 
+    const char REMOVE_SESSION_CMD[] = "\
+        local gToken=redis.call('hget',KEYS[1],'gToken')\
+        if not gToken then\
+          return 0\
+        elseif gToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('del',KEYS[1])\
+        return 1";
+
     const char CHECK_SESSION_CMD[] = "\
         local gateId = redis.call('hget',KEYS[1],'gateId')\
         if not gateId then\
@@ -86,12 +96,22 @@ namespace wukong {
     const char SET_LOCATION_CMD[] = "\
         local ret = redis.call('hsetnx',KEYS[1],'lToken',ARGV[1])\
         if ret==1 then\
-          redis.call('hset',KEYS[1],'loc',ARGV[2])\
-          redis.call('expire',KEYS[1],ARGV[3])\
+          redis.call('hmset',KEYS[1],'stype',ARGV[2],'sid',ARGV[3])\
+          redis.call('expire',KEYS[1],ARGV[4])\
           return 1\
         else\
           return 0\
         end";
+
+    const char REMOVE_LOCATION_CMD[] = "\
+        local lToken=redis.call('hget',KEYS[1],'lToken')\
+        if not lToken then\
+          return 0\
+        elseif lToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('del',KEYS[1])\
+        return 1";
 
     const char UPDATE_LOCATION_CMD[] = "\
         local lToken = redis.call('hget',KEYS[1],'lToken')\
@@ -100,8 +120,8 @@ namespace wukong {
         elseif lToken ~= ARGV[1] then\
           return 0\
         end\
-        redis.call('hset',KEYS[1],'loc',ARGV[2])\
-        redis.call('expire',KEYS[1],ARGV[3])\
+        redis.call('hmset',KEYS[1],'stype',ARGV[2],'sid',ARGV[3])\
+        redis.call('expire',KEYS[1],ARGV[4])\
         return 1";
 
     const char SET_LOCATION_EXPIRE_CMD[] = "\
@@ -122,6 +142,16 @@ namespace wukong {
         else\
           return 0\
         end";
+
+    const char REMOVE_RECORD_CMD[] = "\
+        local rToken=redis.call('hget',KEYS[1],'rToken')\
+        if not rToken then\
+          return 0\
+        elseif rToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('del',KEYS[1])\
+        return 1";
 
     const char SET_RECORD_EXPIRE_CMD[] = "\
         local rToken = redis.call('hget',KEYS[1],'rToken')\

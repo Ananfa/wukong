@@ -177,11 +177,11 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     // 创建玩家网关对象
     std::shared_ptr<GatewayObject> obj = std::make_shared<GatewayObject>(userId, roleId, request->token(), conn, _manager);
 
-    // 查询玩家角色游戏对象所在（cache中key为location:<roleId>，值为<server type>|<server id>，由游戏对象负责维持心跳）
+    // 查询玩家角色游戏对象所在（cache中key为Location:<roleId>的hash，由游戏对象负责维持心跳）
     //    若查到，设置玩家网关对象中的gameServerStub
     //    若没有查到，分配一个大厅服，并通知大厅服加载玩家游戏对象
     //       若返回失败，则登录失败
-    reply = (redisReply *)redisCommand(cache, "HMGET location:%d lToken loc", roleId);
+    reply = (redisReply *)redisCommand(cache, "HMGET Location:%d lToken stype sid", roleId);
     if (!reply) {
         g_GatewayCenter.getCachePool()->proxy.put(cache, true);
         ERROR_LOG("GatewayHandler::authHandle -- get location failed for db error\n");
@@ -191,7 +191,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         return;
     }
 
-    if (reply->type != REDIS_REPLY_ARRAY || reply->elements != 2) {
+    if (reply->type != REDIS_REPLY_ARRAY || reply->elements != 3) {
         freeReplyObject(reply);
         g_GatewayCenter.getCachePool()->proxy.put(cache, true);
         ERROR_LOG("GatewayHandler::authHandle -- get location failed for invalid data type\n");
@@ -200,27 +200,14 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         }
         return;
     }
-DEBUG_LOG("GatewayHandler::authHandle -- 1\n");
+
     if (reply->element[0]->type == REDIS_REPLY_STRING) {
-DEBUG_LOG("GatewayHandler::authHandle -- 2\n");
         assert(reply->element[1]->type == REDIS_REPLY_STRING);
+        assert(reply->element[2]->type == REDIS_REPLY_STRING);
         // 这里不再向游戏对象所在服发RPC（极端情况是游戏对象刚巧销毁导致网关对象指向了不存在的游戏对象的游戏服务器，网关对象一段时间没有收到游戏对象心跳后销毁）
         uint32_t lToken = atoi(reply->element[0]->str);
-        std::string location = reply->element[1]->str;
-        std::vector<std::string> output;
-        StringUtils::split(location, "|", output);
-        if (output.size() != 2) {
-            freeReplyObject(reply);
-            g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("GatewayHandler::authHandle -- get location failed for invalid data\n");
-            if (conn->isOpen()) {
-                conn->close();
-            }
-            return;
-        }
-
-        GameServerType stype = std::stoi(output[0]);
-        ServerId sid = std::stoi(output[1]);
+        GameServerType stype = atoi(reply->element[1]->str);
+        ServerId sid = atoi(reply->element[2]->str);
         if (!obj->setGameServerStub(stype, sid)) {
             freeReplyObject(reply);
             g_GatewayCenter.getCachePool()->proxy.put(cache, false);
@@ -232,10 +219,9 @@ DEBUG_LOG("GatewayHandler::authHandle -- 2\n");
         }
         obj->setLToken(lToken);
     } else {
-DEBUG_LOG("GatewayHandler::authHandle -- 3\n");
         assert(reply->element[0]->type == REDIS_REPLY_NIL);
         assert(reply->element[1]->type == REDIS_REPLY_NIL);
-DEBUG_LOG("GatewayHandler::authHandle -- start random lobby server\n");
+        assert(reply->element[2]->type == REDIS_REPLY_NIL);
         // 分配一个Lobby服，并通知Lobby服加载玩家游戏对象
         ServerId sid = 0;
         if (!g_GatewayCenter.randomLobbyServer(sid)) {
@@ -247,7 +233,6 @@ DEBUG_LOG("GatewayHandler::authHandle -- start random lobby server\n");
             }
             return;
         }
-DEBUG_LOG("GatewayHandler::authHandle -- end random lobby server\n");
 
         if (!obj->setGameServerStub(GAME_SERVER_TYPE_LOBBY, sid)) {
             freeReplyObject(reply);
@@ -276,7 +261,6 @@ DEBUG_LOG("GatewayHandler::authHandle -- end random lobby server\n");
     freeReplyObject(reply);
     g_GatewayCenter.getCachePool()->proxy.put(cache, false);
 
-DEBUG_LOG("GatewayHandler::authHandle -- 4\n");
     // 由于进行过能导致协程切换的redis操作，这里需要再次确认中途没有网关对象登记到已连接表
     if (_manager->hasGatewayObject(userId)) {
         ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist after get role %d location\n", userId, roleId);
@@ -286,7 +270,6 @@ DEBUG_LOG("GatewayHandler::authHandle -- 4\n");
         return;
     }
 
-DEBUG_LOG("GatewayHandler::authHandle -- 5\n");
     // 由于进行过能导致协程切换的redis操作，在登记到已连接表之前，需要再判断一次是否断线
     if (!conn->isOpen()) {
         ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected when creating gateway object\n", userId);
@@ -297,14 +280,12 @@ DEBUG_LOG("GatewayHandler::authHandle -- 5\n");
     _manager->addConnectedGatewayObject(obj);
     obj->start();
 
-DEBUG_LOG("GatewayHandler::authHandle -- 6\n");
     // 通知游戏对象发开始游戏所需数据给客户端
     obj->enterGame();
 }
 
 
 void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
-    DEBUG_LOG("GatewayHandler::bypassHandle -- msgType:%d\n", type);
     std::shared_ptr<GatewayObject> obj = _manager->getConnectedGatewayObject(conn);
     if (!obj) {
         ERROR_LOG("GatewayHandler::bypassHandle -- gateway object not found\n");

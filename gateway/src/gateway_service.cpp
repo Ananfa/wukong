@@ -27,10 +27,15 @@ void GatewayServiceImpl::shutdown(::google::protobuf::RpcController* controller,
 }
 
 void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
-                              const ::wukong::pb::Uint32Value* request,
+                              const ::wukong::pb::KickRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
-    response->set_value(_manager->removeGatewayObject(request->value()));
+    auto obj = _manager->getGatewayObject(request->userid());
+    if (obj && obj->getGToken() == request->gtoken()) {
+        response->set_value(_manager->removeGatewayObject(request->userid()));
+    } else {
+        response->set_value(false);
+    }
 }
 
 void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
@@ -41,9 +46,9 @@ void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* contr
 }
 
 void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controller,
-                                 const ::wukong::pb::ForwardOutRequest* request,
-                                 ::corpc::Void* response,
-                                 ::google::protobuf::Closure* done) {
+                                    const ::wukong::pb::ForwardOutRequest* request,
+                                    ::corpc::Void* response,
+                                    ::google::protobuf::Closure* done) {
     for (int i = 0; i < request->targets_size(); i++) {
         // 不论网关对象是否断线都进行转发，消息会存到消息缓存中
         const ::wukong::pb::ForwardOutTarget& target = request->targets(i);

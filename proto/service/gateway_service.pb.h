@@ -50,7 +50,7 @@ struct TableStruct_gateway_5fservice_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxillaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -68,6 +68,9 @@ extern ForwardOutTargetDefaultTypeInternal _ForwardOutTarget_default_instance_;
 class GSHeartbeatRequest;
 class GSHeartbeatRequestDefaultTypeInternal;
 extern GSHeartbeatRequestDefaultTypeInternal _GSHeartbeatRequest_default_instance_;
+class KickRequest;
+class KickRequestDefaultTypeInternal;
+extern KickRequestDefaultTypeInternal _KickRequest_default_instance_;
 class SetGameObjectPosRequest;
 class SetGameObjectPosRequestDefaultTypeInternal;
 extern SetGameObjectPosRequestDefaultTypeInternal _SetGameObjectPosRequest_default_instance_;
@@ -77,12 +80,177 @@ PROTOBUF_NAMESPACE_OPEN
 template<> ::wukong::pb::ForwardOutRequest* Arena::CreateMaybeMessage<::wukong::pb::ForwardOutRequest>(Arena*);
 template<> ::wukong::pb::ForwardOutTarget* Arena::CreateMaybeMessage<::wukong::pb::ForwardOutTarget>(Arena*);
 template<> ::wukong::pb::GSHeartbeatRequest* Arena::CreateMaybeMessage<::wukong::pb::GSHeartbeatRequest>(Arena*);
+template<> ::wukong::pb::KickRequest* Arena::CreateMaybeMessage<::wukong::pb::KickRequest>(Arena*);
 template<> ::wukong::pb::SetGameObjectPosRequest* Arena::CreateMaybeMessage<::wukong::pb::SetGameObjectPosRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
 namespace pb {
 
 // ===================================================================
+
+class KickRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.KickRequest) */ {
+ public:
+  inline KickRequest() : KickRequest(nullptr) {};
+  virtual ~KickRequest();
+
+  KickRequest(const KickRequest& from);
+  KickRequest(KickRequest&& from) noexcept
+    : KickRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline KickRequest& operator=(const KickRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline KickRequest& operator=(KickRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const KickRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const KickRequest* internal_default_instance() {
+    return reinterpret_cast<const KickRequest*>(
+               &_KickRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(KickRequest& a, KickRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(KickRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(KickRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline KickRequest* New() const final {
+    return CreateMaybeMessage<KickRequest>(nullptr);
+  }
+
+  KickRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<KickRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const KickRequest& from);
+  void MergeFrom(const KickRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(KickRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.KickRequest";
+  }
+  protected:
+  explicit KickRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_gateway_5fservice_2eproto);
+    return ::descriptor_table_gateway_5fservice_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kGTokenFieldNumber = 2,
+    kUserIdFieldNumber = 1,
+  };
+  // string gToken = 2;
+  void clear_gtoken();
+  const std::string& gtoken() const;
+  void set_gtoken(const std::string& value);
+  void set_gtoken(std::string&& value);
+  void set_gtoken(const char* value);
+  void set_gtoken(const char* value, size_t size);
+  std::string* mutable_gtoken();
+  std::string* release_gtoken();
+  void set_allocated_gtoken(std::string* gtoken);
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  std::string* unsafe_arena_release_gtoken();
+  GOOGLE_PROTOBUF_RUNTIME_DEPRECATED("The unsafe_arena_ accessors for"
+  "    string fields are deprecated and will be removed in a"
+  "    future release.")
+  void unsafe_arena_set_allocated_gtoken(
+      std::string* gtoken);
+  private:
+  const std::string& _internal_gtoken() const;
+  void _internal_set_gtoken(const std::string& value);
+  std::string* _internal_mutable_gtoken();
+  public:
+
+  // uint32 userId = 1;
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.KickRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr gtoken_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_gateway_5fservice_2eproto;
+};
+// -------------------------------------------------------------------
 
 class ForwardOutTarget PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.ForwardOutTarget) */ {
@@ -126,7 +294,7 @@ class ForwardOutTarget PROTOBUF_FINAL :
                &_ForwardOutTarget_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    0;
+    1;
 
   friend void swap(ForwardOutTarget& a, ForwardOutTarget& b) {
     a.Swap(&b);
@@ -274,7 +442,7 @@ class ForwardOutRequest PROTOBUF_FINAL :
                &_ForwardOutRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    2;
 
   friend void swap(ForwardOutRequest& a, ForwardOutRequest& b) {
     a.Swap(&b);
@@ -469,7 +637,7 @@ class SetGameObjectPosRequest PROTOBUF_FINAL :
                &_SetGameObjectPosRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    3;
 
   friend void swap(SetGameObjectPosRequest& a, SetGameObjectPosRequest& b) {
     a.Swap(&b);
@@ -639,7 +807,7 @@ class GSHeartbeatRequest PROTOBUF_FINAL :
                &_GSHeartbeatRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(GSHeartbeatRequest& a, GSHeartbeatRequest& b) {
     a.Swap(&b);
@@ -763,7 +931,7 @@ class GatewayService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   virtual void kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::Uint32Value* request,
+                       const ::wukong::pb::KickRequest* request,
                        ::wukong::pb::BoolValue* response,
                        ::google::protobuf::Closure* done);
   virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
@@ -816,7 +984,7 @@ class GatewayService_Stub : public GatewayService {
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   void kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::Uint32Value* request,
+                       const ::wukong::pb::KickRequest* request,
                        ::wukong::pb::BoolValue* response,
                        ::google::protobuf::Closure* done);
   void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
@@ -851,6 +1019,111 @@ class GatewayService_Stub : public GatewayService {
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// KickRequest
+
+// uint32 userId = 1;
+inline void KickRequest::clear_userid() {
+  userid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 KickRequest::_internal_userid() const {
+  return userid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 KickRequest::userid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.KickRequest.userId)
+  return _internal_userid();
+}
+inline void KickRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  userid_ = value;
+}
+inline void KickRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.KickRequest.userId)
+}
+
+// string gToken = 2;
+inline void KickRequest::clear_gtoken() {
+  gtoken_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline const std::string& KickRequest::gtoken() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.KickRequest.gToken)
+  return _internal_gtoken();
+}
+inline void KickRequest::set_gtoken(const std::string& value) {
+  _internal_set_gtoken(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.KickRequest.gToken)
+}
+inline std::string* KickRequest::mutable_gtoken() {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.KickRequest.gToken)
+  return _internal_mutable_gtoken();
+}
+inline const std::string& KickRequest::_internal_gtoken() const {
+  return gtoken_.Get();
+}
+inline void KickRequest::_internal_set_gtoken(const std::string& value) {
+  
+  gtoken_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void KickRequest::set_gtoken(std::string&& value) {
+  
+  gtoken_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:wukong.pb.KickRequest.gToken)
+}
+inline void KickRequest::set_gtoken(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  gtoken_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:wukong.pb.KickRequest.gToken)
+}
+inline void KickRequest::set_gtoken(const char* value,
+    size_t size) {
+  
+  gtoken_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:wukong.pb.KickRequest.gToken)
+}
+inline std::string* KickRequest::_internal_mutable_gtoken() {
+  
+  return gtoken_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* KickRequest::release_gtoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.KickRequest.gToken)
+  return gtoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void KickRequest::set_allocated_gtoken(std::string* gtoken) {
+  if (gtoken != nullptr) {
+    
+  } else {
+    
+  }
+  gtoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), gtoken,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.KickRequest.gToken)
+}
+inline std::string* KickRequest::unsafe_arena_release_gtoken() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:wukong.pb.KickRequest.gToken)
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  
+  return gtoken_.UnsafeArenaRelease(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      GetArena());
+}
+inline void KickRequest::unsafe_arena_set_allocated_gtoken(
+    std::string* gtoken) {
+  GOOGLE_DCHECK(GetArena() != nullptr);
+  if (gtoken != nullptr) {
+    
+  } else {
+    
+  }
+  gtoken_.UnsafeArenaSetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      gtoken, GetArena());
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:wukong.pb.KickRequest.gToken)
+}
+
+// -------------------------------------------------------------------
+
 // ForwardOutTarget
 
 // uint32 userId = 1;
@@ -1188,6 +1461,8 @@ inline void GSHeartbeatRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

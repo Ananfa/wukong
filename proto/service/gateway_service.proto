@@ -7,6 +7,11 @@ option cc_generic_services = true;
 
 package wukong.pb;
 
+message KickRequest {
+    uint32 userId = 1;
+    string gToken = 2;
+}
+
 message ForwardOutTarget {
     uint32 userId = 1;
     uint32 lToken = 2;
@@ -41,7 +46,7 @@ service GatewayService {
     }
 
     // 踢出指定玩家
-    rpc kick(Uint32Value) returns(BoolValue)
+    rpc kick(KickRequest) returns(BoolValue)
     {
         option (corpc.need_coroutine) = true; // default is false
     }

@@ -64,6 +64,7 @@ void *GatewayCenter::initRoutine(void *arg) {
         return nullptr;
     }
 
+    // init _checkSessionSha1
     redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", CHECK_SESSION_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -81,6 +82,7 @@ void *GatewayCenter::initRoutine(void *arg) {
     self->_checkSessionSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _setSessionExpireSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_EXPIRE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -97,6 +99,25 @@ void *GatewayCenter::initRoutine(void *arg) {
 
     self->_setSessionExpireSha1 = reply->str;
     freeReplyObject(reply);
+
+    // init _removeSessionSha1
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", REMOVE_SESSION_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("GatewayCenter::initRoutine -- remove-session script load failed for cache error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("GatewayCenter::initRoutine -- remove-session script load from cache failed\n");
+        return nullptr;
+    }
+
+    self->_removeSessionSha1 = reply->str;
+    freeReplyObject(reply);
+
 
     self->_cache->proxy.put(cache, false);
     

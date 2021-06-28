@@ -45,24 +45,43 @@ void RecordObject::start() {
 }
 
 void RecordObject::stop() {
-    _running = false;
+    if (_running) {
+DEBUG_LOG("RecordObject::stop() -- role[%d]\n", _roleId);
+        _running = false;
 
-    // 设置cache数据超时时间
-    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
-    if (!cache) {
-        ERROR_LOG("RecordObject::stop -- role %d connect to cache failed\n", _roleId);
-        return;
+        redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+        if (!cache) {
+            ERROR_LOG("RecordObject::stop -- role[%d] connect to cache failed\n", _roleId);
+            return;
+        }
+
+        // 删除record标签
+        redisReply *reply;
+        if (g_RecordCenter.removeRecordSha1().empty()) {
+            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d", REMOVE_RECORD_CMD, _roleId, _rToken);
+        } else {
+            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d", g_RecordCenter.removeRecordSha1().c_str(), _roleId, _rToken);
+        }
+
+        if (!reply) {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("RecordObject::stop -- role[%d] remove record failed", _roleId);
+            return;
+        }
+
+        freeReplyObject(reply);
+
+        // 设置cache数据超时时间
+        reply = (redisReply *)redisCommand(cache, "EXPIRE Role:{%d} %d", _roleId, RECORD_EXPIRE);
+        if (!reply) {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("RecordObject::stop -- role[%d] expire cache data failed for db error\n", _roleId);
+            return;
+        }
+
+        freeReplyObject(reply);
+        g_RecordCenter.getCachePool()->proxy.put(cache, false);
     }
-
-    redisReply *reply = (redisReply *)redisCommand(cache, "EXPIRE Role:{%d} %d", _roleId, RECORD_EXPIRE);
-    if (!reply) {
-        g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("RecordObject::stop -- role %d expire cache data failed for db error\n", _roleId);
-        return;
-    }
-
-    freeReplyObject(reply);
-    g_RecordCenter.getCachePool()->proxy.put(cache, false);
 }
 
 void *RecordObject::heartbeatRoutine( void *arg ) {
@@ -93,9 +112,9 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
         } else {
             redisReply *reply;
             if (g_RecordCenter.setRecordExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 record:%d %d %d", SET_RECORD_EXPIRE_CMD, obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d", SET_RECORD_EXPIRE_CMD, obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 record:%d %d %d", g_RecordCenter.setRecordExpireSha1().c_str(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d", g_RecordCenter.setRecordExpireSha1().c_str(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             }
             
             if (!reply) {

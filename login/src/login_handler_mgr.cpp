@@ -101,6 +101,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
         return nullptr;
     }
 
+    // init _setSessionSha1
     redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -118,6 +119,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     self->_setSessionSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _saveProfileSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_PROFILE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -135,6 +137,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     self->_saveProfileSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _loadRoleSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", LOAD_ROLE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -152,6 +155,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
     self->_loadRoleSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _saveRoleSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_ROLE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -177,6 +181,7 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
         return nullptr;
     }
 
+    // init _bindRoleSha1
     reply = (redisReply *)redisCommand(redis, "SCRIPT LOAD %s", BIND_ROLE_CMD);
     if (!reply) {
         self->_redis->proxy.put(redis, true);
@@ -714,21 +719,22 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     if (reply->elements > 0) {
         // 通知Gateway踢出玩家
         ServerId gid = 0;
-        RoleId rid = 0;
+        std::string tkn;
         for (int i = 0; i < reply->elements; i += 2) {
             if (strcmp(reply->element[i]->str, "gateId") == 0) {
                 gid = atoi(reply->element[i+1]->str);
-            } else if (strcmp(reply->element[i]->str, "roleId") == 0) {
-                rid = atoi(reply->element[i+1]->str);
+            } else if (strcmp(reply->element[i]->str, "gToken") == 0) {
+                tkn = reply->element[i+1]->str;
             }
         }
 
         freeReplyObject(reply);
-
-        if (!g_GatewayClient.kick(gid, rid)) {
+        if (!g_GatewayClient.kick(gid, userId, tkn)) {
             _cache->proxy.put(cache, false);
             return setErrorResponse(response, "duplicate login kick old one failed");
         }
+    } else {
+        freeReplyObject(reply);
     }
 
     // 生成gToken（在游戏期间保持，用lua脚本保证操作原子性）
@@ -766,6 +772,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         _cache->proxy.put(cache, false);
         return setErrorResponse(response, "set session failed for already set");
     }
+    freeReplyObject(reply);
 
     // 删除登录临时token
     reply = (redisReply *)redisCommand(cache,"DEL Token:%d", userId);

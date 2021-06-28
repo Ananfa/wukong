@@ -29,6 +29,7 @@ void *RecordCenter::initRoutine(void *arg) {
         return nullptr;
     }
 
+    // init _setRecordSha1
     redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_RECORD_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -46,6 +47,25 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_setRecordSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _removeRecordSha1
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", REMOVE_RECORD_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("RecordCenter::initRoutine -- remove-record script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("RecordCenter::initRoutine -- remove-record script load failed\n");
+        return nullptr;
+    }
+
+    self->_removeRecordSha1 = reply->str;
+    freeReplyObject(reply);
+
+    // init _setRecordExpireSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_RECORD_EXPIRE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -63,6 +83,7 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_setRecordExpireSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _updateProfileSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", UPDATE_PROFILE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -80,6 +101,7 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_updateProfileSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _updateRoleSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", UPDATE_ROLE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -97,6 +119,7 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_updateRoleSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _loadRoleSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", LOAD_ROLE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -114,6 +137,7 @@ void *RecordCenter::initRoutine(void *arg) {
     self->_loadRoleSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _saveRoleSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_ROLE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);

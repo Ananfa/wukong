@@ -32,7 +32,7 @@ namespace wukong {
                               ::google::protobuf::Closure* done);
         
         virtual void kick(::google::protobuf::RpcController* controller,
-                          const ::wukong::pb::Uint32Value* request,
+                          const ::wukong::pb::KickRequest* request,
                           ::wukong::pb::BoolValue* response,
                           ::google::protobuf::Closure* done);
 

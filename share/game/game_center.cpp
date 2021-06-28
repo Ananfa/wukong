@@ -63,6 +63,7 @@ void *GameCenter::initRoutine(void *arg) {
         return nullptr;
     }
 
+    // init _setLocationSha1
     redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_LOCATION_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -80,6 +81,25 @@ void *GameCenter::initRoutine(void *arg) {
     self->_setLocationSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _setLocationSha1
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", REMOVE_LOCATION_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("GameCenter::initRoutine -- remove-location script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("GameCenter::initRoutine -- remove-location script load failed\n");
+        return nullptr;
+    }
+
+    self->_removeLocationSha1 = reply->str;
+    freeReplyObject(reply);
+
+    // init _updateLocationSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", UPDATE_LOCATION_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
@@ -97,6 +117,7 @@ void *GameCenter::initRoutine(void *arg) {
     self->_updateLocationSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _setLocationExpireSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_LOCATION_EXPIRE_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);

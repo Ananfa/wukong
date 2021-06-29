@@ -30,6 +30,7 @@ void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
                               const ::wukong::pb::KickRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
+    DEBUG_LOG("GatewayServiceImpl::kick -- user[%d]\n");
     auto obj = _manager->getGatewayObject(request->userid());
     if (obj && obj->getGToken() == request->gtoken()) {
         response->set_value(_manager->removeGatewayObject(request->userid()));

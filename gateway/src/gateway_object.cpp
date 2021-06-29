@@ -65,6 +65,7 @@ void GatewayObject::stop() {
     if (_running) {
         _running = false;
 
+        // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要重新考虑redis操作的地方
         // 清除session
         redisContext *cache = g_GatewayCenter.getCachePool()->proxy.take();
         if (!cache) {

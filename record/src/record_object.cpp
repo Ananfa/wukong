@@ -48,6 +48,7 @@ void RecordObject::stop() {
     if (_running) {
         _running = false;
 
+        // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
         redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
         if (!cache) {
             ERROR_LOG("RecordObject::stop -- role[%d] connect to cache failed\n", _roleId);

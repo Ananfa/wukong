@@ -83,20 +83,22 @@ bool GatewayManager::hasGatewayObject(UserId userId) {
 bool GatewayManager::removeGatewayObject(UserId userId) {
     auto it = _userId2GatewayObjectMap.find(userId);
     if (it != _userId2GatewayObjectMap.end()) {
-        auto it1 = _connection2GatewayObjectMap.find(it->second->getConn().get());
+        auto obj = it->second;
+        auto it1 = _connection2GatewayObjectMap.find(obj->getConn().get());
         assert(it1 != _connection2GatewayObjectMap.end());
-        it->second->getConn()->close();
-        it->second->stop();
         _connection2GatewayObjectMap.erase(it1);
         _userId2GatewayObjectMap.erase(it);
+        obj->getConn()->close();
+        obj->stop();    // 注意：stop过程会进行协程切换，会产生同步问题
         return true;
     }
 
     auto it2 = _disconnectedNodeMap.find(userId);
     if (it2 != _disconnectedNodeMap.end()) {
-        it2->second->data->stop();
+        auto obj = it2->second->data;
         _disconnectedLink.erase(it2->second);
         _disconnectedNodeMap.erase(it2);
+        obj->stop();    // 注意：stop过程会进行协程切换，会产生同步问题
         return true;
     }
 
@@ -172,7 +174,7 @@ int GatewayManager::tryChangeGatewayObjectConn(UserId userId, const std::string 
             if (it->second->getConn()->isOpen()) {
                 it->second->getConn()->close();
             }
-DEBUG_LOG("GatewayManager::tryChangeGatewayObjectConn -- setMsgBuffer 1\n");
+
             // 转移消息缓存
             newConn->setMsgBuffer(it->second->getConn()->getMsgBuffer());
             it->second->setConn(newConn);
@@ -190,7 +192,6 @@ DEBUG_LOG("GatewayManager::tryChangeGatewayObjectConn -- setMsgBuffer 1\n");
 
         if (it1->second->data->getGToken() == token) {
             // 转移消息缓存
-DEBUG_LOG("GatewayManager::tryChangeGatewayObjectConn -- setMsgBuffer 2\n");
             newConn->setMsgBuffer(it1->second->data->getConn()->getMsgBuffer());
             _userId2GatewayObjectMap.insert(std::make_pair(userId, it1->second->data));
             _connection2GatewayObjectMap.insert(std::make_pair(newConn.get(), it1->second->data));

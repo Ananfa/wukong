@@ -732,7 +732,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
                 tkn = reply->element[i+1]->str;
             }
         }
-
+        DEBUG_LOG("LoginHandlerMgr::enterGame -- duplicate login kick old one\n");
         freeReplyObject(reply);
         if (!g_GatewayClient.kick(gid, userId, tkn)) {
             _cache->proxy.put(cache, false);

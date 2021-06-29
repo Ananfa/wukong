@@ -171,6 +171,8 @@ static void *test_login(void *arg) {
     uint16_t recvTag;
     std::shared_ptr<google::protobuf::Message> rMsg;
     while (true) {
+        // TODO: 1. 发心跳消息
+        // TODO: 2. 测试断线重连消息重发
         do {
             client.recv(rType, recvTag, rMsg);
             if (!rType) {

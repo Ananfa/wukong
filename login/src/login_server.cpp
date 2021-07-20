@@ -24,6 +24,7 @@
 
 #include "gateway_client.h"
 
+#include <signal.h>
 #include <sys/stat.h>
 
 using namespace corpc;

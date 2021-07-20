@@ -25,6 +25,7 @@
 #include "utility.h"
 #include "share/const.h"
 
+#include <signal.h>
 #include <sys/stat.h>
 
 using namespace corpc;

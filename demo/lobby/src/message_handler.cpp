@@ -13,7 +13,7 @@ void MessageHandler::EchoHandle(std::shared_ptr<GameObject> obj, uint16_t tag, s
 	std::shared_ptr<LobbyGameObject> realObj = std::dynamic_pointer_cast<LobbyGameObject>(obj);
 	std::shared_ptr<wukong::pb::StringValue> realMsg = std::dynamic_pointer_cast<wukong::pb::StringValue>(msg);
 
-	DEBUG_LOG("MessageHandler::EchoHandle -- receive msg: %s failed\n", realMsg->value());
+	DEBUG_LOG("MessageHandler::EchoHandle -- receive msg: %s failed\n", realMsg->value().c_str());
 
 	obj->send(1000, tag, *realMsg);
 }

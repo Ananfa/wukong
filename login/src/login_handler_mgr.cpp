@@ -35,15 +35,18 @@
 using namespace rapidjson;
 using namespace wukong;
 
-template<> void JsonWriter::put(const RoleProfile &value) {
-    _writer.StartObject();
-    _writer.Key("serverId");
-    put(value.serverId);
-    _writer.Key("roleId");
-    put(value.roleId);
-    _writer.Key("pData");
-    put(value.pData);
-    _writer.EndObject();
+// 注意：这里是g++编译器的一个bug导致需要用namespace大括号括住模板特化
+namespace wukong {
+    template<> void JsonWriter::put(const RoleProfile &value) {
+        _writer.StartObject();
+        _writer.Key("serverId");
+        put(value.serverId);
+        _writer.Key("roleId");
+        put(value.roleId);
+        _writer.Key("pData");
+        put(value.pData);
+        _writer.EndObject();
+    }
 }
 
 std::vector<GatewayClient::ServerInfo> LoginHandlerMgr::_gatewayInfos;
@@ -57,7 +60,7 @@ thread_local uint32_t LoginHandlerMgr::_t_gatewayTotalWeight(0);
 std::string LoginHandlerMgr::_serverGroupData;
 std::mutex LoginHandlerMgr::_serverGroupDataLock;
 std::atomic<uint32_t> LoginHandlerMgr::_serverGroupDataVersion(0);
-thread_local std::string LoginHandlerMgr::_t_serverGroupData;
+thread_local std::string LoginHandlerMgr::_t_serverGroupData("[]");
 thread_local uint32_t LoginHandlerMgr::_t_serverGroupDataVersion(0);
 thread_local std::map<GroupId, uint32_t> LoginHandlerMgr::_t_groupStatusMap;
 thread_local std::map<ServerId, GroupId> LoginHandlerMgr::_t_serverId2groupIdMap;

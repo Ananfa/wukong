@@ -50,7 +50,7 @@ bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, ServerId &serverId, std::
     }
 
     MYSQL_BIND rs_bind[13];
-    bool    is_null[2];
+    my_bool    is_null[2];
     memset(rs_bind, 0, sizeof(rs_bind));
 
     /* set up and bind result set output buffers */

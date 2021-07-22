@@ -546,7 +546,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
         freeReplyObject(reply);
         _cache->proxy.put(cache, false);
 
-        return setErrorResponse(response, "create role lock is locked");
+        return setErrorResponse(response, "create role too frequent, please wait a minute and then retry");
     }
 
     freeReplyObject(reply);

@@ -149,11 +149,12 @@ static void *test_login(void *arg) {
         return nullptr;
     }
 
-    // TODO: 连接gateway，并发校验身份消息（收到包含角色完整数据的进入游戏消息）
+    // 连接gateway，并发校验身份消息（收到包含角色完整数据的进入游戏消息）
     std::string cipher = UUIDUtils::genUUID();
     std::shared_ptr<Crypter> crypter = std::shared_ptr<Crypter>(new SimpleXORCrypter(cipher));
     TcpClient client(gatewayHost, gatewayPort, true, true, true, true, crypter);
     client.registerMessage(S2C_MESSAGE_ID_ENTERGAME, std::shared_ptr<google::protobuf::Message>(new pb::DataFragments));
+    client.registerMessage(1000, std::shared_ptr<google::protobuf::Message>(new pb::StringValue));
     
     client.start();
 
@@ -168,10 +169,11 @@ static void *test_login(void *arg) {
 
     // 接收处理从服务器发来
     int16_t rType;
+    uint16_t sendTag = 1;
     uint16_t recvTag;
+    bool enterGame = false;
     std::shared_ptr<google::protobuf::Message> rMsg;
     while (true) {
-        // TODO: 1. 发心跳消息
         // TODO: 2. 测试断线重连消息重发
         do {
             client.recv(rType, recvTag, rMsg);
@@ -180,7 +182,29 @@ static void *test_login(void *arg) {
             }
         } while (!rType);
 
-        LOG("recv msg: %d\n", rType);
+        LOG("recv msg: %d, recvTag: %d\n", rType, recvTag);
+        switch (rType) {
+            case S2C_MESSAGE_ID_ENTERGAME: {
+                enterGame = true;
+                LOG("enter game\n");
+                break;
+            }
+            case 1000: {
+                std::shared_ptr<pb::StringValue> resp = std::static_pointer_cast<pb::StringValue>(rMsg);
+                LOG("echo: %s\n", resp->value().c_str());
+                break;
+            }
+        }
+
+        if (enterGame) {
+            LOG("start send \"hello world\"\n");
+            // TODO: 1. 发Echo消息
+            std::shared_ptr<pb::StringValue> echoReq(new pb::StringValue);
+            echoReq->set_value("hello world");
+
+            client.send(1000, ++sendTag, true, std::static_pointer_cast<google::protobuf::Message>(echoReq));
+        }
+
     }
 
     return nullptr;
@@ -189,7 +213,7 @@ static void *test_login(void *arg) {
 int main(int argc, const char *argv[]) {
     co_start_hook();
 
-    RoutineEnvironment::startCoroutine(test_login, (void*)"20001003");
+    RoutineEnvironment::startCoroutine(test_login, (void*)"20001005");
 
     LOG("running...\n");
 

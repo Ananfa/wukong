@@ -28,7 +28,7 @@
         "port": 3306,
         "user": "root",
         "pwd": "123456",
-        "maxConnect": 8,                        // 最大连接数
+        "maxConnect": 20,                       // 最大连接数
         "dbName": "record"
     }
 }

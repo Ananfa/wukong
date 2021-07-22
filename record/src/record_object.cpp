@@ -222,13 +222,22 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
         return false;
     }
 
-    // 加入相应的落地队列，等待落地任务将玩家数据存到mysql。当数据有修改过5分钟再进行落地
+    // 加入相应的落地时间轮中，等待落地任务将玩家数据存到mysql。当数据有修改过5分钟再进行落地
     struct timeval t;
     gettimeofday(&t, NULL);
     uint64_t nowTM = t.tv_sec;
     if (nowTM >= _saveTM) {
-        uint64_t nextSaveTM = nowTM + SAVE_PERIOD;
-        redisReply *reply = (redisReply *)redisCommand(cache, "SADD save:%d %d", nextSaveTM, _roleId);
+        // 让玩家的存盘落在固定的时间轮位置上，减少不必要存盘
+        uint32_t refPos = _roleId % SAVE_PERIOD;
+        // 计算当前时间往后第一个能模SAVE_PERIOD等于refPos的时间点
+        uint64_t nextSaveTM = (nowTM / SAVE_PERIOD) * SAVE_PERIOD + refPos;
+        if (nextSaveTM <= nowTM) {
+            nextSaveTM += SAVE_PERIOD;
+        }
+
+        uint32_t whealPos = nextSaveTM % SAVE_TIME_WHEEL_SIZE;
+
+        redisReply *reply = (redisReply *)redisCommand(cache, "SADD Save:%d %d", whealPos, _roleId);
         if (!reply) {
             g_RecordCenter.getCachePool()->proxy.put(cache, true);
             WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", _roleId);

@@ -245,7 +245,7 @@ void GameCenter::handleMessage(std::shared_ptr<GameObject> obj, int msgType, uin
             delete msg;
             return;
         } else {
-            assert(rawMsg.empty());
+            assert(!rawMsg.empty());
         }
     }
 

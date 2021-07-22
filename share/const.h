@@ -31,7 +31,9 @@ namespace wukong {
 
     const int SYNC_PERIOD                          = 1; // 游戏服向记录服同步数据周期，单位秒
     const int CACHE_PERIOD                         = 10; // 记录服向redis缓存脏数据的周期，单位秒
-    const int SAVE_PERIOD                          = 600; // 将redis数据落地到mysql的时间周期，单位秒
+    const int SAVE_PERIOD                          = 300; // 将redis数据落地到mysql的时间周期，单位秒
+    const int SAVE_TIME_WHEEL_SIZE                 = SAVE_PERIOD * 3; // 存盘时间轮尺寸
+    const int MAX_SAVE_WORKER_NUM                  = 10; // 同时最多可以有多少个保存工人协程
 
     // 客户端向服务器发的消息ID定义
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息

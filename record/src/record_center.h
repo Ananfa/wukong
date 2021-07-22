@@ -19,7 +19,9 @@
 
 #include "corpc_redis.h"
 #include "corpc_mysql.h"
+#include "corpc_semaphore.h"
 #include "share/define.h"
+#include "share/const.h"
 #include "record_delegate.h"
 
 #include <vector>
@@ -31,6 +33,12 @@ using namespace corpc;
 namespace wukong {
     class RecordCenter
     {
+        struct WorkerTask {
+            RecordCenter *center;
+            RoleId roleId;
+            uint32_t wheelPos;
+        };
+
     public:
         static RecordCenter& Instance() {
             static RecordCenter instance;
@@ -58,6 +66,8 @@ namespace wukong {
         static void *initRoutine(void *arg);
 
         // TODO: 开一个协程定期将cache中数据落地到mysql中
+        static void *saveRoutine(void *arg);
+        static void *saveWorkerRoutine(void *arg);
 
     private:
         RedisConnectPool *_cache;
@@ -72,8 +82,10 @@ namespace wukong {
         std::string _saveRoleSha1; // 保存profile的lua脚本sha1值
 
         RecordDelegate _delegate;
+
+        Semaphore _saveSema;
     private:
-        RecordCenter() = default;                                      // ctor hidden
+        RecordCenter(): _saveSema(MAX_SAVE_WORKER_NUM) {}              // ctor hidden
         ~RecordCenter() = default;                                     // destruct hidden
         RecordCenter(RecordCenter const&) = delete;                    // copy ctor delete
         RecordCenter(RecordCenter &&) = delete;                        // move ctor delete

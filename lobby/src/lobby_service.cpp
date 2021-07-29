@@ -87,10 +87,10 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
 
     freeReplyObject(reply);
 
-    // 生成lToken（直接用当前时间）
+    // 生成lToken（直接用当前时间来生成）
     struct timeval t;
     gettimeofday(&t, NULL);
-    uint32_t lToken = t.tv_sec;
+    uint32_t lToken = (t.tv_sec % 1000) * 1000000 + t.tv_usec;
 
     // 尝试设置location
     // TODO: loc的格式应该包含游戏服类型

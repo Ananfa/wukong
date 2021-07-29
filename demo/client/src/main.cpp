@@ -152,11 +152,12 @@ static void *test_login(void *arg) {
     // 连接gateway，并发校验身份消息（收到包含角色完整数据的进入游戏消息）
     std::string cipher = UUIDUtils::genUUID();
     std::shared_ptr<Crypter> crypter = std::shared_ptr<Crypter>(new SimpleXORCrypter(cipher));
-    TcpClient client(gatewayHost, gatewayPort, true, true, true, true, crypter);
-    client.registerMessage(S2C_MESSAGE_ID_ENTERGAME, std::shared_ptr<google::protobuf::Message>(new pb::DataFragments));
-    client.registerMessage(1000, std::shared_ptr<google::protobuf::Message>(new pb::StringValue));
+    std::shared_ptr<TcpClient> client(new TcpClient(gatewayHost, gatewayPort, true, true, true, true, crypter));
+    client->registerMessage(S2C_MESSAGE_ID_ENTERGAME, std::shared_ptr<google::protobuf::Message>(new pb::DataFragments));
+    client->registerMessage(1000, std::shared_ptr<google::protobuf::Message>(new pb::StringValue));
     
-    client.start();
+    client->start();
+    client->detach();
 
     // 发送身份认证消息
     std::shared_ptr<pb::AuthRequest> authreq(new pb::AuthRequest);
@@ -165,7 +166,7 @@ static void *test_login(void *arg) {
     authreq->set_cipher(cipher.c_str());
     authreq->set_recvserial(0);
 
-    client.send(C2S_MESSAGE_ID_AUTH, 0, false, authreq);
+    client->send(C2S_MESSAGE_ID_AUTH, 0, false, authreq);
 
     // 接收处理从服务器发来
     int16_t rType;
@@ -176,7 +177,7 @@ static void *test_login(void *arg) {
     while (true) {
         // TODO: 2. 测试断线重连消息重发
         do {
-            client.recv(rType, recvTag, rMsg);
+            client->recv(rType, recvTag, rMsg);
             if (!rType) {
                 msleep(1);
             }
@@ -192,7 +193,11 @@ static void *test_login(void *arg) {
             case 1000: {
                 std::shared_ptr<pb::StringValue> resp = std::static_pointer_cast<pb::StringValue>(rMsg);
                 LOG("echo: %s\n", resp->value().c_str());
-                break;
+                //break;
+
+                // 重登测试
+                RoutineEnvironment::startCoroutine(test_login, arg);
+                return nullptr;
             }
         }
 
@@ -202,7 +207,7 @@ static void *test_login(void *arg) {
             std::shared_ptr<pb::StringValue> echoReq(new pb::StringValue);
             echoReq->set_value("hello world");
 
-            client.send(1000, ++sendTag, true, std::static_pointer_cast<google::protobuf::Message>(echoReq));
+            client->send(1000, ++sendTag, true, std::static_pointer_cast<google::protobuf::Message>(echoReq));
         }
 
     }
@@ -213,7 +218,12 @@ static void *test_login(void *arg) {
 int main(int argc, const char *argv[]) {
     co_start_hook();
 
-    RoutineEnvironment::startCoroutine(test_login, (void*)"20001005");
+    for (int i = 0; i < 10; i++) {
+        int accountId = 20000000 + i;
+        char *account = new char[10];
+        sprintf(account,"%d",accountId);
+        RoutineEnvironment::startCoroutine(test_login, (void*)account);
+    }
 
     LOG("running...\n");
 

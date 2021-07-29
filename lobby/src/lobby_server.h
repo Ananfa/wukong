@@ -18,7 +18,6 @@
 #define lobby_server_h
 
 #include "corpc_rpc_client.h"
-#include "game_client.h"
 #include "share/define.h"
 #include <map>
 #include <thread>

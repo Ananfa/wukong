@@ -14,28 +14,26 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
+
+PROTOBUF_PRAGMA_INIT_SEG
 namespace wukong {
 namespace pb {
-class InitRoleRequestDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<InitRoleRequest> _instance;
-} _InitRoleRequest_default_instance_;
+constexpr InitRoleRequest::InitRoleRequest(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : userid_(0u)
+  , roleid_(0u)
+  , gatewayid_(0u){}
+struct InitRoleRequestDefaultTypeInternal {
+  constexpr InitRoleRequestDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~InitRoleRequestDefaultTypeInternal() {}
+  union {
+    InitRoleRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT InitRoleRequestDefaultTypeInternal _InitRoleRequest_default_instance_;
 }  // namespace pb
 }  // namespace wukong
-static void InitDefaultsscc_info_InitRoleRequest_lobby_5fservice_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::wukong::pb::_InitRoleRequest_default_instance_;
-    new (ptr) ::wukong::pb::InitRoleRequest();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::wukong::pb::InitRoleRequest::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_InitRoleRequest_lobby_5fservice_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_InitRoleRequest_lobby_5fservice_2eproto}, {}};
-
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_lobby_5fservice_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_lobby_5fservice_2eproto = nullptr;
 static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_lobby_5fservice_2eproto[1];
@@ -73,34 +71,35 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
   &::descriptor_table_common_2eproto,
   &::descriptor_table_corpc_5foption_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_lobby_5fservice_2eproto_sccs[1] = {
-  &scc_info_InitRoleRequest_lobby_5fservice_2eproto.base,
-};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_lobby_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_lobby_5fservice_2eproto = {
-  false, false, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 348,
-  &descriptor_table_lobby_5fservice_2eproto_once, descriptor_table_lobby_5fservice_2eproto_sccs, descriptor_table_lobby_5fservice_2eproto_deps, 1, 2,
+  false, false, 348, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 
+  &descriptor_table_lobby_5fservice_2eproto_once, descriptor_table_lobby_5fservice_2eproto_deps, 2, 1,
   schemas, file_default_instances, TableStruct_lobby_5fservice_2eproto::offsets,
-  file_level_metadata_lobby_5fservice_2eproto, 1, file_level_enum_descriptors_lobby_5fservice_2eproto, file_level_service_descriptors_lobby_5fservice_2eproto,
+  file_level_metadata_lobby_5fservice_2eproto, file_level_enum_descriptors_lobby_5fservice_2eproto, file_level_service_descriptors_lobby_5fservice_2eproto,
 };
+PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_lobby_5fservice_2eproto_getter() {
+  return &descriptor_table_lobby_5fservice_2eproto;
+}
 
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_lobby_5fservice_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_lobby_5fservice_2eproto)), true);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_lobby_5fservice_2eproto(&descriptor_table_lobby_5fservice_2eproto);
 namespace wukong {
 namespace pb {
 
 // ===================================================================
 
-void InitRoleRequest::InitAsDefaultInstance() {
-}
 class InitRoleRequest::_Internal {
  public:
 };
 
-InitRoleRequest::InitRoleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+InitRoleRequest::InitRoleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  RegisterArenaDtor(arena);
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
   // @@protoc_insertion_point(arena_constructor:wukong.pb.InitRoleRequest)
 }
 InitRoleRequest::InitRoleRequest(const InitRoleRequest& from)
@@ -112,20 +111,22 @@ InitRoleRequest::InitRoleRequest(const InitRoleRequest& from)
   // @@protoc_insertion_point(copy_constructor:wukong.pb.InitRoleRequest)
 }
 
-void InitRoleRequest::SharedCtor() {
-  ::memset(&userid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&gatewayid_) -
-      reinterpret_cast<char*>(&userid_)) + sizeof(gatewayid_));
+inline void InitRoleRequest::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&userid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(gatewayid_));
 }
 
 InitRoleRequest::~InitRoleRequest() {
   // @@protoc_insertion_point(destructor:wukong.pb.InitRoleRequest)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void InitRoleRequest::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
+inline void InitRoleRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
 }
 
 void InitRoleRequest::ArenaDtor(void* object) {
@@ -137,11 +138,6 @@ void InitRoleRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 void InitRoleRequest::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const InitRoleRequest& InitRoleRequest::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_InitRoleRequest_lobby_5fservice_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void InitRoleRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:wukong.pb.InitRoleRequest)
@@ -157,11 +153,9 @@ void InitRoleRequest::Clear() {
 
 const char* InitRoleRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // uint32 userId = 1;
       case 1:
@@ -186,7 +180,8 @@ const char* InitRoleRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         continue;
       default: {
       handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
           ctx->SetLastTag(tag);
           goto success;
         }
@@ -213,19 +208,19 @@ failure:
   (void) cached_has_bits;
 
   // uint32 userId = 1;
-  if (this->userid() != 0) {
+  if (this->_internal_userid() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_userid(), target);
   }
 
   // uint32 roleId = 2;
-  if (this->roleid() != 0) {
+  if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_roleid(), target);
   }
 
   // uint32 gatewayId = 3;
-  if (this->gatewayid() != 0) {
+  if (this->_internal_gatewayid() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_gatewayid(), target);
   }
@@ -247,21 +242,21 @@ size_t InitRoleRequest::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // uint32 userId = 1;
-  if (this->userid() != 0) {
+  if (this->_internal_userid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_userid());
   }
 
   // uint32 roleId = 2;
-  if (this->roleid() != 0) {
+  if (this->_internal_roleid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_roleid());
   }
 
   // uint32 gatewayId = 3;
-  if (this->gatewayid() != 0) {
+  if (this->_internal_gatewayid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_gatewayid());
@@ -276,44 +271,35 @@ size_t InitRoleRequest::ByteSizeLong() const {
   return total_size;
 }
 
-void InitRoleRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:wukong.pb.InitRoleRequest)
-  GOOGLE_DCHECK_NE(&from, this);
-  const InitRoleRequest* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<InitRoleRequest>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:wukong.pb.InitRoleRequest)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:wukong.pb.InitRoleRequest)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData InitRoleRequest::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    InitRoleRequest::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*InitRoleRequest::GetClassData() const { return &_class_data_; }
+
+void InitRoleRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message&from) {
+  static_cast<InitRoleRequest *>(to)->MergeFrom(
+      static_cast<const InitRoleRequest &>(from));
 }
+
 
 void InitRoleRequest::MergeFrom(const InitRoleRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.InitRoleRequest)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.userid() != 0) {
+  if (from._internal_userid() != 0) {
     _internal_set_userid(from._internal_userid());
   }
-  if (from.roleid() != 0) {
+  if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
   }
-  if (from.gatewayid() != 0) {
+  if (from._internal_gatewayid() != 0) {
     _internal_set_gatewayid(from._internal_gatewayid());
   }
-}
-
-void InitRoleRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:wukong.pb.InitRoleRequest)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void InitRoleRequest::CopyFrom(const InitRoleRequest& from) {
@@ -329,7 +315,7 @@ bool InitRoleRequest::IsInitialized() const {
 
 void InitRoleRequest::InternalSwap(InitRoleRequest* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(InitRoleRequest, gatewayid_)
       + sizeof(InitRoleRequest::gatewayid_)
@@ -339,9 +325,10 @@ void InitRoleRequest::InternalSwap(InitRoleRequest* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata InitRoleRequest::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_lobby_5fservice_2eproto_getter, &descriptor_table_lobby_5fservice_2eproto_once,
+      file_level_metadata_lobby_5fservice_2eproto[0]);
 }
-
 
 // ===================================================================
 

@@ -14,46 +14,39 @@
 #include <google/protobuf/wire_format.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
+
+PROTOBUF_PRAGMA_INIT_SEG
 namespace wukong {
 namespace pb {
-class AuthRequestDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<AuthRequest> _instance;
-} _AuthRequest_default_instance_;
-class BanResponseDefaultTypeInternal {
- public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<BanResponse> _instance;
-} _BanResponse_default_instance_;
+constexpr AuthRequest::AuthRequest(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : token_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , cipher_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , userid_(uint64_t{0u})
+  , recvserial_(0u){}
+struct AuthRequestDefaultTypeInternal {
+  constexpr AuthRequestDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~AuthRequestDefaultTypeInternal() {}
+  union {
+    AuthRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AuthRequestDefaultTypeInternal _AuthRequest_default_instance_;
+constexpr BanResponse::BanResponse(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : msgid_(0u){}
+struct BanResponseDefaultTypeInternal {
+  constexpr BanResponseDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BanResponseDefaultTypeInternal() {}
+  union {
+    BanResponse _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BanResponseDefaultTypeInternal _BanResponse_default_instance_;
 }  // namespace pb
 }  // namespace wukong
-static void InitDefaultsscc_info_AuthRequest_game_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::wukong::pb::_AuthRequest_default_instance_;
-    new (ptr) ::wukong::pb::AuthRequest();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::wukong::pb::AuthRequest::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_AuthRequest_game_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_AuthRequest_game_2eproto}, {}};
-
-static void InitDefaultsscc_info_BanResponse_game_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::wukong::pb::_BanResponse_default_instance_;
-    new (ptr) ::wukong::pb::BanResponse();
-    ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::wukong::pb::BanResponse::InitAsDefaultInstance();
-}
-
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_BanResponse_game_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_BanResponse_game_2eproto}, {}};
-
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_game_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_game_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_game_2eproto = nullptr;
@@ -89,39 +82,37 @@ const char descriptor_table_protodef_game_2eproto[] PROTOBUF_SECTION_VARIABLE(pr
   "\n\ngame.proto\022\twukong.pb\"P\n\013AuthRequest\022\016"
   "\n\006userId\030\001 \001(\004\022\r\n\005token\030\002 \001(\t\022\016\n\006cipher\030"
   "\003 \001(\t\022\022\n\nrecvSerial\030\004 \001(\r\"\034\n\013BanResponse"
-  "\022\r\n\005msgId\030\001 \001(\rB\003\200\001\001b\006proto3"
+  "\022\r\n\005msgId\030\001 \001(\rb\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_game_2eproto_deps[1] = {
-};
-static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_game_2eproto_sccs[2] = {
-  &scc_info_AuthRequest_game_2eproto.base,
-  &scc_info_BanResponse_game_2eproto.base,
-};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_game_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_game_2eproto = {
-  false, false, descriptor_table_protodef_game_2eproto, "game.proto", 148,
-  &descriptor_table_game_2eproto_once, descriptor_table_game_2eproto_sccs, descriptor_table_game_2eproto_deps, 2, 0,
+  false, false, 143, descriptor_table_protodef_game_2eproto, "game.proto", 
+  &descriptor_table_game_2eproto_once, nullptr, 0, 2,
   schemas, file_default_instances, TableStruct_game_2eproto::offsets,
-  file_level_metadata_game_2eproto, 2, file_level_enum_descriptors_game_2eproto, file_level_service_descriptors_game_2eproto,
+  file_level_metadata_game_2eproto, file_level_enum_descriptors_game_2eproto, file_level_service_descriptors_game_2eproto,
 };
+PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_game_2eproto_getter() {
+  return &descriptor_table_game_2eproto;
+}
 
 // Force running AddDescriptors() at dynamic initialization time.
-static bool dynamic_init_dummy_game_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_game_2eproto)), true);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_game_2eproto(&descriptor_table_game_2eproto);
 namespace wukong {
 namespace pb {
 
 // ===================================================================
 
-void AuthRequest::InitAsDefaultInstance() {
-}
 class AuthRequest::_Internal {
  public:
 };
 
-AuthRequest::AuthRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+AuthRequest::AuthRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  RegisterArenaDtor(arena);
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
   // @@protoc_insertion_point(arena_constructor:wukong.pb.AuthRequest)
 }
 AuthRequest::AuthRequest(const AuthRequest& from)
@@ -129,13 +120,13 @@ AuthRequest::AuthRequest(const AuthRequest& from)
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_token().empty()) {
-    token_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_token(),
-      GetArena());
+    token_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_token(), 
+      GetArenaForAllocation());
   }
   cipher_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_cipher().empty()) {
-    cipher_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_cipher(),
-      GetArena());
+    cipher_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_cipher(), 
+      GetArenaForAllocation());
   }
   ::memcpy(&userid_, &from.userid_,
     static_cast<size_t>(reinterpret_cast<char*>(&recvserial_) -
@@ -143,23 +134,24 @@ AuthRequest::AuthRequest(const AuthRequest& from)
   // @@protoc_insertion_point(copy_constructor:wukong.pb.AuthRequest)
 }
 
-void AuthRequest::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_AuthRequest_game_2eproto.base);
-  token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  cipher_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  ::memset(&userid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&recvserial_) -
-      reinterpret_cast<char*>(&userid_)) + sizeof(recvserial_));
+inline void AuthRequest::SharedCtor() {
+token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+cipher_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&userid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&recvserial_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(recvserial_));
 }
 
 AuthRequest::~AuthRequest() {
   // @@protoc_insertion_point(destructor:wukong.pb.AuthRequest)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void AuthRequest::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
+inline void AuthRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
   token_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   cipher_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
@@ -173,11 +165,6 @@ void AuthRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 void AuthRequest::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const AuthRequest& AuthRequest::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_AuthRequest_game_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void AuthRequest::Clear() {
 // @@protoc_insertion_point(message_clear_start:wukong.pb.AuthRequest)
@@ -185,8 +172,8 @@ void AuthRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  token_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  cipher_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  token_.ClearToEmpty();
+  cipher_.ClearToEmpty();
   ::memset(&userid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&recvserial_) -
       reinterpret_cast<char*>(&userid_)) + sizeof(recvserial_));
@@ -195,11 +182,9 @@ void AuthRequest::Clear() {
 
 const char* AuthRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // uint64 userId = 1;
       case 1:
@@ -235,7 +220,8 @@ const char* AuthRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       default: {
       handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
           ctx->SetLastTag(tag);
           goto success;
         }
@@ -262,13 +248,13 @@ failure:
   (void) cached_has_bits;
 
   // uint64 userId = 1;
-  if (this->userid() != 0) {
+  if (this->_internal_userid() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(1, this->_internal_userid(), target);
   }
 
   // string token = 2;
-  if (this->token().size() > 0) {
+  if (!this->_internal_token().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_token().data(), static_cast<int>(this->_internal_token().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -278,7 +264,7 @@ failure:
   }
 
   // string cipher = 3;
-  if (this->cipher().size() > 0) {
+  if (!this->_internal_cipher().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_cipher().data(), static_cast<int>(this->_internal_cipher().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -288,7 +274,7 @@ failure:
   }
 
   // uint32 recvSerial = 4;
-  if (this->recvserial() != 0) {
+  if (this->_internal_recvserial() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_recvserial(), target);
   }
@@ -310,28 +296,28 @@ size_t AuthRequest::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // string token = 2;
-  if (this->token().size() > 0) {
+  if (!this->_internal_token().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_token());
   }
 
   // string cipher = 3;
-  if (this->cipher().size() > 0) {
+  if (!this->_internal_cipher().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_cipher());
   }
 
   // uint64 userId = 1;
-  if (this->userid() != 0) {
+  if (this->_internal_userid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
         this->_internal_userid());
   }
 
   // uint32 recvSerial = 4;
-  if (this->recvserial() != 0) {
+  if (this->_internal_recvserial() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_recvserial());
@@ -346,47 +332,38 @@ size_t AuthRequest::ByteSizeLong() const {
   return total_size;
 }
 
-void AuthRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:wukong.pb.AuthRequest)
-  GOOGLE_DCHECK_NE(&from, this);
-  const AuthRequest* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<AuthRequest>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:wukong.pb.AuthRequest)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:wukong.pb.AuthRequest)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData AuthRequest::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    AuthRequest::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*AuthRequest::GetClassData() const { return &_class_data_; }
+
+void AuthRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message&from) {
+  static_cast<AuthRequest *>(to)->MergeFrom(
+      static_cast<const AuthRequest &>(from));
 }
+
 
 void AuthRequest::MergeFrom(const AuthRequest& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.AuthRequest)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.token().size() > 0) {
+  if (!from._internal_token().empty()) {
     _internal_set_token(from._internal_token());
   }
-  if (from.cipher().size() > 0) {
+  if (!from._internal_cipher().empty()) {
     _internal_set_cipher(from._internal_cipher());
   }
-  if (from.userid() != 0) {
+  if (from._internal_userid() != 0) {
     _internal_set_userid(from._internal_userid());
   }
-  if (from.recvserial() != 0) {
+  if (from._internal_recvserial() != 0) {
     _internal_set_recvserial(from._internal_recvserial());
   }
-}
-
-void AuthRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:wukong.pb.AuthRequest)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void AuthRequest::CopyFrom(const AuthRequest& from) {
@@ -402,9 +379,17 @@ bool AuthRequest::IsInitialized() const {
 
 void AuthRequest::InternalSwap(AuthRequest* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  token_.Swap(&other->token_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  cipher_.Swap(&other->cipher_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &token_, GetArenaForAllocation(),
+      &other->token_, other->GetArenaForAllocation()
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &cipher_, GetArenaForAllocation(),
+      &other->cipher_, other->GetArenaForAllocation()
+  );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(AuthRequest, recvserial_)
       + sizeof(AuthRequest::recvserial_)
@@ -414,22 +399,24 @@ void AuthRequest::InternalSwap(AuthRequest* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata AuthRequest::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_game_2eproto_getter, &descriptor_table_game_2eproto_once,
+      file_level_metadata_game_2eproto[0]);
 }
-
 
 // ===================================================================
 
-void BanResponse::InitAsDefaultInstance() {
-}
 class BanResponse::_Internal {
  public:
 };
 
-BanResponse::BanResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+BanResponse::BanResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  RegisterArenaDtor(arena);
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
   // @@protoc_insertion_point(arena_constructor:wukong.pb.BanResponse)
 }
 BanResponse::BanResponse(const BanResponse& from)
@@ -439,18 +426,19 @@ BanResponse::BanResponse(const BanResponse& from)
   // @@protoc_insertion_point(copy_constructor:wukong.pb.BanResponse)
 }
 
-void BanResponse::SharedCtor() {
-  msgid_ = 0u;
+inline void BanResponse::SharedCtor() {
+msgid_ = 0u;
 }
 
 BanResponse::~BanResponse() {
   // @@protoc_insertion_point(destructor:wukong.pb.BanResponse)
+  if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void BanResponse::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
+inline void BanResponse::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
 }
 
 void BanResponse::ArenaDtor(void* object) {
@@ -462,11 +450,6 @@ void BanResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 void BanResponse::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const BanResponse& BanResponse::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_BanResponse_game_2eproto.base);
-  return *internal_default_instance();
-}
-
 
 void BanResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:wukong.pb.BanResponse)
@@ -480,11 +463,9 @@ void BanResponse::Clear() {
 
 const char* BanResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
     switch (tag >> 3) {
       // uint32 msgId = 1;
       case 1:
@@ -495,7 +476,8 @@ const char* BanResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         continue;
       default: {
       handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
           ctx->SetLastTag(tag);
           goto success;
         }
@@ -522,7 +504,7 @@ failure:
   (void) cached_has_bits;
 
   // uint32 msgId = 1;
-  if (this->msgid() != 0) {
+  if (this->_internal_msgid() != 0) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_msgid(), target);
   }
@@ -544,7 +526,7 @@ size_t BanResponse::ByteSizeLong() const {
   (void) cached_has_bits;
 
   // uint32 msgId = 1;
-  if (this->msgid() != 0) {
+  if (this->_internal_msgid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_msgid());
@@ -559,38 +541,29 @@ size_t BanResponse::ByteSizeLong() const {
   return total_size;
 }
 
-void BanResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:wukong.pb.BanResponse)
-  GOOGLE_DCHECK_NE(&from, this);
-  const BanResponse* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<BanResponse>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:wukong.pb.BanResponse)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:wukong.pb.BanResponse)
-    MergeFrom(*source);
-  }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BanResponse::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BanResponse::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BanResponse::GetClassData() const { return &_class_data_; }
+
+void BanResponse::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message&from) {
+  static_cast<BanResponse *>(to)->MergeFrom(
+      static_cast<const BanResponse &>(from));
 }
+
 
 void BanResponse::MergeFrom(const BanResponse& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.BanResponse)
   GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.msgid() != 0) {
+  if (from._internal_msgid() != 0) {
     _internal_set_msgid(from._internal_msgid());
   }
-}
-
-void BanResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:wukong.pb.BanResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void BanResponse::CopyFrom(const BanResponse& from) {
@@ -606,14 +579,15 @@ bool BanResponse::IsInitialized() const {
 
 void BanResponse::InternalSwap(BanResponse* other) {
   using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(msgid_, other->msgid_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BanResponse::GetMetadata() const {
-  return GetMetadataStatic();
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_game_2eproto_getter, &descriptor_table_game_2eproto_once,
+      file_level_metadata_game_2eproto[1]);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace pb

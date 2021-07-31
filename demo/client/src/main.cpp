@@ -203,7 +203,7 @@ static void *test_login(void *arg) {
 
         if (enterGame) {
             LOG("start send \"hello world\"\n");
-            // TODO: 1. 发Echo消息
+            // 发Echo消息
             std::shared_ptr<pb::StringValue> echoReq(new pb::StringValue);
             echoReq->set_value("hello world");
 

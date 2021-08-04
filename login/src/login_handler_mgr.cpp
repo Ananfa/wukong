@@ -298,13 +298,13 @@ void LoginHandlerMgr::init(HttpServer *server, LoginDelegate delegate) {
     // 注册handler
     // req: no parameters
     // res: e.g. {"msg": "request sent."}
-    server->registerHandler("/login", std::bind(&LoginHandlerMgr::login, this, std::placeholders::_1, std::placeholders::_2));
+    server->registerHandler(POST, "/login", std::bind(&LoginHandlerMgr::login, this, std::placeholders::_1, std::placeholders::_2));
     // req: no parameters
     // res: e.g. {"ip": "127.0.0.1", "port": 8080}
-    server->registerHandler("/createRole", std::bind(&LoginHandlerMgr::createRole, this, std::placeholders::_1, std::placeholders::_2));
+    server->registerHandler(POST, "/createRole", std::bind(&LoginHandlerMgr::createRole, this, std::placeholders::_1, std::placeholders::_2));
     // req: roleid=73912798174
     // res: e.g. {"roleData": "xxx"}
-    server->registerHandler("/enterGame", std::bind(&LoginHandlerMgr::enterGame, this, std::placeholders::_1, std::placeholders::_2));
+    server->registerHandler(POST, "/enterGame", std::bind(&LoginHandlerMgr::enterGame, this, std::placeholders::_1, std::placeholders::_2));
 
 }
 
@@ -372,7 +372,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
             // 问题: 是否需要将openid与userid的关系存到mysql中？若存mysql，是否需要通过分库分表来提高负载能力？云数据库（分布式数据库）应该有这个能力
             // 答：redis数据库主从备份设计以及数据库日志能保证数据安全性，只需要进行tlog日志记录就可以（tlog日志会进行入库处理），另外，也可以存到mysql中防止redis库损坏
-            
+
             userId = RedisUtils::CreateUserID(redis);
             if (userId == 0) {
                 _redis->proxy.put(redis, true);

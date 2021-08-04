@@ -148,6 +148,8 @@ HttpServer::~HttpServer() {}
 HttpServer* HttpServer::create(IO *io, uint16_t workThreadNum, const std::string& ip, uint16_t port) {
     assert(io);
     HttpServer *server = new HttpServer(io, workThreadNum, ip, port);
+
+    // TODO: 注册默认filter
     
     server->start();
     return server;
@@ -165,8 +167,21 @@ void HttpServer::registerFilter(HttpFilter filter) {
     _filterVec.push_back(filter);
 }
 
-void HttpServer::registerHandler(const std::string& uri, HttpHandler handler) {
-    _handlerMap.insert(std::make_pair(uri, handler));
+void HttpServer::registerHandler(HttpMethod method, const std::string& uri, HttpHandler handler) {
+    switch (method) {
+        case GET: {
+            _getterMap.insert(std::make_pair(uri, handler));
+            break;
+        }
+        case POST: {
+            _posterMap.insert(std::make_pair(uri, handler));
+            break;
+        }
+        default: {
+            ERROR_LOG("HttpServer::registerHandler -- unknown method\n");
+            break;
+        }
+    }
 }
 
 void HttpServer::send(std::shared_ptr<HttpConnection>& connection, std::shared_ptr<RequestMessage>& request, std::shared_ptr<ResponseMessage>& response) {
@@ -178,8 +193,22 @@ void HttpServer::send(std::shared_ptr<HttpConnection>& connection, std::shared_p
 }
 
 void HttpServer::handle(std::shared_ptr<HttpConnection>& connection, std::shared_ptr<RequestMessage>& request, std::shared_ptr<ResponseMessage>& response) {
-    auto handlerIt = _handlerMap.find(request->getURI());
-    if (handlerIt == _handlerMap.end()) {
+    std::map<std::string, HttpHandler>::iterator handlerIt;
+    if (strcmp(request->getMethod().c_str(), "GET") == 0) {
+        handlerIt = _getterMap.find(request->getURI());
+
+        if (handlerIt == _getterMap.end()) {
+            response->setResult(HttpStatusCode::NotFound);
+            return send(connection, request, response);
+        }
+    } else if (strcmp(request->getMethod().c_str(), "POST") == 0) {
+        handlerIt = _posterMap.find(request->getURI());
+
+        if (handlerIt == _posterMap.end()) {
+            response->setResult(HttpStatusCode::NotFound);
+            return send(connection, request, response);
+        }
+    } else {
         response->setResult(HttpStatusCode::NotFound);
         return send(connection, request, response);
     }

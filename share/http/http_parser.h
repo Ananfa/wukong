@@ -56,6 +56,7 @@ namespace wukong {
         static void parsePostParams(RequestMessage *request, char *params);
 
         static char* strsep(char **s, const char *del);
+        static char* toupper(char *s);
     private :
         int8_t          m_Status;
         HttpMessage*    m_HttpMessage;      // HTTP消息

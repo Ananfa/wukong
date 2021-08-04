@@ -13,6 +13,10 @@
 using namespace corpc;
 
 namespace wukong {
+    enum HttpMethod {
+        GET,
+        POST
+    };
     
     class HttpPipeline: public Pipeline {
     public:
@@ -120,11 +124,12 @@ namespace wukong {
         
         // 注册路由处理
         // TODO: 分开Get和Post实现
-        void registerHandler(const std::string& uri, HttpHandler handler);
+        void registerHandler(HttpMethod method, const std::string& uri, HttpHandler handler);
         
     private:
         std::vector<HttpFilter> _filterVec;
-        std::map<std::string, HttpHandler> _handlerMap;
+        std::map<std::string, HttpHandler> _getterMap;
+        std::map<std::string, HttpHandler> _posterMap;
         
     public:
         friend class HttpConnection;

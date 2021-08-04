@@ -1,6 +1,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cassert>
+#include <ctype.h>
 
 #include "corpc_utils.h"
 #include "url.h"
@@ -117,7 +118,7 @@ uint32_t HttpParser::parseStartLine(const char *buffer, uint32_t length) {
         RequestMessage *request = new RequestMessage;
 
         if (first != nullptr) {
-            request->setMethod(first);
+            request->setMethod(toupper(first));
         }
         
         if (second != nullptr) {
@@ -329,4 +330,12 @@ char* HttpParser::strsep(char **s, const char *del) {
     }
     
     return tok;
+}
+
+char* HttpParser::toupper(char *s) {
+    char *str = s;
+    for (; *s!='\0'; s++) {
+        *s = ::toupper(*s);
+    }
+    return str;
 }

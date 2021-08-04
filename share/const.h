@@ -23,6 +23,8 @@ namespace wukong {
     const std::string ZK_DEFAULT_VALUE             = "1";
     const int ZK_TIMEOUT                           = 3000; // 单位毫秒
 
+    const int LOGIN_LOCK_TIME                      = 1; // 登录锁时长，单位秒
+
     const int TOKEN_TIMEOUT                        = 60; // 令牌超时时间，单位秒
     const int TOKEN_HEARTBEAT_PERIOD               = 20; // 令牌心跳周期，单位秒
 

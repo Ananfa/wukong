@@ -320,18 +320,44 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
     std::string openid = (*request)["openid"];
 
+    // TODO: 限制1秒内不能重复登录
+    redisContext *cache = nullptr;
+    redisContext *redis = nullptr;
+    redisReply *reply = nullptr;
+
+    if (LOGIN_LOCK_TIME > 0) {
+        cache = _cache->proxy.take();
+        if (!cache) {
+            return setErrorResponse(response, "connect to cache failed");
+        }
+
+        reply = (redisReply *)redisCommand(cache, "SET LoginLock:{%s} 1 NX EX %d", openid.c_str(), LOGIN_LOCK_TIME);
+        if (!reply) {
+            _cache->proxy.put(cache, true);
+            return setErrorResponse(response, "lock login failed");
+        } else if (strcmp(reply->str, "OK")) {
+            freeReplyObject(reply);
+            _cache->proxy.put(cache, false);
+
+            return setErrorResponse(response, "login too frequent");
+        }
+
+        freeReplyObject(reply);
+        _cache->proxy.put(cache, false);
+    }
+
     // 校验玩家身份
     if (!_delegate.loginCheck(request)) {
         return setErrorResponse(response, "login check failed");
     }
 
     // 查询openid对应的userId（采用redis数据库）
-    redisContext *redis = _redis->proxy.take();
+    redis = _redis->proxy.take();
     if (!redis) {
         return setErrorResponse(response, "connect to db failed");
     }
 
-    redisReply *reply = (redisReply *)redisCommand(redis, "GET O2U:{%s}", openid.c_str());
+    reply = (redisReply *)redisCommand(redis, "GET O2U:{%s}", openid.c_str());
     if (!reply) {
         _redis->proxy.put(redis, true);
         return setErrorResponse(response, "get user id from db failed");
@@ -446,7 +472,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     std::string token = UUIDUtils::genUUID();
 
     // 在cache中记录token
-    redisContext *cache = _cache->proxy.take();
+    cache = _cache->proxy.take();
     if (!cache) {
         return setErrorResponse(response, "connect to cache failed");
     }

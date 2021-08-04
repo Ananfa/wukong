@@ -102,7 +102,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
     obj->_gameObjectHeartbeatExpire = t.tv_sec + TOKEN_TIMEOUT;
 
     while (obj->_running) {
-        sleep(TOKEN_HEARTBEAT_PERIOD); // 网关对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源）
+        sleep(TOKEN_HEARTBEAT_PERIOD); // 网关对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源：协程资源、GatewayObject对象和Connection对象）
 
         if (!obj->_running) {
             // 网关对象已被销毁

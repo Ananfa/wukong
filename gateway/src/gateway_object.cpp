@@ -65,6 +65,8 @@ void GatewayObject::stop() {
     if (_running) {
         _running = false;
 
+        _cond.broadcast();
+
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要重新考虑redis操作的地方
         // 清除session
         redisContext *cache = g_GatewayCenter.getCachePool()->proxy.take();
@@ -102,7 +104,8 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
     obj->_gameObjectHeartbeatExpire = t.tv_sec + TOKEN_TIMEOUT;
 
     while (obj->_running) {
-        sleep(TOKEN_HEARTBEAT_PERIOD); // 网关对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源：协程资源、GatewayObject对象和Connection对象）
+        obj->_cond.wait(TOKEN_HEARTBEAT_PERIOD);
+        //sleep(TOKEN_HEARTBEAT_PERIOD); // 网关对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源：协程资源、GatewayObject对象和Connection对象）
 
         if (!obj->_running) {
             // 网关对象已被销毁

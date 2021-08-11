@@ -18,6 +18,7 @@
 #define gateway_object_h
 
 #include "corpc_message_server.h"
+#include "corpc_cond.h"
 #include "share/define.h"
 #include "game_service.pb.h"
 
@@ -69,6 +70,7 @@ namespace wukong {
         bool _running;
 
         uint64_t _gameObjectHeartbeatExpire; // 游戏对象心跳超时时间
+        Cond _cond;
 
         GatewayManager *_manager; // 关联的manager
 

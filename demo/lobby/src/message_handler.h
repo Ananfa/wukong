@@ -7,6 +7,7 @@
 using namespace wukong;
 
 namespace demo {
+	// 注意：应该每个功能模块有各自的MessageHandler实现
 	class MessageHandler {
 	public:
 		static void registerMessages();

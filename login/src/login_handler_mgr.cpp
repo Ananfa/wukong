@@ -320,11 +320,11 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
     std::string openid = (*request)["openid"];
 
-    // TODO: 限制1秒内不能重复登录
     redisContext *cache = nullptr;
     redisContext *redis = nullptr;
     redisReply *reply = nullptr;
 
+    // 限制时间内不能重复登录
     if (LOGIN_LOCK_TIME > 0) {
         cache = _cache->proxy.take();
         if (!cache) {
@@ -335,7 +335,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
         if (!reply) {
             _cache->proxy.put(cache, true);
             return setErrorResponse(response, "lock login failed");
-        } else if (strcmp(reply->str, "OK")) {
+        } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
             freeReplyObject(reply);
             _cache->proxy.put(cache, false);
 
@@ -373,6 +373,8 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             // 问题: 是否需要将openid与userid的关系存到mysql中？若存mysql，是否需要通过分库分表来提高负载能力？云数据库（分布式数据库）应该有这个能力
             // 答：redis数据库主从备份设计以及数据库日志能保证数据安全性，只需要进行tlog日志记录就可以（tlog日志会进行入库处理），另外，也可以存到mysql中防止redis库损坏
 
+            // 这里是否增加一步从mysql数据库查userid？查到就写入redis？由于角色列表也是存在redis中，只查userid不够，因此不用从mysql查了
+
             userId = RedisUtils::CreateUserID(redis);
             if (userId == 0) {
                 _redis->proxy.put(redis, true);
@@ -383,7 +385,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             if (!reply) {
                 _redis->proxy.put(redis, true);
                 return setErrorResponse(response, "set user id for openid failed");
-            } else if (strcmp(reply->str, "OK")) {
+            } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
                 freeReplyObject(reply);
                 _redis->proxy.put(redis, false); // 归还连接
 
@@ -395,6 +397,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
             // TODO: tlog记录openid与userid的关系
 
+            // 是同步记录还是异步记录好？异步记录会有丢失风险
             // 这里通过协程异步将信息存到mysql中，有可能存储失败，若存储失败查记录日志
             AccountUserIdInfo *a2uInfo = new AccountUserIdInfo();
             a2uInfo->account = openid;
@@ -482,7 +485,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     if (!reply) {
         _cache->proxy.put(cache, true);
         return setErrorResponse(response, "set token failed for db error");
-    } else if (strcmp(reply->str, "OK")) {
+    } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
         freeReplyObject(reply);
         _cache->proxy.put(cache, false); // 归还连接
         return setErrorResponse(response, "set token failed");
@@ -568,7 +571,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     if (!reply) {
         _cache->proxy.put(cache, true);
         return setErrorResponse(response, "lock create role failed");
-    } else if (strcmp(reply->str, "OK")) {
+    } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
         freeReplyObject(reply);
         _cache->proxy.put(cache, false);
 

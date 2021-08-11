@@ -19,5 +19,5 @@ void MessageHandler::EchoHandle(std::shared_ptr<GameObject> obj, uint16_t tag, s
 	// 加1点经验值
 	realObj->setExp(realObj->getExp()+1);
 
-	obj->send(1000, tag, *realMsg);
+	realObj->send(1000, tag, *realMsg);
 }

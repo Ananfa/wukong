@@ -29,21 +29,24 @@ static void *test_login(void *arg) {
         request.setQueryHeader("Content-Type", "application/x-www-form-urlencoded");
         request.addQueryParam("openid", account);
         g_HttpClient.doPost(&request, [&](const HttpResponse &response) {
-            DEBUG_LOG("login response: %s\n", response.body().c_str());
+            //DEBUG_LOG("login response: %s\n", response.body().c_str());
             Document doc;
             if (doc.Parse(response.body().c_str()).HasParseError()) {
                 ERROR_LOG("login failed for parse response error\n");
+//exit(1);
                 return;
             }
 
             if (!doc.HasMember("retCode")) {
                 ERROR_LOG("login failed -- retCode not define\n");
+                //exit(1);
                 return;
             }
 
             int retCode = doc["retCode"].GetInt();
             if (retCode != 0) {
                 ERROR_LOG("login failed -- %s\n", response.body().c_str());
+//exit(1);
                 return;
             }
 
@@ -62,6 +65,7 @@ static void *test_login(void *arg) {
     DEBUG_LOG("userId: %d, roleId: %d, token: %s\n", userId, roleId, token.c_str());
     if (userId == 0) {
         ERROR_LOG("login failed, account: %s\n", account);
+//exit(1);
         return nullptr;
     }
 
@@ -81,17 +85,20 @@ static void *test_login(void *arg) {
             Document doc;
             if (doc.Parse(response.body().c_str()).HasParseError()) {
                 ERROR_LOG("create role failed for parse response error\n");
+//exit(1);
                 return;
             }
 
             if (!doc.HasMember("retCode")) {
                 ERROR_LOG("create role failed -- retCode not define\n");
+//exit(1);
                 return;
             }
 
             int retCode = doc["retCode"].GetInt();
             if (retCode != 0) {
                 ERROR_LOG("create role failed -- %s\n", response.body().c_str());
+//exit(1);
                 return;
             }
 
@@ -102,6 +109,7 @@ static void *test_login(void *arg) {
 
     if (roleId == 0) {
         ERROR_LOG("create role failed, account: %s, userId: %d\n", account, userId);
+//exit(1);
         return nullptr;
     }
 
@@ -124,17 +132,20 @@ static void *test_login(void *arg) {
             Document doc;
             if (doc.Parse(response.body().c_str()).HasParseError()) {
                 ERROR_LOG("enter game failed for parse response error\n");
+//exit(1);
                 return;
             }
 
             if (!doc.HasMember("retCode")) {
                 ERROR_LOG("enter game failed -- retCode not define\n");
+//exit(1);
                 return;
             }
 
             int retCode = doc["retCode"].GetInt();
             if (retCode != 0) {
                 ERROR_LOG("enter game failed -- %s\n", response.body().c_str());
+//exit(1);
                 return;
             }
 
@@ -146,6 +157,7 @@ static void *test_login(void *arg) {
 
     if (gToken.empty()) {
         ERROR_LOG("enter game failed, account: %s, userId: %d, roleId: %d\n", account, userId, roleId);
+//exit(1);
         return nullptr;
     }
 
@@ -165,24 +177,32 @@ static void *test_login(void *arg) {
     authreq->set_token(gToken.c_str());
     authreq->set_cipher(cipher.c_str());
     authreq->set_recvserial(0);
-
+    DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d\n", account, userId, roleId);
     client->send(C2S_MESSAGE_ID_AUTH, 0, false, authreq);
 
     // 接收处理从服务器发来
     int16_t rType;
     uint16_t sendTag = 1;
-    uint16_t recvTag;
+    uint16_t recvTag = 0;
+    uint16_t lastRecvTag = 0;
     bool enterGame = false;
+    uint64_t sendHelloAt = 0;
     std::shared_ptr<google::protobuf::Message> rMsg;
     while (true) {
         // TODO: 2. 测试断线重连消息重发
         do {
             client->recv(rType, recvTag, rMsg);
             if (!rType) {
+                if (!client->isRunning()) {
+                    ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d, sendHelloAt:%d\n", account, userId, roleId, gToken.c_str(), enterGame, sendHelloAt);
+//exit(1);
+                }
+
                 msleep(1);
             }
         } while (!rType);
 
+        lastRecvTag = recvTag;
         LOG("recv msg: %d, recvTag: %d\n", rType, recvTag);
         switch (rType) {
             case S2C_MESSAGE_ID_ENTERGAME: {
@@ -208,10 +228,14 @@ static void *test_login(void *arg) {
             echoReq->set_value("hello world");
 
             client->send(1000, ++sendTag, true, std::static_pointer_cast<google::protobuf::Message>(echoReq));
+            struct timeval t;
+            gettimeofday(&t, NULL);
+            sendHelloAt = t.tv_sec;
         }
 
     }
 
+//exit(1);
     return nullptr;
 }
 

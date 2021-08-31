@@ -62,7 +62,9 @@ void GatewayObject::start() {
 }
 
 void GatewayObject::stop() {
+    DEBUG_LOG("=============== GatewayObject::stop\n");
     if (_running) {
+        DEBUG_LOG("=============== GatewayObject::stop token:%s\n", _gToken.c_str());
         _running = false;
 
         _cond.broadcast();
@@ -104,8 +106,8 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
     obj->_gameObjectHeartbeatExpire = t.tv_sec + TOKEN_TIMEOUT;
 
     while (obj->_running) {
+        // 被踢出时触发，如果不是被踢出的情况则需要等到心跳周期
         obj->_cond.wait(TOKEN_HEARTBEAT_PERIOD);
-        //sleep(TOKEN_HEARTBEAT_PERIOD); // 网关对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源：协程资源、GatewayObject对象和Connection对象）
 
         if (!obj->_running) {
             // 网关对象已被销毁
@@ -148,7 +150,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
             gettimeofday(&t, NULL);
             success = t.tv_sec < obj->_gameObjectHeartbeatExpire;
             if (!success) {
-                ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] heartbeat expired\n", obj->_userId);
+                ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] heartbeat expired, expired time:%d\n", obj->_userId, obj->_gameObjectHeartbeatExpire);
             }
         }
 

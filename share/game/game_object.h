@@ -17,6 +17,7 @@
 #ifndef game_object_h
 #define game_object_h
 
+#include "corpc_cond.h"
 #include "share/define.h"
 #include "gateway_service.pb.h"
 #include "record_service.pb.h"
@@ -80,7 +81,10 @@ namespace wukong {
         uint32_t _lToken;
 
         bool _running = false;
+        int _gwHeartbeatFailCount = 0;
 
+        Cond _cond;
+        
         GameObjectManager *_manager; // 关联的manager
 
     protected:

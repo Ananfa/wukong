@@ -80,9 +80,9 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     redisReply *reply;
     // 尝试设置record
     if (g_RecordCenter.setRecordSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d", SET_RECORD_CMD, roleId, rToken, 60);
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d %d", SET_RECORD_CMD, roleId, rToken, _manager->getId(), 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d", g_RecordCenter.setRecordSha1().c_str(), roleId, rToken, 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d %d", g_RecordCenter.setRecordSha1().c_str(), roleId, rToken, _manager->getId(), 60);
     }
     
     if (!reply) {

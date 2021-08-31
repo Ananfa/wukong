@@ -48,6 +48,8 @@ void RecordObject::stop() {
     if (_running) {
         _running = false;
 
+        _cond.broadcast();
+
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
         redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
         if (!cache) {
@@ -95,7 +97,8 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
     obj->_gameObjectHeartbeatExpire = t.tv_sec + RECORD_TIMEOUT;
 
     while (obj->_running) {
-        sleep(TOKEN_HEARTBEAT_PERIOD); // 游戏对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源）
+        // 目前这里只有当写数据库失败强退记录对象时才会触发（记录对象销毁时机：1.心跳失败 2.写数据库失败）
+        obj->_cond.wait(TOKEN_HEARTBEAT_PERIOD);
 
         if (!obj->_running) {
             // 游戏对象已被销毁
@@ -168,12 +171,11 @@ void *RecordObject::syncRoutine(void *arg) {
     std::list<std::pair<std::string, std::string>> profileDatas;
 
     while (obj->_running) {
-        for (int i = 0; i < CACHE_PERIOD; i++) {
-            sleep(1);
+        // 目前这里只有当心跳失败时才会被触发（记录对象销毁时机：1.心跳失败 2.写数据库失败）
+        obj->_cond.wait(CACHE_PERIOD);
 
-            if (!obj->_running) {
-                break;
-            }
+        if (!obj->_running) {
+            break;
         }
 
         // 向记录服同步数据（销毁前也应将脏数据存盘）
@@ -187,7 +189,7 @@ void *RecordObject::syncRoutine(void *arg) {
                 ERROR_LOG("RecordObject::syncRoutine -- role %d cache data failed\n", obj->_roleId);
                 ++obj->_cacheFailNum;
                 if (obj->_cacheFailNum > 3) {
-                    obj->stop();
+                    obj->_manager->remove(obj->_roleId);
                 }
             }
 

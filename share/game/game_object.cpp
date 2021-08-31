@@ -91,6 +91,8 @@ void GameObject::stop() {
     if (_running) {
         _running = false;
 
+        _cond.broadcast();
+
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
         redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
         if (!cache) {
@@ -279,10 +281,11 @@ void *GameObject::heartbeatRoutine( void *arg ) {
     std::shared_ptr<GameObject> obj = std::move(routineArg->obj);
     delete routineArg;
 
-    int gwHeartbeatFailCount = 0;
+    //int gwHeartbeatFailCount = 0;
 
     while (obj->_running) {
-        sleep(TOKEN_HEARTBEAT_PERIOD); // 游戏对象销毁后，心跳协程最多停留20秒（这段时间会占用一点系统资源）
+        // 目前只有心跳和停服会销毁游戏对象
+        obj->_cond.wait(TOKEN_HEARTBEAT_PERIOD);
 
         if (!obj->_running) {
             // 游戏对象已被销毁
@@ -324,23 +327,29 @@ void *GameObject::heartbeatRoutine( void *arg ) {
             // 对网关对象进行心跳
             // 三次心跳不到gateway对象才销毁
             if (!obj->heartbeatToGateway()) {
-                gwHeartbeatFailCount++;
+                obj->_gwHeartbeatFailCount++;
 
-                if (gwHeartbeatFailCount >= 3) {
+                if (obj->_gwHeartbeatFailCount >= 3) {
+                    WARN_LOG("GameObject::heartbeatRoutine -- user %d role %d heartbeat to gw failed\n", obj->_userId, obj->_roleId);
                     success = false;
                 }
             } else {
-                gwHeartbeatFailCount = 0;
+                obj->_gwHeartbeatFailCount = 0;
             }
         }
 
         if (success) {
             // 对记录对象进行心跳
             success = obj->heartbeatToRecord();
+
+            if (!success) {
+                WARN_LOG("GameObject::heartbeatRoutine -- user %d role %d heartbeat to record failed\n", obj->_userId, obj->_roleId);
+            }
         }
 
         // 若设置超时不成功，销毁游戏对象
         if (!success) {
+//exit(0);
             if (obj->_running) {
                 if (!obj->_manager->remove(obj->_roleId)) {
                     assert(false);
@@ -364,12 +373,10 @@ void *GameObject::syncRoutine(void *arg) {
     std::list<std::string> removes;
 
     while (obj->_running) {
-        for (int i = 0; i < SYNC_PERIOD; i++) {
-            sleep(1);
+        obj->_cond.wait(SYNC_PERIOD);
 
-            if (!obj->_running) {
-                break;
-            }
+        if (!obj->_running) {
+            break;
         }
 
         // 向记录服同步数据（销毁前也应该将脏数据同步给记录服）
@@ -393,7 +400,7 @@ void *GameObject::updateRoutine(void *arg) {
     struct timeval t;
 
     while (obj->_running) {
-        msleep(g_GameCenter.getGameObjectUpdatePeriod());
+        obj->_cond.wait(g_GameCenter.getGameObjectUpdatePeriod());
 
         if (!obj->_running) {
             // 游戏对象已被销毁

@@ -26,6 +26,7 @@ void GameServiceImpl::forwardIn(::google::protobuf::RpcController* controller,
     auto obj = _manager->getGameObject(request->roleid());
     if (!obj) {
         ERROR_LOG("GameServiceImpl::forwardIn -- game object not found\n");
+//exit(0);
         return;
     }
 
@@ -53,6 +54,8 @@ void GameServiceImpl::enterGame(::google::protobuf::RpcController* controller,
         ERROR_LOG("GameServiceImpl::enterGame -- set gateway stub failed\n");
         return;
     }
+
+    obj->_gwHeartbeatFailCount = 0; // 重置心跳
 
     obj->onEnterGame();
 }

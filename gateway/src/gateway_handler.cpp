@@ -74,11 +74,13 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
     if (!conn->isOpen()) {
         ERROR_LOG("GatewayHandler::authHandle -- connection closed when begin auth\n");
+//exit(0);
         return;
     }
 
@@ -88,6 +90,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -103,6 +106,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -115,6 +119,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         // 在新连接下补发未收到的消息
         conn->scrapMessages(request->recvserial());
         conn->resend();
+//exit(0);
         return;
     }
 
@@ -125,6 +130,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -138,10 +144,11 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     
     if (!reply) {
         g_GatewayCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GatewayHandler::authHandle -- check session failed for db error\n");
+        ERROR_LOG("GatewayHandler::authHandle -- user %d check session failed for db error\n", userId);
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -149,9 +156,11 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     if (reply->type != REDIS_REPLY_INTEGER || roleId == 0) {
         freeReplyObject(reply);
         g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+        ERROR_LOG("GatewayHandler::authHandle -- user %d check session failed for redis reply invalid\n", userId);
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -164,6 +173,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -171,6 +181,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     if (!conn->isOpen()) {
         g_GatewayCenter.getCachePool()->proxy.put(cache, false);
         ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected before create gateway object\n", userId);
+//exit(0);
         return;
     }
 
@@ -188,6 +199,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -198,6 +210,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
@@ -215,6 +228,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             if (conn->isOpen()) {
                 conn->close();
             }
+//exit(0);
             return;
         }
         obj->setLToken(lToken);
@@ -231,6 +245,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             if (conn->isOpen()) {
                 conn->close();
             }
+//exit(0);
             return;
         }
 
@@ -241,6 +256,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             if (conn->isOpen()) {
                 conn->close();
             }
+//exit(0);
             return;
         }
 
@@ -253,6 +269,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             if (conn->isOpen()) {
                 conn->close();
             }
+//exit(0);
             return;
         }
         obj->setLToken(lToken);
@@ -267,12 +284,14 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         if (conn->isOpen()) {
             conn->close();
         }
+//exit(0);
         return;
     }
 
     // 由于进行过能导致协程切换的redis操作，在登记到已连接表之前，需要再判断一次是否断线
     if (!conn->isOpen()) {
         ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected when creating gateway object\n", userId);
+//exit(0);
         return;
     }
 
@@ -289,6 +308,7 @@ void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<st
     std::shared_ptr<GatewayObject> obj = _manager->getConnectedGatewayObject(conn);
     if (!obj) {
         ERROR_LOG("GatewayHandler::bypassHandle -- gateway object not found\n");
+//exit(0);
         return;
     }
 

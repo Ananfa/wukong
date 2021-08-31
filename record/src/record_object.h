@@ -17,6 +17,7 @@
 #ifndef record_object_h
 #define record_object_h
 
+#include "corpc_cond.h"
 #include "record_service.pb.h"
 #include "share/define.h"
 #include <list>
@@ -74,6 +75,8 @@ namespace wukong {
         uint64_t _gameObjectHeartbeatExpire; // 游戏对象心跳超时时间
         uint64_t _saveTM; // 落地时间戳
         int _cacheFailNum; // 累计cache失败计数
+        
+        Cond _cond;
 
         RecordManager *_manager; // 关联的manager
 

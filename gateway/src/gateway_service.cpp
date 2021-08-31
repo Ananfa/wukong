@@ -35,6 +35,12 @@ void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
     if (obj && obj->getGToken() == request->gtoken()) {
         response->set_value(_manager->removeGatewayObject(request->userid()));
     } else {
+        if (!obj) {
+            ERROR_LOG("GatewayServiceImpl::kick -- obj not exist\n");
+        } else {
+            ERROR_LOG("GatewayServiceImpl::kick -- user[%d] token not match, %s -- %s\n", request->userid(), obj->getGToken().c_str(), request->gtoken().c_str());
+        }
+        
         response->set_value(false);
     }
 }

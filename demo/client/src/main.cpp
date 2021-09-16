@@ -8,6 +8,7 @@
 #include "common.pb.h"
 #include <iostream>
 #include <ctime>
+#include <thread>
 
 using namespace corpc;
 using namespace wukong;
@@ -33,20 +34,17 @@ static void *test_login(void *arg) {
             Document doc;
             if (doc.Parse(response.body().c_str()).HasParseError()) {
                 ERROR_LOG("login failed for parse response error\n");
-//exit(1);
                 return;
             }
 
             if (!doc.HasMember("retCode")) {
                 ERROR_LOG("login failed -- retCode not define\n");
-                //exit(1);
                 return;
             }
 
             int retCode = doc["retCode"].GetInt();
             if (retCode != 0) {
                 ERROR_LOG("login failed -- %s\n", response.body().c_str());
-//exit(1);
                 return;
             }
 
@@ -65,7 +63,6 @@ static void *test_login(void *arg) {
     DEBUG_LOG("userId: %d, roleId: %d, token: %s\n", userId, roleId, token.c_str());
     if (userId == 0) {
         ERROR_LOG("login failed, account: %s\n", account);
-//exit(1);
         return nullptr;
     }
 
@@ -85,20 +82,17 @@ static void *test_login(void *arg) {
             Document doc;
             if (doc.Parse(response.body().c_str()).HasParseError()) {
                 ERROR_LOG("create role failed for parse response error\n");
-//exit(1);
                 return;
             }
 
             if (!doc.HasMember("retCode")) {
                 ERROR_LOG("create role failed -- retCode not define\n");
-//exit(1);
                 return;
             }
 
             int retCode = doc["retCode"].GetInt();
             if (retCode != 0) {
                 ERROR_LOG("create role failed -- %s\n", response.body().c_str());
-//exit(1);
                 return;
             }
 
@@ -109,7 +103,6 @@ static void *test_login(void *arg) {
 
     if (roleId == 0) {
         ERROR_LOG("create role failed, account: %s, userId: %d\n", account, userId);
-//exit(1);
         return nullptr;
     }
 
@@ -132,20 +125,17 @@ static void *test_login(void *arg) {
             Document doc;
             if (doc.Parse(response.body().c_str()).HasParseError()) {
                 ERROR_LOG("enter game failed for parse response error\n");
-//exit(1);
                 return;
             }
 
             if (!doc.HasMember("retCode")) {
                 ERROR_LOG("enter game failed -- retCode not define\n");
-//exit(1);
                 return;
             }
 
             int retCode = doc["retCode"].GetInt();
             if (retCode != 0) {
                 ERROR_LOG("enter game failed -- %s\n", response.body().c_str());
-//exit(1);
                 return;
             }
 
@@ -157,7 +147,6 @@ static void *test_login(void *arg) {
 
     if (gToken.empty()) {
         ERROR_LOG("enter game failed, account: %s, userId: %d, roleId: %d\n", account, userId, roleId);
-//exit(1);
         return nullptr;
     }
 
@@ -169,7 +158,6 @@ static void *test_login(void *arg) {
     client->registerMessage(1000, std::shared_ptr<google::protobuf::Message>(new pb::StringValue));
     
     client->start();
-    client->detach();
 
     // 发送身份认证消息
     std::shared_ptr<pb::AuthRequest> authreq(new pb::AuthRequest);
@@ -177,7 +165,7 @@ static void *test_login(void *arg) {
     authreq->set_token(gToken.c_str());
     authreq->set_cipher(cipher.c_str());
     authreq->set_recvserial(0);
-    DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d\n", account, userId, roleId);
+    //DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d\n", account, userId, roleId);
     client->send(C2S_MESSAGE_ID_AUTH, 0, false, authreq);
 
     // 接收处理从服务器发来
@@ -195,7 +183,6 @@ static void *test_login(void *arg) {
             if (!rType) {
                 if (!client->isRunning()) {
                     ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d, sendHelloAt:%d\n", account, userId, roleId, gToken.c_str(), enterGame, sendHelloAt);
-//exit(1);
                 }
 
                 msleep(1);
@@ -203,7 +190,6 @@ static void *test_login(void *arg) {
         } while (!rType);
 
         lastRecvTag = recvTag;
-        LOG("recv msg: %d, recvTag: %d\n", rType, recvTag);
         switch (rType) {
             case S2C_MESSAGE_ID_ENTERGAME: {
                 enterGame = true;
@@ -213,10 +199,9 @@ static void *test_login(void *arg) {
             case 1000: {
                 std::shared_ptr<pb::StringValue> resp = std::static_pointer_cast<pb::StringValue>(rMsg);
                 LOG("echo: %s\n", resp->value().c_str());
-                //break;
 
-                // 重登测试
                 RoutineEnvironment::startCoroutine(test_login, arg);
+                
                 return nullptr;
             }
         }
@@ -235,19 +220,27 @@ static void *test_login(void *arg) {
 
     }
 
-//exit(1);
     return nullptr;
+}
+
+void clientThread(int base, int num) {
+    for (int i = 0; i < num; i++) {
+        int accountId = base + i;
+        char *account = new char[10];
+        sprintf(account,"%d",accountId);
+        RoutineEnvironment::startCoroutine(test_login, (void*)account);
+    }
+
+    LOG("thread %d running...\n", GetPid());
+    
+    RoutineEnvironment::runEventLoop();
 }
 
 int main(int argc, const char *argv[]) {
     co_start_hook();
 
-    for (int i = 0; i < 10; i++) {
-        int accountId = 20000000 + i;
-        char *account = new char[10];
-        sprintf(account,"%d",accountId);
-        RoutineEnvironment::startCoroutine(test_login, (void*)account);
-    }
+    std::thread t1 = std::thread(clientThread, 20000000, 10);
+    std::thread t2 = std::thread(clientThread, 30000000, 10);
 
     LOG("running...\n");
 

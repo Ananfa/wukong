@@ -183,6 +183,10 @@ static void *test_login(void *arg) {
             if (!rType) {
                 if (!client->isRunning()) {
                     ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d, sendHelloAt:%d\n", account, userId, roleId, gToken.c_str(), enterGame, sendHelloAt);
+
+                    // TODO: 断线处理
+                    exit(0);
+                    return nullptr;
                 }
 
                 msleep(1);

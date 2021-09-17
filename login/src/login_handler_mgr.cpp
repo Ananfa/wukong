@@ -16,11 +16,11 @@
 
 #include "corpc_routine_env.h"
 #include "corpc_pubsub.h"
+#include "corpc_rand.h"
 #include "login_handler_mgr.h"
 #include "json_utils.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
-#include "uuid_utils.h"
 #include "proto_utils.h"
 #include "login_config.h"
 #include "rapidjson/document.h"
@@ -472,7 +472,8 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     refreshServerGroupData();
 
     // 生成登录临时token
-    std::string token = UUIDUtils::genUUID();
+    //std::string token = UUIDUtils::genUUID();
+    uint64_t token = randInt();
 
     // 在cache中记录token
     cache = _cache->proxy.take();
@@ -481,7 +482,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     }
 
     // 以Token:[userId]为key，value为token，记录到redis数据库（有效期1小时？创角时延长有效期，玩家进入游戏时清除token）
-    reply = (redisReply *)redisCommand(cache, "SET Token:%d %s EX 3600", userId, token.c_str());
+    reply = (redisReply *)redisCommand(cache, "SET Token:%d %llu EX 3600", userId, token);
     if (!reply) {
         _cache->proxy.put(cache, true);
         return setErrorResponse(response, "set token failed for db error");
@@ -775,7 +776,8 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     }
 
     // 生成gToken（在游戏期间保持，用lua脚本保证操作原子性）
-    std::string gToken = UUIDUtils::genUUID();
+    //std::string gToken = UUIDUtils::genUUID();
+    uint64_t gToken = randInt();
 
     ServerId gatewayId = 0;
     // 分配Gateway
@@ -787,9 +789,9 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     Address gatewayAddr = _t_gatewayAddrMap[gatewayId];
 
     if (_setSessionSha1.empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %llu %d %d %d", SET_SESSION_CMD, userId, gToken, gatewayId, roleId, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d %d %d", _setSessionSha1.c_str(), userId, gToken.c_str(), gatewayId, roleId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %llu %d %d %d", _setSessionSha1.c_str(), userId, gToken, gatewayId, roleId, TOKEN_TIMEOUT);
     }
     
     if (!reply) {
@@ -1041,6 +1043,7 @@ bool LoginHandlerMgr::checkToken(UserId userId, const std::string& token) {
     }
 
     if (token.compare(reply->str) != 0) {
+        ERROR_LOG("LoginHandlerMgr::checkToken -- token not match %s -- %s\n", token.c_str(), reply->str);
         freeReplyObject(reply);
         _cache->proxy.put(cache, false);
         return false;

@@ -84,7 +84,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         return;
     }
 
-    // 确认连接是未认证连接（不允许重复发认证消息）
+    // 确认连接是未认证连接（不允许重复发认证消息）（调试发现：也可能是auth消息处理在connect消息处理之前发生导致--有概率发生）
     if (!_manager->isUnauth(conn)) {
         ERROR_LOG("GatewayHandler::authHandle -- not an unauth connection\n");
         if (conn->isOpen()) {

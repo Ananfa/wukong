@@ -184,8 +184,9 @@ static void *test_login(void *arg) {
                 if (!client->isRunning()) {
                     ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %llu, enter: %d, sendHelloAt:%d\n", account, userId, roleId, gToken, enterGame, sendHelloAt);
 
-                    // TODO: 断线处理
                     exit(0);
+                    // 断线处理，由于服务器在处理connect消息和auth消息时有概率顺序反了导致断线，这里直接进行重登
+                    //RoutineEnvironment::startCoroutine(test_login, arg);
                     return nullptr;
                 }
 

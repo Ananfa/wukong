@@ -271,18 +271,15 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
     redisContext *cache = self->getCachePool()->proxy.take();
     if (!cache) {
         ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed\n");
-        
         self->_saveSema.post();
         return nullptr;
     }
 
     std::list<std::pair<std::string, std::string>> datas;
     ServerId serverId;
-    // cache中找不到profile数据，先从cache中尝试加载角色数据并存入cache中
-    if (!RedisUtils::LoadRole(cache, self->loadRoleSha1(), roleId, serverId, datas, false)) {
+    if (RedisUtils::LoadRole(cache, self->loadRoleSha1(), roleId, serverId, datas, false) == REDIS_DB_ERROR) {
         self->getCachePool()->proxy.put(cache, true);
         ERROR_LOG("DemoUtils::SaveRole -- load role data failed\n");
-        
         self->_saveSema.post();
         return nullptr;
     }

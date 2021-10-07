@@ -218,10 +218,17 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
         return false;
     }
 
-    if (!RedisUtils::UpdateRole(cache, g_RecordCenter.updateRoleSha1(), _roleId, datas)) {
-        g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("RecordObject::cacheData -- role %d update data failed\n", _roleId);
-        return false;
+    switch (RedisUtils::UpdateRole(cache, g_RecordCenter.updateRoleSha1(), _roleId, datas)) {
+        case REDIS_DB_ERROR: {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("RecordObject::cacheData -- role %d update data failed for db error\n", _roleId);
+            return false;
+        }
+        case REDIS_FAIL: {
+            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+            ERROR_LOG("RecordObject::cacheData -- role %d update data failed\n", _roleId);
+            return false;
+        }
     }
 
     // 加入相应的落地时间轮中，等待落地任务将玩家数据存到mysql。当数据有修改过5分钟再进行落地
@@ -262,10 +269,17 @@ bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &
         return false;
     }
 
-    if (!RedisUtils::UpdateProfile(cache, g_RecordCenter.updateProfileSha1(), _roleId, profileDatas)) {
-        g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed\n", _roleId);
-        return false;
+    switch (RedisUtils::UpdateProfile(cache, g_RecordCenter.updateProfileSha1(), _roleId, profileDatas)) {
+        case REDIS_DB_ERROR: {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed for db error\n", _roleId);
+            return false;
+        }
+        case REDIS_FAIL: {
+            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+            ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed\n", _roleId);
+            return false;
+        }
     }
 
     g_RecordCenter.getCachePool()->proxy.put(cache, false);

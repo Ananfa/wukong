@@ -114,7 +114,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     // 加载玩家数据
     // 先从redis加载玩家数据，若redis没有，则从mysql加载并缓存到redis中
     ServerId serverId;
-    if (!RedisUtils::LoadRole(cache, g_RecordCenter.loadRoleSha1(), roleId, serverId, datas, true)) {
+    if (RedisUtils::LoadRole(cache, g_RecordCenter.loadRoleSha1(), roleId, serverId, datas, true) == REDIS_DB_ERROR) {
         g_RecordCenter.getCachePool()->proxy.put(cache, true);
         ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] load failed\n", roleId);
         response->set_errcode(6);
@@ -186,11 +186,19 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
         return;
     }
 
-    if (!RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
-        g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] cache role data failed\n", roleId);
-        response->set_errcode(13);
-        return;
+    if (RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
+        case REDIS_DB_ERROR: {
+            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] cache role data failed for db error\n", roleId);
+            response->set_errcode(13);
+            return;
+        }
+        case REDIS_FAIL: {
+            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+            ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] cache role data failed\n", roleId);
+            response->set_errcode(14);
+            return;
+        }
     }
     g_RecordCenter.getCachePool()->proxy.put(cache, false);
 

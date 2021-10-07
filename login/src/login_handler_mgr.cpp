@@ -104,23 +104,41 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
         return nullptr;
     }
 
-    // init _setSessionSha1
-    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_CMD);
+    // init _setPassportSha1
+    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_PASSPORT_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- set-session script load failed for cache error\n");
+        ERROR_LOG("LoginHandlerMgr::initRoutine -- set-passport script load failed for cache error\n");
         return nullptr;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
         freeReplyObject(reply);
         self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- set-session script load from cache failed\n");
+        DEBUG_LOG("LoginHandlerMgr::initRoutine -- set-passport script load from cache failed\n");
         return nullptr;
     }
 
-    self->_setSessionSha1 = reply->str;
+    self->_setPassportSha1 = reply->str;
     freeReplyObject(reply);
+
+//    // init _setSessionSha1
+//    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_CMD);
+//    if (!reply) {
+//        self->_cache->proxy.put(cache, true);
+//        ERROR_LOG("LoginHandlerMgr::initRoutine -- set-session script load failed for cache error\n");
+//        return nullptr;
+//    }
+//
+//    if (reply->type != REDIS_REPLY_STRING) {
+//        freeReplyObject(reply);
+//        self->_cache->proxy.put(cache, false);
+//        DEBUG_LOG("LoginHandlerMgr::initRoutine -- set-session script load from cache failed\n");
+//        return nullptr;
+//    }
+//
+//    self->_setSessionSha1 = reply->str;
+//    freeReplyObject(reply);
 
     // init _saveProfileSha1
     reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_PROFILE_CMD);
@@ -617,9 +635,17 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     //       5. 记录角色轮廓数据Profile:{<roleid>}（注意：记得加serverId）
     
     // 绑定role，即上述第1和第2步
-    if (!RedisUtils::BindRole(redis, _bindRoleSha1, roleId, userId, serverId, g_LoginConfig.getRoleNumForPlayer())) {
-        _redis->proxy.put(redis, true);
-        return setErrorResponse(response, "bind role failed");
+    switch (RedisUtils::BindRole(redis, _bindRoleSha1, roleId, userId, serverId, g_LoginConfig.getRoleNumForPlayer())) {
+        case REDIS_DB_ERROR: {
+            _redis->proxy.put(redis, true);
+            ERROR_LOG("LoginHandlerMgr::createRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for db error\n", roleId, userId, serverId);
+            return setErrorResponse(response, "bind role failed for db error");
+        }
+        case REDIS_FAIL: {
+            _redis->proxy.put(redis, false);
+            ERROR_LOG("LoginHandlerMgr::createRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed\n", roleId, userId, serverId);
+            return setErrorResponse(response, "bind role failed");
+        }
     }
 
     _redis->proxy.put(redis, false);
@@ -645,17 +671,31 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
         return setErrorResponse(response, "connect to cache failed");
     }
 
-    if (!RedisUtils::SaveRole(cache, _saveRoleSha1, roleId, serverId, roleDatas)) {
-        _cache->proxy.put(cache, true);
-        return setErrorResponse(response, "cache role failed");
+    switch (RedisUtils::SaveRole(cache, _saveRoleSha1, roleId, serverId, roleDatas)) {
+        case REDIS_DB_ERROR: {
+            _cache->proxy.put(cache, true);
+            return setErrorResponse(response, "cache role failed for db error");
+        }
+        case REDIS_FAIL: {
+            _cache->proxy.put(cache, false);
+            return setErrorResponse(response, "cache role failed");
+        }
     }
 
     // 缓存profile，即上述第5步
     std::list<std::pair<std::string, std::string>> profileDatas;
     _delegate.makeProfile(roleDatas, profileDatas);
-    if (!RedisUtils::SaveProfile(cache, _saveProfileSha1, roleId, serverId, profileDatas)) {
-        _cache->proxy.put(cache, true);
-        return setErrorResponse(response, "cache profile failed");
+    switch (RedisUtils::SaveProfile(cache, _saveProfileSha1, roleId, serverId, profileDatas)) {
+        case REDIS_DB_ERROR: {
+            _cache->proxy.put(cache, true);
+            ERROR_LOG("LoginHandlerMgr::createRole -- cache profile failed for db error\n");
+            return setErrorResponse(response, "cache profile failed for db error");
+        }
+        case REDIS_FAIL: {
+            _cache->proxy.put(cache, false);
+            ERROR_LOG("LoginHandlerMgr::createRole -- cache profile failed\n");
+            return setErrorResponse(response, "cache profile failed");
+        }
     }
 
     _cache->proxy.put(cache, false);
@@ -788,29 +828,49 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
     Address gatewayAddr = _t_gatewayAddrMap[gatewayId];
 
-    if (_setSessionSha1.empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %llu %d %d %d", SET_SESSION_CMD, userId, gToken, gatewayId, roleId, TOKEN_TIMEOUT);
+    // TODO: 将设置Session改为设置LoginAuth
+//    if (_setSessionSha1.empty()) {
+//        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %llu %d %d %d", SET_SESSION_CMD, userId, gToken, gatewayId, roleId, TOKEN_TIMEOUT);
+//    } else {
+//        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %llu %d %d %d", _setSessionSha1.c_str(), userId, gToken, gatewayId, roleId, TOKEN_TIMEOUT);
+//    }
+//    
+//    if (!reply) {
+//        _cache->proxy.put(cache, true);
+//        return setErrorResponse(response, "set session failed");
+//    }
+//
+//    if (reply->type != REDIS_REPLY_INTEGER) {
+//        freeReplyObject(reply);
+//        _cache->proxy.put(cache, true);
+//        return setErrorResponse(response, "set session failed for return type invalid");
+//    }
+//
+//    if (reply->integer == 0) {
+//        // 设置失败
+//        freeReplyObject(reply);
+//        _cache->proxy.put(cache, false);
+//        return setErrorResponse(response, "set session failed for already set");
+//    }
+//    freeReplyObject(reply);
+
+    if (_setPassportSha1.empty()) {
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Passport:%d %llu %d %d %d", SET_PASSPORT_CMD, userId, gToken, gatewayId, roleId, PASSPORT_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %llu %d %d %d", _setSessionSha1.c_str(), userId, gToken, gatewayId, roleId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Passport:%d %llu %d %d %d", _setPassportSha1.c_str(), userId, gToken, gatewayId, roleId, PASSPORT_TIMEOUT);
     }
     
     if (!reply) {
         _cache->proxy.put(cache, true);
-        return setErrorResponse(response, "set session failed");
+        return setErrorResponse(response, "set passport failed");
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
         _cache->proxy.put(cache, true);
-        return setErrorResponse(response, "set session failed for return type invalid");
+        return setErrorResponse(response, "set passport failed for return type invalid");
     }
 
-    if (reply->integer == 0) {
-        // 设置失败
-        freeReplyObject(reply);
-        _cache->proxy.put(cache, false);
-        return setErrorResponse(response, "set session failed for already set");
-    }
     freeReplyObject(reply);
 
     // 删除登录临时token

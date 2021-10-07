@@ -40,7 +40,8 @@ namespace wukong {
         
         RedisConnectPool *getCachePool() { return _cache; }
 
-        const std::string &checkSessionSha1() { return _checkSessionSha1; }
+        const std::string &checkPassportSha1() { return _checkPassportSha1; }
+        const std::string &setSessionSha1() { return _setSessionSha1; }
         const std::string &setSessionExpireSha1() { return _setSessionExpireSha1; }
         const std::string &removeSessionSha1() { return _removeSessionSha1; }
 
@@ -59,7 +60,8 @@ namespace wukong {
     private:
         RedisConnectPool *_cache;
 
-        std::string _checkSessionSha1; // 校验session的lua脚本sha1值
+        std::string _checkPassportSha1; // 校验passport的lua脚本sha1值
+        std::string _setSessionSha1; // 设置session的lua脚本sha1值
         std::string _setSessionExpireSha1; // 设置session超时的lua脚本sha1值
         std::string _removeSessionSha1; // 删除session的lua脚本sha1值
 

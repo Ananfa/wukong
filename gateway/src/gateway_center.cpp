@@ -64,22 +64,40 @@ void *GatewayCenter::initRoutine(void *arg) {
         return nullptr;
     }
 
-    // init _checkSessionSha1
-    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", CHECK_SESSION_CMD);
+    // init _checkPassportSha1
+    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", CHECK_PASSPORT_CMD);
     if (!reply) {
         self->_cache->proxy.put(cache, true);
-        ERROR_LOG("GatewayCenter::initRoutine -- check-session script load failed for db error\n");
+        ERROR_LOG("GatewayCenter::initRoutine -- check-passport script load failed for db error\n");
         return nullptr;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
         freeReplyObject(reply);
         self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("GatewayCenter::initRoutine -- check-session script load failed\n");
+        DEBUG_LOG("GatewayCenter::initRoutine -- check-passport script load failed\n");
         return nullptr;
     }
 
-    self->_checkSessionSha1 = reply->str;
+    self->_checkPassportSha1 = reply->str;
+    freeReplyObject(reply);
+
+    // init _setSessionSha1
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("GatewayCenter::initRoutine -- set-session script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("GatewayCenter::initRoutine -- set-session script load failed\n");
+        return nullptr;
+    }
+
+    self->_setSessionSha1 = reply->str;
     freeReplyObject(reply);
 
     // init _setSessionExpireSha1

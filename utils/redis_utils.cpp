@@ -40,7 +40,7 @@ uint64_t RedisUtils::CreateRoleID(redisContext *redis) {
     return ret;
 }
 
-bool RedisUtils::BindRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
+RedisAccessResult RedisUtils::BindRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 2 RoleIds:%d:{%d} RoleIds:{%d} %d %d", BIND_ROLE_CMD, serverId, userId, userId, roleId, maxRoleNum);
@@ -49,57 +49,44 @@ bool RedisUtils::BindRole(redisContext *redis, const std::string &cmdSha1, RoleI
     }
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::BindRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed\n", roleId, userId, serverId);
-        return false;
-    }
-
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        ERROR_LOG("RedisUtils::BindRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for return type[%d] invalid -- %s\n", roleId, userId, serverId, reply->type, reply->str);
-        freeReplyObject(reply);
-        return false;
+        return REDIS_DB_ERROR;
     }
 
     if (reply->integer == 0) {
-        ERROR_LOG("RedisUtils::BindRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for reach the limit of the number of roles\n", roleId, userId, serverId);
         // 设置失败
         freeReplyObject(reply);
-        return false;
+        return REDIS_FAIL;
     }
 
     freeReplyObject(reply);
 
-    return true;
+    return REDIS_SUCCESS;
 }
 
-bool RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas) {
     redisReply *reply = (redisReply *)redisCommand(redis, "HGETALL Profile:{%d}", roleId);
     if (!reply) {
-        return false;
+        return REDIS_DB_ERROR;
     }
 
-    if (reply->type != REDIS_REPLY_ARRAY || reply->elements % 2 != 0) {
+    if (reply->elements == 0) {
         freeReplyObject(reply);
-        return false;
+        return REDIS_FAIL;
     }
 
-    if (reply->elements > 0) {
-        for (int i = 0; i < reply->elements; i += 2) {
-            if (strcmp(reply->element[i]->str, "serverId") == 0) {
-                serverId = atoi(reply->element[i+1]->str);
-            } else {
-                datas.push_back(std::make_pair(reply->element[i]->str, reply->element[i+1]->str));
-            }
+    for (int i = 0; i < reply->elements; i += 2) {
+        if (strcmp(reply->element[i]->str, "serverId") == 0) {
+            serverId = atoi(reply->element[i+1]->str);
+        } else {
+            datas.push_back(std::make_pair(reply->element[i]->str, reply->element[i+1]->str));
         }
-
-        freeReplyObject(reply);
-        return true;
     }
 
     freeReplyObject(reply);
-    return true;
+    return REDIS_SUCCESS;
 }
 
-bool RedisUtils::SaveProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 7;
@@ -144,21 +131,18 @@ bool RedisUtils::SaveProfile(redisContext *redis, const std::string &cmdSha1, Ro
     redisReply *reply = (redisReply *)redisCommandArgv(redis, argv.size(), &(argv[0]), &(argvlen[0]));
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::SaveProfile -- role %d cache profile failed for db error\n", roleId);
-        return false;
+        return REDIS_DB_ERROR;
     } else if (reply->integer == 0) {
-        ERROR_LOG("RedisUtils::SaveProfile -- role %d cache profile failed: %s\n", roleId, reply->str);
         freeReplyObject(reply);
-
-        return false;
+        return REDIS_FAIL;
     }
 
     freeReplyObject(reply);
 
-    return true;
+    return REDIS_SUCCESS;
 }
 
-bool RedisUtils::UpdateProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
     // 将轮廓数据存到cache中，若cache中没有找到则不需要更新轮廓数据
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
@@ -200,19 +184,17 @@ bool RedisUtils::UpdateProfile(redisContext *redis, const std::string &cmdSha1, 
     redisReply *reply = (redisReply *)redisCommandArgv(redis, argv.size(), &(argv[0]), &(argvlen[0]));
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::UpdateProfile -- role %d cache data failed for db error\n", roleId);
-        return false;
+        return REDIS_DB_ERROR;
     } else if (reply->integer == 0) {
-        ERROR_LOG("RedisUtils::UpdateProfile -- role %d cache data failed: %s\n", roleId, reply->str);
         freeReplyObject(reply);
-        return false;
+        return REDIS_FAIL;
     }
 
     freeReplyObject(reply);
-    return true;
+    return REDIS_SUCCESS;
 }
 
-bool RedisUtils::LoadRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
+RedisAccessResult RedisUtils::LoadRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Role:{%d} %d", LOAD_ROLE_CMD, roleId, clearTTL ? 1 : 0);
@@ -221,34 +203,27 @@ bool RedisUtils::LoadRole(redisContext *redis, const std::string &cmdSha1, RoleI
     }
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::LoadRole -- load role:[%d] failed\n", roleId);
-        return false;
+        return REDIS_DB_ERROR;
     }
 
-    if (reply->type != REDIS_REPLY_ARRAY || reply->elements % 2 != 0) {
+    if (reply->elements == 0) {
         freeReplyObject(reply);
-        ERROR_LOG("RedisUtils::LoadRole -- load role:[%d] failed for reply invalid\n", roleId);
-        return false;
+        return REDIS_FAIL;
     }
 
-    if (reply->elements > 0) {
-        for (int i = 0; i < reply->elements; i += 2) {
-            if (strcmp(reply->element[i]->str, "serverId") == 0) {
-                serverId = atoi(reply->element[i+1]->str);
-            } else {
-                datas.push_back(std::make_pair(reply->element[i]->str, reply->element[i+1]->str));
-            }
+    for (int i = 0; i < reply->elements; i += 2) {
+        if (strcmp(reply->element[i]->str, "serverId") == 0) {
+            serverId = atoi(reply->element[i+1]->str);
+        } else {
+            datas.push_back(std::make_pair(reply->element[i]->str, reply->element[i+1]->str));
         }
-
-        freeReplyObject(reply);
-        return true;
     }
 
     freeReplyObject(reply);
-    return true;
+    return REDIS_SUCCESS;
 }
 
-bool RedisUtils::SaveRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::SaveRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 6;
@@ -290,21 +265,17 @@ bool RedisUtils::SaveRole(redisContext *redis, const std::string &cmdSha1, RoleI
     redisReply *reply = (redisReply *)redisCommandArgv(redis, argv.size(), &(argv[0]), &(argvlen[0]));
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::SaveRole -- role %d save role failed for db error\n", roleId);
-        return false;
+        return REDIS_DB_ERROR;
     } else if (reply->integer == 0) {
-        ERROR_LOG("RedisUtils::SaveRole -- role %d save role failed: %s\n", roleId, reply->str);
         freeReplyObject(reply);
-
-        return false;
+        return REDIS_FAIL;
     }
 
     freeReplyObject(reply);
-
-    return true;
+    return REDIS_SUCCESS;
 }
 
-bool RedisUtils::UpdateRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::UpdateRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
     // 将角色数据存到cache中
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
@@ -341,14 +312,86 @@ bool RedisUtils::UpdateRole(redisContext *redis, const std::string &cmdSha1, Rol
     redisReply *reply = (redisReply *)redisCommandArgv(redis, argv.size(), &(argv[0]), &(argvlen[0]));
     
     if (!reply) {
-        ERROR_LOG("RedisUtils::UpdateRole -- role %d update data failed for db error\n", roleId);
-        return false;
+        return REDIS_DB_ERROR;
     } else if (reply->integer == 0) {
-        ERROR_LOG("RedisUtils::UpdateRole -- role %d update data failed: %s\n", roleId, reply->str);
         freeReplyObject(reply);
-        return false;
+        return REDIS_FAIL;
     }
 
     freeReplyObject(reply);
-    return true;
+    return REDIS_SUCCESS;
+}
+
+RedisAccessResult RedisUtils::CheckPassport(redisContext *redis, const std::string &cmdSha1, UserId userId, ServerId gateId, const std::string &gToken, RoleId &roleId) {
+    redisReply *reply;
+    if (cmdSha1.empty()) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Passport:%d %d %s", CHECK_PASSPORT_CMD, userId, gateId, gToken.c_str());
+    } else {
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Passport:%d %d %s", cmdSha1.c_str(), userId, gateId, gToken.c_str());
+    }
+    
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    roleId = reply->integer;
+    if (reply->type != REDIS_REPLY_INTEGER || roleId == 0) {
+        freeReplyObject(reply);
+        return REDIS_REPLY_INVALID;
+    }
+
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
+}
+
+RedisAccessResult RedisUtils::SetSession(redisContext *redis, const std::string &cmdSha1, UserId userId, ServerId gateId, const std::string &gToken, RoleId roleId) {
+    redisReply *reply;
+    if (cmdSha1.empty()) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gateId, roleId, TOKEN_TIMEOUT);
+    } else {
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s %d %d %d", cmdSha1.c_str(), userId, gToken.c_str(), gateId, roleId, TOKEN_TIMEOUT);
+    }
+    
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    if (reply->integer == 0) {
+        // 设置失败
+        freeReplyObject(reply);
+        return REDIS_FAIL;
+    }
+
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
+}
+
+RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType &stype, ServerId &sid, uint32_t &ltoken) {
+    redisReply *reply = (redisReply *)redisCommand(redis, "HMGET Location:%d lToken stype sid", roleId);
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    if (reply->type != REDIS_REPLY_ARRAY || reply->elements != 3) {
+        freeReplyObject(reply);
+        return REDIS_REPLY_INVALID;
+    }
+
+    if (reply->element[0]->type == REDIS_REPLY_STRING) {
+        assert(reply->element[1]->type == REDIS_REPLY_STRING);
+        assert(reply->element[2]->type == REDIS_REPLY_STRING);
+        // 这里不再向游戏对象所在服发RPC（极端情况是游戏对象刚巧销毁导致网关对象指向了不存在的游戏对象的游戏服务器，网关对象一段时间没有收到游戏对象心跳后销毁）
+        lToken = atoi(reply->element[0]->str);
+        stype = atoi(reply->element[1]->str);
+        sid = atoi(reply->element[2]->str);
+
+        freeReplyObject(reply);
+        return REDIS_SUCCESS;
+    }
+
+    assert(reply->element[0]->type == REDIS_REPLY_NIL);
+    assert(reply->element[1]->type == REDIS_REPLY_NIL);
+    assert(reply->element[2]->type == REDIS_REPLY_NIL);
+    freeReplyObject(reply);
+    return REDIS_FAIL;
 }

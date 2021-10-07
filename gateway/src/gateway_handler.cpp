@@ -18,6 +18,7 @@
 #include "gateway_center.h"
 #include "share/const.h"
 #include "string_utils.h"
+#include "redis_utils.h"
 
 #include "game.pb.h"
 
@@ -71,26 +72,19 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     DEBUG_LOG("GatewayHandler::authHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
     if (_manager->isShutdown()) {
         ERROR_LOG("GatewayHandler::authHandle -- server shutdown\n");
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
+        conn->close();
         return;
     }
 
     if (!conn->isOpen()) {
         ERROR_LOG("GatewayHandler::authHandle -- connection closed when begin auth\n");
-//exit(0);
         return;
     }
 
     // 确认连接是未认证连接（不允许重复发认证消息）（调试发现：也可能是auth消息处理在connect消息处理之前发生导致--有概率发生）
     if (!_manager->isUnauth(conn)) {
         ERROR_LOG("GatewayHandler::authHandle -- not an unauth connection\n");
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
+        conn->close();
         return;
     }
 
@@ -98,15 +92,14 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     
     pb::AuthRequest *request = static_cast<pb::AuthRequest*>(msg.get());
     UserId userId = request->userid();
+    ServerId gateId = _manager->getId();
+    const std::string &gToken = request->token();
 
     // 若本地网关对象存在，直接跟本地网关对象的gToken比较，不需访问redis
-    int ret = _manager->tryChangeGatewayObjectConn(userId, request->token(), conn);
+    int ret = _manager->tryChangeGatewayObjectConn(userId, gToken, conn);
     if (ret == -1) {
         ERROR_LOG("GatewayHandler::authHandle -- reconnect token not match\n");
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
+        conn->close();
         return;
     }
 
@@ -116,10 +109,10 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     conn->setCrypter(crypter);
 
     if (ret == 1) {
+        // 此处是断线重连
         // 在新连接下补发未收到的消息
         conn->scrapMessages(request->recvserial());
         conn->resend();
-//exit(0);
         return;
     }
 
@@ -127,173 +120,184 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     redisContext *cache = g_GatewayCenter.getCachePool()->proxy.take();
     if (!cache) {
         ERROR_LOG("GatewayHandler::authHandle -- connect to cache failed\n");
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
+        conn->close();
         return;
     }
 
-    // 用lua脚本校验session信息——进行服务器号和token比较，设置超时时间，返回roleId
-    redisReply *reply;
-    if (g_GatewayCenter.checkSessionSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %d %s %d", CHECK_SESSION_CMD, userId, _manager->getId(), request->token().c_str(), 60);
+    // 用lua脚本校验passport信息——进行服务器号和token比较，返回roleId
+    RoleId roleId = 0;
+    switch (RedisUtils::CheckPassport(cache, g_GatewayCenter.checkPassportSha1(), userId, gateId, gToken, roleId)) {
+        case REDIS_DB_ERROR: {
+            g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("GatewayHandler::authHandle -- user %d check passport failed for db error\n", userId);
+            conn->close();
+            return;
+        }
+        case REDIS_REPLY_INVALID: {
+            g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+            ERROR_LOG("GatewayHandler::authHandle -- user %d check passport failed for redis reply invalid\n", userId);
+            conn->close();
+            return;
+        }
+    }
+
+    // 为了防止重复连接，由于协程存在穿插执行的情况，程序执行到这里时可能已经产生了网关对象，在创建网关对象前应校验一下
+    if (_manager->hasGatewayObject(userId)) {
+        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+        ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist\n", userId);
+        conn->close();
+        return;
+    }
+
+    // 若连接已断线，则不再继续创建网关对象
+    if (!conn->isOpen()) {
+        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+        ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected before create gateway object\n", userId);
+        return;
+    }
+
+    // 设置Session
+    switch (RedisUtils::SetSession(cache, g_GatewayCenter.setSessionSha1(), userId, gateId, gToken, roleId)) {
+        case REDIS_DB_ERROR: {
+            g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("GatewayHandler::authHandle -- user %d set session failed for db error\n", userId);
+            conn->close();
+            return;
+        }
+        case REDIS_FAIL: {
+            g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+            ERROR_LOG("GatewayHandler::authHandle -- user %d set session failed for already set\n", userId);
+            conn->close();
+            return;
+        }
+    }
+
+    assert(!_manager->hasGatewayObject(userId));
+
+    // 创建玩家网关对象
+    std::shared_ptr<GatewayObject> obj = std::make_shared<GatewayObject>(userId, roleId, gToken, conn, _manager);
+
+    // 队伍成员同时登录时会导致进入游戏失败，且passport失效（因此需要重试）
+    int leftTryTimes = 3;
+    while (true) {
+        // 查询玩家角色游戏对象所在（cache中key为Location:<roleId>的hash，由游戏对象负责维持心跳）
+        //    若查到，设置玩家网关对象中的gameServerStub
+        //    若没有查到，分配一个大厅服，并通知大厅服加载玩家游戏对象
+        //       若返回失败，则登录失败
+        uint32_t lToken;
+        GameServerType gstype;
+        ServerId gsid;
+        RedisAccessResult res = RedisUtils::GetGameObjectAddress(cache, roleId, gstype, gsid, lToken);
+        switch (res) {
+            case REDIS_DB_ERROR: {
+                g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+                ERROR_LOG("GatewayHandler::authHandle -- get location failed for db error\n");
+                conn->close();
+                return;
+            }
+            case REDIS_REPLY_INVALID: {
+                g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+                ERROR_LOG("GatewayHandler::authHandle -- get location failed for reply invalid\n");
+                conn->close();
+                return;
+            }
+        }
+
+        if (res == REDIS_SUCCESS) {
+            if (!obj->setGameServerStub(gstype, gsid)) {
+                g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+                ERROR_LOG("GatewayHandler::authHandle -- set game server stub failed\n");
+                conn->close();
+                return;
+            }
+            obj->setLToken(lToken);
+            break;
+        }
+
+        // 向Lobby服发initRole RPC前先释放数据库连接
+        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+
+        if (leftTryTimes > 0) {
+            leftTryTimes--;
+            // 分配一个Lobby服，并通知Lobby服加载玩家游戏对象
+            ServerId sid = 0;
+            if (!g_GatewayCenter.randomLobbyServer(sid)) {
+                ERROR_LOG("GatewayHandler::authHandle -- random lobby server failed\n");
+                conn->close();
+                return;
+            }
+
+            // 通知Lobby服加载玩家游戏对象
+            if (g_LobbyClient.initRole(sid, userId, roleId, gateId) == 0) {
+                // 等待1秒后重新查询
+                sleep(1); // 1秒后重试
+            }
+
+            cache = g_GatewayCenter.getCachePool()->proxy.take();
+            if (!cache) {
+                ERROR_LOG("GatewayHandler::authHandle -- reconnect to cache failed\n");
+                conn->close();
+                return;
+            }
+        } else {
+            // 进游戏失败，这种情况可能是服务器负载高导致的，此时不清Session会好点
+            g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+            ERROR_LOG("GatewayHandler::authHandle -- init role failed\n");
+            conn->close();
+            return;
+        }
+    }
+
+    // 在登记到已连接表之前，调用一次SET_SESSION_EXPIRE_CMD，确保session没有过期
+    if (g_GatewayCenter.setSessionExpireSha1().empty()) {
+        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, userId, gToken.c_str(), TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %d %s %d", g_GatewayCenter.checkSessionSha1().c_str(), userId, _manager->getId(), request->token().c_str(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_GatewayCenter.setSessionExpireSha1().c_str(), userId, gToken.c_str(), TOKEN_TIMEOUT);
     }
     
     if (!reply) {
         g_GatewayCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GatewayHandler::authHandle -- user %d check session failed for db error\n", userId);
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
+        ERROR_LOG("GatewayHandler::authHandle -- user[%d] refresh session failed for db error\n", userId);
+        conn->close();
         return;
-    }
-
-    RoleId roleId = reply->integer;
-    if (reply->type != REDIS_REPLY_INTEGER || roleId == 0) {
-        freeReplyObject(reply);
-        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GatewayHandler::authHandle -- user %d check session failed for redis reply invalid\n", userId);
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
-        return;
-    }
-
-    freeReplyObject(reply);
-
-    // 由于协程存在穿插执行的情况，程序执行到这里时可能已经产生了网关对象，在创建网关对象前应校验一下
-    if (_manager->hasGatewayObject(userId)) {
-        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist\n", userId);
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
-        return;
-    }
-
-    // 若连接已断线，则不再继续创建网关对象（注意：此时需等session过期后才允许重新登录游戏（1分钟））
-    if (!conn->isOpen()) {
-        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected before create gateway object\n", userId);
-//exit(0);
-        return;
-    }
-
-    // 创建玩家网关对象
-    std::shared_ptr<GatewayObject> obj = std::make_shared<GatewayObject>(userId, roleId, request->token(), conn, _manager);
-
-    // 查询玩家角色游戏对象所在（cache中key为Location:<roleId>的hash，由游戏对象负责维持心跳）
-    //    若查到，设置玩家网关对象中的gameServerStub
-    //    若没有查到，分配一个大厅服，并通知大厅服加载玩家游戏对象
-    //       若返回失败，则登录失败
-    reply = (redisReply *)redisCommand(cache, "HMGET Location:%d lToken stype sid", roleId);
-    if (!reply) {
-        g_GatewayCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GatewayHandler::authHandle -- get location failed for db error\n");
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
-        return;
-    }
-
-    if (reply->type != REDIS_REPLY_ARRAY || reply->elements != 3) {
-        freeReplyObject(reply);
-        g_GatewayCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GatewayHandler::authHandle -- get location failed for invalid data type\n");
-        if (conn->isOpen()) {
-            conn->close();
-        }
-//exit(0);
-        return;
-    }
-
-    if (reply->element[0]->type == REDIS_REPLY_STRING) {
-        assert(reply->element[1]->type == REDIS_REPLY_STRING);
-        assert(reply->element[2]->type == REDIS_REPLY_STRING);
-        // 这里不再向游戏对象所在服发RPC（极端情况是游戏对象刚巧销毁导致网关对象指向了不存在的游戏对象的游戏服务器，网关对象一段时间没有收到游戏对象心跳后销毁）
-        uint32_t lToken = atoi(reply->element[0]->str);
-        GameServerType stype = atoi(reply->element[1]->str);
-        ServerId sid = atoi(reply->element[2]->str);
-        if (!obj->setGameServerStub(stype, sid)) {
-            freeReplyObject(reply);
-            g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("GatewayHandler::authHandle -- set game server stub failed\n");
-            if (conn->isOpen()) {
-                conn->close();
-            }
-//exit(0);
-            return;
-        }
-        obj->setLToken(lToken);
     } else {
-        assert(reply->element[0]->type == REDIS_REPLY_NIL);
-        assert(reply->element[1]->type == REDIS_REPLY_NIL);
-        assert(reply->element[2]->type == REDIS_REPLY_NIL);
-        // 分配一个Lobby服，并通知Lobby服加载玩家游戏对象
-        ServerId sid = 0;
-        if (!g_GatewayCenter.randomLobbyServer(sid)) {
-            freeReplyObject(reply);
+        bool success = reply->integer == 1;
+        freeReplyObject(reply);
+
+        if (!success) {
             g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("GatewayHandler::authHandle -- random lobby server failed\n");
-            if (conn->isOpen()) {
-                conn->close();
-            }
-//exit(0);
-            return;
-        }
-
-        if (!obj->setGameServerStub(GAME_SERVER_TYPE_LOBBY, sid)) {
-            freeReplyObject(reply);
-            g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("GatewayHandler::authHandle -- set lobby server stub failed\n");
-            if (conn->isOpen()) {
-                conn->close();
-            }
-//exit(0);
-            return;
-        }
-
-        // 通知Lobby服加载玩家游戏对象
-        uint32_t lToken = g_LobbyClient.initRole(sid, userId, roleId, _manager->getId());
-        if (lToken == 0) {
-            freeReplyObject(reply);
-            g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("GatewayHandler::authHandle -- load role failed\n");
-            if (conn->isOpen()) {
-                conn->close();
-            }
-//exit(0);
-            return;
-        }
-        obj->setLToken(lToken);
-    }
-
-    freeReplyObject(reply);
-    g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-
-    // 由于进行过能导致协程切换的redis操作，这里需要再次确认中途没有网关对象登记到已连接表
-    if (_manager->hasGatewayObject(userId)) {
-        ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist after get role %d location\n", userId, roleId);
-        if (conn->isOpen()) {
+            ERROR_LOG("GatewayHandler::authHandle -- user[%d] refresh session failed, gToken %s\n", userId, gToken.c_str());
             conn->close();
+            return;
         }
-//exit(0);
-        return;
     }
 
-    // 由于进行过能导致协程切换的redis操作，在登记到已连接表之前，需要再判断一次是否断线
+    assert(!_manager->hasGatewayObject(userId));
+
+    // 在登记到已连接表之前，需要再判断一次是否断线（由于进行过能导致协程切换的redis操作）
     if (!conn->isOpen()) {
         ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected when creating gateway object\n", userId);
-//exit(0);
+
+        // 清理session（由于网络波动断线需要清session，不然玩家会一分钟登录不了）
+        if (g_GatewayCenter.removeSessionSha1().empty()) {
+            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, userId, gToken.c_str());
+        } else {
+            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s", g_GatewayCenter.removeSessionSha1().c_str(), userId, gToken.c_str());
+        }
+
+        if (!reply) {
+            g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("GatewayObject::stop -- user[%d] remove session failed", userId);
+            return;
+        }
+
+        freeReplyObject(reply);
+        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+
         return;
     }
+
+    g_GatewayCenter.getCachePool()->proxy.put(cache, false);
 
     // 将网关对象登记到已连接表，登记完成后，游戏对象和客户端就能通过网关对象转发消息了
     _manager->addConnectedGatewayObject(obj);
@@ -303,12 +307,10 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     obj->enterGame();
 }
 
-
 void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
     std::shared_ptr<GatewayObject> obj = _manager->getConnectedGatewayObject(conn);
     if (!obj) {
         ERROR_LOG("GatewayHandler::bypassHandle -- gateway object not found\n");
-//exit(0);
         return;
     }
 

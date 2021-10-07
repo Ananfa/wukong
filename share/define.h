@@ -24,6 +24,13 @@ enum ServerStatus {
     SERVER_STATUS_CLOSED = 3
 };
 
+enum RedisAccessResult {
+    REDIS_SUCCESS = 0,
+    REDIS_FAIL = 1,
+    REDIS_DB_ERROR = 2,
+    REDIS_REPLY_INVALID = 3
+};
+
 namespace wukong {
     struct Address {
         std::string host; // ip或域名

@@ -25,6 +25,7 @@ namespace wukong {
 
     const int LOGIN_LOCK_TIME                      = 0; // 登录锁时长，单位秒
 
+    const int PASSPORT_TIMEOUT                     = 60; // passport超时时间
     const int TOKEN_TIMEOUT                        = 60; // 令牌超时时间，单位秒
     const int TOKEN_HEARTBEAT_PERIOD               = 20000; // 令牌心跳周期，单位豪秒
 
@@ -37,12 +38,27 @@ namespace wukong {
     const int SAVE_TIME_WHEEL_SIZE                 = SAVE_PERIOD * 3; // 存盘时间轮尺寸
     const int MAX_SAVE_WORKER_NUM                  = 10; // 同时最多可以有多少个保存工人协程
 
+    const int DISTRIBUTE_LOCK_EXPIRE               = 30; // 分布式锁过期时间
+
     // 客户端向服务器发的消息ID定义
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息
 
     // 服务器向客户端发的消息ID定义
     const uint16_t S2C_MESSAGE_ID_BAN              = 1; // 消息被屏蔽消息
     const uint16_t S2C_MESSAGE_ID_ENTERGAME        = 2; // 进入游戏消息
+
+    const char SET_PASSPORT_CMD[] = "\
+        redis.call('hmset',KEYS[1],'gToken',ARGV[1],'gateId',ARGV[2],'roleId',ARGV[3])\
+        redis.call('expire',KEYS[1],ARGV[4])\
+        return 1";
+
+    // passport只能被用一次
+    const char CHECK_PASSPORT_CMD[] = "\
+        local vals = redis.call('hmget',KEYS[1],'gateId','gToken','roleId')\
+        if not vals[1] or not vals[2] or not vals[3] or vals[1] ~= ARGV[1] or vals[2] ~= ARGV[2] then\
+          return 0\
+        end\
+        return tonumber(vals[3])";
 
     const char SET_SESSION_CMD[] = "\
         local ret=redis.call('hsetnx',KEYS[1],'gToken',ARGV[1])\
@@ -64,28 +80,28 @@ namespace wukong {
         redis.call('del',KEYS[1])\
         return 1";
 
-    const char CHECK_SESSION_CMD[] = "\
-        local gateId = redis.call('hget',KEYS[1],'gateId')\
-        if not gateId then\
-          return 0\
-        elseif gateId ~= ARGV[1] then\
-          return 0\
-        end\
-        local gToken = redis.call('hget',KEYS[1],'gToken')\
-        if not gToken then\
-          return 0\
-        elseif gToken ~= ARGV[2] then\
-          return 0\
-        end\
-        local roleId = redis.call('hget',KEYS[1],'roleId')\
-        if not roleId then\
-          return 0\
-        end\
-        local ret = redis.call('expire',KEYS[1],ARGV[3])\
-        if ret == 0 then\
-          return 0\
-        end\
-        return tonumber(roleId)";
+//    const char CHECK_SESSION_CMD[] = "\
+//        local gateId = redis.call('hget',KEYS[1],'gateId')\
+//        if not gateId then\
+//          return 0\
+//        elseif gateId ~= ARGV[1] then\
+//          return 0\
+//        end\
+//        local gToken = redis.call('hget',KEYS[1],'gToken')\
+//        if not gToken then\
+//          return 0\
+//        elseif gToken ~= ARGV[2] then\
+//          return 0\
+//        end\
+//        local roleId = redis.call('hget',KEYS[1],'roleId')\
+//        if not roleId then\
+//          return 0\
+//        end\
+//        local ret = redis.call('expire',KEYS[1],ARGV[3])\
+//        if ret == 0 then\
+//          return 0\
+//        end\
+//        return tonumber(roleId)";
 
     const char SET_SESSION_EXPIRE_CMD[] = "\
         local gToken = redis.call('hget',KEYS[1],'gToken')\

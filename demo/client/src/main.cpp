@@ -119,7 +119,7 @@ static void *test_login(void *arg) {
 
         // ====== 创角 ====== //
         if (accountInfo->roleId == 0) {
-            LOG("start create role for account: %s, userId: %d\n", accountInfo->account.c_str(), accountInfo->userId);
+            DEBUG_LOG("start create role for account: %s, userId: %d\n", accountInfo->account.c_str(), accountInfo->userId);
             HttpRequest request;
             request.setTimeout(5000);
             request.setUrl("http://127.0.0.1:11000/createRole");
@@ -283,7 +283,7 @@ static void *test_login(void *arg) {
 
         if (enterGame) {
             g_cnt++;
-            LOG("start send \"hello world\"\n");
+            DEBUG_LOG("start send \"hello world\"\n");
             // 发Echo消息
             std::shared_ptr<pb::StringValue> echoReq(new pb::StringValue);
             echoReq->set_value("hello world");

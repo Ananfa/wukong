@@ -318,11 +318,11 @@ int main(int argc, const char *argv[]) {
     co_start_hook();
     LOG("start...\n");
 
-    std::thread t1 = std::thread(clientThread, 20000000, 1);
-    //std::thread t2 = std::thread(clientThread, 30000000, 10);
-    //std::thread t3 = std::thread(clientThread, 40000000, 10);
-    //std::thread t4 = std::thread(clientThread, 50000000, 10);
-    //std::thread t5 = std::thread(clientThread, 60000000, 10);
+    std::thread t1 = std::thread(clientThread, 20000000, 20);
+    std::thread t2 = std::thread(clientThread, 30000000, 20);
+    std::thread t3 = std::thread(clientThread, 40000000, 20);
+    std::thread t4 = std::thread(clientThread, 50000000, 20);
+    std::thread t5 = std::thread(clientThread, 60000000, 20);
 
     corpc::RoutineEnvironment::startCoroutine(log_routine, NULL);
 

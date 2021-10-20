@@ -70,8 +70,9 @@ void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controlle
             continue;
         }
 
+        DEBUG_LOG("GatewayServiceImpl::forwardOut -- fd: %d\n", obj->getConn()->getfd());
         std::shared_ptr<std::string> msg(new std::string(request->rawmsg()));
-        obj->getConn()->send(request->type(), true, true, request->tag(), msg);
+        obj->getConn()->send(request->type(), true, true, true, request->tag(), msg);
     }
 }
 

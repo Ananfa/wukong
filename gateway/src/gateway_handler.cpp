@@ -54,8 +54,8 @@ void GatewayHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<goo
     if (_manager->isUnauth(conn)) {
         _manager->removeUnauthConn(conn);
     } else if (!_manager->tryMoveToDisconnectedLink(conn)) {
-        // 注意：出现这种情况的原因是在认证过程中断线
-        ERROR_LOG("GatewayHandler::closeHandle -- connection close when processing authenticated\n");
+        // 注意：出现这种情况的原因是在认证过程中断线，或者玩家被踢出时
+        DEBUG_LOG("GatewayHandler::closeHandle -- connection close but cant move to disconnected list\n");
     }
 }
 
@@ -65,7 +65,7 @@ void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<googl
     std::shared_ptr<pb::BanResponse> response(new pb::BanResponse);
     response->set_msgid(type);
 
-    conn->send(S2C_MESSAGE_ID_BAN, false, false, tag, response);
+    conn->send(S2C_MESSAGE_ID_BAN, false, false, true, tag, response);
 }
 
 void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
@@ -113,6 +113,9 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         // 在新连接下补发未收到的消息
         conn->scrapMessages(request->recvserial());
         conn->resend();
+
+        // 这里加一个重连完成消息，客户端收到此消息后才可以向服务器发消息
+        conn->send(S2C_MESSAGE_ID_RECONNECTED, true, false, false, 0, nullptr);
         return;
     }
 
@@ -249,22 +252,14 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     }
 
     // 在登记到已连接表之前，调用一次SET_SESSION_EXPIRE_CMD，确保session没有过期
-    if (g_GatewayCenter.setSessionExpireSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, userId, gToken.c_str(), TOKEN_TIMEOUT);
-    } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_GatewayCenter.setSessionExpireSha1().c_str(), userId, gToken.c_str(), TOKEN_TIMEOUT);
-    }
-    
-    if (!reply) {
-        g_GatewayCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GatewayHandler::authHandle -- user[%d] refresh session failed for db error\n", userId);
-        conn->close();
-        return;
-    } else {
-        bool success = reply->integer == 1;
-        freeReplyObject(reply);
-
-        if (!success) {
+    switch (RedisUtils::ResetSessionTTL(cache, g_GatewayCenter.setSessionExpireSha1(), userId, gToken)) {
+        case REDIS_DB_ERROR: {
+            g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+            ERROR_LOG("GatewayHandler::authHandle -- user[%d] refresh session failed for db error\n", userId);
+            conn->close();
+            return;
+        }
+        case REDIS_FAIL: {
             g_GatewayCenter.getCachePool()->proxy.put(cache, false);
             ERROR_LOG("GatewayHandler::authHandle -- user[%d] refresh session failed, gToken %s\n", userId, gToken.c_str());
             conn->close();
@@ -279,21 +274,13 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         ERROR_LOG("GatewayHandler::authHandle -- user %d disconnected when creating gateway object\n", userId);
 
         // 清理session（由于网络波动断线需要清session，不然玩家会一分钟登录不了）
-        if (g_GatewayCenter.removeSessionSha1().empty()) {
-            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, userId, gToken.c_str());
-        } else {
-            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s", g_GatewayCenter.removeSessionSha1().c_str(), userId, gToken.c_str());
-        }
-
-        if (!reply) {
+        if (RedisUtils::RemoveSession(cache, g_GatewayCenter.removeSessionSha1(), userId, gToken) == REDIS_DB_ERROR) {
             g_GatewayCenter.getCachePool()->proxy.put(cache, true);
             ERROR_LOG("GatewayObject::stop -- user[%d] remove session failed", userId);
             return;
         }
 
-        freeReplyObject(reply);
         g_GatewayCenter.getCachePool()->proxy.put(cache, false);
-
         return;
     }
 

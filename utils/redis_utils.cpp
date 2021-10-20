@@ -1,5 +1,6 @@
 #include <string.h>
 #include <vector>
+#include <assert.h>
 #include "corpc_utils.h"
 #include "redis_utils.h"
 #include "const.h"
@@ -366,7 +367,49 @@ RedisAccessResult RedisUtils::SetSession(redisContext *redis, const std::string 
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType &stype, ServerId &sid, uint32_t &ltoken) {
+RedisAccessResult RedisUtils::ResetSessionTTL(redisContext *redis, const std::string &cmdSha1, UserId userId, const std::string &gToken) {
+    redisReply *reply;
+    if (cmdSha1.empty()) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, userId, gToken.c_str(), TOKEN_TIMEOUT);
+    } else {
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s %d", cmdSha1.c_str(), userId, gToken.c_str(), TOKEN_TIMEOUT);
+    }
+    
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    if (reply->integer == 0) {
+        freeReplyObject(reply);
+        return REDIS_FAIL;
+    }
+
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
+}
+
+RedisAccessResult RedisUtils::RemoveSession(redisContext *redis, const std::string &cmdSha1, UserId userId, const std::string &gToken) {
+    redisReply *reply;
+    if (cmdSha1.empty()) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, userId, gToken.c_str());
+    } else {
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s", cmdSha1.c_str(), userId, gToken.c_str());
+    }
+
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    if (reply->integer == 0) {
+        freeReplyObject(reply);
+        return REDIS_FAIL;
+    }
+
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
+}
+
+RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType &stype, ServerId &sid, uint32_t &lToken) {
     redisReply *reply = (redisReply *)redisCommand(redis, "HMGET Location:%d lToken stype sid", roleId);
     if (!reply) {
         return REDIS_DB_ERROR;

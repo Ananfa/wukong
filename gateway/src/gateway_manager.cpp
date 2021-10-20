@@ -193,6 +193,7 @@ int GatewayManager::tryChangeGatewayObjectConn(UserId userId, const std::string 
         if (it1->second->data->getGToken() == token) {
             // 转移消息缓存
             newConn->setMsgBuffer(it1->second->data->getConn()->getMsgBuffer());
+            it1->second->data->setConn(newConn);
             _userId2GatewayObjectMap.insert(std::make_pair(userId, it1->second->data));
             _connection2GatewayObjectMap.insert(std::make_pair(newConn.get(), it1->second->data));
 

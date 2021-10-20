@@ -21,8 +21,10 @@ namespace wukong {
         static RedisAccessResult SaveRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
         static RedisAccessResult UpdateRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas);
 
-        static RedisAccessResult CheckPassport(redisContext *redis, UserId userId, ServerId gateId, const std::string &gToken, RoleId &roleId);
-        static RedisAccessResult SetSession(redisContext *redis, UserId userId, ServerId gateId, const std::string &gToken, RoleId roleId);
+        static RedisAccessResult CheckPassport(redisContext *redis, const std::string &cmdSha1, UserId userId, ServerId gateId, const std::string &gToken, RoleId &roleId);
+        static RedisAccessResult SetSession(redisContext *redis, const std::string &cmdSha1, UserId userId, ServerId gateId, const std::string &gToken, RoleId roleId);
+        static RedisAccessResult ResetSessionTTL(redisContext *redis, const std::string &cmdSha1, UserId userId, const std::string &gToken);
+        static RedisAccessResult RemoveSession(redisContext *redis, const std::string &cmdSha1, UserId userId, const std::string &gToken);
         static RedisAccessResult GetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType &stype, ServerId &sid, uint32_t &ltoken);
     };
 

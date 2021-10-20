@@ -186,7 +186,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
         return;
     }
 
-    if (RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
+    switch (RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
         case REDIS_DB_ERROR: {
             g_RecordCenter.getCachePool()->proxy.put(cache, true);
             ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] cache role data failed for db error\n", roleId);

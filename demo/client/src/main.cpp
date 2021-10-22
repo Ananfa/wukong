@@ -315,7 +315,7 @@ void clientThread(int base, int num) {
 }
 
 int main(int argc, const char *argv[]) {
-    co_start_hook();
+    RoutineEnvironment::init();
     LOG("start...\n");
 
     std::thread t1 = std::thread(clientThread, 20000000, 20);
@@ -324,7 +324,7 @@ int main(int argc, const char *argv[]) {
     std::thread t4 = std::thread(clientThread, 50000000, 20);
     std::thread t5 = std::thread(clientThread, 60000000, 20);
 
-    corpc::RoutineEnvironment::startCoroutine(log_routine, NULL);
+    RoutineEnvironment::startCoroutine(log_routine, NULL);
 
     LOG("running...\n");
 

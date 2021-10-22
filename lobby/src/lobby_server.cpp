@@ -103,7 +103,7 @@ bool LobbyServer::init(int argc, char * argv[]) {
 
     _inited = true;
 
-    co_start_hook();
+    RoutineEnvironment::init();
 
     struct sigaction sa;
     sa.sa_handler = SIG_IGN;

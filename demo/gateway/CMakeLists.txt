@@ -41,6 +41,7 @@ set(SOURCE_FILES
     ../../share/client/zk_client.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
+    ../../utils/redis_utils.cpp
     ../../proto/common.pb.cc
     ../../proto/game/game.pb.cc
     ../../proto/service/gateway_service.pb.cc

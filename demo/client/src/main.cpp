@@ -31,7 +31,7 @@ struct AccountInfo {
 
 static void *log_routine( void *arg )
 {
-    co_enable_hook_sys();
+    //co_enable_hook_sys();
     
     int total = 0;
     int average = 0;

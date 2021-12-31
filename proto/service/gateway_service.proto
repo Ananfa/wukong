@@ -8,8 +8,9 @@ option cc_generic_services = true;
 package wukong.pb;
 
 message KickRequest {
-    uint32 userId = 1;
-    string gToken = 2;
+    uint32 serverId = 1;
+    uint32 userId = 2;
+    string gToken = 3;
 }
 
 message ForwardOutTarget {
@@ -18,22 +19,34 @@ message ForwardOutTarget {
 }
 
 message ForwardOutRequest {
-    int32 type = 1; // 消息类型
-    uint32 tag = 2; // 消息tag（用于客户端与服务器RPC）
-    repeated ForwardOutTarget targets = 3; // 发送目标
-    bytes rawMsg = 4; // 原始消息数据
+    uint32 serverId = 1; // 为0表示广播给所有服，此时request中的targets应为空
+    int32 type = 2; // 消息类型
+    uint32 tag = 3; // 消息tag（用于客户端与服务器RPC）
+    repeated ForwardOutTarget targets = 4; // 发送目标（注意：目标列表为空时表示广播所有玩家）
+    bytes rawMsg = 5; // 原始消息数据
 }
 
 message SetGameObjectPosRequest {
-    uint32 userId = 1;
-    uint32 lToken = 2;
-    uint32 serverType = 3;
-    uint32 serverId = 4;
+    uint32 serverId = 1;
+    uint32 userId = 2;
+    uint32 lToken = 3;
+    uint32 gsType = 4;
+    uint32 gsId = 5;
 }
 
 message GSHeartbeatRequest {
-    uint32 userId = 1;
-    uint32 lToken = 2;
+    uint32 serverId = 1;
+    uint32 userId = 2;
+    uint32 lToken = 3;
+}
+
+message OnlineCount {
+    uint32 serverId = 1;
+    int32 count = 2;
+}
+
+message OnlineCounts {
+    repeated OnlineCount counts = 1;
 }
 
 service GatewayService {
@@ -51,11 +64,51 @@ service GatewayService {
         option (corpc.need_coroutine) = true;
     }
 
-    // 获取在线玩家数，用于负载均衡（超时时间2秒，超时表示网关负载过高，后续不被继续分配）
-    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+    // 获取在线玩家数，用于负载均衡（超时时间2秒，超时表示该网关负载过高，后续不被继续分配）
+    rpc getOnlineCount(corpc.Void) returns(OnlineCounts)
     {
+        option (corpc.need_coroutine) = true;
         option (corpc.timeout) = 2000;
     }
+
+    rpc forwardOut(ForwardOutRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+        option (corpc.delete_in_done) = true;
+    }
+
+    // 设置游戏对象位置（切场景时位置会改变）
+    rpc setGameObjectPos(SetGameObjectPosRequest) returns(BoolValue)
+    {
+        option (corpc.need_coroutine) = true;
+    }
+
+    // 玩家游戏对象向路由对象定时心跳查看路由对象是否存在（超时时间2秒，负载过高心跳失败导致游戏对象销毁）
+    rpc heartbeat(GSHeartbeatRequest) returns(BoolValue)
+    {
+        option (corpc.need_coroutine) = true;
+        option (corpc.timeout) = 2000;
+    }
+
+}
+
+service InnerGatewayService {
+    option (corpc.global_service_id) = 101;
+    
+    // 关服（关闭Gateway后，内部服务中的游戏对象会在心跳失败时销毁并存盘，因此只需对gateway进行shutdown）
+    rpc shutdown(corpc.Void) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+    }
+
+    // 踢出指定玩家
+    rpc kick(KickRequest) returns(BoolValue)
+    {
+        option (corpc.need_coroutine) = true;
+    }
+
+    // 获取在线玩家数，用于负载均衡
+    rpc getOnlineCount(corpc.Void) returns(Uint32Value);
 
     rpc forwardOut(ForwardOutRequest) returns(corpc.Void)
     {

@@ -75,7 +75,7 @@ namespace wukong {
         GatewayManager *_manager; // 关联的manager
 
     public:
-        friend class GatewayServiceImpl;
+        friend class InnerGatewayServiceImpl;
     };
 }
 

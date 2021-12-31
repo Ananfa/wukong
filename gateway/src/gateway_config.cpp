@@ -47,6 +47,18 @@ bool GatewayConfig::parse(const char *path) {
     }
     _externalIp = doc["externalIp"].GetString();
     
+    if (doc.HasMember("outerAddr")) {
+        _outerAddr = doc["outerAddr"].GetString();
+    } else {
+        _outerAddr = _externalIp;
+    }
+    
+    if (!doc.HasMember("rpcPort")) {
+        ERROR_LOG("config error -- rpcPort not define\n");
+        return false;
+    }
+    _rpcPort = doc["rpcPort"].GetUint();
+    
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
         return false;
@@ -73,12 +85,6 @@ bool GatewayConfig::parse(const char *path) {
             return false;
         }
 
-        if (!server.HasMember("rpcPort")) {
-            ERROR_LOG("config error -- servers[%d] id rpcPort not define\n", i);
-            return false;
-        }
-        info.rpcPort = server["rpcPort"].GetUint();
-        
         if (!server.HasMember("msgPort")) {
             ERROR_LOG("config error -- servers[%d] id msgPort not define\n", i);
             return false;
@@ -87,8 +93,6 @@ bool GatewayConfig::parse(const char *path) {
         
         if (server.HasMember("outerAddr")) {
             info.outerAddr = server["outerAddr"].GetString();
-        } else {
-            info.outerAddr = _externalIp;
         }
 
         if (server.HasMember("outerPort")) {
@@ -165,6 +169,15 @@ bool GatewayConfig::parse(const char *path) {
         return false;
     }
     _cache.maxConnect = cache["maxConnect"].GetUint();
+
+    _zooPath = ZK_GATEWAY_SERVER + "/" + _internalIp + ":" + std::to_string(_rpcPort);
+    for (const GatewayConfig::ServerInfo &info : _serverInfos) {
+        if (info.outerAddr.empty()) {
+            _zooPath += "|" + std::to_string(info.id) + "," + std::to_string(info.outerPort);
+        } else {
+            _zooPath += "|" + std::to_string(info.id) + "," + info.outerAddr + ":" + std::to_string(info.outerPort);
+        }
+    }
     
     return true;
 }

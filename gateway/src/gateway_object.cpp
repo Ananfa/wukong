@@ -26,11 +26,6 @@
 
 using namespace wukong;
 
-static void callDoneHandle(::google::protobuf::Message *request, Controller *controller) {
-    delete controller;
-    delete request;
-}
-
 bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
     if (!_gameServerStub || _gameServerType != gsType || _gameServerId != sid) {
         _gameServerType = gsType;

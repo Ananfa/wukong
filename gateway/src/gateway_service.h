@@ -23,8 +23,38 @@
 
 namespace wukong {
     class GatewayServiceImpl : public pb::GatewayService {
+
+        virtual void shutdown(::google::protobuf::RpcController* controller,
+                             const ::corpc::Void* request,
+                             ::corpc::Void* response,
+                             ::google::protobuf::Closure* done);
+        virtual void kick(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::KickRequest* request,
+                             ::wukong::pb::BoolValue* response,
+                             ::google::protobuf::Closure* done);
+        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
+                             const ::corpc::Void* request,
+                             ::wukong::pb::OnlineCounts* response,
+                             ::google::protobuf::Closure* done);
+        virtual void forwardOut(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::ForwardOutRequest* request,
+                             ::corpc::Void* response,
+                             ::google::protobuf::Closure* done);
+        virtual void setGameObjectPos(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::SetGameObjectPosRequest* request,
+                             ::wukong::pb::BoolValue* response,
+                             ::google::protobuf::Closure* done);
+        virtual void heartbeat(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::GSHeartbeatRequest* request,
+                             ::wukong::pb::BoolValue* response,
+                             ::google::protobuf::Closure* done);
+
+        static void callDoneHandle(std::shared_ptr<::google::protobuf::Closure> done);
+    };
+
+    class InnerGatewayServiceImpl : public pb::InnerGatewayService {
     public:
-        GatewayServiceImpl(GatewayManager *manager): _manager(manager) {}
+        InnerGatewayServiceImpl(GatewayManager *manager): _manager(manager) {}
         
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,

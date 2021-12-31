@@ -49,7 +49,7 @@ struct TableStruct_gateway_5fservice_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[7]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -70,6 +70,12 @@ extern GSHeartbeatRequestDefaultTypeInternal _GSHeartbeatRequest_default_instanc
 class KickRequest;
 struct KickRequestDefaultTypeInternal;
 extern KickRequestDefaultTypeInternal _KickRequest_default_instance_;
+class OnlineCount;
+struct OnlineCountDefaultTypeInternal;
+extern OnlineCountDefaultTypeInternal _OnlineCount_default_instance_;
+class OnlineCounts;
+struct OnlineCountsDefaultTypeInternal;
+extern OnlineCountsDefaultTypeInternal _OnlineCounts_default_instance_;
 class SetGameObjectPosRequest;
 struct SetGameObjectPosRequestDefaultTypeInternal;
 extern SetGameObjectPosRequestDefaultTypeInternal _SetGameObjectPosRequest_default_instance_;
@@ -80,6 +86,8 @@ template<> ::wukong::pb::ForwardOutRequest* Arena::CreateMaybeMessage<::wukong::
 template<> ::wukong::pb::ForwardOutTarget* Arena::CreateMaybeMessage<::wukong::pb::ForwardOutTarget>(Arena*);
 template<> ::wukong::pb::GSHeartbeatRequest* Arena::CreateMaybeMessage<::wukong::pb::GSHeartbeatRequest>(Arena*);
 template<> ::wukong::pb::KickRequest* Arena::CreateMaybeMessage<::wukong::pb::KickRequest>(Arena*);
+template<> ::wukong::pb::OnlineCount* Arena::CreateMaybeMessage<::wukong::pb::OnlineCount>(Arena*);
+template<> ::wukong::pb::OnlineCounts* Arena::CreateMaybeMessage<::wukong::pb::OnlineCounts>(Arena*);
 template<> ::wukong::pb::SetGameObjectPosRequest* Arena::CreateMaybeMessage<::wukong::pb::SetGameObjectPosRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
@@ -202,10 +210,11 @@ class KickRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kGTokenFieldNumber = 2,
-    kUserIdFieldNumber = 1,
+    kGTokenFieldNumber = 3,
+    kServerIdFieldNumber = 1,
+    kUserIdFieldNumber = 2,
   };
-  // string gToken = 2;
+  // string gToken = 3;
   void clear_gtoken();
   const std::string& gtoken() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -219,7 +228,16 @@ class KickRequest final :
   std::string* _internal_mutable_gtoken();
   public:
 
-  // uint32 userId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 userId = 2;
   void clear_userid();
   ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
   void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -236,6 +254,7 @@ class KickRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr gtoken_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
@@ -507,12 +526,13 @@ class ForwardOutRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kTargetsFieldNumber = 3,
-    kRawMsgFieldNumber = 4,
-    kTypeFieldNumber = 1,
-    kTagFieldNumber = 2,
+    kTargetsFieldNumber = 4,
+    kRawMsgFieldNumber = 5,
+    kServerIdFieldNumber = 1,
+    kTypeFieldNumber = 2,
+    kTagFieldNumber = 3,
   };
-  // repeated .wukong.pb.ForwardOutTarget targets = 3;
+  // repeated .wukong.pb.ForwardOutTarget targets = 4;
   int targets_size() const;
   private:
   int _internal_targets_size() const;
@@ -530,7 +550,7 @@ class ForwardOutRequest final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::ForwardOutTarget >&
       targets() const;
 
-  // bytes rawMsg = 4;
+  // bytes rawMsg = 5;
   void clear_rawmsg();
   const std::string& rawmsg() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -544,7 +564,16 @@ class ForwardOutRequest final :
   std::string* _internal_mutable_rawmsg();
   public:
 
-  // int32 type = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 type = 2;
   void clear_type();
   ::PROTOBUF_NAMESPACE_ID::int32 type() const;
   void set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
@@ -553,7 +582,7 @@ class ForwardOutRequest final :
   void _internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // uint32 tag = 2;
+  // uint32 tag = 3;
   void clear_tag();
   ::PROTOBUF_NAMESPACE_ID::uint32 tag() const;
   void set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -571,6 +600,7 @@ class ForwardOutRequest final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::ForwardOutTarget > targets_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rawmsg_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::int32 type_;
   ::PROTOBUF_NAMESPACE_ID::uint32 tag_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -693,12 +723,22 @@ class SetGameObjectPosRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
-    kLTokenFieldNumber = 2,
-    kServerTypeFieldNumber = 3,
-    kServerIdFieldNumber = 4,
+    kServerIdFieldNumber = 1,
+    kUserIdFieldNumber = 2,
+    kLTokenFieldNumber = 3,
+    kGsTypeFieldNumber = 4,
+    kGsIdFieldNumber = 5,
   };
-  // uint32 userId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 userId = 2;
   void clear_userid();
   ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
   void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -707,7 +747,7 @@ class SetGameObjectPosRequest final :
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 2;
+  // uint32 lToken = 3;
   void clear_ltoken();
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
   void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -716,22 +756,22 @@ class SetGameObjectPosRequest final :
   void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 serverType = 3;
-  void clear_servertype();
-  ::PROTOBUF_NAMESPACE_ID::uint32 servertype() const;
-  void set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  // uint32 gsType = 4;
+  void clear_gstype();
+  ::PROTOBUF_NAMESPACE_ID::uint32 gstype() const;
+  void set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_servertype() const;
-  void _internal_set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_gstype() const;
+  void _internal_set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 serverId = 4;
-  void clear_serverid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
-  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  // uint32 gsId = 5;
+  void clear_gsid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 gsid() const;
+  void set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
-  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_gsid() const;
+  void _internal_set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:wukong.pb.SetGameObjectPosRequest)
@@ -741,10 +781,11 @@ class SetGameObjectPosRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 servertype_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 gstype_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 gsid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
@@ -865,10 +906,20 @@ class GSHeartbeatRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
-    kLTokenFieldNumber = 2,
+    kServerIdFieldNumber = 1,
+    kUserIdFieldNumber = 2,
+    kLTokenFieldNumber = 3,
   };
-  // uint32 userId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 userId = 2;
   void clear_userid();
   ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
   void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -877,7 +928,7 @@ class GSHeartbeatRequest final :
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 2;
+  // uint32 lToken = 3;
   void clear_ltoken();
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
   void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -893,8 +944,307 @@ class GSHeartbeatRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_gateway_5fservice_2eproto;
+};
+// -------------------------------------------------------------------
+
+class OnlineCount final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.OnlineCount) */ {
+ public:
+  inline OnlineCount() : OnlineCount(nullptr) {}
+  ~OnlineCount() override;
+  explicit constexpr OnlineCount(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  OnlineCount(const OnlineCount& from);
+  OnlineCount(OnlineCount&& from) noexcept
+    : OnlineCount() {
+    *this = ::std::move(from);
+  }
+
+  inline OnlineCount& operator=(const OnlineCount& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline OnlineCount& operator=(OnlineCount&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const OnlineCount& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const OnlineCount* internal_default_instance() {
+    return reinterpret_cast<const OnlineCount*>(
+               &_OnlineCount_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(OnlineCount& a, OnlineCount& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(OnlineCount* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(OnlineCount* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline OnlineCount* New() const final {
+    return new OnlineCount();
+  }
+
+  OnlineCount* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<OnlineCount>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const OnlineCount& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const OnlineCount& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(OnlineCount* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.OnlineCount";
+  }
+  protected:
+  explicit OnlineCount(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kServerIdFieldNumber = 1,
+    kCountFieldNumber = 2,
+  };
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 count = 2;
+  void clear_count();
+  ::PROTOBUF_NAMESPACE_ID::int32 count() const;
+  void set_count(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_count() const;
+  void _internal_set_count(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.OnlineCount)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
+  ::PROTOBUF_NAMESPACE_ID::int32 count_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_gateway_5fservice_2eproto;
+};
+// -------------------------------------------------------------------
+
+class OnlineCounts final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.OnlineCounts) */ {
+ public:
+  inline OnlineCounts() : OnlineCounts(nullptr) {}
+  ~OnlineCounts() override;
+  explicit constexpr OnlineCounts(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  OnlineCounts(const OnlineCounts& from);
+  OnlineCounts(OnlineCounts&& from) noexcept
+    : OnlineCounts() {
+    *this = ::std::move(from);
+  }
+
+  inline OnlineCounts& operator=(const OnlineCounts& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline OnlineCounts& operator=(OnlineCounts&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const OnlineCounts& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const OnlineCounts* internal_default_instance() {
+    return reinterpret_cast<const OnlineCounts*>(
+               &_OnlineCounts_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(OnlineCounts& a, OnlineCounts& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(OnlineCounts* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(OnlineCounts* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline OnlineCounts* New() const final {
+    return new OnlineCounts();
+  }
+
+  OnlineCounts* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<OnlineCounts>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const OnlineCounts& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const OnlineCounts& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(OnlineCounts* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.OnlineCounts";
+  }
+  protected:
+  explicit OnlineCounts(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kCountsFieldNumber = 1,
+  };
+  // repeated .wukong.pb.OnlineCount counts = 1;
+  int counts_size() const;
+  private:
+  int _internal_counts_size() const;
+  public:
+  void clear_counts();
+  ::wukong::pb::OnlineCount* mutable_counts(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >*
+      mutable_counts();
+  private:
+  const ::wukong::pb::OnlineCount& _internal_counts(int index) const;
+  ::wukong::pb::OnlineCount* _internal_add_counts();
+  public:
+  const ::wukong::pb::OnlineCount& counts(int index) const;
+  ::wukong::pb::OnlineCount* add_counts();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >&
+      counts() const;
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.OnlineCounts)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount > counts_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
@@ -923,7 +1273,7 @@ class GatewayService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        ::google::protobuf::Closure* done);
   virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
+                       ::wukong::pb::OnlineCounts* response,
                        ::google::protobuf::Closure* done);
   virtual void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardOutRequest* request,
@@ -976,7 +1326,7 @@ class GatewayService_Stub : public GatewayService {
                        ::google::protobuf::Closure* done);
   void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
+                       ::wukong::pb::OnlineCounts* response,
                        ::google::protobuf::Closure* done);
   void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardOutRequest* request,
@@ -997,6 +1347,105 @@ class GatewayService_Stub : public GatewayService {
 };
 
 
+// -------------------------------------------------------------------
+
+class InnerGatewayService_Stub;
+
+class InnerGatewayService : public ::PROTOBUF_NAMESPACE_ID::Service {
+ protected:
+  // This class should be treated as an abstract interface.
+  inline InnerGatewayService() {};
+ public:
+  virtual ~InnerGatewayService();
+
+  typedef InnerGatewayService_Stub Stub;
+
+  static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
+
+  virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  virtual void kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::KickRequest* request,
+                       ::wukong::pb::BoolValue* response,
+                       ::google::protobuf::Closure* done);
+  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+  virtual void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardOutRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  virtual void setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::SetGameObjectPosRequest* request,
+                       ::wukong::pb::BoolValue* response,
+                       ::google::protobuf::Closure* done);
+  virtual void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::GSHeartbeatRequest* request,
+                       ::wukong::pb::BoolValue* response,
+                       ::google::protobuf::Closure* done);
+
+  // implements Service ----------------------------------------------
+
+  const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GetDescriptor();
+  void CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
+                  ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                  const ::PROTOBUF_NAMESPACE_ID::Message* request,
+                  ::PROTOBUF_NAMESPACE_ID::Message* response,
+                  ::google::protobuf::Closure* done);
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetRequestPrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetResponsePrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+
+ private:
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerGatewayService);
+};
+
+class InnerGatewayService_Stub : public InnerGatewayService {
+ public:
+  InnerGatewayService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel);
+  InnerGatewayService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
+                   ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership);
+  ~InnerGatewayService_Stub();
+
+  inline ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel() { return channel_; }
+
+  // implements InnerGatewayService ------------------------------------------
+
+  void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  void kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::KickRequest* request,
+                       ::wukong::pb::BoolValue* response,
+                       ::google::protobuf::Closure* done);
+  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+  void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardOutRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  void setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::SetGameObjectPosRequest* request,
+                       ::wukong::pb::BoolValue* response,
+                       ::google::protobuf::Closure* done);
+  void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::GSHeartbeatRequest* request,
+                       ::wukong::pb::BoolValue* response,
+                       ::google::protobuf::Closure* done);
+ private:
+  ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
+  bool owns_channel_;
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerGatewayService_Stub);
+};
+
+
 // ===================================================================
 
 
@@ -1008,7 +1457,27 @@ class GatewayService_Stub : public GatewayService {
 #endif  // __GNUC__
 // KickRequest
 
-// uint32 userId = 1;
+// uint32 serverId = 1;
+inline void KickRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 KickRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 KickRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.KickRequest.serverId)
+  return _internal_serverid();
+}
+inline void KickRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void KickRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.KickRequest.serverId)
+}
+
+// uint32 userId = 2;
 inline void KickRequest::clear_userid() {
   userid_ = 0u;
 }
@@ -1028,7 +1497,7 @@ inline void KickRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.KickRequest.userId)
 }
 
-// string gToken = 2;
+// string gToken = 3;
 inline void KickRequest::clear_gtoken() {
   gtoken_.ClearToEmpty();
 }
@@ -1122,7 +1591,27 @@ inline void ForwardOutTarget::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) 
 
 // ForwardOutRequest
 
-// int32 type = 1;
+// uint32 serverId = 1;
+inline void ForwardOutRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardOutRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardOutRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ForwardOutRequest.serverId)
+  return _internal_serverid();
+}
+inline void ForwardOutRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void ForwardOutRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ForwardOutRequest.serverId)
+}
+
+// int32 type = 2;
 inline void ForwardOutRequest::clear_type() {
   type_ = 0;
 }
@@ -1142,7 +1631,7 @@ inline void ForwardOutRequest::set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardOutRequest.type)
 }
 
-// uint32 tag = 2;
+// uint32 tag = 3;
 inline void ForwardOutRequest::clear_tag() {
   tag_ = 0u;
 }
@@ -1162,7 +1651,7 @@ inline void ForwardOutRequest::set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardOutRequest.tag)
 }
 
-// repeated .wukong.pb.ForwardOutTarget targets = 3;
+// repeated .wukong.pb.ForwardOutTarget targets = 4;
 inline int ForwardOutRequest::_internal_targets_size() const {
   return targets_.size();
 }
@@ -1202,7 +1691,7 @@ ForwardOutRequest::targets() const {
   return targets_;
 }
 
-// bytes rawMsg = 4;
+// bytes rawMsg = 5;
 inline void ForwardOutRequest::clear_rawmsg() {
   rawmsg_.ClearToEmpty();
 }
@@ -1252,67 +1741,7 @@ inline void ForwardOutRequest::set_allocated_rawmsg(std::string* rawmsg) {
 
 // SetGameObjectPosRequest
 
-// uint32 userId = 1;
-inline void SetGameObjectPosRequest::clear_userid() {
-  userid_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_userid() const {
-  return userid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::userid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.userId)
-  return _internal_userid();
-}
-inline void SetGameObjectPosRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  userid_ = value;
-}
-inline void SetGameObjectPosRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.userId)
-}
-
-// uint32 lToken = 2;
-inline void SetGameObjectPosRequest::clear_ltoken() {
-  ltoken_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::ltoken() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.lToken)
-  return _internal_ltoken();
-}
-inline void SetGameObjectPosRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void SetGameObjectPosRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.lToken)
-}
-
-// uint32 serverType = 3;
-inline void SetGameObjectPosRequest::clear_servertype() {
-  servertype_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_servertype() const {
-  return servertype_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::servertype() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.serverType)
-  return _internal_servertype();
-}
-inline void SetGameObjectPosRequest::_internal_set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  servertype_ = value;
-}
-inline void SetGameObjectPosRequest::set_servertype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_servertype(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.serverType)
-}
-
-// uint32 serverId = 4;
+// uint32 serverId = 1;
 inline void SetGameObjectPosRequest::clear_serverid() {
   serverid_ = 0u;
 }
@@ -1332,11 +1761,111 @@ inline void SetGameObjectPosRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint3
   // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.serverId)
 }
 
+// uint32 userId = 2;
+inline void SetGameObjectPosRequest::clear_userid() {
+  userid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_userid() const {
+  return userid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::userid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.userId)
+  return _internal_userid();
+}
+inline void SetGameObjectPosRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  userid_ = value;
+}
+inline void SetGameObjectPosRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.userId)
+}
+
+// uint32 lToken = 3;
+inline void SetGameObjectPosRequest::clear_ltoken() {
+  ltoken_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_ltoken() const {
+  return ltoken_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::ltoken() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.lToken)
+  return _internal_ltoken();
+}
+inline void SetGameObjectPosRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  ltoken_ = value;
+}
+inline void SetGameObjectPosRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_ltoken(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.lToken)
+}
+
+// uint32 gsType = 4;
+inline void SetGameObjectPosRequest::clear_gstype() {
+  gstype_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_gstype() const {
+  return gstype_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::gstype() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.gsType)
+  return _internal_gstype();
+}
+inline void SetGameObjectPosRequest::_internal_set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  gstype_ = value;
+}
+inline void SetGameObjectPosRequest::set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_gstype(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.gsType)
+}
+
+// uint32 gsId = 5;
+inline void SetGameObjectPosRequest::clear_gsid() {
+  gsid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_gsid() const {
+  return gsid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::gsid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.gsId)
+  return _internal_gsid();
+}
+inline void SetGameObjectPosRequest::_internal_set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  gsid_ = value;
+}
+inline void SetGameObjectPosRequest::set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_gsid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.gsId)
+}
+
 // -------------------------------------------------------------------
 
 // GSHeartbeatRequest
 
-// uint32 userId = 1;
+// uint32 serverId = 1;
+inline void GSHeartbeatRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 GSHeartbeatRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 GSHeartbeatRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.GSHeartbeatRequest.serverId)
+  return _internal_serverid();
+}
+inline void GSHeartbeatRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void GSHeartbeatRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.serverId)
+}
+
+// uint32 userId = 2;
 inline void GSHeartbeatRequest::clear_userid() {
   userid_ = 0u;
 }
@@ -1356,7 +1885,7 @@ inline void GSHeartbeatRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.userId)
 }
 
-// uint32 lToken = 2;
+// uint32 lToken = 3;
 inline void GSHeartbeatRequest::clear_ltoken() {
   ltoken_ = 0u;
 }
@@ -1376,9 +1905,101 @@ inline void GSHeartbeatRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.lToken)
 }
 
+// -------------------------------------------------------------------
+
+// OnlineCount
+
+// uint32 serverId = 1;
+inline void OnlineCount::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 OnlineCount::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 OnlineCount::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.OnlineCount.serverId)
+  return _internal_serverid();
+}
+inline void OnlineCount::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void OnlineCount::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.OnlineCount.serverId)
+}
+
+// int32 count = 2;
+inline void OnlineCount::clear_count() {
+  count_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 OnlineCount::_internal_count() const {
+  return count_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 OnlineCount::count() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.OnlineCount.count)
+  return _internal_count();
+}
+inline void OnlineCount::_internal_set_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  count_ = value;
+}
+inline void OnlineCount::set_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_count(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.OnlineCount.count)
+}
+
+// -------------------------------------------------------------------
+
+// OnlineCounts
+
+// repeated .wukong.pb.OnlineCount counts = 1;
+inline int OnlineCounts::_internal_counts_size() const {
+  return counts_.size();
+}
+inline int OnlineCounts::counts_size() const {
+  return _internal_counts_size();
+}
+inline void OnlineCounts::clear_counts() {
+  counts_.Clear();
+}
+inline ::wukong::pb::OnlineCount* OnlineCounts::mutable_counts(int index) {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.OnlineCounts.counts)
+  return counts_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >*
+OnlineCounts::mutable_counts() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.OnlineCounts.counts)
+  return &counts_;
+}
+inline const ::wukong::pb::OnlineCount& OnlineCounts::_internal_counts(int index) const {
+  return counts_.Get(index);
+}
+inline const ::wukong::pb::OnlineCount& OnlineCounts::counts(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.OnlineCounts.counts)
+  return _internal_counts(index);
+}
+inline ::wukong::pb::OnlineCount* OnlineCounts::_internal_add_counts() {
+  return counts_.Add();
+}
+inline ::wukong::pb::OnlineCount* OnlineCounts::add_counts() {
+  ::wukong::pb::OnlineCount* _add = _internal_add_counts();
+  // @@protoc_insertion_point(field_add:wukong.pb.OnlineCounts.counts)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >&
+OnlineCounts::counts() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.OnlineCounts.counts)
+  return counts_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

@@ -25,11 +25,6 @@ std::atomic<uint32_t> LobbyClient::_stubChangeNum(0);
 thread_local uint32_t LobbyClient::_t_stubChangeNum = 0;
 thread_local std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_t_stubs;
 
-static void callDoneHandle(::google::protobuf::Message *request, Controller *controller) {
-    delete controller;
-    delete request;
-}
-
 void LobbyClient::shutdown() {
     refreshStubs();
     std::map<ServerId, LobbyClient::StubInfo> stubs = _t_stubs;

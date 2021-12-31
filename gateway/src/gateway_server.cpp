@@ -38,17 +38,13 @@ using namespace wukong;
 void GatewayServer::enterZoo() {
     g_ZkClient.init(g_GatewayConfig.getZookeeper(), ZK_TIMEOUT, [this]() {
         // 对servers配置中每一个server进行节点注册
-        const std::vector<GatewayConfig::ServerInfo> &serverInfos = g_GatewayConfig.getServerInfos();
-        for (const GatewayConfig::ServerInfo &info : serverInfos) {
-            std::string zooPath = ZK_GATEWAY_SERVER + "/" + std::to_string(info.id) + "|" + g_GatewayConfig.getInternalIp() + ":" + std::to_string(info.rpcPort) + "|" + info.outerAddr + ":" + std::to_string(info.msgPort);
-            g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
-                if (ret) {
-                    LOG("create rpc node:[%s] sucessful\n", path.c_str());
-                } else {
-                    ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
-                }
-            });
-        }
+        g_ZkClient.createEphemeralNode(g_GatewayConfig.getZooPath(), ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
+            if (ret) {
+                LOG("create rpc node:[%s] sucessful\n", path.c_str());
+            } else {
+                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
+            }
+        });
 
         for (auto &pair : _gameClientMap) {
             g_ZkClient.watchChildren(pair.second->getZkNodeName(), [pair](const std::string &path, const std::vector<std::string> &values) {
@@ -68,14 +64,15 @@ void GatewayServer::enterZoo() {
     });
 }
 
-void GatewayServer::gatewayThread(IO *rpc_io, IO *msg_io, ServerId gwid, uint16_t rpcPort, uint16_t msgPort) {
+void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort) {
     // 启动RPC服务
-    RpcServer *server = RpcServer::create(rpc_io, 0, g_GatewayConfig.getInternalIp(), rpcPort);
+    //RpcServer *server = RpcServer::create(rpc_io, 0, g_GatewayConfig.getInternalIp(), rpcPort);
+    server->start(false);
     
     GatewayManager *mgr = new GatewayManager(gwid);
     mgr->init();
 
-    GatewayServiceImpl *gatewayServiceImpl = new GatewayServiceImpl(mgr);
+    InnerGatewayServiceImpl *gatewayServiceImpl = new InnerGatewayServiceImpl(mgr);
     server->registerService(gatewayServiceImpl);
 
     // 启动消息服务，注册连接建立、断开、消息禁止、身份认证等消息处理，以及设置旁路处理（将消息转发给玩家游戏对象所在的服务器）
@@ -156,8 +153,19 @@ void GatewayServer::run() {
     // 根据servers配置启动Gateway服务，每线程跑一个服务
     const std::vector<GatewayConfig::ServerInfo> &gatewayInfos = g_GatewayConfig.getServerInfos();
     for (auto &info : gatewayInfos) {
-        _threads.push_back(std::thread(gatewayThread, _io, _io, info.id, info.rpcPort, info.msgPort));
+        // 创建内部RPC服务
+        InnerRpcServer *innerServer = new InnerRpcServer();
+
+        _innerStubs.insert(std::make_pair(info.id, new pb::InnerGatewayService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL)));
+
+        _threads.push_back(std::thread(gatewayThread, innerServer, _io, info.id, info.msgPort));
     }
+
+    // 启动对外的RPC服务
+    RpcServer *server = RpcServer::create(_io, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
+
+    GatewayServiceImpl *gatewayServiceImpl = new GatewayServiceImpl();
+    server->registerService(gatewayServiceImpl);
 
     enterZoo();
     RoutineEnvironment::runEventLoop();
@@ -175,4 +183,23 @@ GameClient *GatewayServer::getGameClient(GameServerType gsType) {
     }
 
     return it->second;
+}
+
+pb::InnerGatewayService_Stub *GatewayServer::getInnerStub(ServerId sid) {
+    auto it = _innerStubs.find(sid);
+
+    if (it == _innerStubs.end()) {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+void GatewayServer::traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle) {
+    std::map<ServerId, pb::InnerGatewayService_Stub*> stubs = _innerStubs; // 防止轮询Map过程中Map被修改的同步问题
+    for (auto &pair : stubs) {
+        if (!handle(pair.first, pair.second)) {
+            return;
+        }
+    }
 }

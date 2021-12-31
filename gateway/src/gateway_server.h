@@ -18,10 +18,13 @@
 #define gateway_server_h
 
 #include "corpc_rpc_client.h"
+#include "corpc_inner_rpc.h"
 #include "game_client.h"
 #include "share/define.h"
+#include "gateway_service.pb.h"
 #include <map>
 #include <thread>
+#include <functional>
 
 using namespace corpc;
 
@@ -34,6 +37,7 @@ namespace wukong {
         IO *_io = nullptr;
         RpcClient *_rpcClient = nullptr;
 
+        std::map<ServerId, pb::InnerGatewayService_Stub*> _innerStubs;
         std::map<GameServerType, GameClient*> _gameClientMap;
         std::vector<std::thread> _threads;
     public:
@@ -51,10 +55,13 @@ namespace wukong {
         void registerGameClient(GameClient *client);
         GameClient *getGameClient(GameServerType gsType);
 
+        pb::InnerGatewayService_Stub *getInnerStub(ServerId sid);
+        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle);
+
     private:
         void enterZoo();
 
-        static void gatewayThread(IO *rpc_io, IO *msg_io, ServerId gwid, uint16_t rpcPort, uint16_t msgPort);
+        static void gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort);
 
     private:
         GatewayServer() = default;                                  // ctor hidden

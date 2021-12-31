@@ -158,6 +158,14 @@ std::shared_ptr<GatewayObject> GatewayManager::getConnectedGatewayObject(std::sh
     return it->second;
 }
 
+void GatewayManager::traverseConnectedGatewayObject(std::function<bool(std::shared_ptr<GatewayObject>&)> handle) {
+    for (auto &pair : _userId2GatewayObjectMap) {
+        if (!handle(pair.second)) {
+            return;
+        }
+    }
+}
+
 void GatewayManager::addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj) {
     _userId2GatewayObjectMap.insert(std::make_pair(obj->getUserId(), obj));
     _connection2GatewayObjectMap.insert(std::make_pair(obj->getConn().get(), obj));

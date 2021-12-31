@@ -42,6 +42,8 @@ namespace wukong {
         std::shared_ptr<GameObject> getGameObject(RoleId roleId);
         std::shared_ptr<GameObject> create(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, ServerId gatewayId, ServerId recordId, const std::string &data);
         bool remove(RoleId roleId); // 删除玩家游戏对象
+
+        // TODO: 实现广播和多播接口
     private:
         ServerId _id;       // lobby服务号
         bool _shutdown;

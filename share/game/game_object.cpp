@@ -165,8 +165,8 @@ bool GameObject::reportGameObjectPos() {
     Controller *controller = new Controller();
     request->set_userid(_userId);
     request->set_ltoken(_lToken);
-    request->set_servertype(g_GameCenter.getType());
-    request->set_serverid(_manager->getId());
+    request->set_gstype(g_GameCenter.getType());
+    request->set_gsid(_manager->getId());
     _gatewayServerStub->setGameObjectPos(controller, request, response, nullptr);
     
     bool ret;

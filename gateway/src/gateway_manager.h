@@ -56,6 +56,7 @@ namespace wukong {
         // 获取已连接的网关对象
         std::shared_ptr<GatewayObject> getConnectedGatewayObject(UserId userId);
         std::shared_ptr<GatewayObject> getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn);
+        void traverseConnectedGatewayObject(std::function<bool(std::shared_ptr<GatewayObject>&)> handle); // 注意：handle方法中不能有协程切换产生
 
         void addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj);
 

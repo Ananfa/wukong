@@ -28,10 +28,8 @@ namespace wukong {
     public:
         struct ServerInfo {
             uint32_t id;            // 服务号（Gateway服务唯一标识，与zookeeper注册发现有关）
-            uint16_t rpcPort;       // rpc服务端口
             uint16_t msgPort;       // 消息服务端口
-            // 以下两个outer配置项是考虑通过NAT端口转发的服务器部署方式而增加的
-            std::string outerAddr;  // 提供给客户端的连接地址，不配置或为空时复用externalIp
+            std::string outerAddr;  // 提供给客户端的连接地址，不配置或为空时复用上级的outerAddr或externalIp
             uint16_t outerPort;     // 提供给客户端的连接端口，不配置或为0时复用msgPort
         };
 
@@ -52,6 +50,8 @@ namespace wukong {
         
         const std::string& getInternalIp() const { return _internalIp; }
         const std::string& getExternalIp() const { return _externalIp; }
+        const std::string& getOuterAddr() const { return _outerAddr; }
+        uint16_t getRpcPort() const { return _rpcPort; }
         const std::vector<ServerInfo>& getServerInfos() const { return _serverInfos; }
         
         const std::string& getZookeeper() const { return _zookeeper; }
@@ -63,9 +63,13 @@ namespace wukong {
 
         const RedisInfo& getCache() const { return _cache; }
         
+        const std::string& getZooPath() const { return _zooPath; }
+
     private:
         std::string _internalIp;    // 提供rpc服务的ip
         std::string _externalIp;    // 对客户端提供服务的ip
+        std::string _outerAddr;     // 【通过NAT端口转发的服务器部署方式】提供给客户端的连接地址，不配置或为空时复用externalIp
+        uint16_t _rpcPort;          // rpc服务端口
 
         std::vector<ServerInfo> _serverInfos; // 对外服务的信息列表
         
@@ -77,6 +81,8 @@ namespace wukong {
         uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
         RedisInfo _cache; // 缓存库配置
+
+        std::string _zooPath;
 
     private:
         GatewayConfig() = default;                            // ctor hidden

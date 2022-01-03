@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "corpc_option.proto";
 import "common.proto";
+import "inner_common.proto"
 
 option cc_generic_services = true;
 
@@ -38,15 +39,6 @@ message GSHeartbeatRequest {
     uint32 serverId = 1;
     uint32 userId = 2;
     uint32 lToken = 3;
-}
-
-message OnlineCount {
-    uint32 serverId = 1;
-    int32 count = 2;
-}
-
-message OnlineCounts {
-    repeated OnlineCount counts = 1;
 }
 
 service GatewayService {
@@ -108,7 +100,10 @@ service InnerGatewayService {
     }
 
     // 获取在线玩家数，用于负载均衡
-    rpc getOnlineCount(corpc.Void) returns(Uint32Value);
+    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+    {
+        option (corpc.timeout) = 500; // default is 0
+    }
 
     rpc forwardOut(ForwardOutRequest) returns(corpc.Void)
     {

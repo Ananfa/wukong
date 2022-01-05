@@ -23,7 +23,7 @@
 
 namespace wukong {
     class GatewayServiceImpl : public pb::GatewayService {
-
+    public:
         virtual void shutdown(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
                              ::corpc::Void* response,
@@ -48,8 +48,6 @@ namespace wukong {
                              const ::wukong::pb::GSHeartbeatRequest* request,
                              ::wukong::pb::BoolValue* response,
                              ::google::protobuf::Closure* done);
-
-        static void callDoneHandle(std::shared_ptr<::google::protobuf::Closure> done);
     };
 
     class InnerGatewayServiceImpl : public pb::InnerGatewayService {

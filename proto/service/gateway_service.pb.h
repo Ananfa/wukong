@@ -34,6 +34,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "corpc_option.pb.h"
 #include "common.pb.h"
+#include "inner_common.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_gateway_5fservice_2eproto
@@ -49,7 +50,7 @@ struct TableStruct_gateway_5fservice_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[7]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -70,12 +71,6 @@ extern GSHeartbeatRequestDefaultTypeInternal _GSHeartbeatRequest_default_instanc
 class KickRequest;
 struct KickRequestDefaultTypeInternal;
 extern KickRequestDefaultTypeInternal _KickRequest_default_instance_;
-class OnlineCount;
-struct OnlineCountDefaultTypeInternal;
-extern OnlineCountDefaultTypeInternal _OnlineCount_default_instance_;
-class OnlineCounts;
-struct OnlineCountsDefaultTypeInternal;
-extern OnlineCountsDefaultTypeInternal _OnlineCounts_default_instance_;
 class SetGameObjectPosRequest;
 struct SetGameObjectPosRequestDefaultTypeInternal;
 extern SetGameObjectPosRequestDefaultTypeInternal _SetGameObjectPosRequest_default_instance_;
@@ -86,8 +81,6 @@ template<> ::wukong::pb::ForwardOutRequest* Arena::CreateMaybeMessage<::wukong::
 template<> ::wukong::pb::ForwardOutTarget* Arena::CreateMaybeMessage<::wukong::pb::ForwardOutTarget>(Arena*);
 template<> ::wukong::pb::GSHeartbeatRequest* Arena::CreateMaybeMessage<::wukong::pb::GSHeartbeatRequest>(Arena*);
 template<> ::wukong::pb::KickRequest* Arena::CreateMaybeMessage<::wukong::pb::KickRequest>(Arena*);
-template<> ::wukong::pb::OnlineCount* Arena::CreateMaybeMessage<::wukong::pb::OnlineCount>(Arena*);
-template<> ::wukong::pb::OnlineCounts* Arena::CreateMaybeMessage<::wukong::pb::OnlineCounts>(Arena*);
 template<> ::wukong::pb::SetGameObjectPosRequest* Arena::CreateMaybeMessage<::wukong::pb::SetGameObjectPosRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
@@ -950,304 +943,6 @@ class GSHeartbeatRequest final :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
-// -------------------------------------------------------------------
-
-class OnlineCount final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.OnlineCount) */ {
- public:
-  inline OnlineCount() : OnlineCount(nullptr) {}
-  ~OnlineCount() override;
-  explicit constexpr OnlineCount(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  OnlineCount(const OnlineCount& from);
-  OnlineCount(OnlineCount&& from) noexcept
-    : OnlineCount() {
-    *this = ::std::move(from);
-  }
-
-  inline OnlineCount& operator=(const OnlineCount& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline OnlineCount& operator=(OnlineCount&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const OnlineCount& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const OnlineCount* internal_default_instance() {
-    return reinterpret_cast<const OnlineCount*>(
-               &_OnlineCount_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    5;
-
-  friend void swap(OnlineCount& a, OnlineCount& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(OnlineCount* other) {
-    if (other == this) return;
-    if (GetOwningArena() == other->GetOwningArena()) {
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(OnlineCount* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline OnlineCount* New() const final {
-    return new OnlineCount();
-  }
-
-  OnlineCount* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<OnlineCount>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const OnlineCount& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const OnlineCount& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(OnlineCount* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "wukong.pb.OnlineCount";
-  }
-  protected:
-  explicit OnlineCount(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kServerIdFieldNumber = 1,
-    kCountFieldNumber = 2,
-  };
-  // uint32 serverId = 1;
-  void clear_serverid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
-  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
-  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // int32 count = 2;
-  void clear_count();
-  ::PROTOBUF_NAMESPACE_ID::int32 count() const;
-  void set_count(::PROTOBUF_NAMESPACE_ID::int32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_count() const;
-  void _internal_set_count(::PROTOBUF_NAMESPACE_ID::int32 value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:wukong.pb.OnlineCount)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::int32 count_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_gateway_5fservice_2eproto;
-};
-// -------------------------------------------------------------------
-
-class OnlineCounts final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.OnlineCounts) */ {
- public:
-  inline OnlineCounts() : OnlineCounts(nullptr) {}
-  ~OnlineCounts() override;
-  explicit constexpr OnlineCounts(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  OnlineCounts(const OnlineCounts& from);
-  OnlineCounts(OnlineCounts&& from) noexcept
-    : OnlineCounts() {
-    *this = ::std::move(from);
-  }
-
-  inline OnlineCounts& operator=(const OnlineCounts& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline OnlineCounts& operator=(OnlineCounts&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const OnlineCounts& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const OnlineCounts* internal_default_instance() {
-    return reinterpret_cast<const OnlineCounts*>(
-               &_OnlineCounts_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    6;
-
-  friend void swap(OnlineCounts& a, OnlineCounts& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(OnlineCounts* other) {
-    if (other == this) return;
-    if (GetOwningArena() == other->GetOwningArena()) {
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(OnlineCounts* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline OnlineCounts* New() const final {
-    return new OnlineCounts();
-  }
-
-  OnlineCounts* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<OnlineCounts>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const OnlineCounts& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const OnlineCounts& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(OnlineCounts* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "wukong.pb.OnlineCounts";
-  }
-  protected:
-  explicit OnlineCounts(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kCountsFieldNumber = 1,
-  };
-  // repeated .wukong.pb.OnlineCount counts = 1;
-  int counts_size() const;
-  private:
-  int _internal_counts_size() const;
-  public:
-  void clear_counts();
-  ::wukong::pb::OnlineCount* mutable_counts(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >*
-      mutable_counts();
-  private:
-  const ::wukong::pb::OnlineCount& _internal_counts(int index) const;
-  ::wukong::pb::OnlineCount* _internal_add_counts();
-  public:
-  const ::wukong::pb::OnlineCount& counts(int index) const;
-  ::wukong::pb::OnlineCount* add_counts();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >&
-      counts() const;
-
-  // @@protoc_insertion_point(class_scope:wukong.pb.OnlineCounts)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount > counts_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_gateway_5fservice_2eproto;
-};
 // ===================================================================
 
 class GatewayService_Stub;
@@ -1905,101 +1600,9 @@ inline void GSHeartbeatRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.lToken)
 }
 
-// -------------------------------------------------------------------
-
-// OnlineCount
-
-// uint32 serverId = 1;
-inline void OnlineCount::clear_serverid() {
-  serverid_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 OnlineCount::_internal_serverid() const {
-  return serverid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 OnlineCount::serverid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.OnlineCount.serverId)
-  return _internal_serverid();
-}
-inline void OnlineCount::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  serverid_ = value;
-}
-inline void OnlineCount::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_serverid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.OnlineCount.serverId)
-}
-
-// int32 count = 2;
-inline void OnlineCount::clear_count() {
-  count_ = 0;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 OnlineCount::_internal_count() const {
-  return count_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::int32 OnlineCount::count() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.OnlineCount.count)
-  return _internal_count();
-}
-inline void OnlineCount::_internal_set_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  
-  count_ = value;
-}
-inline void OnlineCount::set_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_count(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.OnlineCount.count)
-}
-
-// -------------------------------------------------------------------
-
-// OnlineCounts
-
-// repeated .wukong.pb.OnlineCount counts = 1;
-inline int OnlineCounts::_internal_counts_size() const {
-  return counts_.size();
-}
-inline int OnlineCounts::counts_size() const {
-  return _internal_counts_size();
-}
-inline void OnlineCounts::clear_counts() {
-  counts_.Clear();
-}
-inline ::wukong::pb::OnlineCount* OnlineCounts::mutable_counts(int index) {
-  // @@protoc_insertion_point(field_mutable:wukong.pb.OnlineCounts.counts)
-  return counts_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >*
-OnlineCounts::mutable_counts() {
-  // @@protoc_insertion_point(field_mutable_list:wukong.pb.OnlineCounts.counts)
-  return &counts_;
-}
-inline const ::wukong::pb::OnlineCount& OnlineCounts::_internal_counts(int index) const {
-  return counts_.Get(index);
-}
-inline const ::wukong::pb::OnlineCount& OnlineCounts::counts(int index) const {
-  // @@protoc_insertion_point(field_get:wukong.pb.OnlineCounts.counts)
-  return _internal_counts(index);
-}
-inline ::wukong::pb::OnlineCount* OnlineCounts::_internal_add_counts() {
-  return counts_.Add();
-}
-inline ::wukong::pb::OnlineCount* OnlineCounts::add_counts() {
-  ::wukong::pb::OnlineCount* _add = _internal_add_counts();
-  // @@protoc_insertion_point(field_add:wukong.pb.OnlineCounts.counts)
-  return _add;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::OnlineCount >&
-OnlineCounts::counts() const {
-  // @@protoc_insertion_point(field_list:wukong.pb.OnlineCounts.counts)
-  return counts_;
-}
-
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

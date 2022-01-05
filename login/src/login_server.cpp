@@ -42,12 +42,12 @@ void LoginServer::enterZoo() {
         });
 
         g_ZkClient.watchChildren(ZK_GATEWAY_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
-            std::map<uint16_t, GatewayClient::AddressInfo> addresses;
+            std::vector<GatewayClient::AddressInfo> addresses;
             for (const std::string &value : values) {
                 GatewayClient::AddressInfo address;
 
                 if (GatewayClient::parseAddress(value, address)) {
-                    addresses[address.id] = std::move(address);
+                    addresses.push_back(std::move(address));
                 } else {
                     ERROR_LOG("zkclient parse gateway server address error, info = %s\n", value.c_str());
                 }

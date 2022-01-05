@@ -1,13 +1,12 @@
 {
     "internalIp": "127.0.0.1",                  // 内网提供rpc服务的监听ip
     "externalIp": "0.0.0.0",                    // 外网提供消息服务的监听ip
-    "outerAddr": "127.0.0.1",                   // 【通过NAT端口转发的服务器部署方式】提供给客户端的连接地址（IP或域名），不配置或为空时复用externalIp
+    "outerAddr": "127.0.0.1",                   // 【通过NAT端口转发的服务器部署方式】提供给客户端的连接地址（IP或域名），不配置或为空时复用externalIp，servers中所有服务都用同样的outerAddr
     "rpcPort": 15001,                           // rpc服务端口
     "servers": [                                // Gateway服务组
         {
             "id": 10001,                        // 服务号（Gateway服务唯一标识，与zookeeper注册发现有关）
             "msgPort": 16001,                   // 消息服务端口
-            "outerAddr": "127.0.0.1",           // 【通过NAT端口转发的服务器部署方式】提供给客户端的连接地址（IP或域名），不配置或为空时复用上级outerAddr或externalIp
             "outerPort": 16001                  // 【通过NAT端口转发的服务器部署方式】提供给客户端的连接端口，不配置或为0时复用msgPort
         },
         {

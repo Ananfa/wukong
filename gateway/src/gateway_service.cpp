@@ -20,10 +20,6 @@
 
 using namespace wukong;
 
-void GatewayServiceImpl::callDoneHandle(std::shared_ptr<::google::protobuf::Closure> done) {
-    // 这里只是用于保持done对象不被释放
-}
-
 void GatewayServiceImpl::shutdown(::google::protobuf::RpcController* controller,
                      const ::corpc::Void* request,
                      ::corpc::Void* response,
@@ -72,7 +68,9 @@ void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controlle
     // 注意：forwardOut接口在pb接口定义中将delete_in_done选项设置为true，当done->Run()调用时才销毁controller和request
     if (request->serverid() == 0) {
         // 广播
-        assert(request->targets_size() == 0);
+        if (request->targets_size() > 0) {
+            WARN_LOG("GatewayServiceImpl::forwardOut -- targets list not empty when broadcast\n");
+        }
 
         // 通过shared_ptr在所有通知都处理完成时才调用done->Run()方法
         std::shared_ptr<::google::protobuf::Closure> donePtr(done, [](::google::protobuf::Closure *done) {

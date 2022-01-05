@@ -29,7 +29,6 @@ namespace wukong {
         struct ServerInfo {
             uint32_t id;            // 服务号（Gateway服务唯一标识，与zookeeper注册发现有关）
             uint16_t msgPort;       // 消息服务端口
-            std::string outerAddr;  // 提供给客户端的连接地址，不配置或为空时复用上级的outerAddr或externalIp
             uint16_t outerPort;     // 提供给客户端的连接端口，不配置或为0时复用msgPort
         };
 

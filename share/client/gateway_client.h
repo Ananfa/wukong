@@ -29,16 +29,14 @@ namespace wukong {
     class GatewayClient {
     public:
         struct AddressInfo {
-            uint16_t id;
             std::string ip;
             uint16_t port;
             std::string outerAddr;
-            uint16_t outerPort;
+            std::vector<std::pair<uint16_t, uint16_t>> serverPorts;
         };
 
         struct StubInfo {
-            std::string ip; // rpc服务ip
-            uint16_t port; // rpc服务port
+            std::string rpcAddr; // rpc服务地址"ip:port"
             std::string outerAddr; // 客户端连接地址的ip或域名
             uint16_t outerPort; // 客户端连接地址的端口
             std::shared_ptr<pb::GatewayService_Stub> stub;
@@ -68,7 +66,7 @@ namespace wukong {
     
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
         /* 加入Server */
-        bool setServers(const std::map<ServerId, AddressInfo> &addresses);
+        bool setServers(const std::vector<GatewayClient::AddressInfo> &addresses);
         /* 根据逻辑区服id获得GameServer的stub */
         std::shared_ptr<pb::GatewayService_Stub> getStub(ServerId sid);
         
@@ -81,6 +79,7 @@ namespace wukong {
         RpcClient *_client = nullptr;
 
         /* 所有GameServer的Stub */
+        static std::map<std::string, std::shared_ptr<pb::GatewayService_Stub>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
         static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;
         static std::atomic<uint32_t> _stubChangeNum;

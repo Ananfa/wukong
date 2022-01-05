@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "corpc_option.proto";
 import "common.proto";
-import "inner_common.proto"
+import "inner_common.proto";
 
 option cc_generic_services = true;
 

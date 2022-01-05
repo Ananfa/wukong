@@ -1,26 +1,22 @@
 {
     "internalIp": "127.0.0.1",
     "externalIp": "0.0.0.0",
+    "outerAddr": "127.0.0.1",
+    "rpcPort": 15001,
     "servers": [
         {
             "id": 10001,
-            "rpcPort": 15001,
             "msgPort": 16001,
-            "outerAddr": "127.0.0.1",
             "outerPort": 16001
         },
         {
             "id": 10002,
-            "rpcPort": 15002,
             "msgPort": 16002,
-            "outerAddr": "127.0.0.1",
             "outerPort": 16002
         },
         {
             "id": 10003,
-            "rpcPort": 15003,
             "msgPort": 16003,
-            "outerAddr": "127.0.0.1",
             "outerPort": 16003
         }
     ],
@@ -30,9 +26,9 @@
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
     "cache": {
-        "host": "192.168.92.3",
+        "host": "172.29.11.244",
         "port": 6379,
         "maxConnect": 8,
-        "dbIndex": 0
+        "dbIndex": 6
     }
 }

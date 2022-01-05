@@ -91,10 +91,6 @@ bool GatewayConfig::parse(const char *path) {
         }
         info.msgPort = server["msgPort"].GetUint();
         
-        if (server.HasMember("outerAddr")) {
-            info.outerAddr = server["outerAddr"].GetString();
-        }
-
         if (server.HasMember("outerPort")) {
             info.outerPort = server["outerPort"].GetUint();
         } else {
@@ -170,13 +166,9 @@ bool GatewayConfig::parse(const char *path) {
     }
     _cache.maxConnect = cache["maxConnect"].GetUint();
 
-    _zooPath = ZK_GATEWAY_SERVER + "/" + _internalIp + ":" + std::to_string(_rpcPort);
+    _zooPath = ZK_GATEWAY_SERVER + "/" + _internalIp + ":" + std::to_string(_rpcPort) + ":" + _outerAddr;
     for (const GatewayConfig::ServerInfo &info : _serverInfos) {
-        if (info.outerAddr.empty()) {
-            _zooPath += "|" + std::to_string(info.id) + "," + std::to_string(info.outerPort);
-        } else {
-            _zooPath += "|" + std::to_string(info.id) + "," + info.outerAddr + ":" + std::to_string(info.outerPort);
-        }
+        _zooPath += "|" + std::to_string(info.id) + ":" + std::to_string(info.outerPort);
     }
     
     return true;

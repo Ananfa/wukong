@@ -20,16 +20,12 @@
 
 using namespace wukong;
 
+std::map<std::string, std::shared_ptr<pb::GatewayService_Stub>> GatewayClient::_addr2stubs;
 std::map<ServerId, GatewayClient::StubInfo> GatewayClient::_stubs;
 std::mutex GatewayClient::_stubsLock;
 std::atomic<uint32_t> GatewayClient::_stubChangeNum(0);
 thread_local uint32_t GatewayClient::_t_stubChangeNum = 0;
 thread_local std::map<ServerId, GatewayClient::StubInfo> GatewayClient::_t_stubs;
-
-static void callDoneHandle(::google::protobuf::Message *request, Controller *controller) {
-    delete controller;
-    delete request;
-}
 
 void GatewayClient::shutdown() {
     refreshStubs();
@@ -77,14 +73,23 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
 
     refreshStubs();
     std::map<uint16_t, StubInfo> localStubs = _t_stubs;
-    
+
+    // 对相同rpc地址的服务不需要重复获取
+    std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
+
     // 清除原来的信息
     infos.reserve(localStubs.size());
     // 利用(总在线人数 - 服务器在线人数)作为分配服务器的权重
     uint32_t totalCount = 0;
     for (auto &kv : localStubs) {
+        if (handledAddrs.find(kv.second.rpcAddr) != handledAddrs.end()) {
+            continue;
+        }
+
+        handledAddrs.insert(std::make_pair(kv.second.rpcAddr, true));
+
         corpc::Void *request = new corpc::Void();
-        pb::Uint32Value *response = new pb::Uint32Value();
+        pb::OnlineCounts *response = new pb::OnlineCounts();
         Controller *controller = new Controller();
         kv.second.stub->getOnlineCount(controller, request, response, nullptr);
         
@@ -92,8 +97,12 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
             ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
             continue;
         } else {
-            infos.push_back({kv.first, kv.second.outerAddr, kv.second.outerPort, response->value(), 0});
-            totalCount += response->value();
+            auto countInfos = response->counts();
+
+            for (auto it = countInfos.begin(); it != countInfos.end(); ++it) {
+                infos.push_back({it->serverid(), kv.second.outerAddr, kv.second.outerPort, it->count(), 0});
+                totalCount += it->count();
+            }
         }
         
         delete controller;
@@ -109,58 +118,120 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
 }
 
 void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &msg) {
-    std::shared_ptr<pb::GatewayService_Stub> stub = getStub(sid);
-    
-    if (!stub) {
-        ERROR_LOG("GatewayClient::broadcast -- server %d stub not avaliable, waiting.\n", sid);
-        return;
-    }
-    
-    pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
-    Controller *controller = new Controller();
-    request->set_type(type);
-    request->set_tag(tag);
-    for (auto &t : targets) {
-        ::wukong::pb::ForwardOutTarget* target = request->add_targets();
-        target->set_userid(t.first);
-        target->set_ltoken(t.second);
-    }
-    
-    if (!msg.empty()) {
-        request->set_rawmsg(msg);
-    }
-    
-    stub->forwardOut(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
-}
-
-bool GatewayClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {
-    if (!_client) {
-        ERROR_LOG("GatewayClient::setServers -- not init\n");
-        return false;
-    }
-    
-    std::map<ServerId, StubInfo> stubs;
-    for (const auto& kv : addresses) {
-        ServerId sid = kv.first;
-        const AddressInfo& address = kv.second;
-        auto iter1 = _stubs.find(sid);
-        if (iter1 != _stubs.end()) {
-            if (iter1->second.ip == address.ip && iter1->second.port == address.port) {
-                stubs.insert(std::make_pair(sid, iter1->second));
-                continue;
-            }
+    if (sid == 0) { // 全服广播
+        if (targets.size() > 0) { // 全服广播不应设置指定目标
+            WARN_LOG("GatewayClient::broadcast -- targets list not empty when global broadcast\n");
         }
 
-        StubInfo stubInfo = {
-            address.ip,
-            address.port,
-            address.outerAddr,
-            address.outerPort,
-            std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::GatewayService::STUB_OWNS_CHANNEL)
-        };
-        stubs.insert(std::make_pair(sid, std::move(stubInfo)));
+        // 全服广播
+        refreshStubs();
+        std::map<uint16_t, StubInfo> localStubs = _t_stubs;
+
+        if (localStubs.size() > 0) {
+            pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
+            request->set_serverid(sid);
+            request->set_type(type);
+            request->set_tag(tag);
+            for (auto &t : targets) {
+                ::wukong::pb::ForwardOutTarget* target = request->add_targets();
+
+                target->set_userid(t.first);
+                target->set_ltoken(t.second);
+            }
+            
+            if (!msg.empty()) {
+                request->set_rawmsg(msg);
+            }
+
+            std::shared_ptr<::google::protobuf::Closure> donePtr(google::protobuf::NewCallback(&callDoneHandle, request, nullptr), [](::google::protobuf::Closure *done) {
+                done->Run();
+            });
+
+            // 对相同rpc地址的服务不需要重复获取
+            std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
+            for (auto &kv : localStubs) {
+                if (handledAddrs.find(kv.second.rpcAddr) != handledAddrs.end()) {
+                    continue;
+                }
+
+                handledAddrs.insert(std::make_pair(kv.second.rpcAddr, true));
+
+                kv.second.stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback(&callDoneHandle, donePtr));
+            }
+        }
+    } else { // 单服广播或多播
+        std::shared_ptr<pb::GatewayService_Stub> stub = getStub(sid);
+        
+        if (!stub) {
+            ERROR_LOG("GatewayClient::broadcast -- server %d stub not avaliable, waiting.\n", sid);
+            return;
+        }
+        
+        pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
+        request->set_serverid(sid);
+        request->set_type(type);
+        request->set_tag(tag);
+        for (auto &t : targets) {
+            ::wukong::pb::ForwardOutTarget* target = request->add_targets();
+
+            target->set_userid(t.first);
+            target->set_ltoken(t.second);
+        }
+        
+        if (!msg.empty()) {
+            request->set_rawmsg(msg);
+        }
+        
+        stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, nullptr));  
     }
-    
+}
+
+bool GatewayClient::setServers(const std::vector<GatewayClient::AddressInfo>& addresses) {
+    if (!_client) {
+        FATAL_LOG("GatewayClient::setServers -- not init\n");
+        return false;
+    }
+
+    std::map<std::string, std::shared_ptr<pb::GatewayService_Stub>> addr2stubs;
+    std::map<ServerId, StubInfo> stubs;
+    for (const auto& address : addresses) {
+        std::shared_ptr<pb::GatewayService_Stub> stub;
+        std::string addr = address.ip + std::to_string(address.port);
+        auto iter = addr2stubs.find(addr);
+        if (iter != addr2stubs.end()) {
+            ERROR_LOG("GatewayClient::setServers -- duplicate rpc addr: %s\n", addr.c_str());
+            continue;
+        }
+
+        iter = _addr2stubs.find(addr);
+        if (iter != _addr2stubs.end()) {
+            stub = iter->second;
+        } else {
+            stub = std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::GatewayService::STUB_OWNS_CHANNEL);
+        }
+        addr2stubs.insert(std::make_pair(addr, stub));
+
+        for (const auto& pair : address.serverPorts) {
+            auto iter1 = _stubs.find(pair.first);
+            if (iter1 != _stubs.end()) {
+                if (iter1->second.rpcAddr == addr) {
+                    stubs.insert(std::make_pair(pair.first, iter1->second));
+                    continue;
+                }
+            }
+
+            StubInfo stubInfo = {
+                addr,
+                address.outerAddr,
+                pair.second,
+                stub
+            };
+            stubs.insert(std::make_pair(pair.first, std::move(stubInfo)));
+        }
+    }
+
+    _addr2stubs = addr2stubs;
+
     {
         std::unique_lock<std::mutex> lock(_stubsLock);
         _stubs = stubs;
@@ -194,22 +265,23 @@ void GatewayClient::refreshStubs() {
 bool GatewayClient::parseAddress(const std::string &input, AddressInfo &addressInfo) {
     std::vector<std::string> output;
     StringUtils::split(input, "|", output);
-    
-    if (output.size() != 3) return false;
+
+    int outputSize = output.size();
+    if (outputSize < 2) return false;
 
     std::vector<std::string> output1;
-    StringUtils::split(output[1], ":", output1);
-    if (output1.size() != 2) return false;
-
-    std::vector<std::string> output2;
-    StringUtils::split(output[2], ":", output2);
-    if (output2.size() != 2) return false;
-
-    addressInfo.id = std::stoi(output[0]);
+    StringUtils::split(output[0], ":", output1);
+    if (output1.size() != 3) return false;
     addressInfo.ip = output1[0];
     addressInfo.port = std::stoi(output1[1]);
-    addressInfo.outerAddr = output2[0];
-    addressInfo.outerPort = std::stoi(output2[1]);
+    addressInfo.outerAddr = output1[2];
+    addressInfo.serverPorts.reserve(outputSize-1);
+    for (int i = 1; i < outputSize; i++) {
+        std::vector<std::string> output2;
+        StringUtils::split(output[i], ":", output2);
+        if (output2.size() != 2) return false;
+        addressInfo.serverPorts.push_back(std::make_pair(std::stoi(output2[0]), std::stoi(output2[1])));
+    }
 
     return true;
 }

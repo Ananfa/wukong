@@ -17,6 +17,7 @@
 #include "record_service.h"
 #include "record_config.h"
 #include "record_center.h"
+#include "record_server.h"
 #include "proto_utils.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
@@ -25,27 +26,84 @@
 using namespace wukong;
 
 void RecordServiceImpl::shutdown(::google::protobuf::RpcController* controller,
+                              const ::corpc::Void* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done) {
+    g_RecordServer.traverseInnerStubs([](ServerId sid, pb::InnerRecordService_Stub *stub) -> bool {
+        stub->shutdown(NULL, NULL, NULL, NULL);
+        return true;
+    });
+}
+
+void RecordServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
+                                    const ::corpc::Void* request,
+                                    ::wukong::pb::OnlineCounts* response,
+                                    ::google::protobuf::Closure* done) {
+    // 注意：这里处理中间会产生协程切换，遍历的Map可能在过程中被修改，因此traverseInnerStubs方法中对map进行了镜像复制
+    g_RecordServer.traverseInnerStubs([request, response](ServerId sid, pb::InnerRecordService_Stub *stub) -> bool {
+        pb::Uint32Value *resp = new pb::Uint32Value();
+        corpc::Controller *ctl = new corpc::Controller();
+        stub->getOnlineCount(ctl, request, resp, NULL);
+        pb::OnlineCount *onlineCount = response->add_counts();
+        onlineCount->set_serverid(sid);
+        if (ctl->Failed()) {
+            onlineCount->set_count(-1);
+        } else {
+            onlineCount->set_count(resp->value());
+        }
+        delete ctl;
+        delete resp;
+
+        return true;
+    });
+}
+
+void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::LoadRoleRequest* request,
+                             ::wukong::pb::LoadRoleResponse* response,
+                             ::google::protobuf::Closure* done) {
+    auto stub = g_RecordServer.getInnerStub(request->serverid());
+    stub->loadRole(controller, request, response, done);
+}
+
+void RecordServiceImpl::sync(::google::protobuf::RpcController* controller,
+                          const ::wukong::pb::SyncRequest* request,
+                          ::wukong::pb::BoolValue* response,
+                          ::google::protobuf::Closure* done) {
+    auto stub = g_RecordServer.getInnerStub(request->serverid());
+    stub->sync(controller, request, response, done);
+}
+
+void RecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::RSHeartbeatRequest* request,
+                               ::wukong::pb::BoolValue* response,
+                               ::google::protobuf::Closure* done) {
+    auto stub = g_RecordServer.getInnerStub(request->serverid());
+    stub->heartbeat(controller, request, response, done);
+}
+
+void InnerRecordServiceImpl::shutdown(::google::protobuf::RpcController* controller,
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
     _manager->shutdown();
 }
 
-void RecordServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
+void InnerRecordServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                       const ::corpc::Void* request,
                                       ::wukong::pb::Uint32Value* response,
                                       ::google::protobuf::Closure* done) {
     response->set_value(_manager->size());
 }
 
-void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
+void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
                                  const ::wukong::pb::LoadRoleRequest* request,
                                  ::wukong::pb::LoadRoleResponse* response,
                                  ::google::protobuf::Closure* done) {
     uint32_t roleId = request->roleid();
 
     if (_manager->isShutdown()) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] server is shutdown\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] server is shutdown\n", roleId);
         response->set_errcode(1);
         return;
     }
@@ -67,7 +125,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     // 设置record
     redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
     if (!cache) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] connect to cache failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] connect to cache failed\n", roleId);
         response->set_errcode(2);
         return;
     }
@@ -87,7 +145,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     
     if (!reply) {
         g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] set record failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] set record failed\n", roleId);
         response->set_errcode(3);
         return;
     }
@@ -95,7 +153,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
         g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] set record failed for return type invalid\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] set record failed for return type invalid\n", roleId);
         response->set_errcode(4);
         return;
     }
@@ -104,7 +162,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
         // 设置失败
         freeReplyObject(reply);
         g_RecordCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] set record failed for already set\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] set record failed for already set\n", roleId);
         response->set_errcode(5);
         return;
     }
@@ -116,7 +174,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     ServerId serverId;
     if (RedisUtils::LoadRole(cache, g_RecordCenter.loadRoleSha1(), roleId, serverId, datas, true) == REDIS_DB_ERROR) {
         g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] load failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] load failed\n", roleId);
         response->set_errcode(6);
         return;
     }
@@ -127,7 +185,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
         // 创建record object
         obj = _manager->create(roleId, serverId, rToken, datas);
         if (!obj) {
-            ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] create record object failed\n", roleId);
+            ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] create record object failed\n", roleId);
             response->set_errcode(7);
             return;
         }
@@ -145,7 +203,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     // 从MySQL加载角色数据并缓存到redis中
     MYSQL *mysql = g_RecordCenter.getMysqlPool()->proxy.take();
     if (!mysql) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] connect to mysql failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] connect to mysql failed\n", roleId);
         response->set_errcode(8);
         return;
     }
@@ -153,7 +211,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     std::string data;
     if (!MysqlUtils::LoadRole(mysql, roleId, serverId, data)) {
         g_RecordCenter.getMysqlPool()->proxy.put(mysql, true);
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] load role from mysql failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] load role from mysql failed\n", roleId);
         response->set_errcode(9);
         return;
     }
@@ -161,19 +219,19 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     g_RecordCenter.getMysqlPool()->proxy.put(mysql, false);
 
     if (data.empty()) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] no role data\n");
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] no role data\n");
         response->set_errcode(10);
         return;
     }
 
     if (!ProtoUtils::unmarshalDataFragments(data, datas)) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] unmarshal role data failed\n");
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] unmarshal role data failed\n");
         response->set_errcode(11);
         return;
     }
 
     if (datas.size() == 0) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] role data is empty\n");
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] role data is empty\n");
         response->set_errcode(12);
         return;
     }
@@ -181,7 +239,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     // 缓存到redis中
     cache = g_RecordCenter.getCachePool()->proxy.take();
     if (!cache) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] can't cache role data for connect to cache failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] can't cache role data for connect to cache failed\n", roleId);
         response->set_errcode(13);
         return;
     }
@@ -189,13 +247,13 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     switch (RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
         case REDIS_DB_ERROR: {
             g_RecordCenter.getCachePool()->proxy.put(cache, true);
-            ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] cache role data failed for db error\n", roleId);
+            ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] cache role data failed for db error\n", roleId);
             response->set_errcode(13);
             return;
         }
         case REDIS_FAIL: {
             g_RecordCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] cache role data failed\n", roleId);
+            ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] cache role data failed\n", roleId);
             response->set_errcode(14);
             return;
         }
@@ -205,7 +263,7 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     // 创建record object
     obj = _manager->create(roleId, serverId, rToken, datas);
     if (!obj) {
-        ERROR_LOG("RecordServiceImpl::loadRole -- [role %d] create record object failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] create record object failed\n", roleId);
         response->set_errcode(7);
         return;
     }
@@ -217,19 +275,19 @@ void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     response->set_data(ProtoUtils::marshalDataFragments(datas));
 }
 
-void RecordServiceImpl::sync(::google::protobuf::RpcController* controller,
+void InnerRecordServiceImpl::sync(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::SyncRequest* request,
                              ::wukong::pb::BoolValue* response,
                              ::google::protobuf::Closure* done) {
     // 数据同步
     std::shared_ptr<RecordObject> obj = _manager->getRecordObject(request->roleid());
     if (!obj) {
-        ERROR_LOG("RecordServiceImpl::sync -- record object not found\n");
+        ERROR_LOG("InnerRecordServiceImpl::sync -- record object not found\n");
         return;
     }
 
     if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("RecordServiceImpl::sync -- ltoken not match\n");
+        ERROR_LOG("InnerRecordServiceImpl::sync -- ltoken not match\n");
         return;
     }
 
@@ -237,18 +295,18 @@ void RecordServiceImpl::sync(::google::protobuf::RpcController* controller,
     response->set_value(true);
 }
 
-void RecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
+void InnerRecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
                                   const ::wukong::pb::RSHeartbeatRequest* request,
                                   ::wukong::pb::BoolValue* response,
                                   ::google::protobuf::Closure* done) {
     std::shared_ptr<RecordObject> obj = _manager->getRecordObject(request->roleid());
     if (!obj) {
-        ERROR_LOG("RecordServiceImpl::heartbeat -- record object not found\n");
+        ERROR_LOG("InnerRecordServiceImpl::heartbeat -- record object not found\n");
         return;
     }
 
     if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("RecordServiceImpl::heartbeat -- ltoken not match\n");
+        ERROR_LOG("InnerRecordServiceImpl::heartbeat -- ltoken not match\n");
         return;
     }
 

@@ -51,6 +51,7 @@ bool GatewayClient::kick(ServerId sid, UserId userId, const std::string &gToken)
     pb::KickRequest *request = new pb::KickRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
+    request->set_serverid(sid);
     request->set_userid(userId);
     request->set_gtoken(gToken);
     stub->kick(controller, request, response, nullptr);
@@ -71,14 +72,15 @@ bool GatewayClient::kick(ServerId sid, UserId userId, const std::string &gToken)
 std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
     std::vector<ServerInfo> infos;
 
-    refreshStubs();
-    std::map<uint16_t, StubInfo> localStubs = _t_stubs;
-
     // 对相同rpc地址的服务不需要重复获取
     std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
 
+    refreshStubs();
+    std::map<uint16_t, StubInfo> localStubs = _t_stubs;
+
     // 清除原来的信息
     infos.reserve(localStubs.size());
+
     // 利用(总在线人数 - 服务器在线人数)作为分配服务器的权重
     uint32_t totalCount = 0;
     for (auto &kv : localStubs) {
@@ -94,7 +96,7 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
         kv.second.stub->getOnlineCount(controller, request, response, nullptr);
         
         if (controller->Failed()) {
-            ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+            ERROR_LOG("GatewayClient::getServerInfos -- Rpc Call Failed : %s\n", controller->ErrorText().c_str());
             continue;
         } else {
             auto countInfos = response->counts();
@@ -186,7 +188,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
     }
 }
 
-bool GatewayClient::setServers(const std::vector<GatewayClient::AddressInfo>& addresses) {
+bool GatewayClient::setServers(const std::vector<AddressInfo>& addresses) {
     if (!_client) {
         FATAL_LOG("GatewayClient::setServers -- not init\n");
         return false;

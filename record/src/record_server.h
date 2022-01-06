@@ -18,8 +18,10 @@
 #define record_server_h
 
 #include "corpc_rpc_client.h"
+#include "corpc_inner_rpc.h"
 #include "game_client.h"
 #include "share/define.h"
+#include "record_service.pb.h"
 #include <map>
 #include <thread>
 
@@ -33,6 +35,7 @@ namespace wukong {
         bool _inited = false;
         IO *_io = nullptr;
 
+        std::map<ServerId, pb::InnerRecordService_Stub*> _innerStubs;
         std::vector<std::thread> _threads;
     public:
         static RecordServer& Instance() {
@@ -45,10 +48,13 @@ namespace wukong {
 
         IO *getIO() { return _io; }
         
+        pb::InnerRecordService_Stub *getInnerStub(ServerId sid);
+        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerRecordService_Stub*)> handle);
+
     private:
         void enterZoo();
 
-        static void recordThread(IO *rpc_io, ServerId rcid, uint16_t rpcPort);
+        static void recordThread(InnerRpcServer *server, ServerId rcid);
 
     private:
         RecordServer() = default;                                   // ctor hidden

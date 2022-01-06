@@ -65,12 +65,12 @@ void LobbyServer::enterZoo() {
         });
 
         g_ZkClient.watchChildren(ZK_RECORD_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
-            std::map<uint16_t, RecordClient::AddressInfo> addresses;
+            std::vector<RecordClient::AddressInfo> addresses;
             for (const std::string &value : values) {
                 RecordClient::AddressInfo address;
 
                 if (RecordClient::parseAddress(value, address)) {
-                    addresses[address.id] = std::move(address);
+                    addresses.push_back(std::move(address));
                 } else {
                     ERROR_LOG("zkclient parse record server address error, info = %s\n", value.c_str());
                 }

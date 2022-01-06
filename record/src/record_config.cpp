@@ -40,6 +40,12 @@ bool RecordConfig::parse(const char *path) {
         return false;
     }
     _ip = doc["ip"].GetString();
+
+    if (!doc.HasMember("port")) {
+        ERROR_LOG("config error -- port not define\n");
+        return false;
+    }
+    _port = doc["port"].GetUint();
     
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
@@ -67,12 +73,6 @@ bool RecordConfig::parse(const char *path) {
             return false;
         }
 
-        if (!server.HasMember("rpcPort")) {
-            ERROR_LOG("config error -- servers[%d] id rpcPort not define\n", i);
-            return false;
-        }
-        info.rpcPort = server["rpcPort"].GetUint();
-        
         serverIdMap.insert(std::make_pair(info.id, true));
         _serverInfos.push_back(info);
     }
@@ -176,6 +176,11 @@ bool RecordConfig::parse(const char *path) {
         return false;
     }
     _mysql.dbName = mysql["dbName"].GetString();
+    
+    _zooPath = ZK_RECORD_SERVER + "/" + _ip + ":" + std::to_string(_port);
+    for (const RecordConfig::ServerInfo &info : _serverInfos) {
+        _zooPath += "|" + std::to_string(info.id);
+    }
     
     return true;
 }

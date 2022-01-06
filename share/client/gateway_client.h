@@ -66,7 +66,7 @@ namespace wukong {
     
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
         /* 加入Server */
-        bool setServers(const std::vector<GatewayClient::AddressInfo> &addresses);
+        bool setServers(const std::vector<AddressInfo> &addresses);
         /* 根据逻辑区服id获得GameServer的stub */
         std::shared_ptr<pb::GatewayService_Stub> getStub(ServerId sid);
         

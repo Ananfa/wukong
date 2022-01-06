@@ -35,28 +35,24 @@ using namespace wukong;
 void RecordServer::enterZoo() {
     g_ZkClient.init(g_RecordConfig.getZookeeper(), ZK_TIMEOUT, []() {
         // 对servers配置中每一个server进行节点注册
-        const std::vector<RecordConfig::ServerInfo> &serverInfos = g_RecordConfig.getServerInfos();
-        for (const RecordConfig::ServerInfo &info : serverInfos) {
-            std::string zooPath = ZK_RECORD_SERVER + "/" + std::to_string(info.id) + "|" + g_RecordConfig.getIp() + ":" + std::to_string(info.rpcPort);
-            g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
-                if (ret) {
-                    LOG("create rpc node:[%s] sucessful\n", path.c_str());
-                } else {
-                    ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
-                }
-            });
-        }
+        g_ZkClient.createEphemeralNode(g_RecordConfig.getZooPath(), ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
+            if (ret) {
+                LOG("create rpc node:[%s] sucessful\n", path.c_str());
+            } else {
+                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
+            }
+        });
     });
 }
 
-void RecordServer::recordThread(IO *rpc_io, ServerId rcid, uint16_t rpcPort) {
+void RecordServer::recordThread(InnerRpcServer *server, ServerId rcid) {
     // 启动RPC服务
-    RpcServer *server = RpcServer::create(rpc_io, 0, g_RecordConfig.getIp(), rpcPort);
+    server->start(false);
     
     RecordManager *mgr = new RecordManager(rcid);
     mgr->init();
 
-    RecordServiceImpl *recordServiceImpl = new RecordServiceImpl(mgr);
+    InnerRecordServiceImpl *recordServiceImpl = new InnerRecordServiceImpl(mgr);
     server->registerService(recordServiceImpl);
 
     RoutineEnvironment::runEventLoop();
@@ -127,10 +123,39 @@ void RecordServer::run() {
     // 根据servers配置启动Record服务，每线程跑一个服务
     const std::vector<RecordConfig::ServerInfo> &recordInfos = g_RecordConfig.getServerInfos();
     for (auto &info : recordInfos) {
-        _threads.push_back(std::thread(recordThread, _io, info.id, info.rpcPort));
+        // 创建内部RPC服务
+        InnerRpcServer *innerServer = new InnerRpcServer();
+
+        _innerStubs.insert(std::make_pair(info.id, new pb::InnerRecordService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL)));
+
+        _threads.push_back(std::thread(recordThread, innerServer, info.id));
     }
 
-    enterZoo();
+    // 启动对外的RPC服务
+    RpcServer *server = RpcServer::create(_io, 0, g_RecordConfig.getIp(), g_RecordConfig.getPort());
 
+    RecordServiceImpl *recordServiceImpl = new RecordServiceImpl();
+    server->registerService(recordServiceImpl);
+
+    enterZoo();
     RoutineEnvironment::runEventLoop();
+}
+
+pb::InnerRecordService_Stub *RecordServer::getInnerStub(ServerId sid) {
+    auto it = _innerStubs.find(sid);
+
+    if (it == _innerStubs.end()) {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+void RecordServer::traverseInnerStubs(std::function<bool(ServerId, pb::InnerRecordService_Stub*)> handle) {
+    std::map<ServerId, pb::InnerRecordService_Stub*> stubs = _innerStubs; // 防止轮询Map过程中Map被修改的同步问题
+    for (auto &pair : stubs) {
+        if (!handle(pair.first, pair.second)) {
+            return;
+        }
+    }
 }

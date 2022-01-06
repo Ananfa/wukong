@@ -163,6 +163,7 @@ bool GameObject::reportGameObjectPos() {
     pb::SetGameObjectPosRequest *request = new pb::SetGameObjectPosRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
+    request->set_serverid(_gatewayId);
     request->set_userid(_userId);
     request->set_ltoken(_lToken);
     request->set_gstype(g_GameCenter.getType());
@@ -193,6 +194,7 @@ bool GameObject::heartbeatToGateway() {
     pb::GSHeartbeatRequest *request = new pb::GSHeartbeatRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
+    request->set_serverid(_gatewayId);
     request->set_userid(_userId);
     request->set_ltoken(_lToken);
     _gatewayServerStub->heartbeat(controller, request, response, nullptr);

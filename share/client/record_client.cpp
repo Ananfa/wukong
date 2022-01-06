@@ -20,6 +20,7 @@
 
 using namespace wukong;
 
+std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> RecordClient::_addr2stubs;
 std::map<ServerId, RecordClient::StubInfo> RecordClient::_stubs;
 std::mutex RecordClient::_stubsLock;
 std::atomic<uint32_t> RecordClient::_stubChangeNum(0);
@@ -29,6 +30,9 @@ thread_local std::map<ServerId, RecordClient::StubInfo> RecordClient::_t_stubs;
 std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
     std::vector<ServerInfo> infos;
 
+    // 对相同rpc地址的服务不需要重复获取
+    std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
+
     refreshStubs();
     std::map<ServerId, StubInfo> localStubs = _t_stubs;
     
@@ -37,8 +41,14 @@ std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
     // 利用(总在线人数 - 服务器在线人数)作为分配服务器的权重
     uint32_t totalCount = 0;
     for (auto &kv : localStubs) {
+        if (handledAddrs.find(kv.second.rpcAddr) != handledAddrs.end()) {
+            continue;
+        }
+
+        handledAddrs.insert(std::make_pair(kv.second.rpcAddr, true));
+
         corpc::Void *request = new corpc::Void();
-        pb::Uint32Value *response = new pb::Uint32Value();
+        pb::OnlineCounts *response = new pb::OnlineCounts();
         Controller *controller = new Controller();
         kv.second.stub->getOnlineCount(controller, request, response, nullptr);
         
@@ -46,8 +56,12 @@ std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
             ERROR_LOG("LobbyClient::getServerInfos -- Rpc Call Failed : %s\n", controller->ErrorText().c_str());
             continue;
         } else {
-            infos.push_back({kv.first, response->value(), 0});
-            totalCount += response->value();
+            auto countInfos = response->counts();
+
+            for (auto it = countInfos.begin(); it != countInfos.end(); ++it) {
+                infos.push_back({it->serverid(), it->count(), 0});
+                totalCount += it->count();
+            }
         }
         
         delete controller;
@@ -73,6 +87,7 @@ bool RecordClient::loadRole(ServerId sid, RoleId roleId, uint32_t lToken, Server
     pb::LoadRoleRequest *request = new pb::LoadRoleRequest();
     pb::LoadRoleResponse *response = new pb::LoadRoleResponse();
     Controller *controller = new Controller();
+    request->set_serverid(sid);
     request->set_ltoken(lToken);
     request->set_roleid(roleId);
     stub->loadRole(controller, request, response, nullptr);
@@ -93,31 +108,49 @@ bool RecordClient::loadRole(ServerId sid, RoleId roleId, uint32_t lToken, Server
     return result;
 }
 
-bool RecordClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {
+bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
     if (!_client) {
         ERROR_LOG("RecordClient::setServers -- not init\n");
         return false;
     }
 
+    std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> addr2stubs;
     std::map<ServerId, StubInfo> stubs;
     for (const auto& kv : addresses) {
-        ServerId sid = kv.first;
-        const AddressInfo& address = kv.second;
-        auto iter1 = _stubs.find(sid);
-        if (iter1 != _stubs.end()) {
-            if (iter1->second.ip == address.ip && iter1->second.port == address.port) {
-                stubs.insert(std::make_pair(sid, iter1->second));
-                continue;
-            }
+        std::shared_ptr<pb::RecordService_Stub> stub;
+        std::string addr = address.ip + std::to_string(address.port);
+        auto iter = addr2stubs.find(addr);
+        if (iter != addr2stubs.end()) {
+            ERROR_LOG("RecordClient::setServers -- duplicate rpc addr: %s\n", addr.c_str());
+            continue;
         }
 
-        StubInfo stubInfo = {
-            address.ip,
-            address.port,
-            std::make_shared<pb::RecordService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::RecordService::STUB_OWNS_CHANNEL)
-        };
-        stubs.insert(std::make_pair(sid, std::move(stubInfo)));
+        iter = _addr2stubs.find(addr);
+        if (iter != _addr2stubs.end()) {
+            stub = iter->second;
+        } else {
+            stub = std::make_shared<pb::RecordService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::RecordService::STUB_OWNS_CHANNEL);
+        }
+        addr2stubs.insert(std::make_pair(addr, stub));
+
+        for (uint16_t serverId : address.serverIds) {
+            auto iter1 = _stubs.find(serverId);
+            if (iter1 != _stubs.end()) {
+                if (iter1->second.rpcAddr == addr) {
+                    stubs.insert(std::make_pair(serverId, iter1->second));
+                    continue;
+                }
+            }
+
+            StubInfo stubInfo = {
+                addr,
+                stub
+            };
+            stubs.insert(std::make_pair(pair.first, std::move(stubInfo)));
+        }
     }
+
+    _addr2stubs = addr2stubs;
     
     {
         std::unique_lock<std::mutex> lock(_stubsLock);
@@ -152,16 +185,19 @@ void RecordClient::refreshStubs() {
 bool RecordClient::parseAddress(const std::string &input, AddressInfo &addressInfo) {
     std::vector<std::string> output;
     StringUtils::split(input, "|", output);
-    
-    if (output.size() != 2) return false;
+
+    int outputSize = output.size();
+    if (outputSize < 2) return false;
 
     std::vector<std::string> output1;
-    StringUtils::split(output[1], ":", output1);
+    StringUtils::split(output[0], ":", output1);
     if (output1.size() != 2) return false;
-
-    addressInfo.id = std::stoi(output[0]);
     addressInfo.ip = output1[0];
     addressInfo.port = std::stoi(output1[1]);
+    addressInfo.serverPorts.reserve(outputSize-1);
+    for (int i = 1; i < outputSize; i++) {
+        addressInfo.serverIds.push_back(std::stoi(output[i]));
+    }
 
     return true;
 }

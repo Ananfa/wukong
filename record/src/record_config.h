@@ -27,8 +27,8 @@ namespace wukong {
     class RecordConfig {
     public:
         struct ServerInfo {
-            uint32_t id;            // 服务号（Gateway服务唯一标识，与zookeeper注册发现有关）
-            uint16_t rpcPort;       // rpc服务端口
+            uint32_t id;            // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
+            // 目前只有一个id，可以根据需要扩展
         };
 
         struct RedisInfo {
@@ -56,6 +56,7 @@ namespace wukong {
         bool parse(const char *path);
         
         const std::string& getIp() const { return _ip; }
+        uint16_t getPort() const { return _port; }
         const std::vector<ServerInfo>& getServerInfos() const { return _serverInfos; }
         
         const std::string& getZookeeper() const { return _zookeeper; }
@@ -66,8 +67,11 @@ namespace wukong {
         const RedisInfo& getCache() const { return _cache; }
         const MysqlInfo& getMysql() const { return _mysql; }
         
+        const std::string& getZooPath() const { return _zooPath; }
+
     private:
         std::string _ip;    // 提供rpc服务的ip
+        uint16_t _port;     // rpc服务端口
 
         std::vector<ServerInfo> _serverInfos; // 对外服务的信息列表
         
@@ -78,6 +82,8 @@ namespace wukong {
         
         RedisInfo _cache; // 缓存库配置
         MysqlInfo _mysql; // 数据库配置
+
+        std::string _zooPath;
 
     private:
         RecordConfig() = default;                                 // ctor hidden

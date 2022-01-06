@@ -58,6 +58,7 @@ set(SOURCE_FILES
     ../../utils/mysql_utils.cpp
     ../../utils/proto_utils.cpp
     ../../proto/common.pb.cc
+    ../../proto/inner_common.pb.cc
     ../../proto/game/game.pb.cc
     ../../proto/service/record_service.pb.cc
     ../generate/demo_record_object.cpp

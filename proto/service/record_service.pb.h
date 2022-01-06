@@ -203,10 +203,20 @@ class LoadRoleRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kLTokenFieldNumber = 1,
-    kRoleIdFieldNumber = 2,
+    kServerIdFieldNumber = 1,
+    kLTokenFieldNumber = 2,
+    kRoleIdFieldNumber = 3,
   };
-  // uint32 lToken = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 lToken = 2;
   void clear_ltoken();
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
   void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -215,7 +225,7 @@ class LoadRoleRequest final :
   void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 roleId = 2;
+  // uint32 roleId = 3;
   void clear_roleid();
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
   void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -231,6 +241,7 @@ class LoadRoleRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -679,12 +690,13 @@ class SyncRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDatasFieldNumber = 3,
-    kRemovesFieldNumber = 4,
-    kLTokenFieldNumber = 1,
-    kRoleIdFieldNumber = 2,
+    kDatasFieldNumber = 4,
+    kRemovesFieldNumber = 5,
+    kServerIdFieldNumber = 1,
+    kLTokenFieldNumber = 2,
+    kRoleIdFieldNumber = 3,
   };
-  // repeated .wukong.pb.SyncData datas = 3;
+  // repeated .wukong.pb.SyncData datas = 4;
   int datas_size() const;
   private:
   int _internal_datas_size() const;
@@ -702,7 +714,7 @@ class SyncRequest final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::SyncData >&
       datas() const;
 
-  // repeated string removes = 4;
+  // repeated string removes = 5;
   int removes_size() const;
   private:
   int _internal_removes_size() const;
@@ -726,7 +738,16 @@ class SyncRequest final :
   std::string* _internal_add_removes();
   public:
 
-  // uint32 lToken = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 lToken = 2;
   void clear_ltoken();
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
   void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -735,7 +756,7 @@ class SyncRequest final :
   void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 roleId = 2;
+  // uint32 roleId = 3;
   void clear_roleid();
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
   void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -753,6 +774,7 @@ class SyncRequest final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::SyncData > datas_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> removes_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -875,10 +897,20 @@ class RSHeartbeatRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRoleIdFieldNumber = 1,
-    kLTokenFieldNumber = 2,
+    kServerIdFieldNumber = 1,
+    kRoleIdFieldNumber = 2,
+    kLTokenFieldNumber = 3,
   };
-  // uint32 roleId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 roleId = 2;
   void clear_roleid();
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
   void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -887,7 +919,7 @@ class RSHeartbeatRequest final :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 2;
+  // uint32 lToken = 3;
   void clear_ltoken();
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
   void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -903,6 +935,7 @@ class RSHeartbeatRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1101,7 +1134,27 @@ class InnerRecordService_Stub : public InnerRecordService {
 #endif  // __GNUC__
 // LoadRoleRequest
 
-// uint32 lToken = 1;
+// uint32 serverId = 1;
+inline void LoadRoleRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleRequest.serverId)
+  return _internal_serverid();
+}
+inline void LoadRoleRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void LoadRoleRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.serverId)
+}
+
+// uint32 lToken = 2;
 inline void LoadRoleRequest::clear_ltoken() {
   ltoken_ = 0u;
 }
@@ -1121,7 +1174,7 @@ inline void LoadRoleRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.lToken)
 }
 
-// uint32 roleId = 2;
+// uint32 roleId = 3;
 inline void LoadRoleRequest::clear_roleid() {
   roleid_ = 0u;
 }
@@ -1331,7 +1384,27 @@ inline void SyncData::set_allocated_value(std::string* value) {
 
 // SyncRequest
 
-// uint32 lToken = 1;
+// uint32 serverId = 1;
+inline void SyncRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SyncRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 SyncRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.SyncRequest.serverId)
+  return _internal_serverid();
+}
+inline void SyncRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void SyncRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.SyncRequest.serverId)
+}
+
+// uint32 lToken = 2;
 inline void SyncRequest::clear_ltoken() {
   ltoken_ = 0u;
 }
@@ -1351,7 +1424,7 @@ inline void SyncRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.SyncRequest.lToken)
 }
 
-// uint32 roleId = 2;
+// uint32 roleId = 3;
 inline void SyncRequest::clear_roleid() {
   roleid_ = 0u;
 }
@@ -1371,7 +1444,7 @@ inline void SyncRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.SyncRequest.roleId)
 }
 
-// repeated .wukong.pb.SyncData datas = 3;
+// repeated .wukong.pb.SyncData datas = 4;
 inline int SyncRequest::_internal_datas_size() const {
   return datas_.size();
 }
@@ -1411,7 +1484,7 @@ SyncRequest::datas() const {
   return datas_;
 }
 
-// repeated string removes = 4;
+// repeated string removes = 5;
 inline int SyncRequest::_internal_removes_size() const {
   return removes_.size();
 }
@@ -1490,7 +1563,27 @@ SyncRequest::mutable_removes() {
 
 // RSHeartbeatRequest
 
-// uint32 roleId = 1;
+// uint32 serverId = 1;
+inline void RSHeartbeatRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 RSHeartbeatRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 RSHeartbeatRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.RSHeartbeatRequest.serverId)
+  return _internal_serverid();
+}
+inline void RSHeartbeatRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void RSHeartbeatRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.RSHeartbeatRequest.serverId)
+}
+
+// uint32 roleId = 2;
 inline void RSHeartbeatRequest::clear_roleid() {
   roleid_ = 0u;
 }
@@ -1510,7 +1603,7 @@ inline void RSHeartbeatRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:wukong.pb.RSHeartbeatRequest.roleId)
 }
 
-// uint32 lToken = 2;
+// uint32 lToken = 3;
 inline void RSHeartbeatRequest::clear_ltoken() {
   ltoken_ = 0u;
 }

@@ -66,7 +66,6 @@ void GatewayServer::enterZoo() {
 
 void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort) {
     // 启动RPC服务
-    //RpcServer *server = RpcServer::create(rpc_io, 0, g_GatewayConfig.getInternalIp(), rpcPort);
     server->start(false);
     
     GatewayManager *mgr = new GatewayManager(gwid);

@@ -25,7 +25,35 @@ namespace wukong {
 
     class RecordServiceImpl : public pb::RecordService {
     public:
-        RecordServiceImpl(RecordManager *manager): _manager(manager) {}
+        virtual void shutdown(::google::protobuf::RpcController* controller,
+                              const ::corpc::Void* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done);
+
+        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
+                                    const ::corpc::Void* request,
+                                    ::wukong::pb::OnlineCounts* response,
+                                    ::google::protobuf::Closure* done);
+
+        virtual void loadRole(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::LoadRoleRequest* request,
+                             ::wukong::pb::LoadRoleResponse* response,
+                             ::google::protobuf::Closure* done);
+
+        virtual void sync(::google::protobuf::RpcController* controller,
+                          const ::wukong::pb::SyncRequest* request,
+                          ::wukong::pb::BoolValue* response,
+                          ::google::protobuf::Closure* done);
+
+        virtual void heartbeat(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::RSHeartbeatRequest* request,
+                               ::wukong::pb::BoolValue* response,
+                               ::google::protobuf::Closure* done);
+    };
+    
+    class InnerRecordServiceImpl : public pb::InnerRecordService {
+    public:
+        InnerRecordServiceImpl(RecordManager *manager): _manager(manager) {}
 
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,

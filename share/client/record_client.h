@@ -29,14 +29,13 @@ namespace wukong {
     class RecordClient {
     public:
         struct AddressInfo {
-            uint16_t id;
             std::string ip;
             uint16_t port;
+            std::vector<uint16_t> serverIds;
         };
 
         struct StubInfo {
-            std::string ip; // rpc服务ip
-            uint16_t port; // rpc服务port
+            std::string rpcAddr; // rpc服务地址"ip:port"
             std::shared_ptr<pb::RecordService_Stub> stub;
         };
 
@@ -61,7 +60,7 @@ namespace wukong {
 
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
         /* 加入Server */
-        bool setServers(const std::map<ServerId, AddressInfo> &addresses);
+        bool setServers(const std::vector<AddressInfo> &addresses);
         /* 根据逻辑区服id获得RecordServer的stub */
         std::shared_ptr<pb::RecordService_Stub> getStub(ServerId sid);
         
@@ -74,6 +73,7 @@ namespace wukong {
         RpcClient *_client = nullptr;
 
         /* 所有LobbyServer的Stub */
+        static std::map<std::string, std::shared_ptr<pb::LobbyService_Stub>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
         static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;
         static std::atomic<uint32_t> _stubChangeNum;

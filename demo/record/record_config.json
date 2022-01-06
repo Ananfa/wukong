@@ -1,34 +1,32 @@
 {
     "ip": "127.0.0.1",
+    "port": 11001,
     "servers": [
         {
-            "id": 10001,
-            "rpcPort": 11001
+            "id": 10001
         },
         {
-            "id": 10002,
-            "rpcPort": 11002
+            "id": 10002
         },
         {
-            "id": 10003,
-            "rpcPort": 11003
+            "id": 10003
         }
     ],
     "zookeeper": "127.0.0.1:2181",
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
     "cache": {
-        "host": "192.168.92.3",
+        "host": "172.29.11.244",
         "port": 6379,
         "maxConnect": 8,
-        "dbIndex": 0
+        "dbIndex": 6
     },
     "mysql": {
-        "host": "192.168.92.3",
+        "host": "172.29.11.244",
         "port": 3306,
         "user": "root",
-        "pwd": "123456",
-        "maxConnect": 8,
+        "pwd": "111111",
+        "maxConnect": 20,
         "dbName": "record"
     }
 }

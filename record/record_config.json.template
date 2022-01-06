@@ -1,17 +1,15 @@
 {
     "ip": "127.0.0.1",                          // 内网提供rpc服务的监听ip
+    "port": 11001,                              // rpc服务端口
     "servers": [                                // Record服务组
         {
-            "id": 10001,                        // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
-            "rpcPort": 11001                    // rpc服务端口
+            "id": 10001                         // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
         },
         {
-            "id": 10002,                        // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
-            "rpcPort": 11002                    // rpc服务端口
+            "id": 10002                         // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
         },
         {
-            "id": 10003,                        // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
-            "rpcPort": 11003                    // rpc服务端口
+            "id": 10003                         // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
         }
     ],
     "zookeeper": "127.0.0.1:2181",              // ZooKeeper

@@ -1,17 +1,15 @@
 {
     "ip": "127.0.0.1",                          // 内网提供rpc服务的监听ip
+    "port": 10001                               // rpc服务端口
     "servers": [                                // Lobby服务组
         {
             "id": 10001,                        // 服务号（Lobby服务唯一标识，与zookeeper注册发现有关）
-            "rpcPort": 10001                    // rpc服务端口
         },
         {
             "id": 10002,                        // 服务号（Lobby服务唯一标识，与zookeeper注册发现有关）
-            "rpcPort": 10002                    // rpc服务端口
         },
         {
             "id": 10003,                        // 服务号（Lobby服务唯一标识，与zookeeper注册发现有关）
-            "rpcPort": 10003                    // rpc服务端口
         }
     ],
     "zookeeper": "127.0.0.1:2181",              // ZooKeeper

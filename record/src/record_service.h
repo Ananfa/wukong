@@ -49,6 +49,15 @@ namespace wukong {
                                const ::wukong::pb::RSHeartbeatRequest* request,
                                ::wukong::pb::BoolValue* response,
                                ::google::protobuf::Closure* done);
+
+        void addInnerStub(ServerId sid, pb::InnerRecordService_Stub* stub);
+
+    private:
+        pb::InnerRecordService_Stub *getInnerStub(ServerId sid);
+        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerRecordService_Stub*)> handle);
+
+    private:
+        std::map<ServerId, pb::InnerRecordService_Stub*> _innerStubs; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
     
     class InnerRecordServiceImpl : public pb::InnerRecordService {

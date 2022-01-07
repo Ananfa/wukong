@@ -192,7 +192,7 @@ const char descriptor_table_protodef_gateway_5fservice_2eproto[] PROTOBUF_SECTIO
   "ObjectPos\022\".wukong.pb.SetGameObjectPosRe"
   "quest\032\024.wukong.pb.BoolValue\022G\n\theartbeat"
   "\022\035.wukong.pb.GSHeartbeatRequest\032\024.wukong"
-  ".pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361\004eB\003\200\001\001b\006proto3"
+  ".pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361\004\001B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_gateway_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,

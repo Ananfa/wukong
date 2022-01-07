@@ -21,6 +21,7 @@ namespace pb {
 constexpr ForwardInRequest::ForwardInRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : rawmsg_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , serverid_(0u)
   , type_(0)
   , tag_(0u)
   , roleid_(0u){}
@@ -35,7 +36,8 @@ struct ForwardInRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ForwardInRequestDefaultTypeInternal _ForwardInRequest_default_instance_;
 constexpr EnterGameRequest::EnterGameRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : roleid_(0u)
+  : serverid_(0u)
+  , roleid_(0u)
   , ltoken_(0u)
   , gatewayid_(0u){}
 struct EnterGameRequestDefaultTypeInternal {
@@ -51,7 +53,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT EnterGameRequestDefaultTypeInte
 }  // namespace wukong
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_game_5fservice_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_game_5fservice_2eproto = nullptr;
-static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_game_5fservice_2eproto[1];
+static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_game_5fservice_2eproto[2];
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_game_5fservice_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
@@ -59,6 +61,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_game_5fservice_2eproto::offset
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, serverid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, type_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, tag_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::ForwardInRequest, roleid_),
@@ -68,13 +71,14 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_game_5fservice_2eproto::offset
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterGameRequest, serverid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterGameRequest, roleid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterGameRequest, ltoken_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterGameRequest, gatewayid_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::wukong::pb::ForwardInRequest)},
-  { 9, -1, sizeof(::wukong::pb::EnterGameRequest)},
+  { 10, -1, sizeof(::wukong::pb::EnterGameRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -84,21 +88,26 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_game_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\022game_service.proto\022\twukong.pb\032\022corpc_o"
-  "ption.proto\"M\n\020ForwardInRequest\022\014\n\004type\030"
-  "\001 \001(\005\022\013\n\003tag\030\002 \001(\r\022\016\n\006roleId\030\003 \001(\r\022\016\n\006ra"
-  "wMsg\030\004 \001(\014\"E\n\020EnterGameRequest\022\016\n\006roleId"
-  "\030\001 \001(\r\022\016\n\006lToken\030\002 \001(\r\022\021\n\tgatewayId\030\003 \001("
-  "\r2\215\001\n\013GameService\022;\n\tforwardIn\022\033.wukong."
-  "pb.ForwardInRequest\032\013.corpc.Void\"\004\230\361\004\001\022;"
+  "ption.proto\"_\n\020ForwardInRequest\022\020\n\010serve"
+  "rId\030\001 \001(\r\022\014\n\004type\030\002 \001(\005\022\013\n\003tag\030\003 \001(\r\022\016\n\006"
+  "roleId\030\004 \001(\r\022\016\n\006rawMsg\030\005 \001(\014\"W\n\020EnterGam"
+  "eRequest\022\020\n\010serverId\030\001 \001(\r\022\016\n\006roleId\030\002 \001"
+  "(\r\022\016\n\006lToken\030\003 \001(\r\022\021\n\tgatewayId\030\004 \001(\r2\225\001"
+  "\n\013GameService\022\?\n\tforwardIn\022\033.wukong.pb.F"
+  "orwardInRequest\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\022\?"
   "\n\tenterGame\022\033.wukong.pb.EnterGameRequest"
-  "\032\013.corpc.Void\"\004\230\361\004\001\032\004\200\361\004\002B\003\200\001\001b\006proto3"
+  "\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\032\004\200\361\004\0022\222\001\n\020InnerG"
+  "ameService\022;\n\tforwardIn\022\033.wukong.pb.Forw"
+  "ardInRequest\032\013.corpc.Void\"\004\230\361\004\001\022;\n\tenter"
+  "Game\022\033.wukong.pb.EnterGameRequest\032\013.corp"
+  "c.Void\"\004\230\361\004\001\032\004\200\361\004\002B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_game_5fservice_2eproto_deps[1] = {
   &::descriptor_table_corpc_5foption_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_game_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_game_5fservice_2eproto = {
-  false, false, 358, descriptor_table_protodef_game_5fservice_2eproto, "game_service.proto", 
+  false, false, 551, descriptor_table_protodef_game_5fservice_2eproto, "game_service.proto", 
   &descriptor_table_game_5fservice_2eproto_once, descriptor_table_game_5fservice_2eproto_deps, 1, 2,
   schemas, file_default_instances, TableStruct_game_5fservice_2eproto::offsets,
   file_level_metadata_game_5fservice_2eproto, file_level_enum_descriptors_game_5fservice_2eproto, file_level_service_descriptors_game_5fservice_2eproto,
@@ -135,18 +144,18 @@ ForwardInRequest::ForwardInRequest(const ForwardInRequest& from)
     rawmsg_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_rawmsg(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&type_, &from.type_,
+  ::memcpy(&serverid_, &from.serverid_,
     static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&type_)) + sizeof(roleid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.ForwardInRequest)
 }
 
 inline void ForwardInRequest::SharedCtor() {
 rawmsg_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&type_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&type_)) + sizeof(roleid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
 }
 
 ForwardInRequest::~ForwardInRequest() {
@@ -178,9 +187,9 @@ void ForwardInRequest::Clear() {
   (void) cached_has_bits;
 
   rawmsg_.ClearToEmpty();
-  ::memset(&type_, 0, static_cast<size_t>(
+  ::memset(&serverid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&roleid_) -
-      reinterpret_cast<char*>(&type_)) + sizeof(roleid_));
+      reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -190,30 +199,37 @@ const char* ForwardInRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int32 type = 1;
+      // uint32 serverId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          serverid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 type = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           type_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 tag = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+      // uint32 tag = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
           tag_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+      // uint32 roleId = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bytes rawMsg = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+      // bytes rawMsg = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
           auto str = _internal_mutable_rawmsg();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -248,28 +264,34 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 type = 1;
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
+  }
+
+  // int32 type = 2;
   if (this->_internal_type() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_type(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_type(), target);
   }
 
-  // uint32 tag = 2;
+  // uint32 tag = 3;
   if (this->_internal_tag() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_tag(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_tag(), target);
   }
 
-  // uint32 roleId = 3;
+  // uint32 roleId = 4;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_roleid(), target);
   }
 
-  // bytes rawMsg = 4;
+  // bytes rawMsg = 5;
   if (!this->_internal_rawmsg().empty()) {
     target = stream->WriteBytesMaybeAliased(
-        4, this->_internal_rawmsg(), target);
+        5, this->_internal_rawmsg(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -288,28 +310,35 @@ size_t ForwardInRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // bytes rawMsg = 4;
+  // bytes rawMsg = 5;
   if (!this->_internal_rawmsg().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_rawmsg());
   }
 
-  // int32 type = 1;
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_serverid());
+  }
+
+  // int32 type = 2;
   if (this->_internal_type() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->_internal_type());
   }
 
-  // uint32 tag = 2;
+  // uint32 tag = 3;
   if (this->_internal_tag() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_tag());
   }
 
-  // uint32 roleId = 3;
+  // uint32 roleId = 4;
   if (this->_internal_roleid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
@@ -347,6 +376,9 @@ void ForwardInRequest::MergeFrom(const ForwardInRequest& from) {
   if (!from._internal_rawmsg().empty()) {
     _internal_set_rawmsg(from._internal_rawmsg());
   }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
+  }
   if (from._internal_type() != 0) {
     _internal_set_type(from._internal_type());
   }
@@ -381,9 +413,9 @@ void ForwardInRequest::InternalSwap(ForwardInRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(ForwardInRequest, roleid_)
       + sizeof(ForwardInRequest::roleid_)
-      - PROTOBUF_FIELD_OFFSET(ForwardInRequest, type_)>(
-          reinterpret_cast<char*>(&type_),
-          reinterpret_cast<char*>(&other->type_));
+      - PROTOBUF_FIELD_OFFSET(ForwardInRequest, serverid_)>(
+          reinterpret_cast<char*>(&serverid_),
+          reinterpret_cast<char*>(&other->serverid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata ForwardInRequest::GetMetadata() const {
@@ -410,17 +442,17 @@ EnterGameRequest::EnterGameRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 EnterGameRequest::EnterGameRequest(const EnterGameRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&roleid_, &from.roleid_,
+  ::memcpy(&serverid_, &from.serverid_,
     static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.EnterGameRequest)
 }
 
 inline void EnterGameRequest::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
 }
 
 EnterGameRequest::~EnterGameRequest() {
@@ -450,9 +482,9 @@ void EnterGameRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&roleid_, 0, static_cast<size_t>(
+  ::memset(&serverid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&gatewayid_) -
-      reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
+      reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -462,23 +494,30 @@ const char* EnterGameRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint32 roleId = 1;
+      // uint32 serverId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          serverid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 roleId = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 lToken = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+      // uint32 lToken = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
           ltoken_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 gatewayId = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+      // uint32 gatewayId = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           gatewayid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -512,22 +551,28 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint32 roleId = 1;
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
+  }
+
+  // uint32 roleId = 2;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_roleid(), target);
   }
 
-  // uint32 lToken = 2;
+  // uint32 lToken = 3;
   if (this->_internal_ltoken() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_ltoken(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_ltoken(), target);
   }
 
-  // uint32 gatewayId = 3;
+  // uint32 gatewayId = 4;
   if (this->_internal_gatewayid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_gatewayid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_gatewayid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -546,21 +591,28 @@ size_t EnterGameRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // uint32 roleId = 1;
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_serverid());
+  }
+
+  // uint32 roleId = 2;
   if (this->_internal_roleid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_roleid());
   }
 
-  // uint32 lToken = 2;
+  // uint32 lToken = 3;
   if (this->_internal_ltoken() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_ltoken());
   }
 
-  // uint32 gatewayId = 3;
+  // uint32 gatewayId = 4;
   if (this->_internal_gatewayid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
@@ -595,6 +647,9 @@ void EnterGameRequest::MergeFrom(const EnterGameRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
+  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
   }
@@ -624,9 +679,9 @@ void EnterGameRequest::InternalSwap(EnterGameRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(EnterGameRequest, gatewayid_)
       + sizeof(EnterGameRequest::gatewayid_)
-      - PROTOBUF_FIELD_OFFSET(EnterGameRequest, roleid_)>(
-          reinterpret_cast<char*>(&roleid_),
-          reinterpret_cast<char*>(&other->roleid_));
+      - PROTOBUF_FIELD_OFFSET(EnterGameRequest, serverid_)>(
+          reinterpret_cast<char*>(&serverid_),
+          reinterpret_cast<char*>(&other->serverid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata EnterGameRequest::GetMetadata() const {
@@ -742,6 +797,119 @@ void GameService_Stub::forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* control
                        controller, request, response, done);
 }
 void GameService_Stub::enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::wukong::pb::EnterGameRequest* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done) {
+  channel_->CallMethod(descriptor()->method(1),
+                       controller, request, response, done);
+}
+// ===================================================================
+
+InnerGameService::~InnerGameService() {}
+
+const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* InnerGameService::descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_game_5fservice_2eproto);
+  return file_level_service_descriptors_game_5fservice_2eproto[1];
+}
+
+const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* InnerGameService::GetDescriptor() {
+  return descriptor();
+}
+
+void InnerGameService::forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::wukong::pb::ForwardInRequest*,
+                         ::corpc::Void*,
+                         ::google::protobuf::Closure* done) {
+  controller->SetFailed("Method forwardIn() not implemented.");
+  done->Run();
+}
+
+void InnerGameService::enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::wukong::pb::EnterGameRequest*,
+                         ::corpc::Void*,
+                         ::google::protobuf::Closure* done) {
+  controller->SetFailed("Method enterGame() not implemented.");
+  done->Run();
+}
+
+void InnerGameService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
+                             ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                             const ::PROTOBUF_NAMESPACE_ID::Message* request,
+                             ::PROTOBUF_NAMESPACE_ID::Message* response,
+                             ::google::protobuf::Closure* done) {
+  GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_game_5fservice_2eproto[1]);
+  switch(method->index()) {
+    case 0:
+      forwardIn(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::ForwardInRequest*>(
+                 request),
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
+                 response),
+             done);
+      break;
+    case 1:
+      enterGame(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::EnterGameRequest*>(
+                 request),
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
+                 response),
+             done);
+      break;
+    default:
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
+      break;
+  }
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message& InnerGameService::GetRequestPrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
+  GOOGLE_DCHECK_EQ(method->service(), descriptor());
+  switch(method->index()) {
+    case 0:
+      return ::wukong::pb::ForwardInRequest::default_instance();
+    case 1:
+      return ::wukong::pb::EnterGameRequest::default_instance();
+    default:
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
+      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
+          ->GetPrototype(method->input_type());
+  }
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message& InnerGameService::GetResponsePrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
+  GOOGLE_DCHECK_EQ(method->service(), descriptor());
+  switch(method->index()) {
+    case 0:
+      return ::corpc::Void::default_instance();
+    case 1:
+      return ::corpc::Void::default_instance();
+    default:
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
+      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
+          ->GetPrototype(method->output_type());
+  }
+}
+
+InnerGameService_Stub::InnerGameService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel)
+  : channel_(channel), owns_channel_(false) {}
+InnerGameService_Stub::InnerGameService_Stub(
+    ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
+    ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership)
+  : channel_(channel),
+    owns_channel_(ownership == ::PROTOBUF_NAMESPACE_ID::Service::STUB_OWNS_CHANNEL) {}
+InnerGameService_Stub::~InnerGameService_Stub() {
+  if (owns_channel_) delete channel_;
+}
+
+void InnerGameService_Stub::forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::wukong::pb::ForwardInRequest* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done) {
+  channel_->CallMethod(descriptor()->method(0),
+                       controller, request, response, done);
+}
+void InnerGameService_Stub::enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::wukong::pb::EnterGameRequest* request,
                               ::corpc::Void* response,
                               ::google::protobuf::Closure* done) {

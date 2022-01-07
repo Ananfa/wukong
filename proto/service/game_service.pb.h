@@ -189,12 +189,13 @@ class ForwardInRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRawMsgFieldNumber = 4,
-    kTypeFieldNumber = 1,
-    kTagFieldNumber = 2,
-    kRoleIdFieldNumber = 3,
+    kRawMsgFieldNumber = 5,
+    kServerIdFieldNumber = 1,
+    kTypeFieldNumber = 2,
+    kTagFieldNumber = 3,
+    kRoleIdFieldNumber = 4,
   };
-  // bytes rawMsg = 4;
+  // bytes rawMsg = 5;
   void clear_rawmsg();
   const std::string& rawmsg() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -208,7 +209,16 @@ class ForwardInRequest final :
   std::string* _internal_mutable_rawmsg();
   public:
 
-  // int32 type = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 type = 2;
   void clear_type();
   ::PROTOBUF_NAMESPACE_ID::int32 type() const;
   void set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
@@ -217,7 +227,7 @@ class ForwardInRequest final :
   void _internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // uint32 tag = 2;
+  // uint32 tag = 3;
   void clear_tag();
   ::PROTOBUF_NAMESPACE_ID::uint32 tag() const;
   void set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -226,7 +236,7 @@ class ForwardInRequest final :
   void _internal_set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 roleId = 3;
+  // uint32 roleId = 4;
   void clear_roleid();
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
   void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -243,6 +253,7 @@ class ForwardInRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rawmsg_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::int32 type_;
   ::PROTOBUF_NAMESPACE_ID::uint32 tag_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
@@ -366,11 +377,21 @@ class EnterGameRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRoleIdFieldNumber = 1,
-    kLTokenFieldNumber = 2,
-    kGatewayIdFieldNumber = 3,
+    kServerIdFieldNumber = 1,
+    kRoleIdFieldNumber = 2,
+    kLTokenFieldNumber = 3,
+    kGatewayIdFieldNumber = 4,
   };
-  // uint32 roleId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 roleId = 2;
   void clear_roleid();
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
   void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -379,7 +400,7 @@ class EnterGameRequest final :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 2;
+  // uint32 lToken = 3;
   void clear_ltoken();
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
   void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -388,7 +409,7 @@ class EnterGameRequest final :
   void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 gatewayId = 3;
+  // uint32 gatewayId = 4;
   void clear_gatewayid();
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid() const;
   void set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -404,6 +425,7 @@ class EnterGameRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
@@ -477,6 +499,73 @@ class GameService_Stub : public GameService {
 };
 
 
+// -------------------------------------------------------------------
+
+class InnerGameService_Stub;
+
+class InnerGameService : public ::PROTOBUF_NAMESPACE_ID::Service {
+ protected:
+  // This class should be treated as an abstract interface.
+  inline InnerGameService() {};
+ public:
+  virtual ~InnerGameService();
+
+  typedef InnerGameService_Stub Stub;
+
+  static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
+
+  virtual void forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardInRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  virtual void enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::EnterGameRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+
+  // implements Service ----------------------------------------------
+
+  const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GetDescriptor();
+  void CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
+                  ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                  const ::PROTOBUF_NAMESPACE_ID::Message* request,
+                  ::PROTOBUF_NAMESPACE_ID::Message* response,
+                  ::google::protobuf::Closure* done);
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetRequestPrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetResponsePrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+
+ private:
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerGameService);
+};
+
+class InnerGameService_Stub : public InnerGameService {
+ public:
+  InnerGameService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel);
+  InnerGameService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
+                   ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership);
+  ~InnerGameService_Stub();
+
+  inline ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel() { return channel_; }
+
+  // implements InnerGameService ------------------------------------------
+
+  void forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardInRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  void enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::EnterGameRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+ private:
+  ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
+  bool owns_channel_;
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerGameService_Stub);
+};
+
+
 // ===================================================================
 
 
@@ -488,7 +577,27 @@ class GameService_Stub : public GameService {
 #endif  // __GNUC__
 // ForwardInRequest
 
-// int32 type = 1;
+// uint32 serverId = 1;
+inline void ForwardInRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.serverId)
+  return _internal_serverid();
+}
+inline void ForwardInRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void ForwardInRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.serverId)
+}
+
+// int32 type = 2;
 inline void ForwardInRequest::clear_type() {
   type_ = 0;
 }
@@ -508,7 +617,7 @@ inline void ForwardInRequest::set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.type)
 }
 
-// uint32 tag = 2;
+// uint32 tag = 3;
 inline void ForwardInRequest::clear_tag() {
   tag_ = 0u;
 }
@@ -528,7 +637,7 @@ inline void ForwardInRequest::set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.tag)
 }
 
-// uint32 roleId = 3;
+// uint32 roleId = 4;
 inline void ForwardInRequest::clear_roleid() {
   roleid_ = 0u;
 }
@@ -548,7 +657,7 @@ inline void ForwardInRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) 
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.roleId)
 }
 
-// bytes rawMsg = 4;
+// bytes rawMsg = 5;
 inline void ForwardInRequest::clear_rawmsg() {
   rawmsg_.ClearToEmpty();
 }
@@ -598,7 +707,27 @@ inline void ForwardInRequest::set_allocated_rawmsg(std::string* rawmsg) {
 
 // EnterGameRequest
 
-// uint32 roleId = 1;
+// uint32 serverId = 1;
+inline void EnterGameRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.EnterGameRequest.serverId)
+  return _internal_serverid();
+}
+inline void EnterGameRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void EnterGameRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.serverId)
+}
+
+// uint32 roleId = 2;
 inline void EnterGameRequest::clear_roleid() {
   roleid_ = 0u;
 }
@@ -618,7 +747,7 @@ inline void EnterGameRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) 
   // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.roleId)
 }
 
-// uint32 lToken = 2;
+// uint32 lToken = 3;
 inline void EnterGameRequest::clear_ltoken() {
   ltoken_ = 0u;
 }
@@ -638,7 +767,7 @@ inline void EnterGameRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) 
   // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.lToken)
 }
 
-// uint32 gatewayId = 3;
+// uint32 gatewayId = 4;
 inline void EnterGameRequest::clear_gatewayid() {
   gatewayid_ = 0u;
 }

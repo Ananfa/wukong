@@ -37,7 +37,6 @@ namespace wukong {
         IO *_io = nullptr;
         RpcClient *_rpcClient = nullptr;
 
-        std::map<ServerId, pb::InnerGatewayService_Stub*> _innerStubs;
         std::map<GameServerType, GameClient*> _gameClientMap;
         std::vector<std::thread> _threads;
     public:
@@ -55,9 +54,6 @@ namespace wukong {
         void registerGameClient(GameClient *client);
         GameClient *getGameClient(GameServerType gsType);
 
-        pb::InnerGatewayService_Stub *getInnerStub(ServerId sid);
-        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle);
-
     private:
         void enterZoo();
 
@@ -73,7 +69,6 @@ namespace wukong {
     };
 
     #define g_GatewayServer GatewayServer::Instance()
-
 }
 
 #endif /* gateway_server_h */

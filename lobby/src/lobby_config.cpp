@@ -41,6 +41,12 @@ bool LobbyConfig::parse(const char *path) {
     }
     _ip = doc["ip"].GetString();
     
+    if (!doc.HasMember("port")) {
+        ERROR_LOG("config error -- port not define\n");
+        return false;
+    }
+    _port = doc["port"].GetUint();
+    
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
         return false;
@@ -67,12 +73,6 @@ bool LobbyConfig::parse(const char *path) {
             return false;
         }
 
-        if (!server.HasMember("rpcPort")) {
-            ERROR_LOG("config error -- servers[%d] id rpcPort not define\n", i);
-            return false;
-        }
-        info.rpcPort = server["rpcPort"].GetUint();
-        
         serverIdMap.insert(std::make_pair(info.id, true));
         _serverInfos.push_back(info);
     }
@@ -134,6 +134,11 @@ bool LobbyConfig::parse(const char *path) {
         _updatePeriod = 0;
     } else {
         _updatePeriod = doc["updatePeriod"].GetUint();
+    }
+    
+    _zooPath = ZK_LOBBY_SERVER + "/" + _ip + ":" + std::to_string(_port);
+    for (const LobbyConfig::ServerInfo &info : _serverInfos) {
+        _zooPath += "|" + std::to_string(info.id);
     }
     
     return true;

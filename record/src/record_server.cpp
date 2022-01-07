@@ -120,42 +120,23 @@ bool RecordServer::init(int argc, char * argv[]) {
 }
 
 void RecordServer::run() {
+    RecordServiceImpl *recordServiceImpl = new RecordServiceImpl();
+
     // 根据servers配置启动Record服务，每线程跑一个服务
     const std::vector<RecordConfig::ServerInfo> &recordInfos = g_RecordConfig.getServerInfos();
     for (auto &info : recordInfos) {
         // 创建内部RPC服务
         InnerRpcServer *innerServer = new InnerRpcServer();
 
-        _innerStubs.insert(std::make_pair(info.id, new pb::InnerRecordService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL)));
+        recordServiceImpl->addInnerStub(info.id, new pb::InnerRecordService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
 
         _threads.push_back(std::thread(recordThread, innerServer, info.id));
     }
 
     // 启动对外的RPC服务
     RpcServer *server = RpcServer::create(_io, 0, g_RecordConfig.getIp(), g_RecordConfig.getPort());
-
-    RecordServiceImpl *recordServiceImpl = new RecordServiceImpl();
     server->registerService(recordServiceImpl);
 
     enterZoo();
     RoutineEnvironment::runEventLoop();
-}
-
-pb::InnerRecordService_Stub *RecordServer::getInnerStub(ServerId sid) {
-    auto it = _innerStubs.find(sid);
-
-    if (it == _innerStubs.end()) {
-        return nullptr;
-    }
-
-    return it->second;
-}
-
-void RecordServer::traverseInnerStubs(std::function<bool(ServerId, pb::InnerRecordService_Stub*)> handle) {
-    std::map<ServerId, pb::InnerRecordService_Stub*> stubs = _innerStubs; // 防止轮询Map过程中Map被修改的同步问题
-    for (auto &pair : stubs) {
-        if (!handle(pair.first, pair.second)) {
-            return;
-        }
-    }
 }

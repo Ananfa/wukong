@@ -173,6 +173,7 @@ void GatewayObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::s
     
     pb::ForwardInRequest *request = new pb::ForwardInRequest();
     Controller *controller = new Controller();
+    request->set_serverid(_gameServerId);
     request->set_type(type);
 
     if (tag != 0) {
@@ -197,6 +198,7 @@ DEBUG_LOG("GatewayObject::enterGame -----------------\n");
     
     pb::EnterGameRequest *request = new pb::EnterGameRequest();
     Controller *controller = new Controller();
+    request->set_serverid(_gameServerId);
     request->set_roleid(_roleId);
     request->set_ltoken(_lToken);
     request->set_gatewayid(_manager->getId());

@@ -33,9 +33,8 @@ void GatewayClient::shutdown() {
     
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
-        Controller *controller = new Controller();
         
-        kv.second.stub->shutdown(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+        kv.second.stub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
     }
 }
 
@@ -145,7 +144,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
                 request->set_rawmsg(msg);
             }
 
-            std::shared_ptr<::google::protobuf::Closure> donePtr(google::protobuf::NewCallback(&callDoneHandle, request, nullptr), [](::google::protobuf::Closure *done) {
+            std::shared_ptr<::google::protobuf::Closure> donePtr(google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request), [](::google::protobuf::Closure *done) {
                 done->Run();
             });
 
@@ -184,7 +183,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
             request->set_rawmsg(msg);
         }
         
-        stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, nullptr));  
+        stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));  
     }
 }
 

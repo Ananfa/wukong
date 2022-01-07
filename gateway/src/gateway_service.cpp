@@ -24,7 +24,7 @@ void GatewayServiceImpl::shutdown(::google::protobuf::RpcController* controller,
                      const ::corpc::Void* request,
                      ::corpc::Void* response,
                      ::google::protobuf::Closure* done) {
-    g_GatewayServer.traverseInnerStubs([](ServerId sid, pb::InnerGatewayService_Stub *stub) -> bool {
+    traverseInnerStubs([](ServerId sid, pb::InnerGatewayService_Stub *stub) -> bool {
         stub->shutdown(NULL, NULL, NULL, NULL);
         return true;
     });
@@ -34,7 +34,7 @@ void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
                      const ::wukong::pb::KickRequest* request,
                      ::wukong::pb::BoolValue* response,
                      ::google::protobuf::Closure* done) {
-    auto stub = g_GatewayServer.getInnerStub(request->serverid());
+    auto stub = getInnerStub(request->serverid());
     stub->kick(controller, request, response, done);
 }
 
@@ -43,7 +43,7 @@ void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* contr
                      ::wukong::pb::OnlineCounts* response,
                      ::google::protobuf::Closure* done) {
     // 注意：这里处理中间会产生协程切换，遍历的Map可能在过程中被修改，因此traverseInnerStubs方法中对map进行了镜像复制
-    g_GatewayServer.traverseInnerStubs([request, response](ServerId sid, pb::InnerGatewayService_Stub *stub) -> bool {
+    traverseInnerStubs([request, response](ServerId sid, pb::InnerGatewayService_Stub *stub) -> bool {
         pb::Uint32Value *resp = new pb::Uint32Value();
         corpc::Controller *ctl = new corpc::Controller();
         stub->getOnlineCount(ctl, request, resp, NULL);
@@ -66,6 +66,7 @@ void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controlle
                      ::corpc::Void* response,
                      ::google::protobuf::Closure* done) {
     // 注意：forwardOut接口在pb接口定义中将delete_in_done选项设置为true，当done->Run()调用时才销毁controller和request
+    assert(controller == NULL);
     if (request->serverid() == 0) {
         // 广播
         if (request->targets_size() > 0) {
@@ -77,14 +78,14 @@ void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controlle
             done->Run();
         });
 
-        g_GatewayServer.traverseInnerStubs([request, donePtr](ServerId sid, pb::InnerGatewayService_Stub* stub) -> bool {
+        traverseInnerStubs([request, donePtr](ServerId sid, pb::InnerGatewayService_Stub* stub) -> bool {
             // 因为forwardOut调用不会等返回，因此需要再用NewCallback保持住donePtr，等到处理完成后才释放
             stub->forwardOut(NULL, request, NULL, google::protobuf::NewCallback(&callDoneHandle, donePtr));
             return true;
         });
     } else {
         // 单播或多播
-        auto stub = g_GatewayServer.getInnerStub(request->serverid());
+        auto stub = getInnerStub(request->serverid());
 
         stub->forwardOut(controller, request, NULL, done);
     }
@@ -94,7 +95,7 @@ void GatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController* con
                      const ::wukong::pb::SetGameObjectPosRequest* request,
                      ::wukong::pb::BoolValue* response,
                      ::google::protobuf::Closure* done) {
-    auto stub = g_GatewayServer.getInnerStub(request->serverid());
+    auto stub = getInnerStub(request->serverid());
     stub->setGameObjectPos(controller, request, response, done);
 }
 
@@ -102,8 +103,30 @@ void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller
                      const ::wukong::pb::GSHeartbeatRequest* request,
                      ::wukong::pb::BoolValue* response,
                      ::google::protobuf::Closure* done) {
-    auto stub = g_GatewayServer.getInnerStub(request->serverid());
+    auto stub = getInnerStub(request->serverid());
     stub->heartbeat(controller, request, response, done);
+}
+
+void GatewayServiceImpl::addInnerStub(ServerId sid, pb::InnerGatewayService_Stub* stub) {
+    _innerStubs.insert(std::make_pair(sid, stub));
+}
+
+pb::InnerGatewayService_Stub *GatewayServiceImpl::getInnerStub(ServerId sid) {
+    auto it = _innerStubs.find(sid);
+
+    if (it == _innerStubs.end()) {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+void GatewayServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle) {
+    for (auto &pair : _innerStubs) {
+        if (!handle(pair.first, pair.second)) {
+            return;
+        }
+    }
 }
 
 void InnerGatewayServiceImpl::shutdown(::google::protobuf::RpcController* controller,

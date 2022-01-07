@@ -35,7 +35,6 @@ namespace wukong {
         bool _inited = false;
         IO *_io = nullptr;
 
-        std::map<ServerId, pb::InnerRecordService_Stub*> _innerStubs;
         std::vector<std::thread> _threads;
     public:
         static RecordServer& Instance() {
@@ -48,9 +47,6 @@ namespace wukong {
 
         IO *getIO() { return _io; }
         
-        pb::InnerRecordService_Stub *getInnerStub(ServerId sid);
-        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerRecordService_Stub*)> handle);
-
     private:
         void enterZoo();
 
@@ -66,7 +62,6 @@ namespace wukong {
     };
 
     #define g_RecordServer RecordServer::Instance()
-
 }
 
 #endif /* record_server_h */

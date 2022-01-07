@@ -34,6 +34,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "corpc_option.pb.h"
 #include "common.pb.h"
+#include "inner_common.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_lobby_5fservice_2eproto
@@ -186,11 +187,21 @@ class InitRoleRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
-    kRoleIdFieldNumber = 2,
-    kGatewayIdFieldNumber = 3,
+    kServerIdFieldNumber = 1,
+    kUserIdFieldNumber = 2,
+    kRoleIdFieldNumber = 3,
+    kGatewayIdFieldNumber = 4,
   };
-  // uint32 userId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 userId = 2;
   void clear_userid();
   ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
   void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -199,7 +210,7 @@ class InitRoleRequest final :
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 roleId = 2;
+  // uint32 roleId = 3;
   void clear_roleid();
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
   void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -208,7 +219,7 @@ class InitRoleRequest final :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 gatewayId = 3;
+  // uint32 gatewayId = 4;
   void clear_gatewayid();
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid() const;
   void set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -224,6 +235,7 @@ class InitRoleRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
@@ -251,7 +263,7 @@ class LobbyService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        ::google::protobuf::Closure* done);
   virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
+                       ::wukong::pb::OnlineCounts* response,
                        ::google::protobuf::Closure* done);
   virtual void initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::InitRoleRequest* request,
@@ -292,7 +304,7 @@ class LobbyService_Stub : public LobbyService {
                        ::google::protobuf::Closure* done);
   void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
+                       ::wukong::pb::OnlineCounts* response,
                        ::google::protobuf::Closure* done);
   void initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::InitRoleRequest* request,
@@ -302,6 +314,81 @@ class LobbyService_Stub : public LobbyService {
   ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
   bool owns_channel_;
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(LobbyService_Stub);
+};
+
+
+// -------------------------------------------------------------------
+
+class InnerLobbyService_Stub;
+
+class InnerLobbyService : public ::PROTOBUF_NAMESPACE_ID::Service {
+ protected:
+  // This class should be treated as an abstract interface.
+  inline InnerLobbyService() {};
+ public:
+  virtual ~InnerLobbyService();
+
+  typedef InnerLobbyService_Stub Stub;
+
+  static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
+
+  virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+  virtual void initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::InitRoleRequest* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+
+  // implements Service ----------------------------------------------
+
+  const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GetDescriptor();
+  void CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
+                  ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                  const ::PROTOBUF_NAMESPACE_ID::Message* request,
+                  ::PROTOBUF_NAMESPACE_ID::Message* response,
+                  ::google::protobuf::Closure* done);
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetRequestPrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetResponsePrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+
+ private:
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerLobbyService);
+};
+
+class InnerLobbyService_Stub : public InnerLobbyService {
+ public:
+  InnerLobbyService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel);
+  InnerLobbyService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
+                   ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership);
+  ~InnerLobbyService_Stub();
+
+  inline ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel() { return channel_; }
+
+  // implements InnerLobbyService ------------------------------------------
+
+  void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::corpc::Void* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+  void initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::InitRoleRequest* request,
+                       ::wukong::pb::Uint32Value* response,
+                       ::google::protobuf::Closure* done);
+ private:
+  ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
+  bool owns_channel_;
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerLobbyService_Stub);
 };
 
 
@@ -316,7 +403,27 @@ class LobbyService_Stub : public LobbyService {
 #endif  // __GNUC__
 // InitRoleRequest
 
-// uint32 userId = 1;
+// uint32 serverId = 1;
+inline void InitRoleRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 InitRoleRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.InitRoleRequest.serverId)
+  return _internal_serverid();
+}
+inline void InitRoleRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void InitRoleRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.InitRoleRequest.serverId)
+}
+
+// uint32 userId = 2;
 inline void InitRoleRequest::clear_userid() {
   userid_ = 0u;
 }
@@ -336,7 +443,7 @@ inline void InitRoleRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.InitRoleRequest.userId)
 }
 
-// uint32 roleId = 2;
+// uint32 roleId = 3;
 inline void InitRoleRequest::clear_roleid() {
   roleid_ = 0u;
 }
@@ -356,7 +463,7 @@ inline void InitRoleRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.InitRoleRequest.roleId)
 }
 
-// uint32 gatewayId = 3;
+// uint32 gatewayId = 4;
 inline void InitRoleRequest::clear_gatewayid() {
   gatewayid_ = 0u;
 }

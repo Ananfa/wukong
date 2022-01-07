@@ -95,7 +95,7 @@ namespace wukong {
         std::map<std::string, bool> _dirty_map;
 
     public:
-        friend class GameServiceImpl;
+        friend class InnerGameServiceImpl;
     };
 }
 

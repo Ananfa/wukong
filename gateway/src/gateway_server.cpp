@@ -48,12 +48,13 @@ void GatewayServer::enterZoo() {
 
         for (auto &pair : _gameClientMap) {
             g_ZkClient.watchChildren(pair.second->getZkNodeName(), [pair](const std::string &path, const std::vector<std::string> &values) {
-                std::map<uint16_t, GameClient::AddressInfo> addresses;
+                std::vector<GameClient::AddressInfo> addresses;
+                addresses.reserve(values.size());
                 for (const std::string &value : values) {
                     GameClient::AddressInfo address;
 
                     if (GameClient::parseAddress(value, address)) {
-                        addresses[address.id] = std::move(address);
+                        addresses.push_back(std::move(address));
                     } else {
                         ERROR_LOG("zkclient parse game server[gsType:%d] address error, info = %s\n", pair.first, value.c_str());
                     }
@@ -149,21 +150,21 @@ bool GatewayServer::init(int argc, char * argv[]) {
 }
 
 void GatewayServer::run() {
+    GatewayServiceImpl *gatewayServiceImpl = new GatewayServiceImpl();
+
     // 根据servers配置启动Gateway服务，每线程跑一个服务
     const std::vector<GatewayConfig::ServerInfo> &gatewayInfos = g_GatewayConfig.getServerInfos();
     for (auto &info : gatewayInfos) {
         // 创建内部RPC服务
         InnerRpcServer *innerServer = new InnerRpcServer();
 
-        _innerStubs.insert(std::make_pair(info.id, new pb::InnerGatewayService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL)));
+        gatewayServiceImpl->addInnerStub(info.id, new pb::InnerGatewayService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
 
         _threads.push_back(std::thread(gatewayThread, innerServer, _io, info.id, info.msgPort));
     }
 
     // 启动对外的RPC服务
     RpcServer *server = RpcServer::create(_io, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
-
-    GatewayServiceImpl *gatewayServiceImpl = new GatewayServiceImpl();
     server->registerService(gatewayServiceImpl);
 
     enterZoo();
@@ -182,23 +183,4 @@ GameClient *GatewayServer::getGameClient(GameServerType gsType) {
     }
 
     return it->second;
-}
-
-pb::InnerGatewayService_Stub *GatewayServer::getInnerStub(ServerId sid) {
-    auto it = _innerStubs.find(sid);
-
-    if (it == _innerStubs.end()) {
-        return nullptr;
-    }
-
-    return it->second;
-}
-
-void GatewayServer::traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle) {
-    std::map<ServerId, pb::InnerGatewayService_Stub*> stubs = _innerStubs; // 防止轮询Map过程中Map被修改的同步问题
-    for (auto &pair : stubs) {
-        if (!handle(pair.first, pair.second)) {
-            return;
-        }
-    }
 }

@@ -85,7 +85,7 @@ service GatewayService {
 }
 
 service InnerGatewayService {
-    option (corpc.global_service_id) = 101;
+    option (corpc.global_service_id) = 1;
     
     // 关服（关闭Gateway后，内部服务中的游戏对象会在心跳失败时销毁并存盘，因此只需对gateway进行shutdown）
     rpc shutdown(corpc.Void) returns(corpc.Void)

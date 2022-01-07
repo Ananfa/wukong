@@ -116,7 +116,7 @@ bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
 
     std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> addr2stubs;
     std::map<ServerId, StubInfo> stubs;
-    for (const auto& kv : addresses) {
+    for (const auto& address : addresses) {
         std::shared_ptr<pb::RecordService_Stub> stub;
         std::string addr = address.ip + std::to_string(address.port);
         auto iter = addr2stubs.find(addr);
@@ -146,7 +146,7 @@ bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
                 addr,
                 stub
             };
-            stubs.insert(std::make_pair(pair.first, std::move(stubInfo)));
+            stubs.insert(std::make_pair(serverId, std::move(stubInfo)));
         }
     }
 
@@ -194,7 +194,7 @@ bool RecordClient::parseAddress(const std::string &input, AddressInfo &addressIn
     if (output1.size() != 2) return false;
     addressInfo.ip = output1[0];
     addressInfo.port = std::stoi(output1[1]);
-    addressInfo.serverPorts.reserve(outputSize-1);
+    addressInfo.serverIds.reserve(outputSize-1);
     for (int i = 1; i < outputSize; i++) {
         addressInfo.serverIds.push_back(std::stoi(output[i]));
     }

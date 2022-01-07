@@ -26,7 +26,34 @@ namespace wukong {
 
     class LobbyServiceImpl : public pb::LobbyService {
     public:
-        LobbyServiceImpl(GameObjectManager *manager): _manager(manager) {}
+        virtual void shutdown(::google::protobuf::RpcController* controller,
+                              const ::corpc::Void* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done);
+
+        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
+                                    const ::corpc::Void* request,
+                                    ::wukong::pb::OnlineCounts* response,
+                                    ::google::protobuf::Closure* done);
+
+        virtual void initRole(::google::protobuf::RpcController* controller,
+                              const ::wukong::pb::InitRoleRequest* request,
+                              ::wukong::pb::Uint32Value* response,
+                              ::google::protobuf::Closure* done);
+
+        void addInnerStub(ServerId sid, pb::InnerLobbyService_Stub* stub);
+
+    private:
+        pb::InnerLobbyService_Stub *getInnerStub(ServerId sid);
+        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerLobbyService_Stub*)> handle);
+
+    private:
+        std::map<ServerId, pb::InnerLobbyService_Stub*> _innerStubs; // 注意：该map只在系统启动时初始化，启动后不再修改
+    };
+    
+    class InnerLobbyServiceImpl : public pb::InnerLobbyService {
+    public:
+        InnerLobbyServiceImpl(GameObjectManager *manager): _manager(manager) {}
 
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,

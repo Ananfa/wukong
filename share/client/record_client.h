@@ -72,8 +72,8 @@ namespace wukong {
     private:
         RpcClient *_client = nullptr;
 
-        /* 所有LobbyServer的Stub */
-        static std::map<std::string, std::shared_ptr<pb::LobbyService_Stub>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
+        /* 所有RecordServer的Stub */
+        static std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
         static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;
         static std::atomic<uint32_t> _stubChangeNum;

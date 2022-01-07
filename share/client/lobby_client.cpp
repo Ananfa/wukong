@@ -19,6 +19,7 @@
 
 using namespace wukong;
 
+std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> LobbyClient::_addr2stubs;
 std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_stubs;
 std::mutex LobbyClient::_stubsLock;
 std::atomic<uint32_t> LobbyClient::_stubChangeNum(0);
@@ -31,25 +32,34 @@ void LobbyClient::shutdown() {
     
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
-        Controller *controller = new Controller();
         
-        kv.second.lobbyServiceStub->shutdown(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+        kv.second.lobbyServiceStub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
     }
 }
 
 std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
     std::vector<ServerInfo> infos;
 
+    // 对相同rpc地址的服务不需要重复获取
+    std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
+
     refreshStubs();
     std::map<ServerId, StubInfo> localStubs = _t_stubs;
     
     // 清除原来的信息
     infos.reserve(localStubs.size());
+
     // 利用(总在线人数 - 服务器在线人数)作为分配服务器的权重
     uint32_t totalCount = 0;
     for (auto &kv : localStubs) {
+        if (handledAddrs.find(kv.second.rpcAddr) != handledAddrs.end()) {
+            continue;
+        }
+
+        handledAddrs.insert(std::make_pair(kv.second.rpcAddr, true));
+
         corpc::Void *request = new corpc::Void();
-        pb::Uint32Value *response = new pb::Uint32Value();
+        pb::OnlineCounts *response = new pb::OnlineCounts();
         Controller *controller = new Controller();
         kv.second.lobbyServiceStub->getOnlineCount(controller, request, response, nullptr);
         
@@ -57,8 +67,12 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
             ERROR_LOG("LobbyClient::getServerInfos -- Rpc Call Failed : %s\n", controller->ErrorText().c_str());
             continue;
         } else {
-            infos.push_back({kv.first, response->value(), 0});
-            totalCount += response->value();
+            auto countInfos = response->counts();
+
+            for (auto it = countInfos.begin(); it != countInfos.end(); ++it) {
+                infos.push_back({it->serverid(), it->count(), 0});
+                totalCount += it->count();
+            }
         }
         
         delete controller;
@@ -85,6 +99,7 @@ uint32_t LobbyClient::initRole(ServerId sid, UserId userId, RoleId roleId, Serve
     pb::InitRoleRequest *request = new pb::InitRoleRequest();
     pb::Uint32Value *response = new pb::Uint32Value();
     Controller *controller = new Controller();
+    request->set_serverid(sid);
     request->set_userid(userId);
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
@@ -113,6 +128,7 @@ void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId rol
     
     pb::ForwardInRequest *request = new pb::ForwardInRequest();
     Controller *controller = new Controller();
+    request->set_serverid(sid);
     request->set_type(type);
 
     if (tag != 0) {
@@ -128,35 +144,55 @@ void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId rol
     stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
 }
 
-bool LobbyClient::setServers(const std::map<ServerId, AddressInfo>& addresses) {
+bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
     if (!_client) {
         ERROR_LOG("LobbyClient::setServers -- not init\n");
         return false;
     }
 
+    std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> addr2stubs;
     std::map<ServerId, StubInfo> stubs;
-    for (const auto& kv : addresses) {
-        ServerId sid = kv.first;
-        const AddressInfo& address = kv.second;
-        auto iter1 = _stubs.find(sid);
-        if (iter1 != _stubs.end()) {
-            if (iter1->second.ip == address.ip && iter1->second.port == address.port) {
-                stubs.insert(std::make_pair(sid, iter1->second));
-                continue;
-            }
+    for (const auto& address : addresses) {
+        std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>> stubPair;
+        std::string addr = address.ip + std::to_string(address.port);
+        auto iter = addr2stubs.find(addr);
+        if (iter != addr2stubs.end()) {
+            ERROR_LOG("RecordClient::setServers -- duplicate rpc addr: %s\n", addr.c_str());
+            continue;
         }
 
-        RpcClient::Channel *channel = new RpcClient::Channel(_client, address.ip, address.port, 1);
+        iter = _addr2stubs.find(addr);
+        if (iter != _addr2stubs.end()) {
+            stubPair = iter->second;
+        } else {
+            RpcClient::Channel *channel = new RpcClient::Channel(_client, address.ip, address.port, 1);
 
-        StubInfo stubInfo = {
-            address.ip,
-            address.port,
-            std::make_shared<pb::GameService_Stub>(channel, pb::GameService::STUB_OWNS_CHANNEL),
-            std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(*channel), pb::GameService::STUB_OWNS_CHANNEL)
-        };
-        stubs.insert(std::make_pair(sid, std::move(stubInfo)));
+            stubPair = std::make_pair(
+                std::make_shared<pb::GameService_Stub>(channel, pb::GameService::STUB_OWNS_CHANNEL),
+                std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(*channel), pb::LobbyService::STUB_OWNS_CHANNEL));
+        }
+        addr2stubs.insert(std::make_pair(addr, stubPair));
+
+        for (uint16_t serverId : address.serverIds) {
+            auto iter1 = _stubs.find(serverId);
+            if (iter1 != _stubs.end()) {
+                if (iter1->second.rpcAddr == addr) {
+                    stubs.insert(std::make_pair(serverId, iter1->second));
+                    continue;
+                }
+            }
+
+            StubInfo stubInfo = {
+                addr,
+                stubPair.first,
+                stubPair.second
+            };
+            stubs.insert(std::make_pair(serverId, std::move(stubInfo)));
+        }
     }
     
+    _addr2stubs = addr2stubs;
+
     {
         std::unique_lock<std::mutex> lock(_stubsLock);
         _stubs = stubs;

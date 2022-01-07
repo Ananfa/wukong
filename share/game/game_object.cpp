@@ -126,7 +126,7 @@ void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
     }
     
     pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
-    Controller *controller = new Controller();
+    request->set_serverid(_gatewayId);
     request->set_type(type);
     request->set_tag(tag);
 
@@ -138,7 +138,7 @@ void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
         request->set_rawmsg(msg);
     }
     
-    _gatewayServerStub->forwardOut(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    _gatewayServerStub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&corpc::callDoneHandle, request));
 }
 
 void GameObject::send(int32_t type, uint16_t tag, google::protobuf::Message &msg) {
@@ -223,6 +223,7 @@ bool GameObject::sync(std::list<std::pair<std::string, std::string>> &datas, std
     pb::SyncRequest *request = new pb::SyncRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
+    request->set_serverid(_recordId);
     request->set_ltoken(_lToken);
     request->set_roleid(_roleId);
     for (auto &d : datas) {
@@ -259,6 +260,7 @@ bool GameObject::heartbeatToRecord() {
     pb::RSHeartbeatRequest *request = new pb::RSHeartbeatRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
+    request->set_serverid(_recordId);
     request->set_roleid(_roleId);
     request->set_ltoken(_lToken);
     _recordServerStub->heartbeat(controller, request, response, nullptr);

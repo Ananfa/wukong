@@ -78,7 +78,7 @@ namespace wukong {
     private:
         RpcClient *_client = nullptr;
 
-        /* 所有GameServer的Stub */
+        /* 所有GatewayServer的Stub */
         static std::map<std::string, std::shared_ptr<pb::GatewayService_Stub>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
         static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;

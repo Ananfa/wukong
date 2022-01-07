@@ -20,12 +20,54 @@
 using namespace wukong;
 
 void GameServiceImpl::forwardIn(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::ForwardInRequest* request,
+                               ::corpc::Void* response,
+                               ::google::protobuf::Closure* done) {
+    // 注意：该RPC定义使用了delete_in_done选项
+    assert(controller == NULL);
+    auto stub = getInnerStub(request->serverid());
+    stub->forwardIn(controller, request, NULL, done);
+}
+        
+void GameServiceImpl::enterGame(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::EnterGameRequest* request,
+                               ::corpc::Void* response,
+                               ::google::protobuf::Closure* done) {
+    // 注意：该RPC定义使用了delete_in_done选项
+    assert(controller == NULL);
+    auto stub = getInnerStub(request->serverid());
+    stub->enterGame(controller, request, NULL, done);
+}
+
+void GameServiceImpl::addInnerStub(ServerId sid, pb::InnerGameService_Stub* stub) {
+    _innerStubs.insert(std::make_pair(sid, stub));
+}
+
+pb::InnerGameService_Stub *GameServiceImpl::getInnerStub(ServerId sid) {
+    auto it = _innerStubs.find(sid);
+
+    if (it == _innerStubs.end()) {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+void GameServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerGameService_Stub*)> handle) {
+    for (auto &pair : _innerStubs) {
+        if (!handle(pair.first, pair.second)) {
+            return;
+        }
+    }
+}
+
+void InnerGameServiceImpl::forwardIn(::google::protobuf::RpcController* controller,
                                 const ::wukong::pb::ForwardInRequest* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
     auto obj = _manager->getGameObject(request->roleid());
     if (!obj) {
-        ERROR_LOG("GameServiceImpl::forwardIn -- game object not found\n");
+        ERROR_LOG("InnerGameServiceImpl::forwardIn -- game object not found\n");
 //exit(0);
         return;
     }
@@ -33,25 +75,25 @@ void GameServiceImpl::forwardIn(::google::protobuf::RpcController* controller,
     g_GameCenter.handleMessage(obj, request->type(), request->tag(), request->rawmsg());
 }
 
-void GameServiceImpl::enterGame(::google::protobuf::RpcController* controller,
+void InnerGameServiceImpl::enterGame(::google::protobuf::RpcController* controller,
                                 const ::wukong::pb::EnterGameRequest* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
     // 获取GameObject
     auto obj = _manager->getGameObject(request->roleid());
     if (!obj) {
-        ERROR_LOG("GameServiceImpl::enterGame -- game object not found\n");
+        ERROR_LOG("InnerGameServiceImpl::enterGame -- game object not found\n");
         return;
     }
 
     if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("GameServiceImpl::enterGame -- ltoken not match\n");
+        ERROR_LOG("InnerGameServiceImpl::enterGame -- ltoken not match\n");
         return;
     }
 
     // 刷新gateway stub
     if (!obj->setGatewayServerStub(request->gatewayid())) {
-        ERROR_LOG("GameServiceImpl::enterGame -- set gateway stub failed\n");
+        ERROR_LOG("InnerGameServiceImpl::enterGame -- set gateway stub failed\n");
         return;
     }
 

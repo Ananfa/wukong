@@ -32,8 +32,7 @@ namespace wukong {
     class LobbyClient: public GameClient {
     public:
         struct StubInfo {
-            std::string ip; // rpc服务ip
-            uint16_t port; // rpc服务port
+            std::string rpcAddr; // rpc服务地址"ip:port"
             std::shared_ptr<pb::GameService_Stub> gameServiceStub;
             std::shared_ptr<pb::LobbyService_Stub> lobbyServiceStub;
         };
@@ -45,7 +44,7 @@ namespace wukong {
         }
 
         virtual std::vector<ServerInfo> getServerInfos();
-        virtual bool setServers(const std::map<ServerId, AddressInfo> &addresses);
+        virtual bool setServers(const std::vector<AddressInfo> &addresses);
         virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &rawMsg);
 
         virtual std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid);
@@ -62,6 +61,7 @@ namespace wukong {
 
     private:
         /* 所有LobbyServer的Stub */
+        static std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
         static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;
         static std::atomic<uint32_t> _stubChangeNum;

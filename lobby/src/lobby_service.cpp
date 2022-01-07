@@ -21,21 +21,85 @@
 
 using namespace wukong;
 
+
 void LobbyServiceImpl::shutdown(::google::protobuf::RpcController* controller,
+                              const ::corpc::Void* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done) {
+    traverseInnerStubs([](ServerId sid, pb::InnerLobbyService_Stub *stub) -> bool {
+        stub->shutdown(NULL, NULL, NULL, NULL);
+        return true;
+    });
+}
+
+void LobbyServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
+                                    const ::corpc::Void* request,
+                                    ::wukong::pb::OnlineCounts* response,
+                                    ::google::protobuf::Closure* done) {
+    // 注意：这里处理中间会产生协程切换，遍历的Map可能在过程中被修改，因此traverseInnerStubs方法中对map进行了镜像复制
+    traverseInnerStubs([request, response](ServerId sid, pb::InnerLobbyService_Stub *stub) -> bool {
+        pb::Uint32Value *resp = new pb::Uint32Value();
+        corpc::Controller *ctl = new corpc::Controller();
+        stub->getOnlineCount(ctl, request, resp, NULL);
+        pb::OnlineCount *onlineCount = response->add_counts();
+        onlineCount->set_serverid(sid);
+        if (ctl->Failed()) {
+            onlineCount->set_count(-1);
+        } else {
+            onlineCount->set_count(resp->value());
+        }
+        delete ctl;
+        delete resp;
+
+        return true;
+    });
+}
+
+void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
+                              const ::wukong::pb::InitRoleRequest* request,
+                              ::wukong::pb::Uint32Value* response,
+                              ::google::protobuf::Closure* done) {
+    auto stub = getInnerStub(request->serverid());
+    stub->initRole(controller, request, response, done);
+}
+
+void LobbyServiceImpl::addInnerStub(ServerId sid, pb::InnerLobbyService_Stub* stub) {
+    _innerStubs.insert(std::make_pair(sid, stub));
+}
+
+pb::InnerLobbyService_Stub *LobbyServiceImpl::getInnerStub(ServerId sid) {
+    auto it = _innerStubs.find(sid);
+
+    if (it == _innerStubs.end()) {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+void LobbyServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerLobbyService_Stub*)> handle) {
+    for (auto &pair : _innerStubs) {
+        if (!handle(pair.first, pair.second)) {
+            return;
+        }
+    }
+}
+
+void InnerLobbyServiceImpl::shutdown(::google::protobuf::RpcController* controller,
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
     _manager->shutdown();
 }
 
-void LobbyServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
+void InnerLobbyServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                       const ::corpc::Void* request,
                                       ::wukong::pb::Uint32Value* response,
                                       ::google::protobuf::Closure* done) {
     response->set_value(_manager->size());
 }
 
-void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
+void InnerLobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
                                 const ::wukong::pb::InitRoleRequest* request,
                                 ::wukong::pb::Uint32Value* response,
                                 ::google::protobuf::Closure* done) {
@@ -45,7 +109,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
 
     // 判断GameObject是否已经存在
     if (_manager->exist(roleId)) {
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d game object already exist\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d game object already exist\n", userId, roleId);
         return;
     }
 
@@ -57,14 +121,14 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
     // 创建GameObject
     redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
     if (!cache) {
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d connect to cache failed\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d connect to cache failed\n", userId, roleId);
         return;
     }
 
     redisReply *reply = (redisReply *)redisCommand(cache, "HGET Record:%d loc", roleId);
     if (!reply) {
         g_GameCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d get record failed for db error\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d get record failed for db error\n", userId, roleId);
         return;
     }
 
@@ -75,13 +139,13 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         if (!g_GameCenter.randomRecordServer(rcId)) {
             freeReplyObject(reply);
             g_GameCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d random record server failed\n", userId, roleId);
+            ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d random record server failed\n", userId, roleId);
             return;
         }
     } else {
         freeReplyObject(reply);
         g_GameCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d get record failed for invalid data type\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d get record failed for invalid data type\n", userId, roleId);
         return;
     }
 
@@ -102,14 +166,14 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
     
     if (!reply) {
         g_GameCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d set location failed\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d set location failed\n", userId, roleId);
         return;
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
         g_GameCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d set location failed for return type invalid\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d set location failed for return type invalid\n", userId, roleId);
         return;
     }
 
@@ -117,7 +181,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
         // 设置失败
         freeReplyObject(reply);
         g_GameCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d set location failed for already set\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d set location failed for already set\n", userId, roleId);
         return;
     }
 
@@ -128,7 +192,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
     std::string roleData;
     ServerId serverId; // 角色所属区服号
     if (!g_RecordClient.loadRole(rcId, roleId, lToken, serverId, roleData)) {
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d load role data failed\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d load role data failed\n", userId, roleId);
         return;
     }
 
@@ -141,7 +205,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
     //     // 设置超时失败，可能是key已经过期
     //     freeReplyObject(reply);
     //     g_GameCenter.getCachePool()->proxy.put(cache, false);
-    //     ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d load role data failed for cant set location expire\n", userId, roleId);
+    //     ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d load role data failed for cant set location expire\n", userId, roleId);
     //     return;
     // }
     // freeReplyObject(reply);
@@ -149,7 +213,7 @@ void LobbyServiceImpl::initRole(::google::protobuf::RpcController* controller,
 
     // 创建GameObject
     if (!_manager->create(userId, roleId, serverId, lToken, gwId, rcId, roleData)) {
-        ERROR_LOG("LobbyServiceImpl::initRole -- user %d role %d create game object failed\n", userId, roleId);
+        ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d create game object failed\n", userId, roleId);
         return;
     }
 

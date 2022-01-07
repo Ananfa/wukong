@@ -20,18 +20,21 @@
 using namespace wukong;
 
 bool GameClient::parseAddress(const std::string &input, AddressInfo &addressInfo) {
-	std::vector<std::string> output;
+    std::vector<std::string> output;
     StringUtils::split(input, "|", output);
-    
-    if (output.size() != 2) return false;
+
+    int outputSize = output.size();
+    if (outputSize < 2) return false;
 
     std::vector<std::string> output1;
-    StringUtils::split(output[1], ":", output1);
+    StringUtils::split(output[0], ":", output1);
     if (output1.size() != 2) return false;
-
-    addressInfo.id = std::stoi(output[0]);
     addressInfo.ip = output1[0];
     addressInfo.port = std::stoi(output1[1]);
+    addressInfo.serverIds.reserve(outputSize-1);
+    for (int i = 1; i < outputSize; i++) {
+        addressInfo.serverIds.push_back(std::stoi(output[i]));
+    }
 
     return true;
 }

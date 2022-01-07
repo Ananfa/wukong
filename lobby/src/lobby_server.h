@@ -18,7 +18,9 @@
 #define lobby_server_h
 
 #include "corpc_rpc_client.h"
+#include "corpc_inner_rpc.h"
 #include "share/define.h"
+#include "lobby_service.pb.h"
 #include <map>
 #include <thread>
 
@@ -49,7 +51,7 @@ namespace wukong {
     private:
         void enterZoo();
 
-        static void lobbyThread(IO *rpc_io, ServerId lbid, uint16_t rpcPort);
+        static void lobbyThread(InnerRpcServer *server, ServerId lbid);
 
     private:
         LobbyServer() = default;                                // ctor hidden
@@ -61,7 +63,6 @@ namespace wukong {
     };
 
     #define g_LobbyServer LobbyServer::Instance()
-
 }
 
 #endif /* lobby_server_h */

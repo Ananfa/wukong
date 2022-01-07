@@ -37,17 +37,13 @@ using namespace wukong;
 void LobbyServer::enterZoo() {
     g_ZkClient.init(g_LobbyConfig.getZookeeper(), ZK_TIMEOUT, []() {
         // 对servers配置中每一个server进行节点注册
-        const std::vector<LobbyConfig::ServerInfo> &serverInfos = g_LobbyConfig.getServerInfos();
-        for (const LobbyConfig::ServerInfo &info : serverInfos) {
-            std::string zooPath = ZK_LOBBY_SERVER + "/" + std::to_string(info.id) + "|" + g_LobbyConfig.getIp() + ":" + std::to_string(info.rpcPort);
-            g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
-                if (ret) {
-                    LOG("create rpc node:[%s] sucessful\n", path.c_str());
-                } else {
-                    ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
-                }
-            });
-        }
+        g_ZkClient.createEphemeralNode(g_LobbyConfig.getZooPath(), ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
+            if (ret) {
+                LOG("create rpc node:[%s] sucessful\n", path.c_str());
+            } else {
+                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
+            }
+        });
 
         g_ZkClient.watchChildren(ZK_GATEWAY_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
             std::vector<GatewayClient::AddressInfo> addresses;
@@ -82,15 +78,15 @@ void LobbyServer::enterZoo() {
     });
 }
 
-void LobbyServer::lobbyThread(IO *rpc_io, ServerId lbid, uint16_t rpcPort) {
+void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
     // 启动RPC服务
-    RpcServer *server = RpcServer::create(rpc_io, 0, g_LobbyConfig.getIp(), rpcPort);
+    server->start(false);
     
     GameObjectManager *mgr = new GameObjectManager(lbid);
     mgr->init();
 
-    LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl(mgr);
-    GameServiceImpl *gameServiceImpl = new GameServiceImpl(mgr);
+    InnerLobbyServiceImpl *lobbyServiceImpl = new InnerLobbyServiceImpl(mgr);
+    InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(mgr);
     server->registerService(lobbyServiceImpl);
     server->registerService(gameServiceImpl);
 
@@ -162,13 +158,26 @@ bool LobbyServer::init(int argc, char * argv[]) {
 }
 
 void LobbyServer::run() {
+    LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl();
+    GameServiceImpl *gameServiceImpl = new GameServiceImpl();
+
     // 根据servers配置启动Lobby服务，每线程跑一个服务
     const std::vector<LobbyConfig::ServerInfo> &lobbyInfos = g_LobbyConfig.getServerInfos();
     for (auto &info : lobbyInfos) {
-        _threads.push_back(std::thread(lobbyThread, _io, info.id, info.rpcPort));
+        // 创建内部RPC服务
+        InnerRpcServer *innerServer = new InnerRpcServer();
+
+        lobbyServiceImpl->addInnerStub(info.id, new pb::InnerLobbyService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
+        gameServiceImpl->addInnerStub(info.id, new pb::InnerGameService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
+
+        _threads.push_back(std::thread(lobbyThread, innerServer, info.id));
     }
 
-    enterZoo();
+    // 启动对外的RPC服务
+    RpcServer *server = RpcServer::create(_io, 0, g_LobbyConfig.getIp(), g_LobbyConfig.getPort());
+    server->registerService(lobbyServiceImpl);
+    server->registerService(gameServiceImpl);
 
+    enterZoo();
     RoutineEnvironment::runEventLoop();
 }

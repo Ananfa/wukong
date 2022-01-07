@@ -25,7 +25,29 @@ namespace wukong {
 
     class GameServiceImpl : public pb::GameService {
     public:
-        GameServiceImpl(GameObjectManager *manager): _manager(manager) {}
+        virtual void forwardIn(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::ForwardInRequest* request,
+                               ::corpc::Void* response,
+                               ::google::protobuf::Closure* done);
+        
+        virtual void enterGame(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::EnterGameRequest* request,
+                               ::corpc::Void* response,
+                               ::google::protobuf::Closure* done);
+
+        void addInnerStub(ServerId sid, pb::InnerGameService_Stub* stub);
+
+    private:
+        pb::InnerGameService_Stub *getInnerStub(ServerId sid);
+        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerGameService_Stub*)> handle);
+
+    private:
+        std::map<ServerId, pb::InnerGameService_Stub*> _innerStubs; // 注意：该map只在系统启动时初始化，启动后不再修改
+    };
+
+    class InnerGameServiceImpl : public pb::InnerGameService {
+    public:
+        InnerGameServiceImpl(GameObjectManager *manager): _manager(manager) {}
 
         virtual void forwardIn(::google::protobuf::RpcController* controller,
                                const ::wukong::pb::ForwardInRequest* request,

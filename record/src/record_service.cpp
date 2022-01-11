@@ -58,12 +58,12 @@ void RecordServiceImpl::getOnlineCount(::google::protobuf::RpcController* contro
     });
 }
 
-void RecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
-                             const ::wukong::pb::LoadRoleRequest* request,
-                             ::wukong::pb::LoadRoleResponse* response,
+void RecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::LoadRoleDataRequest* request,
+                             ::wukong::pb::LoadRoleDataResponse* response,
                              ::google::protobuf::Closure* done) {
     auto stub = getInnerStub(request->serverid());
-    stub->loadRole(controller, request, response, done);
+    stub->loadRoleData(controller, request, response, done);
 }
 
 void RecordServiceImpl::sync(::google::protobuf::RpcController* controller,
@@ -118,14 +118,14 @@ void InnerRecordServiceImpl::getOnlineCount(::google::protobuf::RpcController* c
     response->set_value(_manager->size());
 }
 
-void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* controller,
-                                 const ::wukong::pb::LoadRoleRequest* request,
-                                 ::wukong::pb::LoadRoleResponse* response,
+void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controller,
+                                 const ::wukong::pb::LoadRoleDataRequest* request,
+                                 ::wukong::pb::LoadRoleDataResponse* response,
                                  ::google::protobuf::Closure* done) {
     uint32_t roleId = request->roleid();
 
     if (_manager->isShutdown()) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] server is shutdown\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] server is shutdown\n", roleId);
         response->set_errcode(1);
         return;
     }
@@ -147,7 +147,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     // 设置record
     redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
     if (!cache) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] connect to cache failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] connect to cache failed\n", roleId);
         response->set_errcode(2);
         return;
     }
@@ -167,7 +167,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     
     if (!reply) {
         g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] set record failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed\n", roleId);
         response->set_errcode(3);
         return;
     }
@@ -175,7 +175,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
         g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] set record failed for return type invalid\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for return type invalid\n", roleId);
         response->set_errcode(4);
         return;
     }
@@ -184,7 +184,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
         // 设置失败
         freeReplyObject(reply);
         g_RecordCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] set record failed for already set\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for already set\n", roleId);
         response->set_errcode(5);
         return;
     }
@@ -196,7 +196,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     ServerId serverId;
     if (RedisUtils::LoadRole(cache, g_RecordCenter.loadRoleSha1(), roleId, serverId, datas, true) == REDIS_DB_ERROR) {
         g_RecordCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] load failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] load failed\n", roleId);
         response->set_errcode(6);
         return;
     }
@@ -207,7 +207,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
         // 创建record object
         obj = _manager->create(roleId, serverId, rToken, datas);
         if (!obj) {
-            ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] create record object failed\n", roleId);
+            ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] create record object failed\n", roleId);
             response->set_errcode(7);
             return;
         }
@@ -225,7 +225,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     // 从MySQL加载角色数据并缓存到redis中
     MYSQL *mysql = g_RecordCenter.getMysqlPool()->proxy.take();
     if (!mysql) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] connect to mysql failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] connect to mysql failed\n", roleId);
         response->set_errcode(8);
         return;
     }
@@ -233,7 +233,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     std::string data;
     if (!MysqlUtils::LoadRole(mysql, roleId, serverId, data)) {
         g_RecordCenter.getMysqlPool()->proxy.put(mysql, true);
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] load role from mysql failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] load role from mysql failed\n", roleId);
         response->set_errcode(9);
         return;
     }
@@ -241,19 +241,19 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     g_RecordCenter.getMysqlPool()->proxy.put(mysql, false);
 
     if (data.empty()) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] no role data\n");
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] no role data\n");
         response->set_errcode(10);
         return;
     }
 
     if (!ProtoUtils::unmarshalDataFragments(data, datas)) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] unmarshal role data failed\n");
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] unmarshal role data failed\n");
         response->set_errcode(11);
         return;
     }
 
     if (datas.size() == 0) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] role data is empty\n");
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] role data is empty\n");
         response->set_errcode(12);
         return;
     }
@@ -261,7 +261,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     // 缓存到redis中
     cache = g_RecordCenter.getCachePool()->proxy.take();
     if (!cache) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] can't cache role data for connect to cache failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] can't cache role data for connect to cache failed\n", roleId);
         response->set_errcode(13);
         return;
     }
@@ -269,13 +269,13 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     switch (RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
         case REDIS_DB_ERROR: {
             g_RecordCenter.getCachePool()->proxy.put(cache, true);
-            ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] cache role data failed for db error\n", roleId);
+            ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] cache role data failed for db error\n", roleId);
             response->set_errcode(13);
             return;
         }
         case REDIS_FAIL: {
             g_RecordCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] cache role data failed\n", roleId);
+            ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] cache role data failed\n", roleId);
             response->set_errcode(14);
             return;
         }
@@ -285,7 +285,7 @@ void InnerRecordServiceImpl::loadRole(::google::protobuf::RpcController* control
     // 创建record object
     obj = _manager->create(roleId, serverId, rToken, datas);
     if (!obj) {
-        ERROR_LOG("InnerRecordServiceImpl::loadRole -- [role %d] create record object failed\n", roleId);
+        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] create record object failed\n", roleId);
         response->set_errcode(7);
         return;
     }

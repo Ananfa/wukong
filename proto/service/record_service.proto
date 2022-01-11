@@ -8,13 +8,13 @@ option cc_generic_services = true;
 
 package wukong.pb;
 
-message LoadRoleRequest {
+message LoadRoleDataRequest {
     uint32 serverId = 1; // 物理服编号
     uint32 lToken = 2;
     uint32 roleId = 3;
 }
 
-message LoadRoleResponse {
+message LoadRoleDataResponse {
     uint32 errCode = 1;
     uint32 serverId = 2; // 游戏内角色所属逻辑服号
     bytes data = 3;
@@ -57,7 +57,7 @@ service RecordService {
     }
 
     // 加载指定角色
-    rpc loadRole(LoadRoleRequest) returns(LoadRoleResponse)
+    rpc loadRoleData(LoadRoleDataRequest) returns(LoadRoleDataResponse)
     {
         option (corpc.need_coroutine) = true; // default is false
     }
@@ -93,7 +93,7 @@ service InnerRecordService {
     }
 
     // 加载指定角色
-    rpc loadRole(LoadRoleRequest) returns(LoadRoleResponse)
+    rpc loadRoleData(LoadRoleDataRequest) returns(LoadRoleDataResponse)
     {
         option (corpc.need_coroutine) = true; // default is false
     }

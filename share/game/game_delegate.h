@@ -24,6 +24,7 @@
 using namespace corpc;
 
 namespace wukong {
+	// 注意：CreateGameObjectHandle中不应有产生协程切换的实现
     typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, ServerId, uint32_t, GameObjectManager*, const std::string &data)> CreateGameObjectHandle;
 
     struct GameDelegate {

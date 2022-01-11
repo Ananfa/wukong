@@ -76,21 +76,21 @@ std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
     return infos;
 }
 
-bool RecordClient::loadRole(ServerId sid, RoleId roleId, uint32_t lToken, ServerId &serverId, std::string &roleData) {
+bool RecordClient::loadRoleData(ServerId sid, RoleId roleId, uint32_t lToken, ServerId &serverId, std::string &roleData) {
     std::shared_ptr<pb::RecordService_Stub> stub = getStub(sid);
     
     if (!stub) {
-        ERROR_LOG("RecordClient::loadRole -- record server %d stub not avaliable, waiting.\n", sid);
+        ERROR_LOG("RecordClient::loadRoleData -- record server %d stub not avaliable, waiting.\n", sid);
         return false;
     }
 
-    pb::LoadRoleRequest *request = new pb::LoadRoleRequest();
-    pb::LoadRoleResponse *response = new pb::LoadRoleResponse();
+    pb::LoadRoleDataRequest *request = new pb::LoadRoleDataRequest();
+    pb::LoadRoleDataResponse *response = new pb::LoadRoleDataResponse();
     Controller *controller = new Controller();
     request->set_serverid(sid);
     request->set_ltoken(lToken);
     request->set_roleid(roleId);
-    stub->loadRole(controller, request, response, nullptr);
+    stub->loadRoleData(controller, request, response, nullptr);
 
     bool result = false;
     if (controller->Failed()) {

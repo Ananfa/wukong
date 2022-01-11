@@ -27,7 +27,7 @@ using namespace corpc;
 namespace wukong {
     class GameObjectManager {
     public:
-        GameObjectManager(ServerId id):_id(id), _shutdown(false) {}
+        GameObjectManager(GameServerType type, ServerId id):_type(type), _id(id), _shutdown(false) {}
 
         void init();
 
@@ -40,12 +40,13 @@ namespace wukong {
 
         bool exist(RoleId roleId); 
         std::shared_ptr<GameObject> getGameObject(RoleId roleId);
-        std::shared_ptr<GameObject> create(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, ServerId gatewayId, ServerId recordId, const std::string &data);
+        bool loadRole(UserId userId, RoleId roleId, ServerId gatewayId);
         bool remove(RoleId roleId); // 删除玩家游戏对象
 
         // TODO: 实现广播和多播接口
     private:
-        ServerId _id;       // lobby服务号
+        GameServerType _type; // 游戏服务器类型（大厅、场景...）
+        ServerId _id;         // 游戏服务器号（大厅服号、场景服号...）
         bool _shutdown;
 
         // 游戏对象列表

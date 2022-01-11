@@ -52,7 +52,7 @@ namespace wukong {
         /* 根据逻辑区服id获得LobbyServer的stub */
         std::shared_ptr<pb::LobbyService_Stub> getLobbyServiceStub(ServerId sid);
         
-        uint32_t initRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
+        bool loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
         void shutdown();
 
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }

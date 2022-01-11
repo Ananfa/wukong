@@ -35,10 +35,10 @@ namespace wukong {
                                     ::wukong::pb::OnlineCounts* response,
                                     ::google::protobuf::Closure* done);
 
-        virtual void loadRole(::google::protobuf::RpcController* controller,
-                             const ::wukong::pb::LoadRoleRequest* request,
-                             ::wukong::pb::LoadRoleResponse* response,
-                             ::google::protobuf::Closure* done);
+        virtual void loadRoleData(::google::protobuf::RpcController* controller,
+                                  const ::wukong::pb::LoadRoleDataRequest* request,
+                                  ::wukong::pb::LoadRoleDataResponse* response,
+                                  ::google::protobuf::Closure* done);
 
         virtual void sync(::google::protobuf::RpcController* controller,
                           const ::wukong::pb::SyncRequest* request,
@@ -74,9 +74,9 @@ namespace wukong {
                                     ::wukong::pb::Uint32Value* response,
                                     ::google::protobuf::Closure* done);
 
-        virtual void loadRole(::google::protobuf::RpcController* controller,
-                             const ::wukong::pb::LoadRoleRequest* request,
-                             ::wukong::pb::LoadRoleResponse* response,
+        virtual void loadRoleData(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::LoadRoleDataRequest* request,
+                             ::wukong::pb::LoadRoleDataResponse* response,
                              ::google::protobuf::Closure* done);
 
         virtual void sync(::google::protobuf::RpcController* controller,

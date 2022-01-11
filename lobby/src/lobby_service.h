@@ -36,9 +36,9 @@ namespace wukong {
                                     ::wukong::pb::OnlineCounts* response,
                                     ::google::protobuf::Closure* done);
 
-        virtual void initRole(::google::protobuf::RpcController* controller,
-                              const ::wukong::pb::InitRoleRequest* request,
-                              ::wukong::pb::Uint32Value* response,
+        virtual void loadRole(::google::protobuf::RpcController* controller,
+                              const ::wukong::pb::LoadRoleRequest* request,
+                              ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done);
 
         void addInnerStub(ServerId sid, pb::InnerLobbyService_Stub* stub);
@@ -65,9 +65,9 @@ namespace wukong {
                                     ::wukong::pb::Uint32Value* response,
                                     ::google::protobuf::Closure* done);
 
-        virtual void initRole(::google::protobuf::RpcController* controller,
-                              const ::wukong::pb::InitRoleRequest* request,
-                              ::wukong::pb::Uint32Value* response,
+        virtual void loadRole(::google::protobuf::RpcController* controller,
+                              const ::wukong::pb::LoadRoleRequest* request,
+                              ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done);
 
     private:

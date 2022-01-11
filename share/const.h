@@ -82,27 +82,27 @@ namespace wukong {
         return 1";
 
 //    const char CHECK_SESSION_CMD[] = "\
-//        local gateId = redis.call('hget',KEYS[1],'gateId')\
-//        if not gateId then\
-//          return 0\
-//        elseif gateId ~= ARGV[1] then\
-//          return 0\
-//        end\
-//        local gToken = redis.call('hget',KEYS[1],'gToken')\
-//        if not gToken then\
-//          return 0\
-//        elseif gToken ~= ARGV[2] then\
-//          return 0\
-//        end\
-//        local roleId = redis.call('hget',KEYS[1],'roleId')\
-//        if not roleId then\
-//          return 0\
-//        end\
-//        local ret = redis.call('expire',KEYS[1],ARGV[3])\
-//        if ret == 0 then\
-//          return 0\
-//        end\
-//        return tonumber(roleId)";
+        local gateId = redis.call('hget',KEYS[1],'gateId')\
+        if not gateId then\
+          return 0\
+        elseif gateId ~= ARGV[1] then\
+          return 0\
+        end\
+        local gToken = redis.call('hget',KEYS[1],'gToken')\
+        if not gToken then\
+          return 0\
+        elseif gToken ~= ARGV[2] then\
+          return 0\
+        end\
+        local roleId = redis.call('hget',KEYS[1],'roleId')\
+        if not roleId then\
+          return 0\
+        end\
+        local ret = redis.call('expire',KEYS[1],ARGV[3])\
+        if ret == 0 then\
+          return 0\
+        end\
+        return tonumber(roleId)";
 
     const char SET_SESSION_EXPIRE_CMD[] = "\
         local gToken = redis.call('hget',KEYS[1],'gToken')\

@@ -18,21 +18,21 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace wukong {
 namespace pb {
-constexpr InitRoleRequest::InitRoleRequest(
+constexpr LoadRoleRequest::LoadRoleRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : serverid_(0u)
   , userid_(0u)
   , roleid_(0u)
   , gatewayid_(0u){}
-struct InitRoleRequestDefaultTypeInternal {
-  constexpr InitRoleRequestDefaultTypeInternal()
+struct LoadRoleRequestDefaultTypeInternal {
+  constexpr LoadRoleRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~InitRoleRequestDefaultTypeInternal() {}
+  ~LoadRoleRequestDefaultTypeInternal() {}
   union {
-    InitRoleRequest _instance;
+    LoadRoleRequest _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT InitRoleRequestDefaultTypeInternal _InitRoleRequest_default_instance_;
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LoadRoleRequestDefaultTypeInternal _LoadRoleRequest_default_instance_;
 }  // namespace pb
 }  // namespace wukong
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_lobby_5fservice_2eproto[1];
@@ -41,39 +41,39 @@ static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_desc
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_lobby_5fservice_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::wukong::pb::InitRoleRequest, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::wukong::pb::InitRoleRequest, serverid_),
-  PROTOBUF_FIELD_OFFSET(::wukong::pb::InitRoleRequest, userid_),
-  PROTOBUF_FIELD_OFFSET(::wukong::pb::InitRoleRequest, roleid_),
-  PROTOBUF_FIELD_OFFSET(::wukong::pb::InitRoleRequest, gatewayid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, serverid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, userid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, roleid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, gatewayid_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, sizeof(::wukong::pb::InitRoleRequest)},
+  { 0, -1, sizeof(::wukong::pb::LoadRoleRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_InitRoleRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_LoadRoleRequest_default_instance_),
 };
 
 const char descriptor_table_protodef_lobby_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\023lobby_service.proto\022\twukong.pb\032\022corpc_"
   "option.proto\032\014common.proto\032\022inner_common"
-  ".proto\"V\n\017InitRoleRequest\022\020\n\010serverId\030\001 "
+  ".proto\"V\n\017LoadRoleRequest\022\020\n\010serverId\030\001 "
   "\001(\r\022\016\n\006userId\030\002 \001(\r\022\016\n\006roleId\030\003 \001(\r\022\021\n\tg"
-  "atewayId\030\004 \001(\r2\311\001\n\014LobbyService\022*\n\010shutd"
+  "atewayId\030\004 \001(\r2\307\001\n\014LobbyService\022*\n\010shutd"
   "own\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016g"
   "etOnlineCount\022\013.corpc.Void\032\027.wukong.pb.O"
-  "nlineCounts\"\t\220\361\004\001\240\361\004\350\007\022D\n\010initRole\022\032.wuk"
-  "ong.pb.InitRoleRequest\032\026.wukong.pb.Uint3"
-  "2Value\"\004\220\361\004\001\032\004\200\361\004\0032\311\001\n\021InnerLobbyService"
-  "\022*\n\010shutdown\022\013.corpc.Void\032\013.corpc.Void\"\004"
-  "\230\361\004\001\022<\n\016getOnlineCount\022\013.corpc.Void\032\026.wu"
-  "kong.pb.Uint32Value\"\005\240\361\004\364\003\022D\n\010initRole\022\032"
-  ".wukong.pb.InitRoleRequest\032\026.wukong.pb.U"
-  "int32Value\"\004\220\361\004\001\032\004\200\361\004\003B\003\200\001\001b\006proto3"
+  "nlineCounts\"\t\220\361\004\001\240\361\004\350\007\022B\n\010loadRole\022\032.wuk"
+  "ong.pb.LoadRoleRequest\032\024.wukong.pb.BoolV"
+  "alue\"\004\220\361\004\001\032\004\200\361\004\0032\307\001\n\021InnerLobbyService\022*"
+  "\n\010shutdown\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361"
+  "\004\001\022<\n\016getOnlineCount\022\013.corpc.Void\032\026.wuko"
+  "ng.pb.Uint32Value\"\005\240\361\004\364\003\022B\n\010loadRole\022\032.w"
+  "ukong.pb.LoadRoleRequest\032\024.wukong.pb.Boo"
+  "lValue\"\004\220\361\004\001\032\004\200\361\004\003B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_lobby_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -82,7 +82,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_lobby_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_lobby_5fservice_2eproto = {
-  false, false, 595, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 
+  false, false, 591, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 
   &descriptor_table_lobby_5fservice_2eproto_once, descriptor_table_lobby_5fservice_2eproto_deps, 3, 1,
   schemas, file_default_instances, TableStruct_lobby_5fservice_2eproto::offsets,
   file_level_metadata_lobby_5fservice_2eproto, file_level_enum_descriptors_lobby_5fservice_2eproto, file_level_service_descriptors_lobby_5fservice_2eproto,
@@ -98,58 +98,58 @@ namespace pb {
 
 // ===================================================================
 
-class InitRoleRequest::_Internal {
+class LoadRoleRequest::_Internal {
  public:
 };
 
-InitRoleRequest::InitRoleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+LoadRoleRequest::LoadRoleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
   }
-  // @@protoc_insertion_point(arena_constructor:wukong.pb.InitRoleRequest)
+  // @@protoc_insertion_point(arena_constructor:wukong.pb.LoadRoleRequest)
 }
-InitRoleRequest::InitRoleRequest(const InitRoleRequest& from)
+LoadRoleRequest::LoadRoleRequest(const LoadRoleRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&serverid_, &from.serverid_,
     static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
     reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
-  // @@protoc_insertion_point(copy_constructor:wukong.pb.InitRoleRequest)
+  // @@protoc_insertion_point(copy_constructor:wukong.pb.LoadRoleRequest)
 }
 
-inline void InitRoleRequest::SharedCtor() {
+inline void LoadRoleRequest::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
     reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
 }
 
-InitRoleRequest::~InitRoleRequest() {
-  // @@protoc_insertion_point(destructor:wukong.pb.InitRoleRequest)
+LoadRoleRequest::~LoadRoleRequest() {
+  // @@protoc_insertion_point(destructor:wukong.pb.LoadRoleRequest)
   if (GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-inline void InitRoleRequest::SharedDtor() {
+inline void LoadRoleRequest::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
 }
 
-void InitRoleRequest::ArenaDtor(void* object) {
-  InitRoleRequest* _this = reinterpret_cast< InitRoleRequest* >(object);
+void LoadRoleRequest::ArenaDtor(void* object) {
+  LoadRoleRequest* _this = reinterpret_cast< LoadRoleRequest* >(object);
   (void)_this;
 }
-void InitRoleRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+void LoadRoleRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 }
-void InitRoleRequest::SetCachedSize(int size) const {
+void LoadRoleRequest::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
 
-void InitRoleRequest::Clear() {
-// @@protoc_insertion_point(message_clear_start:wukong.pb.InitRoleRequest)
+void LoadRoleRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:wukong.pb.LoadRoleRequest)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -160,7 +160,7 @@ void InitRoleRequest::Clear() {
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* InitRoleRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* LoadRoleRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -217,9 +217,9 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* InitRoleRequest::_InternalSerialize(
+::PROTOBUF_NAMESPACE_ID::uint8* LoadRoleRequest::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.InitRoleRequest)
+  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.LoadRoleRequest)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -251,12 +251,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.InitRoleRequest)
+  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.LoadRoleRequest)
   return target;
 }
 
-size_t InitRoleRequest::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:wukong.pb.InitRoleRequest)
+size_t LoadRoleRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:wukong.pb.LoadRoleRequest)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -300,21 +300,21 @@ size_t InitRoleRequest::ByteSizeLong() const {
   return total_size;
 }
 
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData InitRoleRequest::_class_data_ = {
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData LoadRoleRequest::_class_data_ = {
     ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
-    InitRoleRequest::MergeImpl
+    LoadRoleRequest::MergeImpl
 };
-const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*InitRoleRequest::GetClassData() const { return &_class_data_; }
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LoadRoleRequest::GetClassData() const { return &_class_data_; }
 
-void InitRoleRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+void LoadRoleRequest::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
                       const ::PROTOBUF_NAMESPACE_ID::Message&from) {
-  static_cast<InitRoleRequest *>(to)->MergeFrom(
-      static_cast<const InitRoleRequest &>(from));
+  static_cast<LoadRoleRequest *>(to)->MergeFrom(
+      static_cast<const LoadRoleRequest &>(from));
 }
 
 
-void InitRoleRequest::MergeFrom(const InitRoleRequest& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.InitRoleRequest)
+void LoadRoleRequest::MergeFrom(const LoadRoleRequest& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.LoadRoleRequest)
   GOOGLE_DCHECK_NE(&from, this);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
@@ -334,29 +334,29 @@ void InitRoleRequest::MergeFrom(const InitRoleRequest& from) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void InitRoleRequest::CopyFrom(const InitRoleRequest& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.InitRoleRequest)
+void LoadRoleRequest::CopyFrom(const LoadRoleRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.LoadRoleRequest)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool InitRoleRequest::IsInitialized() const {
+bool LoadRoleRequest::IsInitialized() const {
   return true;
 }
 
-void InitRoleRequest::InternalSwap(InitRoleRequest* other) {
+void LoadRoleRequest::InternalSwap(LoadRoleRequest* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(InitRoleRequest, gatewayid_)
-      + sizeof(InitRoleRequest::gatewayid_)
-      - PROTOBUF_FIELD_OFFSET(InitRoleRequest, serverid_)>(
+      PROTOBUF_FIELD_OFFSET(LoadRoleRequest, gatewayid_)
+      + sizeof(LoadRoleRequest::gatewayid_)
+      - PROTOBUF_FIELD_OFFSET(LoadRoleRequest, serverid_)>(
           reinterpret_cast<char*>(&serverid_),
           reinterpret_cast<char*>(&other->serverid_));
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata InitRoleRequest::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata LoadRoleRequest::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_lobby_5fservice_2eproto_getter, &descriptor_table_lobby_5fservice_2eproto_once,
       file_level_metadata_lobby_5fservice_2eproto[0]);
@@ -391,11 +391,11 @@ void LobbyService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* contro
   done->Run();
 }
 
-void LobbyService::initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::InitRoleRequest*,
-                         ::wukong::pb::Uint32Value*,
+void LobbyService::loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::wukong::pb::LoadRoleRequest*,
+                         ::wukong::pb::BoolValue*,
                          ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method initRole() not implemented.");
+  controller->SetFailed("Method loadRole() not implemented.");
   done->Run();
 }
 
@@ -423,10 +423,10 @@ void LobbyService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* m
              done);
       break;
     case 2:
-      initRole(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::InitRoleRequest*>(
+      loadRole(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::LoadRoleRequest*>(
                  request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::Uint32Value*>(
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::BoolValue*>(
                  response),
              done);
       break;
@@ -445,7 +445,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& LobbyService::GetRequestPrototype(
     case 1:
       return ::corpc::Void::default_instance();
     case 2:
-      return ::wukong::pb::InitRoleRequest::default_instance();
+      return ::wukong::pb::LoadRoleRequest::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
@@ -462,7 +462,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& LobbyService::GetResponsePrototype(
     case 1:
       return ::wukong::pb::OnlineCounts::default_instance();
     case 2:
-      return ::wukong::pb::Uint32Value::default_instance();
+      return ::wukong::pb::BoolValue::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
@@ -495,9 +495,9 @@ void LobbyService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* c
   channel_->CallMethod(descriptor()->method(1),
                        controller, request, response, done);
 }
-void LobbyService_Stub::initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::InitRoleRequest* request,
-                              ::wukong::pb::Uint32Value* response,
+void LobbyService_Stub::loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::wukong::pb::LoadRoleRequest* request,
+                              ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(2),
                        controller, request, response, done);
@@ -531,11 +531,11 @@ void InnerLobbyService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* c
   done->Run();
 }
 
-void InnerLobbyService::initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::InitRoleRequest*,
-                         ::wukong::pb::Uint32Value*,
+void InnerLobbyService::loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::wukong::pb::LoadRoleRequest*,
+                         ::wukong::pb::BoolValue*,
                          ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method initRole() not implemented.");
+  controller->SetFailed("Method loadRole() not implemented.");
   done->Run();
 }
 
@@ -563,10 +563,10 @@ void InnerLobbyService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescript
              done);
       break;
     case 2:
-      initRole(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::InitRoleRequest*>(
+      loadRole(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::LoadRoleRequest*>(
                  request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::Uint32Value*>(
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::BoolValue*>(
                  response),
              done);
       break;
@@ -585,7 +585,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& InnerLobbyService::GetRequestPrototype(
     case 1:
       return ::corpc::Void::default_instance();
     case 2:
-      return ::wukong::pb::InitRoleRequest::default_instance();
+      return ::wukong::pb::LoadRoleRequest::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
@@ -602,7 +602,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& InnerLobbyService::GetResponsePrototype(
     case 1:
       return ::wukong::pb::Uint32Value::default_instance();
     case 2:
-      return ::wukong::pb::Uint32Value::default_instance();
+      return ::wukong::pb::BoolValue::default_instance();
     default:
       GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
       return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
@@ -635,9 +635,9 @@ void InnerLobbyService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcControll
   channel_->CallMethod(descriptor()->method(1),
                        controller, request, response, done);
 }
-void InnerLobbyService_Stub::initRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::InitRoleRequest* request,
-                              ::wukong::pb::Uint32Value* response,
+void InnerLobbyService_Stub::loadRole(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::wukong::pb::LoadRoleRequest* request,
+                              ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(2),
                        controller, request, response, done);
@@ -647,8 +647,8 @@ void InnerLobbyService_Stub::initRole(::PROTOBUF_NAMESPACE_ID::RpcController* co
 }  // namespace pb
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::wukong::pb::InitRoleRequest* Arena::CreateMaybeMessage< ::wukong::pb::InitRoleRequest >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::wukong::pb::InitRoleRequest >(arena);
+template<> PROTOBUF_NOINLINE ::wukong::pb::LoadRoleRequest* Arena::CreateMaybeMessage< ::wukong::pb::LoadRoleRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::wukong::pb::LoadRoleRequest >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

@@ -8,7 +8,7 @@ option cc_generic_services = true;
 
 package wukong.pb;
 
-message InitRoleRequest {
+message LoadRoleRequest {
     uint32 serverId = 1; // 物理服编号
     uint32 userId = 2;
     uint32 roleId = 3;
@@ -32,8 +32,8 @@ service LobbyService {
         option (corpc.timeout) = 1000; // default is 0
     }
 
-    // 初始化指定角色，返回临时唯一标识（失败时为空）
-    rpc initRole(InitRoleRequest) returns(Uint32Value)
+    // 加载指定角色，返回成功(true)/失败(false)
+    rpc loadRole(LoadRoleRequest) returns(BoolValue)
     {
         option (corpc.need_coroutine) = true; // default is false
     }
@@ -55,8 +55,8 @@ service InnerLobbyService {
         option (corpc.timeout) = 500; // default is 0
     }
 
-    // 初始化指定角色，返回临时唯一标识（失败时为空）
-    rpc initRole(InitRoleRequest) returns(Uint32Value)
+    // 加载指定角色，返回成功(true)/失败(false)
+    rpc loadRole(LoadRoleRequest) returns(BoolValue)
     {
         option (corpc.need_coroutine) = true; // default is false
     }

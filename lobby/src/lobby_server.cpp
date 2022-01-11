@@ -82,7 +82,7 @@ void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
     // 启动RPC服务
     server->start(false);
     
-    GameObjectManager *mgr = new GameObjectManager(lbid);
+    GameObjectManager *mgr = new GameObjectManager(GAME_SERVER_TYPE_LOBBY, lbid);
     mgr->init();
 
     InnerLobbyServiceImpl *lobbyServiceImpl = new InnerLobbyServiceImpl(mgr);

@@ -87,23 +87,23 @@ std::vector<LobbyClient::ServerInfo> LobbyClient::getServerInfos() {
     return infos;
 }
 
-uint32_t LobbyClient::initRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId) {
+bool LobbyClient::loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId) {
     std::shared_ptr<pb::LobbyService_Stub> stub = getLobbyServiceStub(sid);
-    uint32_t ret = 0;
+    bool ret = false;
 
     if (!stub) {
-        ERROR_LOG("LobbyClient::initRole -- lobby server %d stub not avaliable, waiting.\n", sid);
+        ERROR_LOG("LobbyClient::loadRole -- lobby server %d stub not avaliable, waiting.\n", sid);
         return ret;
     }
 
-    pb::InitRoleRequest *request = new pb::InitRoleRequest();
-    pb::Uint32Value *response = new pb::Uint32Value();
+    pb::LoadRoleRequest *request = new pb::LoadRoleRequest();
+    pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
     request->set_serverid(sid);
     request->set_userid(userId);
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
-    stub->initRole(controller, request, response, nullptr);
+    stub->loadRole(controller, request, response, nullptr);
 
     if (controller->Failed()) {
         ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());

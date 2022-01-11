@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+import "corpc_option.proto";
+import "inner_common.proto";
+
+option cc_generic_services = true;
+
+package wukong.pb;
+
+message LoadSceneRequest {
+    uint32 defId = 1; // 场景定义号
+    uint32 sceneId = 2; // 场景实例号
+}
+
+message LoadSceneResponse {
+    uint32 errCode = 1;
+    uint32 sceneId = 2;
+}
+
+message EnterSceneRequest {
+    uint32 roleId = 1;
+    uint32 sceneId = 2;
+}
+
+// 玩家游戏对象所在服务器需要实现GameService服务
+service SceneService {
+    option (corpc.global_service_id) = 5;
+
+    // 关闭场景服
+    rpc shutdown(corpc.Void) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+    }
+
+    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示负载过高）
+    rpc getOnlineCount(corpc.Void) returns(OnlineCounts)
+    {
+        option (corpc.need_coroutine) = true; // default is false
+        option (corpc.timeout) = 1000; // default is 0
+    }
+
+    // 加载场景
+    rpc loadScene(LoadSceneRequest) returns(LoadSceneResponse)
+    {
+        option (corpc.need_coroutine) = true;
+    }
+
+    // 注意：不需要卸载场景接口，由场景自己控制何时卸载
+
+    // 进入场景
+    rpc enterScene(EnterSceneRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+        option (corpc.need_coroutine) = true;
+    }
+
+    // 注意：不需要离开场景接口，由场景内逻辑控制角色离开场景
+}
+
+service InnerSceneService {
+    option (corpc.global_service_id) = 5;
+
+    // 关闭场景服
+    rpc shutdown(corpc.Void) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+    }
+
+    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示负载过高）
+    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+    {
+        option (corpc.timeout) = 500; // default is 0
+    }
+
+    // 加载场景
+    rpc loadScene(LoadSceneRequest) returns(LoadSceneResponse)
+    {
+        option (corpc.need_coroutine) = true;
+    }
+
+    // 注意：不需要卸载场景接口，由场景自己控制何时卸载
+
+    // 进入场景
+    rpc enterScene(EnterSceneRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+        option (corpc.need_coroutine) = true;
+    }
+
+    // 注意：不需要离开场景接口，由场景内逻辑控制角色离开场景
+}

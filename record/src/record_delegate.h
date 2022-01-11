@@ -18,13 +18,13 @@
 #define record_delegate_h
 
 #include <functional>
-#include "record_manager.h"
+#include "record_object_manager.h"
 #include "share/define.h"
 
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, uint32_t, RecordManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandle;
+    typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, uint32_t, RecordObjectManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandle;
     typedef std::function<void (const std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> MakeProfileHandle;
 
     struct RecordDelegate {

@@ -26,7 +26,7 @@ using namespace corpc;
 
 namespace wukong {
     class GatewayObject;
-    class GatewayManager;
+    class GatewayObjectManager;
 
     struct GatewayObjectRoutineArg {
         std::shared_ptr<GatewayObject> obj;
@@ -34,7 +34,7 @@ namespace wukong {
 
     class GatewayObject: public std::enable_shared_from_this<GatewayObject> {
     public:
-        GatewayObject(UserId userId, RoleId roleId, const std::string &gToken, std::shared_ptr<MessageServer::Connection> &conn, GatewayManager *manager): _userId(userId), _roleId(roleId), _gToken(gToken), _conn(conn), _manager(manager), _running(false) {}
+        GatewayObject(UserId userId, RoleId roleId, const std::string &gToken, std::shared_ptr<MessageServer::Connection> &conn, GatewayObjectManager *manager): _userId(userId), _roleId(roleId), _gToken(gToken), _conn(conn), _manager(manager), _running(false) {}
 
         std::shared_ptr<MessageServer::Connection> &getConn() { return _conn; }
         std::shared_ptr<pb::GameService_Stub> &getGameServerStub() { return _gameServerStub; }
@@ -72,7 +72,7 @@ namespace wukong {
         uint64_t _gameObjectHeartbeatExpire; // 游戏对象心跳超时时间
         Cond _cond;
 
-        GatewayManager *_manager; // 关联的manager
+        GatewayObjectManager *_manager; // 关联的manager
 
     public:
         friend class InnerGatewayServiceImpl;

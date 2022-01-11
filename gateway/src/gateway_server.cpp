@@ -22,7 +22,7 @@
 
 #include "gateway_config.h"
 #include "gateway_service.h"
-#include "gateway_manager.h"
+#include "gateway_object_manager.h"
 #include "gateway_handler.h"
 
 #include "zk_client.h"
@@ -69,7 +69,7 @@ void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId g
     // 启动RPC服务
     server->start(false);
     
-    GatewayManager *mgr = new GatewayManager(gwid);
+    GatewayObjectManager *mgr = new GatewayObjectManager(gwid);
     mgr->init();
 
     InnerGatewayServiceImpl *gatewayServiceImpl = new InnerGatewayServiceImpl(mgr);

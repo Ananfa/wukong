@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_manager_h
-#define record_manager_h
+#ifndef record_object_manager_h
+#define record_object_manager_h
 
 #include "corpc_message_server.h"
 #include "corpc_redis.h"
@@ -27,9 +27,9 @@ using namespace corpc;
 
 namespace wukong {
 
-    class RecordManager {
+    class RecordObjectManager {
     public:
-        RecordManager(ServerId id):_id(id), _shutdown(false) {}
+        RecordObjectManager(ServerId id):_id(id), _shutdown(false) {}
 
         void init();
 
@@ -56,4 +56,4 @@ namespace wukong {
 
 }
 
-#endif /* record_manager_h */
+#endif /* record_object_manager_h */

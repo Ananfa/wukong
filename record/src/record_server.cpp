@@ -49,7 +49,7 @@ void RecordServer::recordThread(InnerRpcServer *server, ServerId rcid) {
     // 启动RPC服务
     server->start(false);
     
-    RecordManager *mgr = new RecordManager(rcid);
+    RecordObjectManager *mgr = new RecordObjectManager(rcid);
     mgr->init();
 
     InnerRecordServiceImpl *recordServiceImpl = new InnerRecordServiceImpl(mgr);

@@ -27,7 +27,7 @@ using namespace corpc;
 
 namespace wukong {
     class RecordObject;
-    class RecordManager;
+    class RecordObjectManager;
 
     struct RecordObjectRoutineArg {
         std::shared_ptr<RecordObject> obj;
@@ -35,7 +35,7 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordManager *manager): _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
+        RecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordObjectManager *manager): _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
         virtual ~RecordObject() = 0;
 
         virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas) = 0;
@@ -78,7 +78,7 @@ namespace wukong {
         
         Cond _cond;
 
-        RecordManager *_manager; // 关联的manager
+        RecordObjectManager *_manager; // 关联的manager
 
     public:
         friend class InnerRecordServiceImpl;

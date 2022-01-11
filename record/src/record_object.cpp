@@ -17,7 +17,7 @@
 #include "corpc_routine_env.h"
 #include "record_object.h"
 #include "record_center.h"
-#include "record_manager.h"
+#include "record_object_manager.h"
 #include "redis_utils.h"
 #include "share/const.h"
 

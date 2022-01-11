@@ -17,7 +17,7 @@
 #include "corpc_routine_env.h"
 #include "gateway_object.h"
 #include "gateway_center.h"
-#include "gateway_manager.h"
+#include "gateway_object_manager.h"
 #include "gateway_server.h"
 #include "lobby_client.h"
 #include "share/const.h"

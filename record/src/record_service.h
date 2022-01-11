@@ -19,7 +19,7 @@
 
 #include "corpc_controller.h"
 #include "record_service.pb.h"
-#include "record_manager.h"
+#include "record_object_manager.h"
 
 namespace wukong {
 
@@ -62,7 +62,7 @@ namespace wukong {
     
     class InnerRecordServiceImpl : public pb::InnerRecordService {
     public:
-        InnerRecordServiceImpl(RecordManager *manager): _manager(manager) {}
+        InnerRecordServiceImpl(RecordObjectManager *manager): _manager(manager) {}
 
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,
@@ -90,7 +90,7 @@ namespace wukong {
                                ::google::protobuf::Closure* done);
 
     private:
-        RecordManager *_manager;
+        RecordObjectManager *_manager;
     };
     
 }

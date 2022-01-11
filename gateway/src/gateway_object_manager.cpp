@@ -15,19 +15,19 @@
  */
 
 #include "corpc_routine_env.h"
-#include "gateway_manager.h"
+#include "gateway_object_manager.h"
 #include "gateway_config.h"
 
 #include <sys/time.h>
 
 using namespace wukong;
 
-void GatewayManager::init() {
+void GatewayObjectManager::init() {
     RoutineEnvironment::startCoroutine(clearExpiredUnauthRoutine, this);
     RoutineEnvironment::startCoroutine(clearExpiredDisconnectedRoutine, this);
 }
 
-void GatewayManager::shutdown() {
+void GatewayObjectManager::shutdown() {
     if (_shutdown) {
         return;
     }
@@ -41,7 +41,7 @@ void GatewayManager::shutdown() {
     clearGatewayObject();
 }
 
-void GatewayManager::addUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
+void GatewayObjectManager::addUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
     assert(_unauthNodeMap.find(conn.get()) == _unauthNodeMap.end());
     MessageConnectionTimeLink::Node *node = new MessageConnectionTimeLink::Node;
     node->data = conn;
@@ -50,7 +50,7 @@ void GatewayManager::addUnauthConn(std::shared_ptr<MessageServer::Connection>& c
     _unauthNodeMap.insert(std::make_pair(conn.get(), node));
 }
 
-void GatewayManager::removeUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
+void GatewayObjectManager::removeUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
     auto kv = _unauthNodeMap.find(conn.get());
     if (kv == _unauthNodeMap.end()) {
         return;
@@ -61,11 +61,11 @@ void GatewayManager::removeUnauthConn(std::shared_ptr<MessageServer::Connection>
     _unauthNodeMap.erase(kv);
 }
 
-bool GatewayManager::isUnauth(std::shared_ptr<MessageServer::Connection>& conn) {
+bool GatewayObjectManager::isUnauth(std::shared_ptr<MessageServer::Connection>& conn) {
     return _unauthNodeMap.find(conn.get()) != _unauthNodeMap.end();
 }
 
-void GatewayManager::clearUnauth() {
+void GatewayObjectManager::clearUnauth() {
     MessageConnectionTimeLink::Node *node = _unauthLink.getHead();
     while (node) {
         node->data->close();
@@ -76,11 +76,11 @@ void GatewayManager::clearUnauth() {
     _unauthNodeMap.clear();
 }
 
-bool GatewayManager::hasGatewayObject(UserId userId) {
+bool GatewayObjectManager::hasGatewayObject(UserId userId) {
     return _userId2GatewayObjectMap.find(userId) != _userId2GatewayObjectMap.end() || _disconnectedNodeMap.find(userId) != _disconnectedNodeMap.end();
 }
 
-bool GatewayManager::removeGatewayObject(UserId userId) {
+bool GatewayObjectManager::removeGatewayObject(UserId userId) {
     auto it = _userId2GatewayObjectMap.find(userId);
     if (it != _userId2GatewayObjectMap.end()) {
         auto obj = it->second;
@@ -105,11 +105,11 @@ bool GatewayManager::removeGatewayObject(UserId userId) {
     return false;
 }
 
-size_t GatewayManager::getGatewayObjectNum() {
+size_t GatewayObjectManager::getGatewayObjectNum() {
     return _userId2GatewayObjectMap.size() + _disconnectedNodeMap.size();
 }
 
-void GatewayManager::clearGatewayObject() {
+void GatewayObjectManager::clearGatewayObject() {
     // 销毁所有正常routeObject
     for (auto &pair : _userId2GatewayObjectMap) {
         pair.second->getConn()->close();
@@ -126,7 +126,7 @@ void GatewayManager::clearGatewayObject() {
     _disconnectedLink.clear();
 }
 
-std::shared_ptr<GatewayObject> GatewayManager::getGatewayObject(UserId userId) {
+std::shared_ptr<GatewayObject> GatewayObjectManager::getGatewayObject(UserId userId) {
     auto it = _userId2GatewayObjectMap.find(userId);
     if (it != _userId2GatewayObjectMap.end()) {
         return it->second;
@@ -140,7 +140,7 @@ std::shared_ptr<GatewayObject> GatewayManager::getGatewayObject(UserId userId) {
     return nullptr;
 }
 
-std::shared_ptr<GatewayObject> GatewayManager::getConnectedGatewayObject(UserId userId) {
+std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(UserId userId) {
     auto it = _userId2GatewayObjectMap.find(userId);
     if (it == _userId2GatewayObjectMap.end()) {
         return nullptr;
@@ -149,7 +149,7 @@ std::shared_ptr<GatewayObject> GatewayManager::getConnectedGatewayObject(UserId 
     return it->second;
 }
 
-std::shared_ptr<GatewayObject> GatewayManager::getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn) {
+std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn) {
     auto it = _connection2GatewayObjectMap.find(conn.get());
     if (it == _connection2GatewayObjectMap.end()) {
         return nullptr;
@@ -158,7 +158,7 @@ std::shared_ptr<GatewayObject> GatewayManager::getConnectedGatewayObject(std::sh
     return it->second;
 }
 
-void GatewayManager::traverseConnectedGatewayObject(std::function<bool(std::shared_ptr<GatewayObject>&)> handle) {
+void GatewayObjectManager::traverseConnectedGatewayObject(std::function<bool(std::shared_ptr<GatewayObject>&)> handle) {
     for (auto &pair : _userId2GatewayObjectMap) {
         if (!handle(pair.second)) {
             return;
@@ -166,12 +166,12 @@ void GatewayManager::traverseConnectedGatewayObject(std::function<bool(std::shar
     }
 }
 
-void GatewayManager::addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj) {
+void GatewayObjectManager::addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj) {
     _userId2GatewayObjectMap.insert(std::make_pair(obj->getUserId(), obj));
     _connection2GatewayObjectMap.insert(std::make_pair(obj->getConn().get(), obj));
 }
 
-int GatewayManager::tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn) {
+int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn) {
     // 如果玩家网关对象已存在，将网关对象中的conn更换，并将原conn断线，转移消息缓存
     auto it = _userId2GatewayObjectMap.find(userId);
     if (it != _userId2GatewayObjectMap.end()) {
@@ -220,7 +220,7 @@ int GatewayManager::tryChangeGatewayObjectConn(UserId userId, const std::string 
     return 0;
 }
 
-bool GatewayManager::tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Connection> &conn) {
+bool GatewayObjectManager::tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Connection> &conn) {
     auto it = _connection2GatewayObjectMap.find(conn.get());
     if (it == _connection2GatewayObjectMap.end()) {
         return false;
@@ -238,8 +238,8 @@ bool GatewayManager::tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Co
     return true;
 }
 
-void *GatewayManager::clearExpiredUnauthRoutine(void *arg) {
-    GatewayManager* self = (GatewayManager*)arg;
+void *GatewayObjectManager::clearExpiredUnauthRoutine(void *arg) {
+    GatewayObjectManager* self = (GatewayObjectManager*)arg;
     
     time_t now;
     
@@ -260,8 +260,8 @@ void *GatewayManager::clearExpiredUnauthRoutine(void *arg) {
     return NULL;
 }
 
-void *GatewayManager::clearExpiredDisconnectedRoutine( void *arg ) {
-    GatewayManager* self = (GatewayManager*)arg;
+void *GatewayObjectManager::clearExpiredDisconnectedRoutine( void *arg ) {
+    GatewayObjectManager* self = (GatewayObjectManager*)arg;
 
     time_t now;
     

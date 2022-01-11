@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef gateway_manager_h
-#define gateway_manager_h
+#ifndef gateway_object_manager_h
+#define gateway_object_manager_h
 
 #include "corpc_message_server.h"
 #include "corpc_redis.h"
@@ -29,9 +29,9 @@ namespace wukong {
     typedef TimeLink<MessageServer::Connection> MessageConnectionTimeLink;
     typedef TimeLink<GatewayObject> GatewayObjectTimeLink;
 
-    class GatewayManager {
+    class GatewayObjectManager {
     public:
-        GatewayManager(ServerId id):_id(id), _shutdown(false) {}
+        GatewayObjectManager(ServerId id):_id(id), _shutdown(false) {}
 
         void init();
 
@@ -90,4 +90,4 @@ namespace wukong {
 
 }
 
-#endif /* gateway_manager_h */
+#endif /* gateway_object_manager_h */

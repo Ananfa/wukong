@@ -19,7 +19,7 @@
 
 #include "corpc_controller.h"
 #include "gateway_service.pb.h"
-#include "gateway_manager.h"
+#include "gateway_object_manager.h"
 
 namespace wukong {
     class GatewayServiceImpl : public pb::GatewayService {
@@ -61,7 +61,7 @@ namespace wukong {
 
     class InnerGatewayServiceImpl : public pb::InnerGatewayService {
     public:
-        InnerGatewayServiceImpl(GatewayManager *manager): _manager(manager) {}
+        InnerGatewayServiceImpl(GatewayObjectManager *manager): _manager(manager) {}
         
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,
@@ -94,7 +94,7 @@ namespace wukong {
                                ::google::protobuf::Closure* done);
 
     private:
-        GatewayManager *_manager;
+        GatewayObjectManager *_manager;
     };
 
 }

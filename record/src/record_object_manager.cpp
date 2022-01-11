@@ -15,18 +15,18 @@
  */
 
 #include "corpc_routine_env.h"
-#include "record_manager.h"
+#include "record_object_manager.h"
 #include "record_center.h"
 
 #include <sys/time.h>
 
 using namespace wukong;
 
-void RecordManager::init() {
+void RecordObjectManager::init() {
     
 }
 
-void RecordManager::shutdown() {
+void RecordObjectManager::shutdown() {
     if (_shutdown) {
         return;
     }
@@ -40,15 +40,15 @@ void RecordManager::shutdown() {
     _roleId2RecordObjectMap.clear();
 }
 
-size_t RecordManager::size() {
+size_t RecordObjectManager::size() {
     return _roleId2RecordObjectMap.size();
 }
 
-bool RecordManager::exist(RoleId roleId) {
+bool RecordObjectManager::exist(RoleId roleId) {
     return _roleId2RecordObjectMap.find(roleId) != _roleId2RecordObjectMap.end();
 }
 
-std::shared_ptr<RecordObject> RecordManager::getRecordObject(RoleId roleId) {
+std::shared_ptr<RecordObject> RecordObjectManager::getRecordObject(RoleId roleId) {
     auto it = _roleId2RecordObjectMap.find(roleId);
     if (it == _roleId2RecordObjectMap.end()) {
         return nullptr;
@@ -57,19 +57,19 @@ std::shared_ptr<RecordObject> RecordManager::getRecordObject(RoleId roleId) {
     return it->second;
 }
 
-std::shared_ptr<RecordObject> RecordManager::create(RoleId roleId, ServerId serverId, uint32_t rToken, std::list<std::pair<std::string, std::string>> &datas) {
+std::shared_ptr<RecordObject> RecordObjectManager::create(RoleId roleId, ServerId serverId, uint32_t rToken, std::list<std::pair<std::string, std::string>> &datas) {
     if (_shutdown) {
-        WARN_LOG("RecordManager::create -- already shutdown\n");
+        WARN_LOG("RecordObjectManager::create -- already shutdown\n");
         return nullptr;
     }
 
     if (_roleId2RecordObjectMap.find(roleId) != _roleId2RecordObjectMap.end()) {
-        ERROR_LOG("RecordManager::create -- record object already exist\n");
+        ERROR_LOG("RecordObjectManager::create -- record object already exist\n");
         return nullptr;
     }
 
     if (!g_RecordCenter.getCreateRecordObjectHandle()) {
-        ERROR_LOG("RecordManager::create -- not set CreateRecordObjectHandle\n");
+        ERROR_LOG("RecordObjectManager::create -- not set CreateRecordObjectHandle\n");
         return nullptr;
     }
 
@@ -82,7 +82,7 @@ std::shared_ptr<RecordObject> RecordManager::create(RoleId roleId, ServerId serv
     return obj;
 }
 
-bool RecordManager::remove(RoleId roleId) {
+bool RecordObjectManager::remove(RoleId roleId) {
     auto it = _roleId2RecordObjectMap.find(roleId);
     if (it == _roleId2RecordObjectMap.end()) {
         return false;

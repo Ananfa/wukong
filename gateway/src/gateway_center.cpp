@@ -20,41 +20,6 @@
 
 using namespace wukong;
 
-std::vector<LobbyClient::ServerInfo> GatewayCenter::_lobbyInfos;
-std::mutex GatewayCenter::_lobbyInfosLock;
-std::atomic<uint32_t> GatewayCenter::_lobbyInfosVersion(0);
-thread_local std::vector<ServerWeightInfo> GatewayCenter::_t_lobbyInfos;
-thread_local uint32_t GatewayCenter::_t_lobbyInfosVersion(0);
-thread_local uint32_t GatewayCenter::_t_lobbyTotalWeight(0);
-
-void *GatewayCenter::updateRoutine(void *arg) {
-    GatewayCenter *self = (GatewayCenter *)arg;
-
-    // 每秒检查是否有lobby的增加或减少，如果有马上刷新，否则每分钟刷新一次lobby的负载信息
-    int i = 0;
-    while (true) {
-        i++;
-        if (g_LobbyClient.stubChanged() || i >= 60) {
-            self->updateLobbyInfos();
-            i = 0;
-        }
-
-        sleep(1);
-    }
-    
-    return nullptr;
-}
-
-void GatewayCenter::updateLobbyInfos() {
-    std::vector<LobbyClient::ServerInfo> infos = g_LobbyClient.getServerInfos();
-    {
-        std::unique_lock<std::mutex> lock(_lobbyInfosLock);
-        _lobbyInfos = std::move(infos);
-        updateLobbyInfosVersion();
-    }
-    DEBUG_LOG("update lobby server info\n");
-}
-
 void *GatewayCenter::initRoutine(void *arg) {
     GatewayCenter *self = (GatewayCenter *)arg;
 
@@ -145,68 +110,6 @@ void *GatewayCenter::initRoutine(void *arg) {
 void GatewayCenter::init() {
     _cache = corpc::RedisConnectPool::create(g_GatewayConfig.getCache().host.c_str(), g_GatewayConfig.getCache().port, g_GatewayConfig.getCache().dbIndex, g_GatewayConfig.getCache().maxConnect);
 
-    RoutineEnvironment::startCoroutine(updateRoutine, this);
-
     // 初始化redis lua脚本sha1值
     RoutineEnvironment::startCoroutine(initRoutine, this);
-}
-
-bool GatewayCenter::randomLobbyServer(ServerId &serverId) {
-    refreshLobbyInfos();
-    size_t serverNum = _t_lobbyInfos.size();
-    if (!serverNum) return false;
-    
-    uint32_t totalWeight = _t_lobbyTotalWeight;
-
-    uint32_t i = 0;
-    // 特殊处理, 前1000无视权重
-    if (totalWeight <= 1000) {
-        i = rand() % serverNum;
-    } else {
-        // rate from 1 to totalWeight
-        uint32_t rate = rand() % totalWeight + 1;
-        uint32_t until = 0;
-        
-        for (int j = 0; j < serverNum; j++) {
-            until += _t_lobbyInfos[j].weight;
-            if (rate <= until) {
-                i = j;
-                break;
-            }
-        }
-    }
-
-    serverId = _t_lobbyInfos[i].id;
-
-    // 调整权重
-    _t_lobbyTotalWeight += serverNum - 1;
-    for (int j = 0; j < serverNum; j++) {
-        _t_lobbyInfos[j].weight++;
-    }
-    _t_lobbyInfos[i].weight--;
-    return true;
-}
-
-void GatewayCenter::refreshLobbyInfos() {
-    if (_t_lobbyInfosVersion != _lobbyInfosVersion) {
-        _t_lobbyInfos.clear();
-
-        std::vector<LobbyClient::ServerInfo> lobbyInfos;
-
-        {
-            std::unique_lock<std::mutex> lock(_lobbyInfosLock);
-            lobbyInfos = _lobbyInfos;
-            _t_lobbyInfosVersion = _lobbyInfosVersion;
-        }
-
-        _t_lobbyInfos.reserve(lobbyInfos.size());
-        uint32_t totalWeight = 0;
-        for (auto &info : lobbyInfos) {
-            totalWeight += info.weight;
-
-            _t_lobbyInfos.push_back({info.id, info.weight});
-        }
-        
-        _t_lobbyTotalWeight = totalWeight;
-    }
 }

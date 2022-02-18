@@ -18,6 +18,7 @@
 #include "corpc_pubsub.h"
 #include "corpc_rand.h"
 #include "login_handler_mgr.h"
+#include "client_center.h"
 #include "json_utils.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
@@ -49,14 +50,6 @@ namespace wukong {
     }
 }
 
-std::vector<GatewayClient::ServerInfo> LoginHandlerMgr::_gatewayInfos;
-std::mutex LoginHandlerMgr::_gatewayInfosLock;
-std::atomic<uint32_t> LoginHandlerMgr::_gatewayInfosVersion(0);
-thread_local std::vector<ServerWeightInfo> LoginHandlerMgr::_t_gatewayInfos;
-thread_local std::map<ServerId, Address> LoginHandlerMgr::_t_gatewayAddrMap;
-thread_local uint32_t LoginHandlerMgr::_t_gatewayInfosVersion(0);
-thread_local uint32_t LoginHandlerMgr::_t_gatewayTotalWeight(0);
-
 std::string LoginHandlerMgr::_serverGroupData;
 std::mutex LoginHandlerMgr::_serverGroupDataLock;
 std::atomic<uint32_t> LoginHandlerMgr::_serverGroupDataVersion(0);
@@ -65,38 +58,10 @@ thread_local uint32_t LoginHandlerMgr::_t_serverGroupDataVersion(0);
 thread_local std::map<GroupId, uint32_t> LoginHandlerMgr::_t_groupStatusMap;
 thread_local std::map<ServerId, GroupId> LoginHandlerMgr::_t_serverId2groupIdMap;
 
-void *LoginHandlerMgr::updateRoutine(void *arg) {
-    LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
-    self->_updateServerGroupData();
-
-    // 每秒检查是否有gateway增加或减少，如果有马上刷新，否则每分钟刷新一次gateway的负载信息
-    int i = 0;
-    while (true) {
-        i++;
-        if (g_GatewayClient.stubChanged() || i >= 60) {
-            self->updateGatewayInfos();
-            i = 0;
-        }
-
-        sleep(1);
-    }
-    
-    return nullptr;
-}
-
-void LoginHandlerMgr::updateGatewayInfos() {
-    std::vector<GatewayClient::ServerInfo> infos = g_GatewayClient.getServerInfos();
-
-    {
-        std::unique_lock<std::mutex> lock(_gatewayInfosLock);
-        _gatewayInfos = std::move(infos);
-        updateGatewayInfosVersion();
-    }
-    DEBUG_LOG("update gateway server info\n");
-}
-
 void *LoginHandlerMgr::initRoutine(void *arg) {
     LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
+
+    self->_updateServerGroupData();
 
     redisContext *cache = self->_cache->proxy.take();
     if (!cache) {
@@ -821,7 +786,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
     ServerId gatewayId = 0;
     // 分配Gateway
-    if (!randomGatewayServer(gatewayId)) {
+    if (!g_ClientCenter.randomGatewayServer(gatewayId)) {
         _cache->proxy.put(cache, false);
         return setErrorResponse(response, "cant find gateway");
     }
@@ -895,72 +860,6 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 }
 
 /******************** http api end ********************/
-
-bool LoginHandlerMgr::randomGatewayServer(ServerId &serverId) {
-    refreshGatewayInfos();
-    size_t serverNum = _t_gatewayInfos.size();
-    if (!serverNum) return false;
-    
-    uint32_t totalWeight = _t_gatewayTotalWeight;
-
-    uint32_t i = 0;
-    // 特殊处理, 前1000无视权重
-    if (totalWeight <= 1000) {
-        i = rand() % serverNum;
-    } else {
-        // rate from 1 to totalWeight
-        uint32_t rate = rand() % totalWeight + 1;
-        uint32_t until = 0;
-        
-        for (int j = 0; j < serverNum; j++) {
-            until += _t_gatewayInfos[j].weight;
-            if (rate <= until) {
-                i = j;
-                break;
-            }
-        }
-    }
-
-    serverId = _t_gatewayInfos[i].id;
-
-    // 调整权重
-    _t_gatewayTotalWeight += serverNum - 1;
-    for (int j = 0; j < serverNum; j++) {
-        _t_gatewayInfos[j].weight++;
-    }
-    _t_gatewayInfos[i].weight--;
-    return true;
-}
-
-void LoginHandlerMgr::refreshGatewayInfos() {
-    if (_t_gatewayInfosVersion != _gatewayInfosVersion) {
-        LOG("refresh gateway info\n");
-        _t_gatewayInfos.clear();
-        _t_gatewayAddrMap.clear();
-
-        std::vector<GatewayClient::ServerInfo> gatewayInfos;
-
-        {
-            std::unique_lock<std::mutex> lock(_gatewayInfosLock);
-            gatewayInfos = _gatewayInfos;
-            _t_gatewayInfosVersion = _gatewayInfosVersion;
-        }
-
-        _t_gatewayInfos.reserve(gatewayInfos.size());
-        uint32_t totalWeight = 0;
-        for (auto &info : gatewayInfos) {
-            DEBUG_LOG("gateway id:%d\n", info.id);
-            totalWeight += info.weight;
-
-            _t_gatewayInfos.push_back({info.id, info.weight});
-
-            Address gatewayAddr = {info.outerAddr, info.outerPort};
-            _t_gatewayAddrMap.insert(std::make_pair(info.id, std::move(gatewayAddr)));
-        }
-        
-        _t_gatewayTotalWeight = totalWeight;
-    }
-}
 
 void LoginHandlerMgr::updateServerGroupData(const std::string& topic, const std::string& msg) {
     _updateServerGroupData();

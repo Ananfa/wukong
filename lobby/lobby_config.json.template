@@ -21,5 +21,6 @@
         "maxConnect": 8,                        // 最大连接数
         "dbIndex": 0                            // 分库索引
     },
-    "updatePeriod": 0                           // 游戏对象update方法调用周期，单位毫秒，0表示不进行update
+    "updatePeriod": 0,                          // 游戏对象update方法调用周期，单位毫秒，0表示不进行update
+    "enableSceneClient": true                   // 是否需要连接Scene服
 }

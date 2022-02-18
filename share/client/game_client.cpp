@@ -28,9 +28,14 @@ bool GameClient::parseAddress(const std::string &input, AddressInfo &addressInfo
 
     std::vector<std::string> output1;
     StringUtils::split(output[0], ":", output1);
-    if (output1.size() != 2) return false;
+    if (output1.size() < 2 || output1.size() > 3) return false;
     addressInfo.ip = output1[0];
     addressInfo.port = std::stoi(output1[1]);
+    if (output1.size() == 3) {
+        addressInfo.type = std::stoi(output1[2]);
+    } else {
+        addressInfo.type = 0;
+    }
     addressInfo.serverIds.reserve(outputSize-1);
     for (int i = 1; i < outputSize; i++) {
         addressInfo.serverIds.push_back(std::stoi(output[i]));

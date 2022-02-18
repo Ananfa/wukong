@@ -19,41 +19,6 @@
 
 using namespace wukong;
 
-std::vector<RecordClient::ServerInfo> GameCenter::_recordInfos;
-std::mutex GameCenter::_recordInfosLock;
-std::atomic<uint32_t> GameCenter::_recordInfosVersion(0);
-thread_local std::vector<ServerWeightInfo> GameCenter::_t_recordInfos;
-thread_local uint32_t GameCenter::_t_recordInfosVersion(0);
-thread_local uint32_t GameCenter::_t_recordTotalWeight(0);
-
-void *GameCenter::updateRoutine(void *arg) {
-    GameCenter *self = (GameCenter *)arg;
-
-    // 每秒检查是否有record的增加或减少，如果有马上刷新，否则每分钟刷新一次record的负载信息
-    int i = 0;
-    while (true) {
-        i++;
-        if (g_RecordClient.stubChanged() || i >= 60) {
-            self->updateRecordInfos();
-            i = 0;
-        }
-
-        sleep(1);
-    }
-    
-    return nullptr;
-}
-
-void GameCenter::updateRecordInfos() {
-    std::vector<RecordClient::ServerInfo> infos = g_RecordClient.getServerInfos();
-    {
-        std::unique_lock<std::mutex> lock(_recordInfosLock);
-        _recordInfos = std::move(infos);
-        updateRecordInfosVersion();
-    }
-    DEBUG_LOG("update record server info\n");
-}
-
 void *GameCenter::initRoutine(void *arg) {
     GameCenter *self = (GameCenter *)arg;
 
@@ -145,70 +110,8 @@ void GameCenter::init(GameServerType stype, uint32_t gameObjectUpdatePeriod, con
     _gameObjectUpdatePeriod = gameObjectUpdatePeriod;
     _cache = corpc::RedisConnectPool::create(dbHost, dbPort, dbIndex, maxConnectNum);
 
-    RoutineEnvironment::startCoroutine(updateRoutine, this);
-
     // 初始化redis lua脚本sha1值
     RoutineEnvironment::startCoroutine(initRoutine, this);
-}
-
-bool GameCenter::randomRecordServer(ServerId &serverId) {
-    refreshRecordInfos();
-    size_t serverNum = _t_recordInfos.size();
-    if (!serverNum) return false;
-    
-    uint32_t totalWeight = _t_recordTotalWeight;
-
-    uint32_t i = 0;
-    // 特殊处理, 前1000无视权重
-    if (totalWeight <= 1000) {
-        i = rand() % serverNum;
-    } else {
-        // rate from 1 to totalWeight
-        uint32_t rate = rand() % totalWeight + 1;
-        uint32_t until = 0;
-        
-        for (int j = 0; j < serverNum; j++) {
-            until += _t_recordInfos[j].weight;
-            if (rate <= until) {
-                i = j;
-                break;
-            }
-        }
-    }
-
-    serverId = _t_recordInfos[i].id;
-
-    // 调整权重
-    _t_recordTotalWeight += serverNum - 1;
-    for (int j = 0; j < serverNum; j++) {
-        _t_recordInfos[j].weight++;
-    }
-    _t_recordInfos[i].weight--;
-    return true;
-}
-
-void GameCenter::refreshRecordInfos() {
-    if (_t_recordInfosVersion != _recordInfosVersion) {
-        _t_recordInfos.clear();
-
-        std::vector<RecordClient::ServerInfo> recordInfos;
-
-        {
-            std::unique_lock<std::mutex> lock(_recordInfosLock);
-            recordInfos = _recordInfos;
-            _t_recordInfosVersion = _recordInfosVersion;
-        }
-
-        _t_recordInfos.reserve(recordInfos.size());
-        uint32_t totalWeight = 0;
-        for (auto &info : recordInfos) {
-            totalWeight += info.weight;
-
-            _t_recordInfos.push_back({info.id, info.weight});
-        }
-        
-        _t_recordTotalWeight = totalWeight;
-    }
 }
 
 bool GameCenter::registerMessage(int msgType,

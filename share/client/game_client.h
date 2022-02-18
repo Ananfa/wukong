@@ -31,11 +31,13 @@ namespace wukong {
         struct AddressInfo {
             std::string ip;
             uint16_t port;
+            uint32_t type; // 用于标识场景服类型
             std::vector<uint16_t> serverIds;
         };
 
         struct ServerInfo {
             ServerId id;
+            uint32_t type;
             uint32_t count; // 在线人数
             uint32_t weight; // 分配权重(所有服务器的总在线人数 - 在线人数)
         };

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "corpc_option.proto";
+import "common.proto";
 import "inner_common.proto";
 
 option cc_generic_services = true;
@@ -8,8 +9,9 @@ option cc_generic_services = true;
 package wukong.pb;
 
 message LoadSceneRequest {
-    uint32 defId = 1; // 场景定义号
-    uint32 sceneId = 2; // 场景实例号
+    uint32 serverId = 1; // 物理服编号
+    uint32 defId = 2; // 场景定义号
+    uint32 sceneId = 3; // 场景实例号
 }
 
 message LoadSceneResponse {
@@ -18,11 +20,18 @@ message LoadSceneResponse {
 }
 
 message EnterSceneRequest {
-    uint32 roleId = 1;
-    uint32 sceneId = 2;
+    uint32 serverId = 1; // 物理服编号
+    uint32 userId = 2;
+    uint32 roleId = 3;
+    uint32 gatewayId = 4;
+    uint32 sceneId = 5;
 }
 
 // 玩家游戏对象所在服务器需要实现GameService服务
+// 注意：
+//      不需要卸载场景接口，由场景自己控制何时卸载
+//      不需要离开场景接口，由场景内逻辑控制角色离开场景
+//      不需要创建场景接口，由其他功能创建场景数据库数据然后调用场景服加载场景
 service SceneService {
     option (corpc.global_service_id) = 5;
 
@@ -45,16 +54,13 @@ service SceneService {
         option (corpc.need_coroutine) = true;
     }
 
-    // 注意：不需要卸载场景接口，由场景自己控制何时卸载
-
     // 进入场景
     rpc enterScene(EnterSceneRequest) returns(corpc.Void)
     {
         option (corpc.not_care_response) = true;
-        option (corpc.need_coroutine) = true;
+        option (corpc.delete_in_done) = true;
     }
 
-    // 注意：不需要离开场景接口，由场景内逻辑控制角色离开场景
 }
 
 service InnerSceneService {
@@ -78,14 +84,10 @@ service InnerSceneService {
         option (corpc.need_coroutine) = true;
     }
 
-    // 注意：不需要卸载场景接口，由场景自己控制何时卸载
-
     // 进入场景
     rpc enterScene(EnterSceneRequest) returns(corpc.Void)
     {
         option (corpc.not_care_response) = true;
         option (corpc.need_coroutine) = true;
     }
-
-    // 注意：不需要离开场景接口，由场景内逻辑控制角色离开场景
 }

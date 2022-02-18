@@ -2,6 +2,7 @@
 #include "lobby_server.h"
 #include "lobby_config.h"
 #include "game_center.h"
+#include "client_center.h"
 #include "gateway_client.h"
 #include "record_client.h"
 #include "share/const.h"
@@ -18,7 +19,8 @@ int main(int argc, char * argv[]) {
 
     // 初始化全局资源
     g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
-    
+    g_ClientCenter.init();
+
     GameDelegate delegate;
     delegate.createGameObject = [](UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
         std::shared_ptr<GameObject> obj(new LobbyGameObject(userId, roleId, serverId, lToken, mgr));

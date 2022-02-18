@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2021/6/9.
+ * Created by Xianke Liu on 2021/7/23.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef lobby_server_h
-#define lobby_server_h
+#ifndef scene_server_h
+#define scene_server_h
 
 #include "corpc_rpc_client.h"
-#include "corpc_inner_rpc.h"
 #include "share/define.h"
-#include "lobby_service.pb.h"
 #include <map>
 #include <thread>
 
 using namespace corpc;
 
-namespace wukong {
+namespace demo {
 
     // 单例模式实现
-    class LobbyServer {
+    class SceneServer {
     private:
         bool _inited = false;
         IO *_io = nullptr;
@@ -37,32 +35,33 @@ namespace wukong {
 
         std::vector<std::thread> _threads;
     public:
-        static LobbyServer& Instance() {
-            static LobbyServer theSingleton;
+        static SceneServer& Instance() {
+            static SceneServer theSingleton;
             return theSingleton;
         }
 
         bool init(int argc, char * argv[]);
         void run();
 
-        //IO *getIO() { return _io; }
+        IO *getIO() { return _io; }
         RpcClient *getRpcClient() { return _rpcClient; }
         
     private:
         void enterZoo();
 
-        static void lobbyThread(InnerRpcServer *server, ServerId lbid);
+        static void sceneThread(IO *rpc_io, ServerId ssid, uint16_t rpcPort);
 
     private:
-        LobbyServer() = default;                                // ctor hidden
-        LobbyServer(LobbyServer const&) = delete;               // copy ctor hidden
-        LobbyServer(LobbyServer &&) = delete;                   // move ctor hidden
-        LobbyServer& operator=(LobbyServer const&) = delete;    // assign op. hidden
-        LobbyServer& operator=(LobbyServer &&) = delete;        // move assign op. hidden
-        ~LobbyServer() = default;                               // dtor hidden
+        SceneServer() = default;                                // ctor hidden
+        SceneServer(SceneServer const&) = delete;               // copy ctor hidden
+        SceneServer(SceneServer &&) = delete;                   // move ctor hidden
+        SceneServer& operator=(SceneServer const&) = delete;    // assign op. hidden
+        SceneServer& operator=(SceneServer &&) = delete;        // move assign op. hidden
+        ~SceneServer() = default;                               // dtor hidden
     };
 
-    #define g_LobbyServer LobbyServer::Instance()
+    #define g_SceneServer SceneServer::Instance()
+
 }
 
-#endif /* lobby_server_h */
+#endif /* scene_server_h */

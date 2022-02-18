@@ -16,6 +16,7 @@
 
 #include "gateway_handler.h"
 #include "gateway_center.h"
+#include "client_center.h"
 #include "share/const.h"
 #include "string_utils.h"
 #include "redis_utils.h"
@@ -224,7 +225,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             leftTryTimes--;
             // 分配一个Lobby服，并通知Lobby服加载玩家游戏对象
             ServerId sid = 0;
-            if (!g_GatewayCenter.randomLobbyServer(sid)) {
+            if (!g_ClientCenter.randomLobbyServer(sid)) {
                 ERROR_LOG("GatewayHandler::authHandle -- random lobby server failed\n");
                 conn->close();
                 return;

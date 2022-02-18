@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2021/1/15.
+ * Created by Xianke Liu on 2022/1/12.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef lobby_config_h
-#define lobby_config_h
+#ifndef scene_config_h
+#define scene_config_h
 
 #include <stdio.h>
 #include <string>
@@ -24,7 +24,7 @@
 namespace wukong {
 
     // 单例模式实现
-    class LobbyConfig {
+    class SceneConfig {
     public:
         struct ServerInfo {
             uint32_t id;            // 服务号（Gateway服务唯一标识，与zookeeper注册发现有关）
@@ -38,8 +38,8 @@ namespace wukong {
         };
 
     public:
-        static LobbyConfig& Instance() {
-            static LobbyConfig theSingleton;
+        static SceneConfig& Instance() {
+            static SceneConfig theSingleton;
             return theSingleton;
         }
         
@@ -58,13 +58,16 @@ namespace wukong {
 
         uint32_t getUpdatePeriod() const { return _updatePeriod; }
         
-        bool enableSceneClient() const { return _enableSceneClient; }
-
         const std::string& getZooPath() const { return _zooPath; }
+
+        bool enableLobbyClient() const { return _enableLobbyClient; }
+        bool enableSceneClient() const { return _enableSceneClient; }
 
     private:
         std::string _ip;    // 提供rpc服务的ip
         uint16_t _port;     // rpc服务端口
+
+        uint32_t _type;     // 场景服类型
 
         std::vector<ServerInfo> _serverInfos; // 对外服务的信息列表
         
@@ -77,21 +80,22 @@ namespace wukong {
 
         uint32_t _updatePeriod; // 游戏对象update方法调用周期，单位毫秒，0表示不进行update
 
-        bool _enableSceneClient; // 是否需要连接Scene服
+        bool _enableLobbyClient; // 是否需要连接Lobby服（主动调用Lobby服的rpc接口，比如：角色退出场景返回大厅）
+        bool _enableSceneClient; // 是否需要连接其他Scene服（主动调用其他Scene服的rpc接口，比如：角色进行场景切换）
 
         std::string _zooPath;
         
     private:
-        LobbyConfig() = default;                                // ctor hidden
-        LobbyConfig(LobbyConfig const&) = delete;               // copy ctor hidden
-        LobbyConfig(LobbyConfig &&) = delete;                   // move ctor hidden
-        LobbyConfig& operator=(LobbyConfig const&) = delete;    // assign op. hidden
-        LobbyConfig& operator=(LobbyConfig &&) = delete;        // move assign op. hidden
-        ~LobbyConfig() = default;                               // dtor hidden
+        SceneConfig() = default;                                // ctor hidden
+        SceneConfig(SceneConfig const&) = delete;               // copy ctor hidden
+        SceneConfig(SceneConfig &&) = delete;                   // move ctor hidden
+        SceneConfig& operator=(SceneConfig const&) = delete;    // assign op. hidden
+        SceneConfig& operator=(SceneConfig &&) = delete;        // move assign op. hidden
+        ~SceneConfig() = default;                               // dtor hidden
     };
 
-    #define g_LobbyConfig LobbyConfig::Instance()
+    #define g_SceneConfig SceneConfig::Instance()
 
 }
 
-#endif /* lobby_config_h */
+#endif /* scene_config_h */

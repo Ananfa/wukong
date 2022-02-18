@@ -2,6 +2,7 @@
 #include "login_server.h"
 #include "gateway_client.h"
 #include "login_handler_mgr.h"
+#include "client_center.h"
 #include "demo_db_utils.h"
 #include "demo_utils.h"
 #include "demo_role_builder.h"
@@ -43,6 +44,7 @@ int main(int argc, char * argv[]) {
     delegate.makeProfile = demo::DemoUtils::MakeProfile;
 
     g_LoginHandlerMgr.init(g_LoginServer.getHttpServer(), delegate);
+    g_ClientCenter.init();
 
     g_LoginServer.run();
     return 0;

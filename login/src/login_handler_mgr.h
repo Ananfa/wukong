@@ -80,11 +80,7 @@ namespace wukong {
         void setResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         void setErrorResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         
-        void updateGatewayInfosVersion() { _gatewayInfosVersion++; };
         void updateServerGroupDataVersion() { _serverGroupDataVersion++; }
-
-        // 利用"所有服务器的总在线人数 - 在线人数"做为分配权重
-        void refreshGatewayInfos();
 
         void updateServerGroupData(const std::string& topic, const std::string& msg);
         void _updateServerGroupData();
@@ -92,23 +88,11 @@ namespace wukong {
 
         bool checkToken(UserId userId, const std::string& token);
 
-        static void *updateRoutine(void *arg);
-        void updateGatewayInfos();
-
         static void *initRoutine(void *arg);
 
         static void *saveUserRoutine(void *arg); // 将account-userid对应关系信息存盘的协程
 
     private:
-        static std::vector<GatewayClient::ServerInfo> _gatewayInfos;
-        static std::mutex _gatewayInfosLock;
-        static std::atomic<uint32_t> _gatewayInfosVersion;
-
-        static thread_local std::vector<ServerWeightInfo> _t_gatewayInfos;
-        static thread_local std::map<ServerId, Address> _t_gatewayAddrMap;
-        static thread_local uint32_t _t_gatewayInfosVersion;
-        static thread_local uint32_t _t_gatewayTotalWeight;
-
         static std::string _serverGroupData;
         static std::mutex _serverGroupDataLock;
         static std::atomic<uint32_t> _serverGroupDataVersion;

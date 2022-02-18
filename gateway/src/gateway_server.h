@@ -48,7 +48,7 @@ namespace wukong {
         bool init(int argc, char * argv[]);
         void run();
 
-        IO *getIO() { return _io; }
+        //IO *getIO() { return _io; }
         RpcClient *getRpcClient() { return _rpcClient; }
 
         void registerGameClient(GameClient *client);

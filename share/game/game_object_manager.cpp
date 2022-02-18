@@ -17,6 +17,7 @@
 #include "corpc_routine_env.h"
 #include "game_object_manager.h"
 #include "game_center.h"
+#include "client_center.h"
 #include "share/const.h"
 
 #include <sys/time.h>
@@ -88,7 +89,7 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     if (reply->type == REDIS_REPLY_STRING) {
         recordId = std::stoi(reply->str);
     } else if (reply->type == REDIS_REPLY_NIL) {
-        if (!g_GameCenter.randomRecordServer(recordId)) {
+        if (!g_ClientCenter.randomRecordServer(recordId)) {
             freeReplyObject(reply);
             g_GameCenter.getCachePool()->proxy.put(cache, false);
             ERROR_LOG("GameObjectManager::loadRole -- user %d role %d random record server failed\n", userId, roleId);

@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2021/1/11.
+ * Created by Xianke Liu on 2022/2/16.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef lobby_client_h
-#define lobby_client_h
+#ifndef scene_client_h
+#define scene_client_h
 
 #include <map>
 #include <vector>
 #include "corpc_rpc_client.h"
 #include "game_service.pb.h"
-#include "lobby_service.pb.h"
+#include "scene_service.pb.h"
 #include "game_client.h"
 #include "define.h"
 #include "const.h"
@@ -29,17 +29,18 @@
 using namespace corpc;
 
 namespace wukong {
-    class LobbyClient: public GameClient {
+    class SceneClient: public GameClient {
     public:
         struct StubInfo {
             std::string rpcAddr; // rpc服务地址"ip:port"
+            uint32_t type; // 场景服类型
             std::shared_ptr<pb::GameService_Stub> gameServiceStub;
-            std::shared_ptr<pb::LobbyService_Stub> lobbyServiceStub;
+            std::shared_ptr<pb::SceneService_Stub> sceneServiceStub;
         };
 
     public:
-        static LobbyClient& Instance() {
-            static LobbyClient instance;
+        static SceneClient& Instance() {
+            static SceneClient instance;
             return instance;
         }
 
@@ -49,9 +50,11 @@ namespace wukong {
 
         virtual std::shared_ptr<pb::GameService_Stub> getGameServiceStub(ServerId sid);
         
-        std::shared_ptr<pb::LobbyService_Stub> getLobbyServiceStub(ServerId sid);
+        std::shared_ptr<pb::SceneService_Stub> getSceneServiceStub(ServerId sid);
         
-        bool loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
+        bool loadScene(ServerId sid, uint32_t defId, uint64_t sceneId);
+        bool enterScene(ServerId sid, uint64_t sceneId, UserId userId, RoleId roleId, ServerId gwId);
+        
         void shutdown();
 
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
@@ -60,8 +63,8 @@ namespace wukong {
         void refreshStubs();
 
     private:
-        /* 所有LobbyServer的Stub */
-        static std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
+        /* 所有SceneServer的Stub */
+        static std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
         static std::map<ServerId, StubInfo> _stubs;
         static std::mutex _stubsLock;
         static std::atomic<uint32_t> _stubChangeNum;
@@ -71,15 +74,15 @@ namespace wukong {
         static thread_local uint32_t _t_stubChangeNum;
 
     private:
-        LobbyClient(): GameClient(GAME_SERVER_TYPE_LOBBY, ZK_LOBBY_SERVER) {} // ctor hidden
-        virtual ~LobbyClient() = default;                       // destruct hidden
-        LobbyClient(LobbyClient const&) = delete;               // copy ctor delete
-        LobbyClient(LobbyClient &&) = delete;                   // move ctor delete
-        LobbyClient& operator=(LobbyClient const&) = delete;    // assign op. delete
-        LobbyClient& operator=(LobbyClient &&) = delete;        // move assign op. delete
+        SceneClient(): GameClient(GAME_SERVER_TYPE_SCENE, ZK_SCENE_SERVER) {} // ctor hidden
+        virtual ~SceneClient() = default;                       // destruct hidden
+        SceneClient(SceneClient const&) = delete;               // copy ctor delete
+        SceneClient(SceneClient &&) = delete;                   // move ctor delete
+        SceneClient& operator=(SceneClient const&) = delete;    // assign op. delete
+        SceneClient& operator=(SceneClient &&) = delete;        // move assign op. delete
     };
 }
     
-#define g_LobbyClient wukong::LobbyClient::Instance()
+#define g_SceneClient wukong::SceneClient::Instance()
 
-#endif /* lobby_client_h */
+#endif /* scene_client_h */

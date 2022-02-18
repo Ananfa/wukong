@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2020/1/11.
+ * Created by Xianke Liu on 2022/2/16.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-#include "lobby_client.h"
+#include "scene_client.h"
 #include "corpc_controller.h"
 
 using namespace wukong;
 
-std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> LobbyClient::_addr2stubs;
-std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_stubs;
-std::mutex LobbyClient::_stubsLock;
-std::atomic<uint32_t> LobbyClient::_stubChangeNum(0);
-thread_local uint32_t LobbyClient::_t_stubChangeNum = 0;
-thread_local std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_t_stubs;
+std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>>> SceneClient::_addr2stubs;
+std::map<ServerId, SceneClient::StubInfo> SceneClient::_stubs;
+std::mutex SceneClient::_stubsLock;
+std::atomic<uint32_t> SceneClient::_stubChangeNum(0);
+thread_local uint32_t SceneClient::_t_stubChangeNum = 0;
+thread_local std::map<ServerId, SceneClient::StubInfo> SceneClient::_t_stubs;
 
-void LobbyClient::shutdown() {
+void SceneClient::shutdown() {
     refreshStubs();
-    std::map<ServerId, LobbyClient::StubInfo> stubs = _t_stubs;
+    std::map<ServerId, SceneClient::StubInfo> stubs = _t_stubs;
     
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
         
-        kv.second.lobbyServiceStub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
+        kv.second.sceneServiceStub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
     }
 }
 
-std::vector<GameClient::ServerInfo> LobbyClient::getServerInfos() {
+std::vector<GameClient::ServerInfo> SceneClient::getServerInfos() {
     std::vector<ServerInfo> infos;
 
     // 对相同rpc地址的服务不需要重复获取
@@ -50,7 +50,7 @@ std::vector<GameClient::ServerInfo> LobbyClient::getServerInfos() {
     infos.reserve(localStubs.size());
 
     // 利用(总在线人数 - 服务器在线人数)作为分配服务器的权重
-    uint32_t totalCount = 0;
+    std::map<uint32_t, uint32_t> totalCounts;
     for (auto &kv : localStubs) {
         if (handledAddrs.find(kv.second.rpcAddr) != handledAddrs.end()) {
             continue;
@@ -61,17 +61,17 @@ std::vector<GameClient::ServerInfo> LobbyClient::getServerInfos() {
         corpc::Void *request = new corpc::Void();
         pb::OnlineCounts *response = new pb::OnlineCounts();
         Controller *controller = new Controller();
-        kv.second.lobbyServiceStub->getOnlineCount(controller, request, response, nullptr);
+        kv.second.sceneServiceStub->getOnlineCount(controller, request, response, nullptr);
         
         if (controller->Failed()) {
-            ERROR_LOG("LobbyClient::getServerInfos -- Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+            ERROR_LOG("SceneClient::getServerInfos -- Rpc Call Failed : %s\n", controller->ErrorText().c_str());
             continue;
         } else {
             auto countInfos = response->counts();
 
             for (auto it = countInfos.begin(); it != countInfos.end(); ++it) {
-                infos.push_back({it->serverid(), 0, it->count(), 0});
-                totalCount += it->count();
+                infos.push_back({it->serverid(), kv.second.type, it->count(), 0});
+                totalCounts[kv.second.type] += it->count();
             }
         }
         
@@ -81,29 +81,28 @@ std::vector<GameClient::ServerInfo> LobbyClient::getServerInfos() {
     }
     
     for (auto &info : infos) {
-        info.weight = totalCount - info.count;
+        info.weight = totalCounts[info.type] - info.count;
     }
 
     return infos;
 }
 
-bool LobbyClient::loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId) {
-    std::shared_ptr<pb::LobbyService_Stub> stub = getLobbyServiceStub(sid);
+bool SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) {
+    std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
     bool ret = false;
 
     if (!stub) {
-        ERROR_LOG("LobbyClient::loadRole -- lobby server %d stub not avaliable, waiting.\n", sid);
+        ERROR_LOG("SceneClient::loadScene -- scene server %d stub not avaliable, waiting.\n", sid);
         return ret;
     }
 
-    pb::LoadRoleRequest *request = new pb::LoadRoleRequest();
+    pb::LoadSceneRequest *request = new pb::LoadSceneRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
     request->set_serverid(sid);
-    request->set_userid(userId);
-    request->set_roleid(roleId);
-    request->set_gatewayid(gwId);
-    stub->loadRole(controller, request, response, nullptr);
+    request->set_defid(defId);
+    request->set_sceneid(sceneId);
+    stub->loadScene(controller, request, response, nullptr);
 
     if (controller->Failed()) {
         ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
@@ -118,11 +117,43 @@ bool LobbyClient::loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId 
     return ret;
 }
 
-void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &msg) {
+bool SceneClient::enterScene(ServerId sid, uint64_t sceneId, UserId userId, RoleId roleId, ServerId gwId) {
+    std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
+    bool ret = false;
+
+    if (!stub) {
+        ERROR_LOG("SceneClient::enterScene -- scene server %d stub not avaliable, waiting.\n", sid);
+        return ret;
+    }
+
+    pb::EnterSceneRequest *request = new pb::EnterSceneRequest();
+    pb::BoolValue *response = new pb::BoolValue();
+    Controller *controller = new Controller();
+    request->set_serverid(sid);
+    request->set_userid(userId);
+    request->set_roleid(roleId);
+    request->set_gatewayid(gwId);
+    request->set_sceneid(sceneId);
+    stub->enterScene(controller, request, response, nullptr);
+
+    if (controller->Failed()) {
+        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+    } else {
+        ret = response->value();
+    }
+
+    delete controller;
+    delete response;
+    delete request;
+
+    return ret;
+}
+
+void SceneClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &msg) {
     std::shared_ptr<pb::GameService_Stub> stub = getGameServiceStub(sid);
     
     if (!stub) {
-        ERROR_LOG("LobbyClient::forwardIn -- lobby server %d stub not avaliable, waiting.\n", sid);
+        ERROR_LOG("SceneClient::forwardIn -- scene server %d stub not avaliable, waiting.\n", sid);
         return;
     }
     
@@ -144,16 +175,16 @@ void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId rol
     stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
 }
 
-bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
+bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {
     if (!_client) {
-        ERROR_LOG("LobbyClient::setServers -- not init\n");
+        ERROR_LOG("SceneClient::setServers -- not init\n");
         return false;
     }
 
-    std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> addr2stubs;
+    std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>>> addr2stubs;
     std::map<ServerId, StubInfo> stubs;
     for (const auto& address : addresses) {
-        std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>> stubPair;
+        std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>> stubPair;
         std::string addr = address.ip + std::to_string(address.port);
         auto iter = addr2stubs.find(addr);
         if (iter != addr2stubs.end()) {
@@ -169,7 +200,7 @@ bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
 
             stubPair = std::make_pair(
                 std::make_shared<pb::GameService_Stub>(channel, pb::GameService::STUB_OWNS_CHANNEL),
-                std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(*channel), pb::LobbyService::STUB_OWNS_CHANNEL));
+                std::make_shared<pb::SceneService_Stub>(new RpcClient::Channel(*channel), pb::SceneService::STUB_OWNS_CHANNEL));
         }
         addr2stubs.insert(std::make_pair(addr, stubPair));
 
@@ -184,6 +215,7 @@ bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
 
             StubInfo stubInfo = {
                 addr,
+                address.type,
                 stubPair.first,
                 stubPair.second
             };
@@ -202,7 +234,7 @@ bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
     return true;
 }
 
-std::shared_ptr<pb::GameService_Stub> LobbyClient::getGameServiceStub(ServerId sid) {
+std::shared_ptr<pb::GameService_Stub> SceneClient::getGameServiceStub(ServerId sid) {
     refreshStubs();
     auto iter = _t_stubs.find(sid);
     if (iter == _t_stubs.end()) {
@@ -212,17 +244,17 @@ std::shared_ptr<pb::GameService_Stub> LobbyClient::getGameServiceStub(ServerId s
     return iter->second.gameServiceStub;
 }
 
-std::shared_ptr<pb::LobbyService_Stub> LobbyClient::getLobbyServiceStub(ServerId sid) {
+std::shared_ptr<pb::SceneService_Stub> SceneClient::getSceneServiceStub(ServerId sid) {
     refreshStubs();
     auto iter = _t_stubs.find(sid);
     if (iter == _t_stubs.end()) {
         return nullptr;
     }
 
-    return iter->second.lobbyServiceStub;
+    return iter->second.sceneServiceStub;
 }
 
-void LobbyClient::refreshStubs() {
+void SceneClient::refreshStubs() {
     if (_t_stubChangeNum != _stubChangeNum) {
         _t_stubs.clear();
         {

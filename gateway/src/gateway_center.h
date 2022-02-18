@@ -18,7 +18,6 @@
 #define gateway_center_h
 
 #include "corpc_redis.h"
-#include "lobby_client.h"
 #include "share/define.h"
 
 #include <vector>
@@ -45,16 +44,7 @@ namespace wukong {
         const std::string &setSessionExpireSha1() { return _setSessionExpireSha1; }
         const std::string &removeSessionSha1() { return _removeSessionSha1; }
 
-        bool randomLobbyServer(ServerId &serverId);
     private:
-        void updateLobbyInfosVersion() { _lobbyInfosVersion++; };
-
-        // 利用"所有服务器的总在线人数 - 在线人数"做为分配权重
-        void refreshLobbyInfos();
-
-        static void *updateRoutine(void *arg);
-        void updateLobbyInfos();
-
         static void *initRoutine(void *arg);
 
     private:
@@ -64,15 +54,6 @@ namespace wukong {
         std::string _setSessionSha1; // 设置session的lua脚本sha1值
         std::string _setSessionExpireSha1; // 设置session超时的lua脚本sha1值
         std::string _removeSessionSha1; // 删除session的lua脚本sha1值
-
-    private:
-        static std::vector<LobbyClient::ServerInfo> _lobbyInfos;
-        static std::mutex _lobbyInfosLock;
-        static std::atomic<uint32_t> _lobbyInfosVersion;
-
-        static thread_local std::vector<ServerWeightInfo> _t_lobbyInfos;
-        static thread_local uint32_t _t_lobbyInfosVersion;
-        static thread_local uint32_t _t_lobbyTotalWeight;
 
     private:
         GatewayCenter() = default;                                       // ctor hidden

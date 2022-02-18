@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2021/1/15.
+ * Created by Xianke Liu on 2022/1/12.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "lobby_config.h"
+#include "scene_config.h"
 #include "corpc_utils.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
@@ -26,7 +26,7 @@
 using namespace rapidjson;
 using namespace wukong;
 
-bool LobbyConfig::parse(const char *path) {
+bool SceneConfig::parse(const char *path) {
     FILE* fp = fopen(path, "rb");
     
     char readBuffer[65536];
@@ -46,7 +46,13 @@ bool LobbyConfig::parse(const char *path) {
         return false;
     }
     _port = doc["port"].GetUint();
-    
+
+    if (!doc.HasMember("type")) {
+        ERROR_LOG("config error -- type not define\n");
+        return false;
+    }
+    _type = doc["type"].GetUint();
+
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
         return false;
@@ -135,14 +141,20 @@ bool LobbyConfig::parse(const char *path) {
     } else {
         _updatePeriod = doc["updatePeriod"].GetUint();
     }
-    
+
+    if (!doc.HasMember("enableLobbyClient")) {
+        _enableLobbyClient = false;
+    } else {
+        _enableLobbyClient = doc["enableLobbyClient"].GetBool();
+    }
+
     if (!doc.HasMember("enableSceneClient")) {
         _enableSceneClient = false;
     } else {
         _enableSceneClient = doc["enableSceneClient"].GetBool();
     }
     
-    _zooPath = ZK_LOBBY_SERVER + "/" + _ip + ":" + std::to_string(_port);
+    _zooPath = ZK_SCENE_SERVER + "/" + _ip + ":" + std::to_string(_port) + ":" + std::to_string(_type);
     for (const LobbyConfig::ServerInfo &info : _serverInfos) {
         _zooPath += "|" + std::to_string(info.id);
     }

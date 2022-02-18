@@ -18,7 +18,6 @@
 #define game_center_h
 
 #include "corpc_redis.h"
-#include "record_client.h"
 #include "game_object.h"
 #include "game_delegate.h"
 #include "share/define.h"
@@ -66,8 +65,6 @@ namespace wukong {
         const std::string &updateLocationSha1() { return _updateLocationSha1; }
         const std::string &setLocationExpireSha1() { return _setLocationExpireSha1; }
 
-        bool randomRecordServer(ServerId &serverId);
-
         void setDelegate(GameDelegate delegate) { _delegate = delegate; }
         CreateGameObjectHandle getCreateGameObjectHandle() { return _delegate.createGameObject; }
 
@@ -79,14 +76,6 @@ namespace wukong {
         void handleMessage(std::shared_ptr<GameObject>, int msgType, uint16_t tag, const std::string &rawMsg);
 
     private:
-        void updateRecordInfosVersion() { _recordInfosVersion++; };
-
-        // 利用"所有服务器的总在线人数 - 在线人数"做为分配权重
-        void refreshRecordInfos();
-
-        static void *updateRoutine(void *arg);
-        void updateRecordInfos();
-
         static void *initRoutine(void *arg);
 
         static void *handleMessageRoutine( void * arg );
@@ -104,14 +93,6 @@ namespace wukong {
         GameDelegate _delegate; // 委托对象（不同游戏有不同的委托实现）
 
         std::map<int, RegisterMessageInfo> _registerMessageMap;
-    private:
-        static std::vector<RecordClient::ServerInfo> _recordInfos;
-        static std::mutex _recordInfosLock;
-        static std::atomic<uint32_t> _recordInfosVersion;
-
-        static thread_local std::vector<ServerWeightInfo> _t_recordInfos;
-        static thread_local uint32_t _t_recordInfosVersion;
-        static thread_local uint32_t _t_recordTotalWeight;
 
     private:
         GameCenter(): _cache(nullptr), _gameObjectUpdatePeriod(0) {}                  // ctor hidden

@@ -36,6 +36,7 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
+    ../../share/client/client_center.cpp
     ../../share/client/gateway_client.cpp
     ../../share/client/record_client.cpp
     ../../share/client/zk_client.cpp

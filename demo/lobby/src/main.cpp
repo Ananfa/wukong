@@ -1,11 +1,6 @@
 
 #include "lobby_server.h"
-#include "lobby_config.h"
 #include "game_center.h"
-#include "client_center.h"
-#include "gateway_client.h"
-#include "record_client.h"
-#include "share/const.h"
 #include "message_handler.h"
 
 using namespace wukong;
@@ -16,10 +11,6 @@ int main(int argc, char * argv[]) {
         ERROR_LOG("Can't init login server\n");
         return -1;
     }
-
-    // 初始化全局资源
-    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
-    g_ClientCenter.init();
 
     GameDelegate delegate;
     delegate.createGameObject = [](UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
@@ -37,12 +28,7 @@ int main(int argc, char * argv[]) {
     // 注册消息处理
     MessageHandler::registerMessages();
 
-    g_GatewayClient.init(g_LobbyServer.getRpcClient());
-    g_RecordClient.init(g_LobbyServer.getRpcClient());
-
-    // TODO: 注册其他GameClient
-    //g_SceneClient.init(g_LobbyServer.getRpcClient());
-    //g_LobbyServer.registerGameClient(&g_SceneClient);
+    // TODO: 策划配置加载及二次处理，配置动态加载
 
     g_LobbyServer.run();
     return 0;

@@ -37,7 +37,6 @@ namespace wukong {
         IO *_io = nullptr;
         RpcClient *_rpcClient = nullptr;
 
-        std::map<GameServerType, GameClient*> _gameClientMap;
         std::vector<std::thread> _threads;
     public:
         static GatewayServer& Instance() {
@@ -47,12 +46,6 @@ namespace wukong {
 
         bool init(int argc, char * argv[]);
         void run();
-
-        //IO *getIO() { return _io; }
-        RpcClient *getRpcClient() { return _rpcClient; }
-
-        void registerGameClient(GameClient *client);
-        GameClient *getGameClient(GameServerType gsType);
 
     private:
         void enterZoo();

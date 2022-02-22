@@ -17,6 +17,8 @@
 #include "client_center.h"
 #include "share/const.h"
 
+#include "zk_client.h"
+
 using namespace wukong;
 
 std::vector<GatewayClient::ServerInfo> ClientCenter::_gatewayInfos;
@@ -44,11 +46,107 @@ thread_local uint32_t ClientCenter::_t_lobbyTotalWeight(0);
 std::vector<SceneClient::ServerInfo> ClientCenter::_sceneInfos;
 std::mutex ClientCenter::_sceneInfosLock;
 std::atomic<uint32_t> ClientCenter::_sceneInfosVersion(0);
-thread_local std::vector<ServerWeightInfo> ClientCenter::_t_sceneInfos;
+thread_local std::map<uint32_t, std::vector<ServerWeightInfo>> ClientCenter::_t_sceneInfos;
 thread_local uint32_t ClientCenter::_t_sceneInfosVersion(0);
-thread_local uint32_t ClientCenter::_t_sceneTotalWeight(0);
+thread_local std::map<uint32_t, uint32_t> ClientCenter::_t_sceneTotalWeights;
 
-void ClientCenter::init() {
+void ClientCenter::init(RpcClient *rpcc, const std::string& zooAddr, const std::string& zooPath, bool connectGateway, bool connectRecord, bool connectLobby, bool connectScene) {
+    if (connectGateway) {
+        g_GatewayClient.init(rpcc);
+    }
+
+    if (connectRecord) {
+        g_RecordClient.init(rpcc);
+    }
+
+    if (connectLobby) {
+        g_LobbyClient.init(rpcc);
+    }
+
+    if (connectScene) {
+        g_SceneClient.init(rpcc);
+    }
+
+    // zoo注册
+    g_ZkClient.init(zooAddr, ZK_TIMEOUT, [&]() {
+        // 对servers配置中每一个server进行节点注册
+        g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
+            if (ret) {
+                LOG("create rpc node:[%s] sucessful\n", path.c_str());
+            } else {
+                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
+            }
+        });
+
+        if (connectGateway) {
+            g_ZkClient.watchChildren(ZK_GATEWAY_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
+                std::vector<GatewayClient::AddressInfo> addresses;
+                addresses.reserve(values.size());
+                for (const std::string &value : values) {
+                    GatewayClient::AddressInfo address;
+
+                    if (GatewayClient::parseAddress(value, address)) {
+                        addresses.push_back(std::move(address));
+                    } else {
+                        ERROR_LOG("zkclient parse gateway server address error, info = %s\n", value.c_str());
+                    }
+                }
+                g_GatewayClient.setServers(addresses);
+            });
+        }
+
+        if (connectRecord) {
+            g_ZkClient.watchChildren(ZK_RECORD_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
+                std::vector<RecordClient::AddressInfo> addresses;
+                addresses.reserve(values.size());
+                for (const std::string &value : values) {
+                    RecordClient::AddressInfo address;
+
+                    if (RecordClient::parseAddress(value, address)) {
+                        addresses.push_back(std::move(address));
+                    } else {
+                        ERROR_LOG("zkclient parse record server address error, info = %s\n", value.c_str());
+                    }
+                }
+                g_RecordClient.setServers(addresses);
+            });
+        }
+
+        if (connectLobby) {
+            g_ZkClient.watchChildren(ZK_LOBBY_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
+                std::vector<GameClient::AddressInfo> addresses;
+                addresses.reserve(values.size());
+                for (const std::string &value : values) {
+                    GameClient::AddressInfo address;
+
+                    if (GameClient::parseAddress(value, address)) {
+                        addresses.push_back(std::move(address));
+                    } else {
+                        ERROR_LOG("zkclient parse lobby server address error, info = %s\n", value.c_str());
+                    }
+                }
+                g_LobbyClient.setServers(addresses);
+            });
+        }
+
+        if (connectScene) {
+            g_ZkClient.watchChildren(ZK_SCENE_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
+                std::vector<SceneClient::AddressInfo> addresses;
+                addresses.reserve(values.size());
+                for (const std::string &value : values) {
+                    SceneClient::AddressInfo address;
+
+                    if (GameClient::parseAddress(value, address)) {
+                        addresses.push_back(std::move(address));
+                    } else {
+                        ERROR_LOG("zkclient parse scene server address error, info = %s\n", value.c_str());
+                    }
+                }
+                g_SceneClient.setServers(addresses);
+            });
+        }
+    });
+
     RoutineEnvironment::startCoroutine(updateRoutine, this);
 }
 
@@ -364,7 +462,7 @@ void ClientCenter::refreshSceneInfos() {
             _t_sceneInfosVersion = _sceneInfosVersion;
         }
 
-        std::map<uint32_t, uint32_t> totalWeights
+        std::map<uint32_t, uint32_t> totalWeights;
         for (auto &info : sceneInfos) {
             totalWeights[info.type] += info.weight;
 

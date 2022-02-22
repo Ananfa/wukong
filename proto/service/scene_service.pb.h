@@ -195,10 +195,20 @@ class LoadSceneRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDefIdFieldNumber = 1,
-    kSceneIdFieldNumber = 2,
+    kServerIdFieldNumber = 1,
+    kDefIdFieldNumber = 2,
+    kSceneIdFieldNumber = 3,
   };
-  // uint32 defId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 defId = 2;
   void clear_defid();
   ::PROTOBUF_NAMESPACE_ID::uint32 defid() const;
   void set_defid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -207,7 +217,7 @@ class LoadSceneRequest final :
   void _internal_set_defid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 sceneId = 2;
+  // uint32 sceneId = 3;
   void clear_sceneid();
   ::PROTOBUF_NAMESPACE_ID::uint32 sceneid() const;
   void set_sceneid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -223,6 +233,7 @@ class LoadSceneRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 defid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 sceneid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -495,10 +506,31 @@ class EnterSceneRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRoleIdFieldNumber = 1,
-    kSceneIdFieldNumber = 2,
+    kServerIdFieldNumber = 1,
+    kUserIdFieldNumber = 2,
+    kRoleIdFieldNumber = 3,
+    kGatewayIdFieldNumber = 4,
+    kSceneIdFieldNumber = 5,
   };
-  // uint32 roleId = 1;
+  // uint32 serverId = 1;
+  void clear_serverid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
+  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
+  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 userId = 2;
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 roleId = 3;
   void clear_roleid();
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
   void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -507,7 +539,16 @@ class EnterSceneRequest final :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 sceneId = 2;
+  // uint32 gatewayId = 4;
+  void clear_gatewayid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid() const;
+  void set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_gatewayid() const;
+  void _internal_set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 sceneId = 5;
   void clear_sceneid();
   ::PROTOBUF_NAMESPACE_ID::uint32 sceneid() const;
   void set_sceneid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -523,7 +564,10 @@ class EnterSceneRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 sceneid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_scene_5fservice_2eproto;
@@ -705,7 +749,27 @@ class InnerSceneService_Stub : public InnerSceneService {
 #endif  // __GNUC__
 // LoadSceneRequest
 
-// uint32 defId = 1;
+// uint32 serverId = 1;
+inline void LoadSceneRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadSceneRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadSceneRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.LoadSceneRequest.serverId)
+  return _internal_serverid();
+}
+inline void LoadSceneRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void LoadSceneRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.LoadSceneRequest.serverId)
+}
+
+// uint32 defId = 2;
 inline void LoadSceneRequest::clear_defid() {
   defid_ = 0u;
 }
@@ -725,7 +789,7 @@ inline void LoadSceneRequest::set_defid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.LoadSceneRequest.defId)
 }
 
-// uint32 sceneId = 2;
+// uint32 sceneId = 3;
 inline void LoadSceneRequest::clear_sceneid() {
   sceneid_ = 0u;
 }
@@ -793,7 +857,47 @@ inline void LoadSceneResponse::set_sceneid(::PROTOBUF_NAMESPACE_ID::uint32 value
 
 // EnterSceneRequest
 
-// uint32 roleId = 1;
+// uint32 serverId = 1;
+inline void EnterSceneRequest::clear_serverid() {
+  serverid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterSceneRequest::_internal_serverid() const {
+  return serverid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterSceneRequest::serverid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.EnterSceneRequest.serverId)
+  return _internal_serverid();
+}
+inline void EnterSceneRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  serverid_ = value;
+}
+inline void EnterSceneRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_serverid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.EnterSceneRequest.serverId)
+}
+
+// uint32 userId = 2;
+inline void EnterSceneRequest::clear_userid() {
+  userid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterSceneRequest::_internal_userid() const {
+  return userid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterSceneRequest::userid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.EnterSceneRequest.userId)
+  return _internal_userid();
+}
+inline void EnterSceneRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  userid_ = value;
+}
+inline void EnterSceneRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.EnterSceneRequest.userId)
+}
+
+// uint32 roleId = 3;
 inline void EnterSceneRequest::clear_roleid() {
   roleid_ = 0u;
 }
@@ -813,7 +917,27 @@ inline void EnterSceneRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value)
   // @@protoc_insertion_point(field_set:wukong.pb.EnterSceneRequest.roleId)
 }
 
-// uint32 sceneId = 2;
+// uint32 gatewayId = 4;
+inline void EnterSceneRequest::clear_gatewayid() {
+  gatewayid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterSceneRequest::_internal_gatewayid() const {
+  return gatewayid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterSceneRequest::gatewayid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.EnterSceneRequest.gatewayId)
+  return _internal_gatewayid();
+}
+inline void EnterSceneRequest::_internal_set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  gatewayid_ = value;
+}
+inline void EnterSceneRequest::set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_gatewayid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.EnterSceneRequest.gatewayId)
+}
+
+// uint32 sceneId = 5;
 inline void EnterSceneRequest::clear_sceneid() {
   sceneid_ = 0u;
 }

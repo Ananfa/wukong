@@ -39,13 +39,6 @@ namespace wukong {
         bool init(int argc, char * argv[]);
         void run();
 
-        IO *getIO() const { return _io; }
-        RpcClient *getRpcClient() const { return _rpcClient; }
-        HttpServer *getHttpServer() const { return _httpServer; }
-
-    private:
-        void enterZoo();
-
     private:
         LoginServer() = default;                                // ctor hidden
         LoginServer(LoginServer const&) = delete;               // copy ctor hidden

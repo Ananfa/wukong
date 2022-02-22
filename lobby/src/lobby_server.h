@@ -45,12 +45,7 @@ namespace wukong {
         bool init(int argc, char * argv[]);
         void run();
 
-        //IO *getIO() { return _io; }
-        RpcClient *getRpcClient() { return _rpcClient; }
-        
     private:
-        void enterZoo();
-
         static void lobbyThread(InnerRpcServer *server, ServerId lbid);
 
     private:

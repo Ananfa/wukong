@@ -61,8 +61,10 @@ namespace wukong {
             return instance;
         }
         
-        void init(HttpServer *server, LoginDelegate delegate);
+        void init(HttpServer *server);
         
+        void setDelegate(LoginDelegate delegate) { _delegate = delegate; }
+
         RedisConnectPool *getCache() { return _cache; }
         RedisConnectPool *getRedis() { return _redis; }
         MysqlConnectPool *getMysql() { return _mysql; }

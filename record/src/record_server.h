@@ -19,7 +19,6 @@
 
 #include "corpc_rpc_client.h"
 #include "corpc_inner_rpc.h"
-#include "game_client.h"
 #include "share/define.h"
 #include "record_service.pb.h"
 #include <map>
@@ -45,11 +44,7 @@ namespace wukong {
         bool init(int argc, char * argv[]);
         void run();
 
-        //IO *getIO() { return _io; }
-        
     private:
-        void enterZoo();
-
         static void recordThread(InnerRpcServer *server, ServerId rcid);
 
     private:

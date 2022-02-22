@@ -20,7 +20,8 @@ namespace wukong {
 namespace pb {
 constexpr LoadSceneRequest::LoadSceneRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : defid_(0u)
+  : serverid_(0u)
+  , defid_(0u)
   , sceneid_(0u){}
 struct LoadSceneRequestDefaultTypeInternal {
   constexpr LoadSceneRequestDefaultTypeInternal()
@@ -46,7 +47,10 @@ struct LoadSceneResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LoadSceneResponseDefaultTypeInternal _LoadSceneResponse_default_instance_;
 constexpr EnterSceneRequest::EnterSceneRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : roleid_(0u)
+  : serverid_(0u)
+  , userid_(0u)
+  , roleid_(0u)
+  , gatewayid_(0u)
   , sceneid_(0u){}
 struct EnterSceneRequestDefaultTypeInternal {
   constexpr EnterSceneRequestDefaultTypeInternal()
@@ -69,6 +73,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_scene_5fservice_2eproto::offse
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadSceneRequest, serverid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadSceneRequest, defid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadSceneRequest, sceneid_),
   ~0u,  // no _has_bits_
@@ -83,13 +88,16 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_scene_5fservice_2eproto::offse
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, serverid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, roleid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, gatewayid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, sceneid_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::wukong::pb::LoadSceneRequest)},
-  { 7, -1, sizeof(::wukong::pb::LoadSceneResponse)},
-  { 14, -1, sizeof(::wukong::pb::EnterSceneRequest)},
+  { 8, -1, sizeof(::wukong::pb::LoadSceneResponse)},
+  { 15, -1, sizeof(::wukong::pb::EnterSceneRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -101,25 +109,27 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_scene_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\023scene_service.proto\022\twukong.pb\032\022corpc_"
   "option.proto\032\014common.proto\032\022inner_common"
-  ".proto\"2\n\020LoadSceneRequest\022\r\n\005defId\030\001 \001("
-  "\r\022\017\n\007sceneId\030\002 \001(\r\"5\n\021LoadSceneResponse\022"
-  "\017\n\007errCode\030\001 \001(\r\022\017\n\007sceneId\030\002 \001(\r\"4\n\021Ent"
-  "erSceneRequest\022\016\n\006roleId\030\001 \001(\r\022\017\n\007sceneI"
-  "d\030\002 \001(\r2\224\002\n\014SceneService\022*\n\010shutdown\022\013.c"
-  "orpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016getOnlin"
-  "eCount\022\013.corpc.Void\032\027.wukong.pb.OnlineCo"
-  "unts\"\t\220\361\004\001\240\361\004\350\007\022L\n\tloadScene\022\033.wukong.pb"
-  ".LoadSceneRequest\032\034.wukong.pb.LoadSceneR"
-  "esponse\"\004\220\361\004\001\022A\n\nenterScene\022\034.wukong.pb."
-  "EnterSceneRequest\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001"
-  "\032\004\200\361\004\0052\224\002\n\021InnerSceneService\022*\n\010shutdown"
-  "\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022<\n\016getO"
-  "nlineCount\022\013.corpc.Void\032\026.wukong.pb.Uint"
-  "32Value\"\005\240\361\004\364\003\022L\n\tloadScene\022\033.wukong.pb."
-  "LoadSceneRequest\032\034.wukong.pb.LoadSceneRe"
-  "sponse\"\004\220\361\004\001\022A\n\nenterScene\022\034.wukong.pb.E"
-  "nterSceneRequest\032\013.corpc.Void\"\010\230\361\004\001\220\361\004\001\032"
-  "\004\200\361\004\005B\003\200\001\001b\006proto3"
+  ".proto\"D\n\020LoadSceneRequest\022\020\n\010serverId\030\001"
+  " \001(\r\022\r\n\005defId\030\002 \001(\r\022\017\n\007sceneId\030\003 \001(\r\"5\n\021"
+  "LoadSceneResponse\022\017\n\007errCode\030\001 \001(\r\022\017\n\007sc"
+  "eneId\030\002 \001(\r\"i\n\021EnterSceneRequest\022\020\n\010serv"
+  "erId\030\001 \001(\r\022\016\n\006userId\030\002 \001(\r\022\016\n\006roleId\030\003 \001"
+  "(\r\022\021\n\tgatewayId\030\004 \001(\r\022\017\n\007sceneId\030\005 \001(\r2\224"
+  "\002\n\014SceneService\022*\n\010shutdown\022\013.corpc.Void"
+  "\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016getOnlineCount\022\013."
+  "corpc.Void\032\027.wukong.pb.OnlineCounts\"\t\220\361\004"
+  "\001\240\361\004\350\007\022L\n\tloadScene\022\033.wukong.pb.LoadScen"
+  "eRequest\032\034.wukong.pb.LoadSceneResponse\"\004"
+  "\220\361\004\001\022A\n\nenterScene\022\034.wukong.pb.EnterScen"
+  "eRequest\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\032\004\200\361\004\0052\224\002"
+  "\n\021InnerSceneService\022*\n\010shutdown\022\013.corpc."
+  "Void\032\013.corpc.Void\"\004\230\361\004\001\022<\n\016getOnlineCoun"
+  "t\022\013.corpc.Void\032\026.wukong.pb.Uint32Value\"\005"
+  "\240\361\004\364\003\022L\n\tloadScene\022\033.wukong.pb.LoadScene"
+  "Request\032\034.wukong.pb.LoadSceneResponse\"\004\220"
+  "\361\004\001\022A\n\nenterScene\022\034.wukong.pb.EnterScene"
+  "Request\032\013.corpc.Void\"\010\230\361\004\001\220\361\004\001\032\004\200\361\004\005B\003\200\001"
+  "\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_scene_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -128,7 +138,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_scene_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_scene_5fservice_2eproto = {
-  false, false, 818, descriptor_table_protodef_scene_5fservice_2eproto, "scene_service.proto", 
+  false, false, 889, descriptor_table_protodef_scene_5fservice_2eproto, "scene_service.proto", 
   &descriptor_table_scene_5fservice_2eproto_once, descriptor_table_scene_5fservice_2eproto_deps, 3, 3,
   schemas, file_default_instances, TableStruct_scene_5fservice_2eproto::offsets,
   file_level_metadata_scene_5fservice_2eproto, file_level_enum_descriptors_scene_5fservice_2eproto, file_level_service_descriptors_scene_5fservice_2eproto,
@@ -160,17 +170,17 @@ LoadSceneRequest::LoadSceneRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 LoadSceneRequest::LoadSceneRequest(const LoadSceneRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&defid_, &from.defid_,
+  ::memcpy(&serverid_, &from.serverid_,
     static_cast<size_t>(reinterpret_cast<char*>(&sceneid_) -
-    reinterpret_cast<char*>(&defid_)) + sizeof(sceneid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(sceneid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.LoadSceneRequest)
 }
 
 inline void LoadSceneRequest::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&defid_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&sceneid_) -
-    reinterpret_cast<char*>(&defid_)) + sizeof(sceneid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(sceneid_));
 }
 
 LoadSceneRequest::~LoadSceneRequest() {
@@ -200,9 +210,9 @@ void LoadSceneRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&defid_, 0, static_cast<size_t>(
+  ::memset(&serverid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&sceneid_) -
-      reinterpret_cast<char*>(&defid_)) + sizeof(sceneid_));
+      reinterpret_cast<char*>(&serverid_)) + sizeof(sceneid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -212,16 +222,23 @@ const char* LoadSceneRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint32 defId = 1;
+      // uint32 serverId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          serverid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 defId = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           defid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 sceneId = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+      // uint32 sceneId = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
           sceneid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -255,16 +272,22 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint32 defId = 1;
-  if (this->_internal_defid() != 0) {
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_defid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 sceneId = 2;
+  // uint32 defId = 2;
+  if (this->_internal_defid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_defid(), target);
+  }
+
+  // uint32 sceneId = 3;
   if (this->_internal_sceneid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_sceneid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_sceneid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -283,14 +306,21 @@ size_t LoadSceneRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // uint32 defId = 1;
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_serverid());
+  }
+
+  // uint32 defId = 2;
   if (this->_internal_defid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_defid());
   }
 
-  // uint32 sceneId = 2;
+  // uint32 sceneId = 3;
   if (this->_internal_sceneid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
@@ -325,6 +355,9 @@ void LoadSceneRequest::MergeFrom(const LoadSceneRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
+  }
   if (from._internal_defid() != 0) {
     _internal_set_defid(from._internal_defid());
   }
@@ -351,9 +384,9 @@ void LoadSceneRequest::InternalSwap(LoadSceneRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(LoadSceneRequest, sceneid_)
       + sizeof(LoadSceneRequest::sceneid_)
-      - PROTOBUF_FIELD_OFFSET(LoadSceneRequest, defid_)>(
-          reinterpret_cast<char*>(&defid_),
-          reinterpret_cast<char*>(&other->defid_));
+      - PROTOBUF_FIELD_OFFSET(LoadSceneRequest, serverid_)>(
+          reinterpret_cast<char*>(&serverid_),
+          reinterpret_cast<char*>(&other->serverid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata LoadSceneRequest::GetMetadata() const {
@@ -600,17 +633,17 @@ EnterSceneRequest::EnterSceneRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 EnterSceneRequest::EnterSceneRequest(const EnterSceneRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&roleid_, &from.roleid_,
+  ::memcpy(&serverid_, &from.serverid_,
     static_cast<size_t>(reinterpret_cast<char*>(&sceneid_) -
-    reinterpret_cast<char*>(&roleid_)) + sizeof(sceneid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(sceneid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.EnterSceneRequest)
 }
 
 inline void EnterSceneRequest::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&sceneid_) -
-    reinterpret_cast<char*>(&roleid_)) + sizeof(sceneid_));
+    reinterpret_cast<char*>(&serverid_)) + sizeof(sceneid_));
 }
 
 EnterSceneRequest::~EnterSceneRequest() {
@@ -640,9 +673,9 @@ void EnterSceneRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&roleid_, 0, static_cast<size_t>(
+  ::memset(&serverid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&sceneid_) -
-      reinterpret_cast<char*>(&roleid_)) + sizeof(sceneid_));
+      reinterpret_cast<char*>(&serverid_)) + sizeof(sceneid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -652,16 +685,37 @@ const char* EnterSceneRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint32 roleId = 1;
+      // uint32 serverId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          serverid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 userId = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 roleId = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
           roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 sceneId = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+      // uint32 gatewayId = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          gatewayid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 sceneId = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
           sceneid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -695,16 +749,34 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint32 roleId = 1;
-  if (this->_internal_roleid() != 0) {
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 sceneId = 2;
+  // uint32 userId = 2;
+  if (this->_internal_userid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_userid(), target);
+  }
+
+  // uint32 roleId = 3;
+  if (this->_internal_roleid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_roleid(), target);
+  }
+
+  // uint32 gatewayId = 4;
+  if (this->_internal_gatewayid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_gatewayid(), target);
+  }
+
+  // uint32 sceneId = 5;
   if (this->_internal_sceneid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_sceneid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(5, this->_internal_sceneid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -723,14 +795,35 @@ size_t EnterSceneRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // uint32 roleId = 1;
+  // uint32 serverId = 1;
+  if (this->_internal_serverid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_serverid());
+  }
+
+  // uint32 userId = 2;
+  if (this->_internal_userid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_userid());
+  }
+
+  // uint32 roleId = 3;
   if (this->_internal_roleid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_roleid());
   }
 
-  // uint32 sceneId = 2;
+  // uint32 gatewayId = 4;
+  if (this->_internal_gatewayid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_gatewayid());
+  }
+
+  // uint32 sceneId = 5;
   if (this->_internal_sceneid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
@@ -765,8 +858,17 @@ void EnterSceneRequest::MergeFrom(const EnterSceneRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
+  }
+  if (from._internal_userid() != 0) {
+    _internal_set_userid(from._internal_userid());
+  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_gatewayid() != 0) {
+    _internal_set_gatewayid(from._internal_gatewayid());
   }
   if (from._internal_sceneid() != 0) {
     _internal_set_sceneid(from._internal_sceneid());
@@ -791,9 +893,9 @@ void EnterSceneRequest::InternalSwap(EnterSceneRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(EnterSceneRequest, sceneid_)
       + sizeof(EnterSceneRequest::sceneid_)
-      - PROTOBUF_FIELD_OFFSET(EnterSceneRequest, roleid_)>(
-          reinterpret_cast<char*>(&roleid_),
-          reinterpret_cast<char*>(&other->roleid_));
+      - PROTOBUF_FIELD_OFFSET(EnterSceneRequest, serverid_)>(
+          reinterpret_cast<char*>(&serverid_),
+          reinterpret_cast<char*>(&other->serverid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata EnterSceneRequest::GetMetadata() const {

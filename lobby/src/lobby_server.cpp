@@ -21,11 +21,9 @@
 #include "lobby_config.h"
 #include "lobby_service.h"
 #include "game_service.h"
-#include "gateway_client.h"
-#include "record_client.h"
-#include "scene_client.h"
+#include "game_center.h"
+#include "client_center.h"
 
-#include "zk_client.h"
 #include "utility.h"
 #include "share/const.h"
 
@@ -34,64 +32,6 @@
 
 using namespace corpc;
 using namespace wukong;
-
-void LobbyServer::enterZoo() {
-    g_ZkClient.init(g_LobbyConfig.getZookeeper(), ZK_TIMEOUT, []() {
-        // 对servers配置中每一个server进行节点注册
-        g_ZkClient.createEphemeralNode(g_LobbyConfig.getZooPath(), ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
-            if (ret) {
-                LOG("create rpc node:[%s] sucessful\n", path.c_str());
-            } else {
-                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
-            }
-        });
-
-        g_ZkClient.watchChildren(ZK_GATEWAY_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
-            std::vector<GatewayClient::AddressInfo> addresses;
-            addresses.reserve(values.size());
-            for (const std::string &value : values) {
-                GatewayClient::AddressInfo address;
-
-                if (GatewayClient::parseAddress(value, address)) {
-                    addresses.push_back(std::move(address));
-                } else {
-                    ERROR_LOG("zkclient parse gateway server address error, info = %s\n", value.c_str());
-                }
-            }
-            g_GatewayClient.setServers(addresses);
-        });
-
-        g_ZkClient.watchChildren(ZK_RECORD_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
-            std::vector<RecordClient::AddressInfo> addresses;
-            for (const std::string &value : values) {
-                RecordClient::AddressInfo address;
-
-                if (RecordClient::parseAddress(value, address)) {
-                    addresses.push_back(std::move(address));
-                } else {
-                    ERROR_LOG("zkclient parse record server address error, info = %s\n", value.c_str());
-                }
-            }
-            g_RecordClient.setServers(addresses);
-        });
-
-        if (g_LobbyConfig.enableSceneClient()) {
-            g_ZkClient.watchChildren(ZK_SCENE_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
-                std::vector<SceneClient::AddressInfo> addresses;
-                for (const std::string &value : values) {
-                    SceneClient::AddressInfo address;
-
-                    if (SceneClient::parseAddress(value, address)) {
-                        addresses.push_back(std::move(address));
-                    } else {
-                        ERROR_LOG("zkclient parse scene server address error, info = %s\n", value.c_str());
-                    }
-                }
-                g_SceneClient.setServers(addresses);
-            });
-        }
-    });
-}
 
 void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
     // 启动RPC服务
@@ -193,6 +133,7 @@ void LobbyServer::run() {
     server->registerService(lobbyServiceImpl);
     server->registerService(gameServiceImpl);
 
-    enterZoo();
+    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
+    g_ClientCenter.init(_rpcClient, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

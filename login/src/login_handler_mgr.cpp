@@ -249,14 +249,10 @@ void *LoginHandlerMgr::saveUserRoutine(void *arg) {
     }
 }
 
-void LoginHandlerMgr::init(HttpServer *server, LoginDelegate delegate) {
-    _delegate = delegate;
-
+void LoginHandlerMgr::init(HttpServer *server) {
     _cache = corpc::RedisConnectPool::create(g_LoginConfig.getCache().host.c_str(), g_LoginConfig.getCache().port, g_LoginConfig.getCache().dbIndex, g_LoginConfig.getCache().maxConnect);
     _redis = corpc::RedisConnectPool::create(g_LoginConfig.getRedis().host.c_str(), g_LoginConfig.getRedis().port, g_LoginConfig.getRedis().dbIndex, g_LoginConfig.getRedis().maxConnect);
     _mysql = corpc::MysqlConnectPool::create(g_LoginConfig.getMysql().host.c_str(), g_LoginConfig.getMysql().user.c_str(), g_LoginConfig.getMysql().pwd.c_str(), g_LoginConfig.getMysql().dbName.c_str(), g_LoginConfig.getMysql().port, "", 0, g_LoginConfig.getMysql().maxConnect);
-
-    RoutineEnvironment::startCoroutine(updateRoutine, this);
 
     // 初始化redis lua脚本sha1值
     RoutineEnvironment::startCoroutine(initRoutine, this);
@@ -791,7 +787,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         return setErrorResponse(response, "cant find gateway");
     }
 
-    Address gatewayAddr = _t_gatewayAddrMap[gatewayId];
+    Address gatewayAddr = g_ClientCenter.getGatewayAddress(gatewayId);
 
     // TODO: 将设置Session改为设置LoginAuth
 //    if (_setSessionSha1.empty()) {

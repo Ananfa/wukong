@@ -65,6 +65,8 @@ namespace wukong {
         const RedisInfo& getRedis() const { return _redis; }
         const MysqlInfo& getMysql() const { return _mysql; }
 
+        const std::string& getZooPath() const { return _zooPath; }
+
     private:
         uint32_t _id;       // 服务号（Login服唯一标识，与zookeeper注册发现有关）
         std::string _serviceIp;    // 对外提供http服务的ip
@@ -81,6 +83,9 @@ namespace wukong {
         RedisInfo _cache; // 缓存路由对象、游戏对象和存储对象对应的存在锁，玩家的session，缓存角色数据，角色轮廓数据，发布订阅等
         RedisInfo _redis; // 存储玩家的openid对应userid关系，userid对应roleid列表关系，逻辑服与服务器组对应关系等
         MysqlInfo _mysql; // mysql落地存储角色主体数据（因角色数据量大，存到redis中不太合适）
+
+        std::string _zooPath;
+        
     private:
         LoginConfig() = default;                            // ctor hidden
         LoginConfig(LoginConfig const&) = delete;            // copy ctor hidden

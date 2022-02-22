@@ -36,25 +36,18 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-    ../../share/client/client_center.cpp
-    ../../share/client/gateway_client.cpp
-    ../../share/client/record_client.cpp
-    ../../share/client/zk_client.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
     ../../utils/proto_utils.cpp
-    ../../proto/common.pb.cc
-    ../../proto/inner_common.pb.cc
-    ../../proto/game/game.pb.cc
-    ../../proto/service/gateway_service.pb.cc
-    ../../proto/service/game_service.pb.cc
-    ../../proto/service/lobby_service.pb.cc
-    ../../proto/service/record_service.pb.cc
     ../proto/demo.pb.cc
     ../generate/demo_game_object.cpp
     ../generate/demo_utils.cpp)
 
 # Add source files
+aux_source_directory(../../proto SOURCE_FILES)
+aux_source_directory(../../proto/service SOURCE_FILES)
+aux_source_directory(../../proto/game SOURCE_FILES)
+aux_source_directory(../../share/client SOURCE_FILES)
 aux_source_directory(../../share/game SOURCE_FILES)
 aux_source_directory(../../lobby/src SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)

@@ -39,12 +39,14 @@ namespace wukong {
             return instance;
         }
 
-        void init();
+        void init(RpcClient *rpcc, const std::string& zooAddr, const std::string& zooPath, bool connectGateway, bool connectRecord, bool connectLobby, bool connectScene);
         
         bool randomGatewayServer(ServerId &serverId);
         bool randomRecordServer(ServerId &serverId);
         bool randomLobbyServer(ServerId &serverId);
-        bool randomSceneServer(uint32_t type, ServerId &serverId); // TODO: 场景服应该根据类型来分类
+        bool randomSceneServer(uint32_t type, ServerId &serverId);
+
+        Address getGatewayAddress(ServerId gatewayId) { return _t_gatewayAddrMap[gatewayId]; }
 
     private:
         void updateGatewayInfosVersion() { _gatewayInfosVersion++; };

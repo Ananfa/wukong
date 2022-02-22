@@ -166,6 +166,12 @@ bool GatewayConfig::parse(const char *path) {
     }
     _cache.maxConnect = cache["maxConnect"].GetUint();
 
+    if (!doc.HasMember("enableSceneClient")) {
+        _enableSceneClient = false;
+    } else {
+        _enableSceneClient = doc["enableSceneClient"].GetBool();
+    }
+    
     _zooPath = ZK_GATEWAY_SERVER + "/" + _internalIp + ":" + std::to_string(_rpcPort) + ":" + _outerAddr;
     for (const GatewayConfig::ServerInfo &info : _serverInfos) {
         _zooPath += "|" + std::to_string(info.id) + ":" + std::to_string(info.outerPort);

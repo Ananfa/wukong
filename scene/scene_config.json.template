@@ -24,5 +24,5 @@
     },
     "updatePeriod": 0,                          // 游戏对象update方法调用周期，单位毫秒，0表示不进行update
     "enableLobbyClient": true,                  // 是否需要连接Lobby服（主动调用Lobby服的rpc接口，比如：角色退出场景返回大厅）
-    "enableSceneClient": true                   // 是否需要连接其他Scene服（主动调用其他Scene服的rpc接口，比如：角色进行场景切换）
+    "enableSceneClient": true                   // 是否需要连接其他Scene服（主动调用其他Scene服的rpc接口，比如：角色进行场景直接（不通过大厅）切换）
 }

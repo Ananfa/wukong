@@ -87,9 +87,9 @@ std::vector<GameClient::ServerInfo> SceneClient::getServerInfos() {
     return infos;
 }
 
-bool SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) {
+uint64_t SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) {
     std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
-    bool ret = false;
+    uint64_t ret = 0;
 
     if (!stub) {
         ERROR_LOG("SceneClient::loadScene -- scene server %d stub not avaliable, waiting.\n", sid);
@@ -97,7 +97,7 @@ bool SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) {
     }
 
     pb::LoadSceneRequest *request = new pb::LoadSceneRequest();
-    pb::BoolValue *response = new pb::BoolValue();
+    pb::LoadSceneResponse *response = new pb::LoadSceneResponse();
     Controller *controller = new Controller();
     request->set_serverid(sid);
     request->set_defid(defId);
@@ -107,7 +107,11 @@ bool SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) {
     if (controller->Failed()) {
         ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
     } else {
-        ret = response->value();
+        if (response->errcode()) {
+            ERROR_LOG("SceneClient::loadScene -- rpc return errCode:%d.\n", response->errcode());
+        }
+
+        ret = response->sceneid();
     }
 
     delete controller;
@@ -117,36 +121,21 @@ bool SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) {
     return ret;
 }
 
-bool SceneClient::enterScene(ServerId sid, uint64_t sceneId, UserId userId, RoleId roleId, ServerId gwId) {
+void SceneClient::enterScene(ServerId sid, uint64_t sceneId, UserId userId, RoleId roleId, ServerId gwId) {
     std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
-    bool ret = false;
 
     if (!stub) {
         ERROR_LOG("SceneClient::enterScene -- scene server %d stub not avaliable, waiting.\n", sid);
-        return ret;
+        return;
     }
 
     pb::EnterSceneRequest *request = new pb::EnterSceneRequest();
-    pb::BoolValue *response = new pb::BoolValue();
-    Controller *controller = new Controller();
     request->set_serverid(sid);
     request->set_userid(userId);
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
     request->set_sceneid(sceneId);
-    stub->enterScene(controller, request, response, nullptr);
-
-    if (controller->Failed()) {
-        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
-    } else {
-        ret = response->value();
-    }
-
-    delete controller;
-    delete response;
-    delete request;
-
-    return ret;
+    stub->enterScene(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
 }
 
 void SceneClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &msg) {

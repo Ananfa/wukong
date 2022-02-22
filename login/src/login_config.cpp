@@ -200,5 +200,7 @@ bool LoginConfig::parse(const char *path) {
     }
     _mysql.dbName = mysql["dbName"].GetString();
     
+    _zooPath = ZK_LOGIN_SERVER + "/" + std::to_string(_id) + "|" + _serviceIp + ":" + std::to_string(_servicePort);
+
     return true;
 }

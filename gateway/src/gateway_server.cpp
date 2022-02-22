@@ -24,8 +24,9 @@
 #include "gateway_service.h"
 #include "gateway_object_manager.h"
 #include "gateway_handler.h"
+#include "gateway_center.h"
+#include "client_center.h"
 
-#include "zk_client.h"
 #include "utility.h"
 #include "share/const.h"
 
@@ -34,36 +35,6 @@
 
 using namespace corpc;
 using namespace wukong;
-
-void GatewayServer::enterZoo() {
-    g_ZkClient.init(g_GatewayConfig.getZookeeper(), ZK_TIMEOUT, [this]() {
-        // 对servers配置中每一个server进行节点注册
-        g_ZkClient.createEphemeralNode(g_GatewayConfig.getZooPath(), ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
-            if (ret) {
-                LOG("create rpc node:[%s] sucessful\n", path.c_str());
-            } else {
-                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
-            }
-        });
-
-        for (auto &pair : _gameClientMap) {
-            g_ZkClient.watchChildren(pair.second->getZkNodeName(), [pair](const std::string &path, const std::vector<std::string> &values) {
-                std::vector<GameClient::AddressInfo> addresses;
-                addresses.reserve(values.size());
-                for (const std::string &value : values) {
-                    GameClient::AddressInfo address;
-
-                    if (GameClient::parseAddress(value, address)) {
-                        addresses.push_back(std::move(address));
-                    } else {
-                        ERROR_LOG("zkclient parse game server[gsType:%d] address error, info = %s\n", pair.first, value.c_str());
-                    }
-                }
-                pair.second->setServers(addresses);
-            });
-        }
-    });
-}
 
 void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort) {
     // 启动RPC服务
@@ -167,20 +138,7 @@ void GatewayServer::run() {
     RpcServer *server = RpcServer::create(_io, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
     server->registerService(gatewayServiceImpl);
 
-    enterZoo();
+    g_GatewayCenter.init();
+    g_ClientCenter.init(_rpcClient, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
-}
-
-void GatewayServer::registerGameClient(GameClient *client) {
-    _gameClientMap.insert(std::make_pair(client->getGameServerType(), client));
-}
-
-GameClient *GatewayServer::getGameClient(GameServerType gsType) {
-    auto it = _gameClientMap.find(gsType);
-
-    if (it == _gameClientMap.end()) {
-        return nullptr;
-    }
-
-    return it->second;
 }

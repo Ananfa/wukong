@@ -62,6 +62,8 @@ namespace wukong {
 
         const RedisInfo& getCache() const { return _cache; }
         
+        bool enableSceneClient() const { return _enableSceneClient; }
+
         const std::string& getZooPath() const { return _zooPath; }
 
     private:
@@ -80,6 +82,8 @@ namespace wukong {
         uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
         RedisInfo _cache; // 缓存库配置
+
+        bool _enableSceneClient; // 是否需要连接Scene服
 
         std::string _zooPath;
 

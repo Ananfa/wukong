@@ -20,8 +20,9 @@
 
 #include "record_config.h"
 #include "record_service.h"
+#include "record_center.h"
+#include "client_center.h"
 
-#include "zk_client.h"
 #include "utility.h"
 #include "share/const.h"
 
@@ -30,20 +31,6 @@
 
 using namespace corpc;
 using namespace wukong;
-
-
-void RecordServer::enterZoo() {
-    g_ZkClient.init(g_RecordConfig.getZookeeper(), ZK_TIMEOUT, []() {
-        // 对servers配置中每一个server进行节点注册
-        g_ZkClient.createEphemeralNode(g_RecordConfig.getZooPath(), ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
-            if (ret) {
-                LOG("create rpc node:[%s] sucessful\n", path.c_str());
-            } else {
-                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
-            }
-        });
-    });
-}
 
 void RecordServer::recordThread(InnerRpcServer *server, ServerId rcid) {
     // 启动RPC服务
@@ -137,6 +124,7 @@ void RecordServer::run() {
     RpcServer *server = RpcServer::create(_io, 0, g_RecordConfig.getIp(), g_RecordConfig.getPort());
     server->registerService(recordServiceImpl);
 
-    enterZoo();
+    g_RecordCenter.init();
+    g_ClientCenter.init(nullptr, g_RecordConfig.getZookeeper(), g_RecordConfig.getZooPath(), false, false, false, false);
     RoutineEnvironment::runEventLoop();
 }

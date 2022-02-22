@@ -1,8 +1,8 @@
 
 #include "login_server.h"
-#include "gateway_client.h"
+//#include "gateway_client.h"
 #include "login_handler_mgr.h"
-#include "client_center.h"
+//#include "client_center.h"
 #include "demo_db_utils.h"
 #include "demo_utils.h"
 #include "demo_role_builder.h"
@@ -16,7 +16,7 @@ int main(int argc, char * argv[]) {
         return -1;
     }
 
-    g_GatewayClient.init(g_LoginServer.getRpcClient());
+    //g_GatewayClient.init(g_LoginServer.getRpcClient());
 
     LoginDelegate delegate;
     delegate.loginCheck = [](std::shared_ptr<RequestMessage> &request) -> bool {
@@ -43,8 +43,8 @@ int main(int argc, char * argv[]) {
     
     delegate.makeProfile = demo::DemoUtils::MakeProfile;
 
-    g_LoginHandlerMgr.init(g_LoginServer.getHttpServer(), delegate);
-    g_ClientCenter.init();
+    g_LoginHandlerMgr.setDelegate(delegate);
+    //g_ClientCenter.init();
 
     g_LoginServer.run();
     return 0;

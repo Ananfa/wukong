@@ -12,11 +12,9 @@ namespace wukong {
     const std::string ZK_LOGIN_SERVER              = "/login_server";
     const std::string ZK_RECORD_SERVER             = "/record_server";
     const std::string ZK_PROFILE_SERVER            = "/profile_server";
+    const std::string ZK_SCENE_SERVER              = "/scene_server"; // 可以有不同子类型的场景服
 
-    // TODO: other server
-    const std::string ZK_BATTLE_SERVER             = "/battle_server";
-    const std::string ZK_SCENE_SERVER              = "/scene_server";
-
+    // 大厅服和场景服都是玩家游戏对象可驻留的服务器（游戏服）
     const GameServerType GAME_SERVER_TYPE_LOBBY    = 1;
     const GameServerType GAME_SERVER_TYPE_SCENE    = 2;
 

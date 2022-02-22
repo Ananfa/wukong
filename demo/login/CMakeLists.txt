@@ -51,9 +51,6 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-    ../../share/client/client_center.cpp
-    ../../share/client/gateway_client.cpp
-    ../../share/client/zk_client.cpp
     ../../utils/url.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
@@ -61,15 +58,15 @@ set(SOURCE_FILES
     ../../utils/mysql_utils.cpp
     ../../utils/proto_utils.cpp
     ../../utils/uuid_utils.cpp
-    ../../proto/common.pb.cc
-    ../../proto/inner_common.pb.cc
-    ../../proto/service/gateway_service.pb.cc
     ../generate/demo_role_builder.cpp
     ../generate/demo_db_utils.cpp
     ../generate/demo_utils.cpp
     ../proto/demo.pb.cc)
 
 # Add source files
+aux_source_directory(../../proto SOURCE_FILES)
+aux_source_directory(../../proto/service SOURCE_FILES)
+aux_source_directory(../../share/client SOURCE_FILES)
 aux_source_directory(../../share/http SOURCE_FILES)
 aux_source_directory(../../login/src SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)

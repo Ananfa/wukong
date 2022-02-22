@@ -20,6 +20,7 @@
 #include "gateway_object_manager.h"
 #include "gateway_server.h"
 #include "lobby_client.h"
+#include "scene_client.h"
 #include "share/const.h"
 
 #include <sys/time.h>
@@ -31,11 +32,19 @@ bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
         _gameServerType = gsType;
         _gameServerId = sid;
 
-        GameClient *gameClient = g_GatewayServer.getGameClient(gsType);
-        if (gameClient) {
-            _gameServerStub = gameClient->getGameServiceStub(sid);
-        } else {
-            ERROR_LOG("GatewayObject::setGameServerStub -- user %d unknown game server[gsType:%d sid: %d]\n", _userId, gsType, sid);
+        switch (gsType) {
+            case GAME_SERVER_TYPE_LOBBY: {
+                _gameServerStub = g_LobbyClient.getGameServiceStub(sid);
+                break;
+            }
+            case GAME_SERVER_TYPE_SCENE: {
+                _gameServerStub = g_SceneClient.getGameServiceStub(sid);
+                break;
+            }
+            default: {
+                ERROR_LOG("GatewayObject::setGameServerStub -- user %d unknown game server[gsType:%d sid: %d]\n", _userId, gsType, sid);
+                break;
+            }
         }
     }
 

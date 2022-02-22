@@ -18,44 +18,17 @@
 #include "corpc_routine_env.h"
 
 #include "login_config.h"
-#include "zk_client.h"
 #include "const.h"
 #include "utility.h"
 
-#include "gateway_client.h"
+#include "login_handler_mgr.h"
+#include "client_center.h"
 
 #include <signal.h>
 #include <sys/stat.h>
 
 using namespace corpc;
 using namespace wukong;
-
-void LoginServer::enterZoo() {
-    g_ZkClient.init(g_LoginConfig.getZookeeper(), ZK_TIMEOUT, []() {
-        std::string zooPath = ZK_LOGIN_SERVER + "/" + std::to_string(g_LoginConfig.getId()) + "|" + g_LoginConfig.getServiceIp() + ":" + std::to_string(g_LoginConfig.getServicePort());
-        g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
-            if (ret) {
-                LOG("create rpc node:[%s] sucessful\n", path.c_str());
-            } else {
-                ERROR_LOG("create rpc node:[%d] failed, code = %d\n", path.c_str(), ret.code());
-            }
-        });
-
-        g_ZkClient.watchChildren(ZK_GATEWAY_SERVER, [](const std::string &path, const std::vector<std::string> &values) {
-            std::vector<GatewayClient::AddressInfo> addresses;
-            for (const std::string &value : values) {
-                GatewayClient::AddressInfo address;
-
-                if (GatewayClient::parseAddress(value, address)) {
-                    addresses.push_back(std::move(address));
-                } else {
-                    ERROR_LOG("zkclient parse gateway server address error, info = %s\n", value.c_str());
-                }
-            }
-            g_GatewayClient.setServers(addresses);
-        });
-    });
-}
 
 bool LoginServer::init(int argc, char * argv[]) {
     if (_inited) {
@@ -125,6 +98,7 @@ bool LoginServer::init(int argc, char * argv[]) {
 }
 
 void LoginServer::run() {
-    enterZoo();
+    g_LoginHandlerMgr.init(_httpServer);
+    g_ClientCenter.init(_rpcClient, g_LoginConfig.getZookeeper(), g_LoginConfig.getZooPath(), true, false, false, false);
     RoutineEnvironment::runEventLoop();
 }

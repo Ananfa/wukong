@@ -16,7 +16,8 @@
 
 #include "corpc_routine_env.h"
 #include "game_object_manager.h"
-#include "game_center.h"
+#include "cache_pool.h"
+#include "game_delegate.h"
 #include "client_center.h"
 #include "share/const.h"
 
@@ -72,7 +73,7 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     // 设置成功时加载玩家数据（附带创建记录对象）
     // 重新设置location过期（若这里不设置，后面创建的GameObject会等到第一次心跳时才销毁）
     // 创建GameObject
-    redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("GameObjectManager::loadRole -- user %d role %d connect to cache failed\n", userId, roleId);
         return false;
@@ -80,7 +81,7 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
 
     redisReply *reply = (redisReply *)redisCommand(cache, "HGET Record:%d loc", roleId);
     if (!reply) {
-        g_GameCenter.getCachePool()->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for db error\n", userId, roleId);
         return false;
     }
@@ -91,13 +92,13 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     } else if (reply->type == REDIS_REPLY_NIL) {
         if (!g_ClientCenter.randomRecordServer(recordId)) {
             freeReplyObject(reply);
-            g_GameCenter.getCachePool()->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             ERROR_LOG("GameObjectManager::loadRole -- user %d role %d random record server failed\n", userId, roleId);
             return false;
         }
     } else {
         freeReplyObject(reply);
-        g_GameCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for invalid data type\n", userId, roleId);
         return false;
     }
@@ -111,21 +112,21 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
 
     // 尝试设置location
     // TODO: loc的格式应该包含游戏服类型
-    if (g_GameCenter.setLocationSha1().empty()) {
+    if (g_CachePool.setLocationSha1().empty()) {
         reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d %d %d %d", SET_LOCATION_CMD, roleId, lToken, _type, _id, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d %d %d", g_GameCenter.setLocationSha1().c_str(), roleId, lToken, _type, _id, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d %d %d", g_CachePool.setLocationSha1().c_str(), roleId, lToken, _type, _id, TOKEN_TIMEOUT);
     }
     
     if (!reply) {
-        g_GameCenter.getCachePool()->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed\n", userId, roleId);
         return false;
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
-        g_GameCenter.getCachePool()->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for return type invalid\n", userId, roleId);
         return false;
     }
@@ -133,13 +134,13 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     if (reply->integer == 0) {
         // 设置失败
         freeReplyObject(reply);
-        g_GameCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for already set\n", userId, roleId);
         return false;
     }
 
     freeReplyObject(reply);
-    g_GameCenter.getCachePool()->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     // 向Record服发加载数据RPC
     std::string roleData;
@@ -152,17 +153,17 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     // 这里是否需要加一次对location超时设置，避免加载数据时location过期？
     // 如果这里不加检测，创建的GameObject会等到第一次心跳设置location时才销毁
     // 如果加检测会让登录流程延长
-    // cache = g_GameCenter.getCachePool()->proxy.take();
+    // cache = g_CachePool.take();
     // reply = (redisReply *)redisCommand(cache, "EXPIRE Location:%d %d", roleId, 60);
     // if (reply->integer != 1) {
     //     // 设置超时失败，可能是key已经过期
     //     freeReplyObject(reply);
-    //     g_GameCenter.getCachePool()->proxy.put(cache, false);
+    //     g_CachePool.put(cache, false);
     //     ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d load role data failed for cant set location expire\n", userId, roleId);
     //     return;
     // }
     // freeReplyObject(reply);
-    // g_GameCenter.getCachePool()->proxy.put(cache, false);
+    // g_CachePool.put(cache, false);
 
     // 创建GameObject
     if (_shutdown) {
@@ -175,13 +176,13 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
         return false;
     }
 
-    if (!g_GameCenter.getCreateGameObjectHandle()) {
+    if (!g_GameDelegate.getCreateGameObjectHandle()) {
         ERROR_LOG("GameObjectManager::loadRole -- not set CreateGameObjectHandle\n");
         return false;
     }
 
     // 创建GameObject
-    auto obj = g_GameCenter.getCreateGameObjectHandle()(userId, roleId, serverId, lToken, this, roleData);
+    auto obj = g_GameDelegate.getCreateGameObjectHandle()(userId, roleId, serverId, lToken, this, roleData);
 
     // 设置gateway和record stub
     if (!obj->setGatewayServerStub(gatewayId)) {

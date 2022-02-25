@@ -10,12 +10,14 @@
     "cache": {                                  // 缓存Redis库（不落地，可集群部署，支持发布订阅）
         "host": "127.0.0.1",
         "port": 6379,
+        "pwd": "",
         "maxConnect": 8,                        // 最大连接数
         "dbIndex": 0                            // 分库索引
     },
     "redis": {                                  // 落地Redis库（可集群部署）
         "host": "127.0.0.1",
         "port": 6379,
+        "pwd": "",
         "maxConnect": 8,                        // 最大连接数
         "dbIndex": 0                            // 分库索引
     },

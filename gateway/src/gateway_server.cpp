@@ -24,8 +24,8 @@
 #include "gateway_service.h"
 #include "gateway_object_manager.h"
 #include "gateway_handler.h"
-#include "gateway_center.h"
 #include "client_center.h"
+#include "cache_pool.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -138,7 +138,8 @@ void GatewayServer::run() {
     RpcServer *server = RpcServer::create(_io, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
     server->registerService(gatewayServiceImpl);
 
-    g_GatewayCenter.init();
+    g_CachePool.init(g_GatewayConfig.getCache().host.c_str(), g_GatewayConfig.getCache().pwd.c_str(), g_GatewayConfig.getCache().port, g_GatewayConfig.getCache().dbIndex, g_GatewayConfig.getCache().maxConnect);
+
     g_ClientCenter.init(_rpcClient, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

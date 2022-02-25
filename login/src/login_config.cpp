@@ -100,6 +100,10 @@ bool LoginConfig::parse(const char *path) {
     }
     _cache.host = cache["host"].GetString();
     
+    if (cache.HasMember("pwd")) {
+        _cache.pwd = cache["pwd"].GetString();
+    }
+    
     if (!cache.HasMember("port")) {
         ERROR_LOG("config error -- cache.port not define\n");
         return false;
@@ -134,6 +138,10 @@ bool LoginConfig::parse(const char *path) {
         return false;
     }
     _redis.host = redis["host"].GetString();
+    
+    if (redis.HasMember("pwd")) {
+        _redis.pwd = redis["pwd"].GetString();
+    }
     
     if (!redis.HasMember("port")) {
         ERROR_LOG("config error -- redis.port not define\n");

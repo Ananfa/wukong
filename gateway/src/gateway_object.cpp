@@ -16,9 +16,9 @@
 
 #include "corpc_routine_env.h"
 #include "gateway_object.h"
-#include "gateway_center.h"
 #include "gateway_object_manager.h"
 #include "gateway_server.h"
+#include "cache_pool.h"
 #include "lobby_client.h"
 #include "scene_client.h"
 #include "share/const.h"
@@ -75,27 +75,27 @@ void GatewayObject::stop() {
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要重新考虑redis操作的地方
         // 清除session
-        redisContext *cache = g_GatewayCenter.getCachePool()->proxy.take();
+        redisContext *cache = g_CachePool.take();
         if (!cache) {
             ERROR_LOG("GatewayObject::stop -- user[%d] connect to cache failed\n", _userId);
             return;
         }
 
         redisReply *reply;
-        if (g_GatewayCenter.removeSessionSha1().empty()) {
+        if (g_CachePool.removeSessionSha1().empty()) {
             reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, _userId, _gToken.c_str());
         } else {
-            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s", g_GatewayCenter.removeSessionSha1().c_str(), _userId, _gToken.c_str());
+            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s", g_CachePool.removeSessionSha1().c_str(), _userId, _gToken.c_str());
         }
 
         if (!reply) {
-            g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("GatewayObject::stop -- user[%d] remove session failed", _userId);
             return;
         }
 
         freeReplyObject(reply);
-        g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
     }
 }
 
@@ -120,28 +120,28 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
 
         // 设置session超时
         bool success = true;
-        redisContext *cache = g_GatewayCenter.getCachePool()->proxy.take();
+        redisContext *cache = g_CachePool.take();
         if (!cache) {
             ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] connect to cache failed\n", obj->_userId);
 
             success = false;
         } else {
             redisReply *reply;
-            if (g_GatewayCenter.setSessionExpireSha1().empty()) {
+            if (g_CachePool.setSessionExpireSha1().empty()) {
                 reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_GatewayCenter.setSessionExpireSha1().c_str(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_CachePool.setSessionExpireSha1().c_str(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
             }
             
             if (!reply) {
-                g_GatewayCenter.getCachePool()->proxy.put(cache, true);
+                g_CachePool.put(cache, true);
                 ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed for db error\n", obj->_userId);
 
                 success = false;
             } else {
                 success = reply->integer == 1;
                 freeReplyObject(reply);
-                g_GatewayCenter.getCachePool()->proxy.put(cache, false);
+                g_CachePool.put(cache, false);
 
                 if (!success) {
                     ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed\n", obj->_userId);

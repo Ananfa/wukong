@@ -16,7 +16,7 @@
 
 #include "corpc_routine_env.h"
 #include "record_object_manager.h"
-#include "record_center.h"
+#include "record_delegate.h"
 
 #include <sys/time.h>
 
@@ -68,13 +68,13 @@ std::shared_ptr<RecordObject> RecordObjectManager::create(RoleId roleId, ServerI
         return nullptr;
     }
 
-    if (!g_RecordCenter.getCreateRecordObjectHandle()) {
+    if (!g_RecordDelegate.getCreateRecordObjectHandle()) {
         ERROR_LOG("RecordObjectManager::create -- not set CreateRecordObjectHandle\n");
         return nullptr;
     }
 
     // 创建RecordObject
-    auto obj = g_RecordCenter.getCreateRecordObjectHandle()(roleId, serverId, rToken, this, datas);
+    auto obj = g_RecordDelegate.getCreateRecordObjectHandle()(roleId, serverId, rToken, this, datas);
 
     _roleId2RecordObjectMap.insert(std::make_pair(roleId, obj));
     obj->start();

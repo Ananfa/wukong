@@ -18,7 +18,6 @@
 #define game_object_manager_h
 
 #include "corpc_message_server.h"
-#include "corpc_redis.h"
 #include "game_object.h"
 #include "share/define.h"
 

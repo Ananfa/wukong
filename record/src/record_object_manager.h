@@ -18,7 +18,6 @@
 #define record_object_manager_h
 
 #include "corpc_message_server.h"
-#include "corpc_redis.h"
 #include "timelink.h"
 #include "record_object.h"
 #include "share/define.h"

@@ -17,8 +17,6 @@
 #ifndef record_center_h
 #define record_center_h
 
-#include "corpc_redis.h"
-#include "corpc_mysql.h"
 #include "corpc_semaphore.h"
 #include "share/define.h"
 #include "share/const.h"
@@ -47,43 +45,14 @@ namespace wukong {
 
         void init();
         
-        RedisConnectPool *getCachePool() { return _cache; }
-        MysqlConnectPool *getMysqlPool() { return _mysql; }
-
-        const std::string &setRecordSha1() { return _setRecordSha1; }
-        const std::string &removeRecordSha1() { return _removeRecordSha1; }
-        const std::string &setRecordExpireSha1() { return _setRecordExpireSha1; }
-        const std::string &updateProfileSha1() { return _updateProfileSha1; }
-        const std::string &updateRoleSha1() { return _updateRoleSha1; }
-        const std::string &loadRoleSha1() { return _loadRoleSha1; }
-        const std::string &saveRoleSha1() { return _saveRoleSha1; }
-
-        void setDelegate(RecordDelegate delegate) { _delegate = delegate; }
-        CreateRecordObjectHandle getCreateRecordObjectHandle() { return _delegate.createRecordObject; }
-        MakeProfileHandle getMakeProfileHandle() { return _delegate.makeProfile; }
-
     private:
-        static void *initRoutine(void *arg);
-
         // TODO: 开一个协程定期将cache中数据落地到mysql中
         static void *saveRoutine(void *arg);
         static void *saveWorkerRoutine(void *arg);
 
     private:
-        RedisConnectPool *_cache;
-        MysqlConnectPool *_mysql;
-
-        std::string _setRecordSha1; // 设置Record key的lua脚本sha1值
-        std::string _removeRecordSha1; // 删除Record key的lua脚本sha1值
-        std::string _setRecordExpireSha1; // 设置Record key超时的lua脚本sha1值
-        std::string _updateProfileSha1; // 更新画像数据的lua脚本sha1值
-        std::string _updateRoleSha1; // 更新角色数据的lua脚本sha1值
-        std::string _loadRoleSha1; // 加载角色数据的lua脚本sha1值
-        std::string _saveRoleSha1; // 保存profile的lua脚本sha1值
-
-        RecordDelegate _delegate;
-
         Semaphore _saveSema;
+
     private:
         RecordCenter(): _saveSema(MAX_SAVE_WORKER_NUM) {}              // ctor hidden
         ~RecordCenter() = default;                                     // destruct hidden

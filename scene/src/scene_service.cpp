@@ -111,12 +111,19 @@ void InnerSceneServiceImpl::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* co
                              const ::wukong::pb::LoadSceneRequest* request,
                              ::wukong::pb::LoadSceneResponse* response,
                              ::google::protobuf::Closure* done) {
-    // TODO:
+    // TODO: 在manager中查询场景是否已经存在，不存在时创建场景
 }
 
 void InnerSceneServiceImpl::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                              const ::wukong::pb::EnterSceneRequest* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done) {
-    // TODO:
+    // TODO: 在sceneManager中查询场景
+
+    // TODO: 在gameObjectManager中查询游戏对象，如果存在写错误日志并退出
+
+    // TODO: 创建游戏对象，如果创建游戏对象失败，写错误日志并退出
+
+    // 问题：游戏对象加载后到进入场景过程中是否会进入场景失败导致游戏对象悬空？加载角色对象完成时发现场景销毁了？遇到这种情况直接销毁游戏对象
+
 }

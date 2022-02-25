@@ -16,8 +16,9 @@
 
 #include "record_service.h"
 #include "record_config.h"
-#include "record_center.h"
 #include "record_server.h"
+#include "cache_pool.h"
+#include "mysql_pool.h"
 #include "proto_utils.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
@@ -145,7 +146,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     }
     
     // 设置record
-    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] connect to cache failed\n", roleId);
         response->set_errcode(2);
@@ -159,14 +160,14 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
 
     redisReply *reply;
     // 尝试设置record
-    if (g_RecordCenter.setRecordSha1().empty()) {
+    if (g_CachePool.setRecordSha1().empty()) {
         reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d %d", SET_RECORD_CMD, roleId, rToken, _manager->getId(), 60);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d %d", g_RecordCenter.setRecordSha1().c_str(), roleId, rToken, _manager->getId(), 60);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d %d", g_CachePool.setRecordSha1().c_str(), roleId, rToken, _manager->getId(), 60);
     }
     
     if (!reply) {
-        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed\n", roleId);
         response->set_errcode(3);
         return;
@@ -174,7 +175,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
-        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for return type invalid\n", roleId);
         response->set_errcode(4);
         return;
@@ -183,7 +184,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     if (reply->integer == 0) {
         // 设置失败
         freeReplyObject(reply);
-        g_RecordCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for already set\n", roleId);
         response->set_errcode(5);
         return;
@@ -194,15 +195,15 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     // 加载玩家数据
     // 先从redis加载玩家数据，若redis没有，则从mysql加载并缓存到redis中
     ServerId serverId;
-    if (RedisUtils::LoadRole(cache, g_RecordCenter.loadRoleSha1(), roleId, serverId, datas, true) == REDIS_DB_ERROR) {
-        g_RecordCenter.getCachePool()->proxy.put(cache, true);
+    if (RedisUtils::LoadRole(cache, roleId, serverId, datas, true) == REDIS_DB_ERROR) {
+        g_CachePool.put(cache, true);
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] load failed\n", roleId);
         response->set_errcode(6);
         return;
     }
 
     if (datas.size() > 0) {
-        g_RecordCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
 
         // 创建record object
         obj = _manager->create(roleId, serverId, rToken, datas);
@@ -220,10 +221,10 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
         return;
     }
 
-    g_RecordCenter.getCachePool()->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     // 从MySQL加载角色数据并缓存到redis中
-    MYSQL *mysql = g_RecordCenter.getMysqlPool()->proxy.take();
+    MYSQL *mysql = g_MysqlPool.take();
     if (!mysql) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] connect to mysql failed\n", roleId);
         response->set_errcode(8);
@@ -232,13 +233,13 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
 
     std::string data;
     if (!MysqlUtils::LoadRole(mysql, roleId, serverId, data)) {
-        g_RecordCenter.getMysqlPool()->proxy.put(mysql, true);
+        g_MysqlPool.put(mysql, true);
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] load role from mysql failed\n", roleId);
         response->set_errcode(9);
         return;
     }
 
-    g_RecordCenter.getMysqlPool()->proxy.put(mysql, false);
+    g_MysqlPool.put(mysql, false);
 
     if (data.empty()) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] no role data\n");
@@ -259,28 +260,28 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     }
 
     // 缓存到redis中
-    cache = g_RecordCenter.getCachePool()->proxy.take();
+    cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] can't cache role data for connect to cache failed\n", roleId);
         response->set_errcode(13);
         return;
     }
 
-    switch (RedisUtils::SaveRole(cache, g_RecordCenter.saveRoleSha1(), roleId, serverId, datas)) {
+    switch (RedisUtils::SaveRole(cache, roleId, serverId, datas)) {
         case REDIS_DB_ERROR: {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] cache role data failed for db error\n", roleId);
             response->set_errcode(13);
             return;
         }
         case REDIS_FAIL: {
-            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] cache role data failed\n", roleId);
             response->set_errcode(14);
             return;
         }
     }
-    g_RecordCenter.getCachePool()->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     // 创建record object
     obj = _manager->create(roleId, serverId, rToken, datas);

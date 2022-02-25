@@ -1,6 +1,7 @@
 
 #include "lobby_server.h"
-#include "game_center.h"
+#include "game_delegate.h"
+#include "lobby_delegate.h"
 #include "message_handler.h"
 
 using namespace wukong;
@@ -12,8 +13,7 @@ int main(int argc, char * argv[]) {
         return -1;
     }
 
-    GameDelegate delegate;
-    delegate.createGameObject = [](UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
+    g_GameDelegate.setCreateGameObjectHandle([](UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
         std::shared_ptr<GameObject> obj(new LobbyGameObject(userId, roleId, serverId, lToken, mgr));
         if (!obj->initData(data)) {
             ERROR_LOG("create game object failed because init data failed, role: %d\n", roleId);
@@ -21,9 +21,11 @@ int main(int argc, char * argv[]) {
         }
 
         return obj;
-    };
+    });
 
-    g_GameCenter.setDelegate(delegate);
+    g_LobbyDelegate.setGetTargetSceneIdHandle([](RoleId roleId) -> uint32_t {
+        return 0; // 返回0表示在大厅中加载游戏对象
+    });
 
     // 注册消息处理
     MessageHandler::registerMessages();

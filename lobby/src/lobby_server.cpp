@@ -23,6 +23,7 @@
 #include "game_service.h"
 #include "game_center.h"
 #include "client_center.h"
+#include "cache_pool.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -133,7 +134,9 @@ void LobbyServer::run() {
     server->registerService(lobbyServiceImpl);
     server->registerService(gameServiceImpl);
 
-    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod(), g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
+    g_CachePool.init(g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().pwd.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
+
+    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod());
     g_ClientCenter.init(_rpcClient, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

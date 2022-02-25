@@ -118,6 +118,10 @@ bool SceneConfig::parse(const char *path) {
     }
     _cache.host = cache["host"].GetString();
     
+    if (cache.HasMember("pwd")) {
+        _cache.pwd = cache["pwd"].GetString();
+    }
+    
     if (!cache.HasMember("port")) {
         ERROR_LOG("config error -- cache.port not define\n");
         return false;

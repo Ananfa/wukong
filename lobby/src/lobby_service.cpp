@@ -16,7 +16,7 @@
 
 #include "lobby_service.h"
 #include "lobby_config.h"
-#include "game_center.h"
+#include "lobby_delegate.h"
 
 using namespace wukong;
 
@@ -107,11 +107,25 @@ void InnerLobbyServiceImpl::loadRole(::google::protobuf::RpcController* controll
     ServerId gwId = request->gatewayid();
 
     // TODO: 在大厅中加载角色或在场景中加载角色
-
-    if (!_manager->loadRole(userId, roleId, gwId)) {
-        ERROR_LOG("InnerLobbyServiceImpl::loadRole -- user %d role %d load failed\n", userId, roleId);
+    if (!g_LobbyDelegate.getGetTargetSceneIdHandle()) {
+        ERROR_LOG("InnerLobbyServiceImpl::loadRole -- lobby delegate not init\n");
         return;
     }
 
-    response->set_value(true);
+    uint32_t targetSceneId = g_LobbyDelegate.getGetTargetSceneIdHandle()(roleId);
+
+    if (targetSceneId == 0) {
+        if (!_manager->loadRole(userId, roleId, gwId)) {
+            ERROR_LOG("InnerLobbyServiceImpl::loadRole -- user %d role %d load failed\n", userId, roleId);
+            return;
+        }
+
+        response->set_value(true);
+    } else {
+        // TODO：查找场景（redis）
+
+        // TODO: 判断场景不存在时是否加载场景（delegate）
+
+        // TODO: 判断场景是否会自动加载角色（delegate）
+    }
 }

@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "corpc_utils.h"
 #include "redis_utils.h"
+#include "cache_pool.h"
+#include "redis_pool.h"
 #include "const.h"
 
 using namespace wukong;
@@ -41,7 +43,8 @@ uint64_t RedisUtils::CreateRoleID(redisContext *redis) {
     return ret;
 }
 
-RedisAccessResult RedisUtils::BindRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
+RedisAccessResult RedisUtils::BindRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
+    const std::string &cmdSha1 = g_RedisPool.bindRoleSha1();
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 2 RoleIds:%d:{%d} RoleIds:{%d} %d %d", BIND_ROLE_CMD, serverId, userId, userId, roleId, maxRoleNum);
@@ -87,7 +90,8 @@ RedisAccessResult RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, Se
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+    const std::string &cmdSha1 = g_CachePool.saveProfileSha1();
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 7;
@@ -143,8 +147,9 @@ RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, const std::string
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
     // 将轮廓数据存到cache中，若cache中没有找到则不需要更新轮廓数据
+    const std::string &cmdSha1 = g_CachePool.updateProfileSha1();
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 5;
@@ -195,7 +200,8 @@ RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, const std::stri
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::LoadRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
+RedisAccessResult RedisUtils::LoadRole(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
+    const std::string &cmdSha1 = g_CachePool.loadRoleSha1();
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Role:{%d} %d", LOAD_ROLE_CMD, roleId, clearTTL ? 1 : 0);
@@ -224,7 +230,8 @@ RedisAccessResult RedisUtils::LoadRole(redisContext *redis, const std::string &c
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SaveRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::SaveRole(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+    const std::string &cmdSha1 = g_CachePool.saveRoleSha1();
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 6;
@@ -276,8 +283,9 @@ RedisAccessResult RedisUtils::SaveRole(redisContext *redis, const std::string &c
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::UpdateRole(redisContext *redis, const std::string &cmdSha1, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::UpdateRole(redisContext *redis, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
     // 将角色数据存到cache中
+    const std::string &cmdSha1 = g_CachePool.updateRoleSha1();
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 4;
@@ -323,7 +331,8 @@ RedisAccessResult RedisUtils::UpdateRole(redisContext *redis, const std::string 
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::CheckPassport(redisContext *redis, const std::string &cmdSha1, UserId userId, ServerId gateId, const std::string &gToken, RoleId &roleId) {
+RedisAccessResult RedisUtils::CheckPassport(redisContext *redis, UserId userId, ServerId gateId, const std::string &gToken, RoleId &roleId) {
+    const std::string &cmdSha1 = g_CachePool.checkPassportSha1();
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Passport:%d %d %s", CHECK_PASSPORT_CMD, userId, gateId, gToken.c_str());
@@ -345,7 +354,8 @@ RedisAccessResult RedisUtils::CheckPassport(redisContext *redis, const std::stri
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SetSession(redisContext *redis, const std::string &cmdSha1, UserId userId, ServerId gateId, const std::string &gToken, RoleId roleId) {
+RedisAccessResult RedisUtils::SetSession(redisContext *redis, UserId userId, ServerId gateId, const std::string &gToken, RoleId roleId) {
+    const std::string &cmdSha1 = g_CachePool.setSessionSha1();
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gateId, roleId, TOKEN_TIMEOUT);
@@ -367,7 +377,8 @@ RedisAccessResult RedisUtils::SetSession(redisContext *redis, const std::string 
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::ResetSessionTTL(redisContext *redis, const std::string &cmdSha1, UserId userId, const std::string &gToken) {
+RedisAccessResult RedisUtils::ResetSessionTTL(redisContext *redis, UserId userId, const std::string &gToken) {
+    const std::string &cmdSha1 = g_CachePool.setSessionExpireSha1();
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, userId, gToken.c_str(), TOKEN_TIMEOUT);
@@ -388,7 +399,8 @@ RedisAccessResult RedisUtils::ResetSessionTTL(redisContext *redis, const std::st
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::RemoveSession(redisContext *redis, const std::string &cmdSha1, UserId userId, const std::string &gToken) {
+RedisAccessResult RedisUtils::RemoveSession(redisContext *redis, UserId userId, const std::string &gToken) {
+    const std::string &cmdSha1 = g_CachePool.removeSessionSha1();
     redisReply *reply;
     if (cmdSha1.empty()) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, userId, gToken.c_str());

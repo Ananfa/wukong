@@ -19,7 +19,6 @@
 
 #include "corpc_redis.h"
 #include "game_object.h"
-#include "game_delegate.h"
 #include "share/define.h"
 
 #include <google/protobuf/message.h>
@@ -54,19 +53,10 @@ namespace wukong {
             return instance;
         }
 
-        void init(GameServerType stype, uint32_t gameObjectUpdatePeriod, const char *dbHost, uint16_t dbPort, uint16_t dbIndex, uint32_t maxConnectNum);
+        void init(GameServerType stype, uint32_t gameObjectUpdatePeriod);
         
         GameServerType getType() { return _type; }
         uint32_t getGameObjectUpdatePeriod() { return _gameObjectUpdatePeriod; }
-        RedisConnectPool *getCachePool() { return _cache; }
-
-        const std::string &setLocationSha1() { return _setLocationSha1; }
-        const std::string &removeLocationSha1() { return _removeLocationSha1; }
-        const std::string &updateLocationSha1() { return _updateLocationSha1; }
-        const std::string &setLocationExpireSha1() { return _setLocationExpireSha1; }
-
-        void setDelegate(GameDelegate delegate) { _delegate = delegate; }
-        CreateGameObjectHandle getCreateGameObjectHandle() { return _delegate.createGameObject; }
 
         bool registerMessage(int msgType,
                              google::protobuf::Message *proto,
@@ -76,26 +66,16 @@ namespace wukong {
         void handleMessage(std::shared_ptr<GameObject>, int msgType, uint16_t tag, const std::string &rawMsg);
 
     private:
-        static void *initRoutine(void *arg);
-
         static void *handleMessageRoutine( void * arg );
 
     private:
         GameServerType _type;
         uint32_t _gameObjectUpdatePeriod; // 游戏对象update执行周期，单位毫秒，为0时表示不进行update
-        RedisConnectPool *_cache;
-
-        std::string _setLocationSha1; // 设置location的lua脚本sha1值
-        std::string _removeLocationSha1; // 删除location的lua脚本sha1值
-        std::string _updateLocationSha1; // 更新location的lua脚本sha1值
-        std::string _setLocationExpireSha1; // 设置location的超时lua脚本sha1值
-
-        GameDelegate _delegate; // 委托对象（不同游戏有不同的委托实现）
 
         std::map<int, RegisterMessageInfo> _registerMessageMap;
 
     private:
-        GameCenter(): _cache(nullptr), _gameObjectUpdatePeriod(0) {}                  // ctor hidden
+        GameCenter(): _gameObjectUpdatePeriod(0) {}                  // ctor hidden
         ~GameCenter() = default;                                   // destruct hidden
         GameCenter(GameCenter const&) = delete;                    // copy ctor delete
         GameCenter(GameCenter &&) = delete;                        // move ctor delete

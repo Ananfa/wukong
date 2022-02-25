@@ -4,18 +4,15 @@
 #define demo_db_utils_h
 
 #include "demo.pb.h"
-#include "corpc_redis.h"
-#include "corpc_mysql.h"
 #include "share/define.h"
 #include <string>
-
-using namespace corpc;
+#include <list>
 
 namespace demo {
     
     class DemoDBUtils {
     public:
-        static bool LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mysqlPool, const std::string &loadRoleSha1, const std::string &saveProfileSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
+        static bool LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
     };
 
 }

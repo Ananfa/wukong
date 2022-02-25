@@ -15,7 +15,8 @@
  */
 
 #include "record_center.h"
-#include "record_config.h"
+#include "cache_pool.h"
+#include "mysql_pool.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
 #include "proto_utils.h"
@@ -24,154 +25,11 @@
 using namespace wukong;
 
 void RecordCenter::init() {
-    _cache = corpc::RedisConnectPool::create(g_RecordConfig.getCache().host.c_str(), g_RecordConfig.getCache().port, g_RecordConfig.getCache().dbIndex, g_RecordConfig.getCache().maxConnect);
-    _mysql = corpc::MysqlConnectPool::create(g_RecordConfig.getMysql().host.c_str(), g_RecordConfig.getMysql().user.c_str(), g_RecordConfig.getMysql().pwd.c_str(), g_RecordConfig.getMysql().dbName.c_str(), g_RecordConfig.getMysql().port, "", 0, g_RecordConfig.getMysql().maxConnect);
-
-    // 初始化redis lua脚本sha1值
-    RoutineEnvironment::startCoroutine(initRoutine, this);
+    //_cache = corpc::RedisConnectPool::create(g_RecordConfig.getCache().host.c_str(), g_RecordConfig.getCache().port, g_RecordConfig.getCache().dbIndex, g_RecordConfig.getCache().maxConnect);
+    //_mysql = corpc::MysqlConnectPool::create(g_RecordConfig.getMysql().host.c_str(), g_RecordConfig.getMysql().user.c_str(), g_RecordConfig.getMysql().pwd.c_str(), g_RecordConfig.getMysql().dbName.c_str(), g_RecordConfig.getMysql().port, "", 0, g_RecordConfig.getMysql().maxConnect);
 
     // 定时落地协程
     RoutineEnvironment::startCoroutine(saveRoutine, this);
-}
-
-void *RecordCenter::initRoutine(void *arg) {
-    RecordCenter *self = (RecordCenter *)arg;
-
-    redisContext *cache = self->_cache->proxy.take();
-    if (!cache) {
-        ERROR_LOG("RecordCenter::initRoutine -- connect to cache failed\n");
-        return nullptr;
-    }
-
-    // init _setRecordSha1
-    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_RECORD_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("RecordCenter::initRoutine -- set-record script load failed for db error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("RecordCenter::initRoutine -- set-record script load failed\n");
-        return nullptr;
-    }
-
-    self->_setRecordSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _removeRecordSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", REMOVE_RECORD_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("RecordCenter::initRoutine -- remove-record script load failed for db error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("RecordCenter::initRoutine -- remove-record script load failed\n");
-        return nullptr;
-    }
-
-    self->_removeRecordSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _setRecordExpireSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_RECORD_EXPIRE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("RecordCenter::initRoutine -- set-record-expire script load failed for db error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("RecordCenter::initRoutine -- set-record-expire script load failed\n");
-        return nullptr;
-    }
-
-    self->_setRecordExpireSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _updateProfileSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", UPDATE_PROFILE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("RecordCenter::initRoutine -- update-profile script load failed for db error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("RecordCenter::initRoutine -- update-profile script load failed\n");
-        return nullptr;
-    }
-
-    self->_updateProfileSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _updateRoleSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", UPDATE_ROLE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("RecordCenter::initRoutine -- update-role script load failed for db error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("RecordCenter::initRoutine -- update-role script load failed\n");
-        return nullptr;
-    }
-
-    self->_updateRoleSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _loadRoleSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", LOAD_ROLE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("RecordCenter::initRoutine -- load-role script load failed for db error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("RecordCenter::initRoutine -- load-role script load failed\n");
-        return nullptr;
-    }
-
-    self->_loadRoleSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _saveRoleSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_ROLE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("RecordCenter::initRoutine -- save-role script load failed for db error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("RecordCenter::initRoutine -- save-role script load failed\n");
-        return nullptr;
-    }
-
-    self->_saveRoleSha1 = reply->str;
-    freeReplyObject(reply);
-
-    self->_cache->proxy.put(cache, false);
-    
-    return nullptr;
 }
 
 void *RecordCenter::saveRoutine(void *arg) {
@@ -188,7 +46,7 @@ void *RecordCenter::saveRoutine(void *arg) {
         }
         lastSec = t.tv_sec;
 
-        redisContext *cache = self->getCachePool()->proxy.take();
+        redisContext *cache = g_CachePool.take();
         if (!cache) {
             ERROR_LOG("RecordCenter::saveRoutine -- connect to cache failed\n");
             continue;
@@ -203,13 +61,13 @@ void *RecordCenter::saveRoutine(void *arg) {
 
             redisReply *reply = (redisReply *)redisCommand(cache, "SET SaveLock:%d 1 NX EX 60", wheelPos);
             if (!reply) {
-                self->getCachePool()->proxy.put(cache, true);
+                g_CachePool.put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply null\n");
                 continue;
             } else if (strcmp(reply->str, "OK")) {
                 // 上锁不成功
                 freeReplyObject(reply);
-                self->getCachePool()->proxy.put(cache, false);
+                g_CachePool.put(cache, false);
                 continue;
             }
 
@@ -218,14 +76,14 @@ void *RecordCenter::saveRoutine(void *arg) {
             // 读取整个SET
             reply = (redisReply *)redisCommand(cache, "SMEMBERS Save:%d", wheelPos);
             if (!reply) {
-                self->getCachePool()->proxy.put(cache, true);
+                g_CachePool.put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply null\n");
                 continue;
             }
 
             if (reply->type != REDIS_REPLY_ARRAY) {
                 freeReplyObject(reply);
-                self->getCachePool()->proxy.put(cache, true);
+                g_CachePool.put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply type invalid\n");
                 continue;
             }
@@ -244,7 +102,7 @@ void *RecordCenter::saveRoutine(void *arg) {
             }
 
             freeReplyObject(reply);
-            self->getCachePool()->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             
             for (RoleId roleId : roleIds){
                 // 开工作协程并发存盘
@@ -268,7 +126,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
     delete task;
 
     // 先从cache中加载profile数据
-    redisContext *cache = self->getCachePool()->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed\n");
         self->_saveSema.post();
@@ -277,8 +135,8 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
 
     std::list<std::pair<std::string, std::string>> datas;
     ServerId serverId;
-    if (RedisUtils::LoadRole(cache, self->loadRoleSha1(), roleId, serverId, datas, false) == REDIS_DB_ERROR) {
-        self->getCachePool()->proxy.put(cache, true);
+    if (RedisUtils::LoadRole(cache, roleId, serverId, datas, false) == REDIS_DB_ERROR) {
+        g_CachePool.put(cache, true);
         ERROR_LOG("DemoUtils::SaveRole -- load role data failed\n");
         self->_saveSema.post();
         return nullptr;
@@ -286,13 +144,13 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
 
     if (datas.size() == 0) {
         // cache中没有数据，不需要保存
-        self->getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         WARN_LOG("DemoUtils::SaveRole -- load role data empty\n");
     } else {
-        self->getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
 
         // 保存到mysql中
-        MYSQL *mysql = self->getMysqlPool()->proxy.take();
+        MYSQL *mysql = g_MysqlPool.take();
         if (!mysql) {
             ERROR_LOG("DemoUtils::SaveRole -- connect to mysql failed\n");
             
@@ -303,17 +161,17 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         std::string roleData = ProtoUtils::marshalDataFragments(datas);
         if (!MysqlUtils::UpdateRole(mysql, roleId, roleData)) {
             ERROR_LOG("DemoUtils::SaveRole -- save to mysql failed\n");
-            self->getMysqlPool()->proxy.put(mysql, true);
+            g_MysqlPool.put(mysql, true);
             
             self->_saveSema.post();
             return nullptr;
         }
 
-        self->getMysqlPool()->proxy.put(mysql, false);
+        g_MysqlPool.put(mysql, false);
     }
 
     // 删除集合中玩家ID，这里一个个玩家ID单独从集合中删除而不是在最后删除集合是防止处理集合过程中集合插入新的ID
-    cache = self->getCachePool()->proxy.take();
+    cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed when remove id from set\n");
         
@@ -323,7 +181,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
 
     redisReply *reply = (redisReply *)redisCommand(cache, "SREM Save:%d %d", wheelPos, roleId);
     if (!reply) {
-        self->getCachePool()->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         ERROR_LOG("RecordCenter::saveRoutine -- redis reply null when remove id from set\n");
         
         self->_saveSema.post();
@@ -331,7 +189,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
     }
 
     freeReplyObject(reply);
-    self->getCachePool()->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     self->_saveSema.post();
     return nullptr;

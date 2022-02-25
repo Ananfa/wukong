@@ -4,29 +4,31 @@
 #include "demo_utils.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
+#include "cache_pool.h"
+#include "mysql_pool.h"
 #include "common.pb.h"
 
 using namespace demo;
 using namespace wukong;
 
-bool DemoDBUtils::LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mysqlPool, const std::string &loadRoleSha1, const std::string &saveProfileSha1, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas) {
+bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas) {
     serverId = 0;
     pDatas.clear();
     // 先从cache中加载profile数据
-    redisContext *cache = cachePool->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
-        ERROR_LOG("DemoUtils::LoadProfile -- connect to cache failed\n");
+        ERROR_LOG("DemoDBUtils::LoadProfile -- connect to cache failed\n");
         return false;
     }
 
     switch (RedisUtils::LoadProfile(cache, roleId, serverId, pDatas)) {
         case REDIS_SUCCESS: {
-            cachePool->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             return true;
         }
         case REDIS_DB_ERROR: {
-            cachePool->proxy.put(cache, true);
-            ERROR_LOG("DemoUtils::LoadProfile -- load role profile failed for db error\n");
+            g_CachePool.put(cache, true);
+            ERROR_LOG("DemoDBUtils::LoadProfile -- load role profile failed for db error\n");
             return false;
         }
     }
@@ -36,57 +38,57 @@ bool DemoDBUtils::LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mys
     std::list<std::pair<std::string, std::string>> rDatas;
 
     // cache中找不到profile数据，先从cache中尝试加载角色数据并存入cache中
-    if (RedisUtils::LoadRole(cache, loadRoleSha1, roleId, serverId, rDatas, false) == REDIS_DB_ERROR) {
-        cachePool->proxy.put(cache, true);
-        ERROR_LOG("DemoUtils::LoadProfile -- load role data failed for db error\n");
+    if (RedisUtils::LoadRole(cache, roleId, serverId, rDatas, false) == REDIS_DB_ERROR) {
+        g_CachePool.put(cache, true);
+        ERROR_LOG("DemoDBUtils::LoadProfile -- load role data failed for db error\n");
         return false;
     }
     
     if (rDatas.size() > 0) {
         DemoUtils::MakeProfile(rDatas, pDatas);
 
-        switch (RedisUtils::SaveProfile(cache, saveProfileSha1, roleId, serverId, pDatas)) {
+        switch (RedisUtils::SaveProfile(cache, roleId, serverId, pDatas)) {
             case REDIS_DB_ERROR: {
-                cachePool->proxy.put(cache, true);
-                ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed for db error\n");
+                g_CachePool.put(cache, true);
+                ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed for db error\n");
                 return false;
             }
             case REDIS_FAIL: {
-                cachePool->proxy.put(cache, false);
-                ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed\n");
+                g_CachePool.put(cache, false);
+                ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed\n");
                 return false;
             }
         }
 
-        cachePool->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         return true;
     }
     
-    cachePool->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     // cache中没有数据，需要从mysql中加载数据并存入cache中
-    MYSQL *mysql = mysqlPool->proxy.take();
+    MYSQL *mysql = g_MysqlPool.take();
     if (!mysql) {
-        ERROR_LOG("DemoUtils::LoadProfile -- connect to mysql failed\n");
+        ERROR_LOG("DemoDBUtils::LoadProfile -- connect to mysql failed\n");
         return false;
     }
 
     std::string data;
     if (!MysqlUtils::LoadRole(mysql, roleId, serverId, data)) {
-        mysqlPool->proxy.put(mysql, true);
+        g_MysqlPool.put(mysql, true);
         return false;
     }
 
-    mysqlPool->proxy.put(mysql, false);
+    g_MysqlPool.put(mysql, false);
 
     if (data.empty()) {
-        ERROR_LOG("DemoUtils::LoadProfile -- no role data\n");
+        ERROR_LOG("DemoDBUtils::LoadProfile -- no role data\n");
         return false;
     }
 
     wukong::pb::DataFragments fragments;
     if (!fragments.ParseFromString(data)) {
-        ERROR_LOG("DemoUtils::LoadProfile -- parse role:%d data failed\n", roleId);
+        ERROR_LOG("DemoDBUtils::LoadProfile -- parse role:%d data failed\n", roleId);
         return false;
     }
 
@@ -102,25 +104,25 @@ bool DemoDBUtils::LoadProfile(RedisConnectPool *cachePool, MysqlConnectPool *mys
 
     DemoUtils::MakeProfile(rDatas, pDatas);
 
-    cache = cachePool->proxy.take();
+    cache = g_CachePool.take();
     if (!cache) {
-        ERROR_LOG("DemoUtils::LoadProfile -- connect to cache failed\n");
+        ERROR_LOG("DemoDBUtils::LoadProfile -- connect to cache failed\n");
         return false;
     }
 
-    switch (RedisUtils::SaveProfile(cache, saveProfileSha1, roleId, serverId, pDatas)) {
+    switch (RedisUtils::SaveProfile(cache, roleId, serverId, pDatas)) {
         case REDIS_DB_ERROR: {
-            cachePool->proxy.put(cache, true);
-            ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed for db error\n");
+            g_CachePool.put(cache, true);
+            ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed for db error\n");
             return false;
         }
         case REDIS_FAIL: {
-            cachePool->proxy.put(cache, false);
-            ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed\n");
+            g_CachePool.put(cache, false);
+            ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed\n");
             return false;
         }
     }
 
-    cachePool->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
     return true;
 }

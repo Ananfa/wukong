@@ -14,6 +14,10 @@ namespace wukong {
     const std::string ZK_PROFILE_SERVER            = "/profile_server";
     const std::string ZK_SCENE_SERVER              = "/scene_server"; // 可以有不同子类型的场景服
 
+    // 其他服务器
+    const std::string ZK_BATTLE_SERVER             = "/battle_server"; // 战斗计算服，对于某些看战斗录像类型游戏，由于战斗计算比较占cpu资源，因此可以把战斗计算放到单独的服务器上进行
+    const std::string ZK_SCENEMGR_SERVER           = "/scenemgr_server"; // 场景管理服，负责世界场景维护，将世界场景负载均衡到场景服中部署，定期检查场景存活状态，若发现有场景不存在重新部署场景
+
     // 大厅服和场景服都是玩家游戏对象可驻留的服务器（游戏服）
     const GameServerType GAME_SERVER_TYPE_LOBBY    = 1;
     const GameServerType GAME_SERVER_TYPE_SCENE    = 2;

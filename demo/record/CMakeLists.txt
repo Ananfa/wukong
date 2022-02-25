@@ -51,6 +51,8 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
+    ../../share/db/cache_pool.cpp
+    ../../share/db/mysql_pool.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
     ../../utils/redis_utils.cpp
@@ -92,6 +94,7 @@ include_directories(../..)
 include_directories(../../record/src)
 include_directories(../../share)
 include_directories(../../share/client)
+include_directories(../../share/db)
 include_directories(../../share/http)
 include_directories(../../utils)
 include_directories(../../proto)

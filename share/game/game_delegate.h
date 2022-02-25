@@ -24,13 +24,32 @@
 using namespace corpc;
 
 namespace wukong {
-	// 注意：CreateGameObjectHandle中不应有产生协程切换的实现
-    typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, ServerId, uint32_t, GameObjectManager*, const std::string &data)> CreateGameObjectHandle;
+    class GameDelegate {
+        // 注意：CreateGameObjectHandle中不应有产生协程切换的实现
+        typedef std::function<std::shared_ptr<GameObject> (UserId, RoleId, ServerId, uint32_t, GameObjectManager*, const std::string &data)> CreateGameObjectHandle;
 
-    struct GameDelegate {
-        CreateGameObjectHandle createGameObject;
+    public:
+        static GameDelegate& Instance() {
+            static GameDelegate instance;
+            return instance;
+        }
+
+        void setCreateGameObjectHandle(CreateGameObjectHandle handle) { _createGameObject = handle; }
+        CreateGameObjectHandle getCreateGameObjectHandle() { return _createGameObject; }
+
+    private:
+        CreateGameObjectHandle _createGameObject;
+
+    private:
+        GameDelegate() = default;                                 // ctor hidden
+        GameDelegate(GameDelegate const&) = delete;               // copy ctor hidden
+        GameDelegate(GameDelegate &&) = delete;                   // move ctor hidden
+        GameDelegate& operator=(GameDelegate const&) = delete;    // assign op. hidden
+        GameDelegate& operator=(GameDelegate &&) = delete;        // move assign op. hidden
+        ~GameDelegate() = default;                                // dtor hidden
     };
-
 }
+
+#define g_GameDelegate GameDelegate::Instance()
 
 #endif /* game_delegate_h */

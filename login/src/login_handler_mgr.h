@@ -17,13 +17,10 @@
 #ifndef login_handler_mgr_h
 #define login_handler_mgr_h
 
-#include "corpc_redis.h"
-#include "corpc_mysql.h"
 #include "login_delegate.h"
 #include "http_server.h"
 #include "gateway_client.h"
 
-#include <vector>
 #include <map>
 #include <mutex>
 #include <atomic>
@@ -65,10 +62,6 @@ namespace wukong {
         
         void setDelegate(LoginDelegate delegate) { _delegate = delegate; }
 
-        RedisConnectPool *getCache() { return _cache; }
-        RedisConnectPool *getRedis() { return _redis; }
-        MysqlConnectPool *getMysql() { return _mysql; }
-
         bool randomGatewayServer(ServerId &serverId);
     private:
         // login接口：校验玩家身份，生成临时身份token，获取玩家在各逻辑服中的角色基本信息（角色列表），获取服务器列表，并将以上信息返回给客户端
@@ -104,19 +97,7 @@ namespace wukong {
         static thread_local std::map<GroupId, uint32_t> _t_groupStatusMap;
         static thread_local std::map<ServerId, GroupId> _t_serverId2groupIdMap;
 
-        RedisConnectPool *_cache;
-        RedisConnectPool *_redis;
-        MysqlConnectPool *_mysql;
-
         LoginDelegate _delegate;
-
-        std::string _setPassportSha1; // 设置passport的lua脚本sha1值
-        //std::string _setSessionSha1; // 设置session的lua脚本sha1值
-        std::string _bindRoleSha1; // 添加roleId的lua脚本sha1值
-        std::string _loadRoleSha1; // 加载role的lua脚本sha1值
-        std::string _saveRoleSha1; // 保存profile的lua脚本sha1值
-        std::string _saveProfileSha1; // 保存profile的lua脚本sha1值
-
 
         AccountUserIdInfoQueue _queue;
 

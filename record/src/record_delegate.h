@@ -24,14 +24,35 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, uint32_t, RecordObjectManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandle;
-    typedef std::function<void (const std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> MakeProfileHandle;
+    class RecordDelegate {
+        typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, uint32_t, RecordObjectManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandle;
+        typedef std::function<void (const std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> MakeProfileHandle;
 
-    struct RecordDelegate {
-        CreateRecordObjectHandle createRecordObject;
-        MakeProfileHandle makeProfile;
+    public:
+        static RecordDelegate& Instance() {
+            static RecordDelegate instance;
+            return instance;
+        }
+
+        void setCreateRecordObjectHandle(CreateRecordObjectHandle handle) { _createRecordObject = handle; }
+        CreateRecordObjectHandle getCreateRecordObjectHandle() { return _createRecordObject; }
+        void setMakeProfileHandle(MakeProfileHandle handle) { _makeProfile = handle; }
+        MakeProfileHandle getMakeProfileHandle() { return _makeProfile; }
+
+    private:
+        CreateRecordObjectHandle _createRecordObject;
+        MakeProfileHandle _makeProfile;
+
+    private:
+        RecordDelegate() = default;                                   // ctor hidden
+        RecordDelegate(RecordDelegate const&) = delete;               // copy ctor hidden
+        RecordDelegate(RecordDelegate &&) = delete;                   // move ctor hidden
+        RecordDelegate& operator=(RecordDelegate const&) = delete;    // assign op. hidden
+        RecordDelegate& operator=(RecordDelegate &&) = delete;        // move assign op. hidden
+        ~RecordDelegate() = default;                                  // dtor hidden
     };
-
 }
+
+#define g_RecordDelegate RecordDelegate::Instance()
 
 #endif /* record_delegate_h */

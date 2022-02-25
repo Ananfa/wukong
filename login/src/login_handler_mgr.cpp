@@ -19,6 +19,9 @@
 #include "corpc_rand.h"
 #include "login_handler_mgr.h"
 #include "client_center.h"
+#include "cache_pool.h"
+#include "redis_pool.h"
+#include "mysql_pool.h"
 #include "json_utils.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
@@ -63,130 +66,6 @@ void *LoginHandlerMgr::initRoutine(void *arg) {
 
     self->_updateServerGroupData();
 
-    redisContext *cache = self->_cache->proxy.take();
-    if (!cache) {
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- connect to cache failed\n");
-        return nullptr;
-    }
-
-    // init _setPassportSha1
-    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_PASSPORT_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- set-passport script load failed for cache error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- set-passport script load from cache failed\n");
-        return nullptr;
-    }
-
-    self->_setPassportSha1 = reply->str;
-    freeReplyObject(reply);
-
-//    // init _setSessionSha1
-//    redisReply *reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SESSION_CMD);
-//    if (!reply) {
-//        self->_cache->proxy.put(cache, true);
-//        ERROR_LOG("LoginHandlerMgr::initRoutine -- set-session script load failed for cache error\n");
-//        return nullptr;
-//    }
-//
-//    if (reply->type != REDIS_REPLY_STRING) {
-//        freeReplyObject(reply);
-//        self->_cache->proxy.put(cache, false);
-//        DEBUG_LOG("LoginHandlerMgr::initRoutine -- set-session script load from cache failed\n");
-//        return nullptr;
-//    }
-//
-//    self->_setSessionSha1 = reply->str;
-//    freeReplyObject(reply);
-
-    // init _saveProfileSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_PROFILE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- save-profile script load failed for cache error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- save-profile script load from cache failed\n");
-        return nullptr;
-    }
-
-    self->_saveProfileSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _loadRoleSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", LOAD_ROLE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- load-role script load failed for cache error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- load-role script load from cache failed\n");
-        return nullptr;
-    }
-
-    self->_loadRoleSha1 = reply->str;
-    freeReplyObject(reply);
-
-    // init _saveRoleSha1
-    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SAVE_ROLE_CMD);
-    if (!reply) {
-        self->_cache->proxy.put(cache, true);
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- save-role script load failed for cache error\n");
-        return nullptr;
-    }
-
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_cache->proxy.put(cache, false);
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- save-role script load from cache failed\n");
-        return nullptr;
-    }
-
-    self->_saveRoleSha1 = reply->str;
-    freeReplyObject(reply);
-
-    self->_cache->proxy.put(cache, false);
-
-    redisContext *redis = self->_redis->proxy.take();
-    if (!redis) {
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- connect to redis failed\n");
-        return nullptr;
-    }
-
-    // init _bindRoleSha1
-    reply = (redisReply *)redisCommand(redis, "SCRIPT LOAD %s", BIND_ROLE_CMD);
-    if (!reply) {
-        self->_redis->proxy.put(redis, true);
-        ERROR_LOG("LoginHandlerMgr::initRoutine -- script load failed for redis error\n");
-        return nullptr;
-    }
-    
-    if (reply->type != REDIS_REPLY_STRING) {
-        freeReplyObject(reply);
-        self->_redis->proxy.put(redis, false);
-        DEBUG_LOG("LoginHandlerMgr::initRoutine -- script load from redis failed\n");
-        return nullptr;
-    }
-
-    self->_bindRoleSha1 = reply->str;
-    freeReplyObject(reply);
-
-    self->_redis->proxy.put(redis, false);
-
     return nullptr;
 }
 
@@ -222,7 +101,7 @@ void *LoginHandlerMgr::saveUserRoutine(void *arg) {
         AccountUserIdInfo *msg = queue.pop();
         while (msg) {
             if (!mysql) {
-                mysql = self->_mysql->proxy.take();
+                mysql = g_MysqlPool.take();
             }
 
             bool saved = false;
@@ -232,7 +111,7 @@ void *LoginHandlerMgr::saveUserRoutine(void *arg) {
 
             if (!saved) {
                 if (mysql) {
-                    self->_mysql->proxy.put(mysql, true);
+                    g_MysqlPool.put(mysql, true);
                     mysql = nullptr;
                 }
 
@@ -244,16 +123,12 @@ void *LoginHandlerMgr::saveUserRoutine(void *arg) {
         }
 
         if (mysql) {
-            self->_mysql->proxy.put(mysql, false);
+            g_MysqlPool.put(mysql, false);
         }
     }
 }
 
 void LoginHandlerMgr::init(HttpServer *server) {
-    _cache = corpc::RedisConnectPool::create(g_LoginConfig.getCache().host.c_str(), g_LoginConfig.getCache().port, g_LoginConfig.getCache().dbIndex, g_LoginConfig.getCache().maxConnect);
-    _redis = corpc::RedisConnectPool::create(g_LoginConfig.getRedis().host.c_str(), g_LoginConfig.getRedis().port, g_LoginConfig.getRedis().dbIndex, g_LoginConfig.getRedis().maxConnect);
-    _mysql = corpc::MysqlConnectPool::create(g_LoginConfig.getMysql().host.c_str(), g_LoginConfig.getMysql().user.c_str(), g_LoginConfig.getMysql().pwd.c_str(), g_LoginConfig.getMysql().dbName.c_str(), g_LoginConfig.getMysql().port, "", 0, g_LoginConfig.getMysql().maxConnect);
-
     // 初始化redis lua脚本sha1值
     RoutineEnvironment::startCoroutine(initRoutine, this);
 
@@ -262,7 +137,7 @@ void LoginHandlerMgr::init(HttpServer *server) {
     // 获取并订阅服务器组列表信息
     std::list<std::string> topics;
     topics.push_back("ServerGroups");
-    PubsubService::StartPubsubService(g_LoginHandlerMgr.getCache(), topics);
+    PubsubService::StartPubsubService(g_CachePool.getPool(), topics);
     PubsubService::Subscribe("ServerGroups", false, std::bind(&LoginHandlerMgr::updateServerGroupData, this, std::placeholders::_1, std::placeholders::_2));
     
     // 注册filter
@@ -305,24 +180,24 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
     // 限制时间内不能重复登录
     if (LOGIN_LOCK_TIME > 0) {
-        cache = _cache->proxy.take();
+        cache = g_CachePool.take();
         if (!cache) {
             return setErrorResponse(response, "connect to cache failed");
         }
 
         reply = (redisReply *)redisCommand(cache, "SET LoginLock:{%s} 1 NX EX %d", openid.c_str(), LOGIN_LOCK_TIME);
         if (!reply) {
-            _cache->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             return setErrorResponse(response, "lock login failed");
         } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
             freeReplyObject(reply);
-            _cache->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
 
             return setErrorResponse(response, "login too frequent");
         }
 
         freeReplyObject(reply);
-        _cache->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
     }
 
     // 校验玩家身份
@@ -331,14 +206,14 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     }
 
     // 查询openid对应的userId（采用redis数据库）
-    redis = _redis->proxy.take();
+    redis = g_RedisPool.take();
     if (!redis) {
         return setErrorResponse(response, "connect to db failed");
     }
 
     reply = (redisReply *)redisCommand(redis, "GET O2U:{%s}", openid.c_str());
     if (!reply) {
-        _redis->proxy.put(redis, true);
+        g_RedisPool.put(redis, true);
         return setErrorResponse(response, "get user id from db failed");
     }
 
@@ -356,23 +231,23 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
             userId = RedisUtils::CreateUserID(redis);
             if (userId == 0) {
-                _redis->proxy.put(redis, true);
+                g_RedisPool.put(redis, true);
                 return setErrorResponse(response, "create user id failed");
             }
 
             reply = (redisReply *)redisCommand(redis, "SET O2U:{%s} %d NX", openid.c_str(), userId);
             if (!reply) {
-                _redis->proxy.put(redis, true);
+                g_RedisPool.put(redis, true);
                 return setErrorResponse(response, "set user id for openid failed");
             } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
                 freeReplyObject(reply);
-                _redis->proxy.put(redis, false); // 归还连接
+                g_RedisPool.put(redis, false); // 归还连接
 
                 return setErrorResponse(response, "set userid for openid failed for already exist");
             }
 
             freeReplyObject(reply);
-            _redis->proxy.put(redis, false);
+            g_RedisPool.put(redis, false);
 
             // TODO: tlog记录openid与userid的关系
 
@@ -392,20 +267,20 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
             freeReplyObject(reply);
 
             if (userId == 0) {
-                _redis->proxy.put(redis, false);
+                g_RedisPool.put(redis, false);
                 return setErrorResponse(response, "invalid userid");
             }
 
             // 获取角色id列表
             reply = (redisReply *)redisCommand(redis, "SMEMBERS RoleIds:{%d}", userId);
             if (!reply) {
-                _redis->proxy.put(redis, true);
+                g_RedisPool.put(redis, true);
                 return setErrorResponse(response, "get role id list failed");
             }
 
             if (reply->type != REDIS_REPLY_ARRAY) {
                 freeReplyObject(reply);
-                _redis->proxy.put(redis, true);
+                g_RedisPool.put(redis, true);
                 return setErrorResponse(response, "get role id list failed for return type invalid");
             }
 
@@ -417,7 +292,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
                     info.roleId = atoi(reply->element[i]->str);
                     if (info.roleId == 0) {
                         freeReplyObject(reply);
-                        _redis->proxy.put(redis, false);
+                        g_RedisPool.put(redis, false);
                         return setErrorResponse(response, "invalid roleid");
                     }
 
@@ -425,12 +300,12 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
                 }
             }
             freeReplyObject(reply);
-            _redis->proxy.put(redis, false);
+            g_RedisPool.put(redis, false);
 
             // 查询轮廓数据
             for (RoleProfile &info : roles){
                 std::list<std::pair<std::string, std::string>> pDatas;
-                if (!_delegate.loadProfile(_cache, _mysql, _loadRoleSha1, _saveProfileSha1, info.roleId, info.serverId, pDatas)) {
+                if (!_delegate.loadProfile(info.roleId, info.serverId, pDatas)) {
                     ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed\n", info.roleId);
                     continue;
                 }
@@ -442,7 +317,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
         }
         default: {
             freeReplyObject(reply);
-            _redis->proxy.put(redis, true);
+            g_RedisPool.put(redis, true);
             return setErrorResponse(response, "get user id from db failed for invalid data type");
         }
     }
@@ -455,7 +330,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     uint64_t token = randInt();
 
     // 在cache中记录token
-    cache = _cache->proxy.take();
+    cache = g_CachePool.take();
     if (!cache) {
         return setErrorResponse(response, "connect to cache failed");
     }
@@ -463,17 +338,17 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     // 以Token:[userId]为key，value为token，记录到redis数据库（有效期1小时？创角时延长有效期，玩家进入游戏时清除token）
     reply = (redisReply *)redisCommand(cache, "SET Token:%d %llu EX 3600", userId, token);
     if (!reply) {
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return setErrorResponse(response, "set token failed for db error");
     } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
         freeReplyObject(reply);
-        _cache->proxy.put(cache, false); // 归还连接
+        g_CachePool.put(cache, false); // 归还连接
         return setErrorResponse(response, "set token failed");
     }
 
     freeReplyObject(reply);
 
-    _cache->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     // 将以上信息返回给客户端
     JsonWriter json;
@@ -542,40 +417,40 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     }
 
     // 设置创角锁（超时60秒），限制1个玩家1分钟内只能请求1次创角，防止攻击性创角
-    redisContext *cache = _cache->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         return setErrorResponse(response, "connect to cache failed");
     }
 
     redisReply *reply = (redisReply *)redisCommand(cache, "SET CreateRole:{%d} 1 NX EX 60", userId);
     if (!reply) {
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return setErrorResponse(response, "lock create role failed");
     } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
         freeReplyObject(reply);
-        _cache->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
 
         return setErrorResponse(response, "create role too frequent, please wait a minute and then retry");
     }
 
     freeReplyObject(reply);
-    _cache->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     // 判断同服角色数量限制
-    redisContext *redis = _redis->proxy.take();
+    redisContext *redis = g_RedisPool.take();
     if (!redis) {
         return setErrorResponse(response, "connect to redis failed");
     }
 
     reply = (redisReply *)redisCommand(redis, "SCARD RoleIds:%d:{%d}", serverId, userId);
     if (!reply) {
-        _redis->proxy.put(redis, true);
+        g_RedisPool.put(redis, true);
         return setErrorResponse(response, "get role count failed");
     }
 
     if (reply->integer >= g_LoginConfig.getRoleNumForPlayer()) {
         freeReplyObject(reply);
-        _redis->proxy.put(redis, false);
+        g_RedisPool.put(redis, false);
         return setErrorResponse(response, "reach the limit of the number of roles");
     }
 
@@ -584,7 +459,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     // 生成roleId
     RoleId roleId = RedisUtils::CreateRoleID(redis);
     if (roleId == 0) {
-        _redis->proxy.put(redis, true);
+        g_RedisPool.put(redis, true);
         return setErrorResponse(response, "create role id failed");
     }
     
@@ -596,49 +471,49 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     //       5. 记录角色轮廓数据Profile:{<roleid>}（注意：记得加serverId）
     
     // 绑定role，即上述第1和第2步
-    switch (RedisUtils::BindRole(redis, _bindRoleSha1, roleId, userId, serverId, g_LoginConfig.getRoleNumForPlayer())) {
+    switch (RedisUtils::BindRole(redis, roleId, userId, serverId, g_LoginConfig.getRoleNumForPlayer())) {
         case REDIS_DB_ERROR: {
-            _redis->proxy.put(redis, true);
+            g_RedisPool.put(redis, true);
             ERROR_LOG("LoginHandlerMgr::createRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for db error\n", roleId, userId, serverId);
             return setErrorResponse(response, "bind role failed for db error");
         }
         case REDIS_FAIL: {
-            _redis->proxy.put(redis, false);
+            g_RedisPool.put(redis, false);
             ERROR_LOG("LoginHandlerMgr::createRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed\n", roleId, userId, serverId);
             return setErrorResponse(response, "bind role failed");
         }
     }
 
-    _redis->proxy.put(redis, false);
+    g_RedisPool.put(redis, false);
 
     std::string rData = ProtoUtils::marshalDataFragments(roleDatas);
     
-    MYSQL *mysql = _mysql->proxy.take();
+    MYSQL *mysql = g_MysqlPool.take();
     if (!mysql) {
         return setErrorResponse(response, "connect to mysql failed");
     }
     
     // 保存role，即上述第3步
     if (!MysqlUtils::CreateRole(mysql, roleId, userId, serverId, rData)) {
-        _mysql->proxy.put(mysql, true);
+        g_MysqlPool.put(mysql, true);
         return setErrorResponse(response, "save role to mysql failed");
     }
 
-    _mysql->proxy.put(mysql, false);
+    g_MysqlPool.put(mysql, false);
 
     // 缓存role，即上述第4步
-    cache = _cache->proxy.take();
+    cache = g_CachePool.take();
     if (!cache) {
         return setErrorResponse(response, "connect to cache failed");
     }
 
-    switch (RedisUtils::SaveRole(cache, _saveRoleSha1, roleId, serverId, roleDatas)) {
+    switch (RedisUtils::SaveRole(cache, roleId, serverId, roleDatas)) {
         case REDIS_DB_ERROR: {
-            _cache->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             return setErrorResponse(response, "cache role failed for db error");
         }
         case REDIS_FAIL: {
-            _cache->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             return setErrorResponse(response, "cache role failed");
         }
     }
@@ -646,20 +521,20 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     // 缓存profile，即上述第5步
     std::list<std::pair<std::string, std::string>> profileDatas;
     _delegate.makeProfile(roleDatas, profileDatas);
-    switch (RedisUtils::SaveProfile(cache, _saveProfileSha1, roleId, serverId, profileDatas)) {
+    switch (RedisUtils::SaveProfile(cache, roleId, serverId, profileDatas)) {
         case REDIS_DB_ERROR: {
-            _cache->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("LoginHandlerMgr::createRole -- cache profile failed for db error\n");
             return setErrorResponse(response, "cache profile failed for db error");
         }
         case REDIS_FAIL: {
-            _cache->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             ERROR_LOG("LoginHandlerMgr::createRole -- cache profile failed\n");
             return setErrorResponse(response, "cache profile failed");
         }
     }
 
-    _cache->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
     
     std::string pData = ProtoUtils::marshalDataFragments(profileDatas);
     RoleProfile role = {
@@ -707,7 +582,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         return setErrorResponse(response, "check token failed");
     }
 
-    redisContext *redis = _redis->proxy.take();
+    redisContext *redis = g_RedisPool.take();
     if (!redis) {
         return setErrorResponse(response, "connect to db failed");
     }
@@ -715,43 +590,43 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     // 判断角色是否合法
     redisReply *reply = (redisReply *)redisCommand(redis, "SISMEMBER RoleIds:%d:{%d} %d", serverId, userId, roleId);
     if (!reply) {
-        _redis->proxy.put(redis, true);
+        g_RedisPool.put(redis, true);
         return setErrorResponse(response, "check role failed");
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
-        _redis->proxy.put(redis, true);
+        g_RedisPool.put(redis, true);
         return setErrorResponse(response, "check role failed for return type invalid");
     }
 
     if (reply->integer != 1) {
         freeReplyObject(reply);
-        _redis->proxy.put(redis, false);
+        g_RedisPool.put(redis, false);
 
         return setErrorResponse(response, "role check failed");
     }
 
     freeReplyObject(reply);
-    _redis->proxy.put(redis, false);
+    g_RedisPool.put(redis, false);
 
     // 查询玩家Session（Session中记录了会话token，Gateway地址，角色id）
     // 若找到Session，则向Session中记录的Gateway发踢出玩家RPC请求
     // 若踢出返回失败，返回登录失败并退出（等待Redis中Session过期）
-    redisContext *cache = _cache->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         return setErrorResponse(response, "connect to cache failed");
     }
 
     reply = (redisReply *)redisCommand(cache, "HGETALL Session:%d", userId);
     if (!reply) {
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return setErrorResponse(response, "get session failed");
     }
 
     if (reply->type != REDIS_REPLY_ARRAY || reply->elements % 2 != 0) {
         freeReplyObject(reply);
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return setErrorResponse(response, "get session failed for return type invalid");
     }
 
@@ -769,7 +644,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         DEBUG_LOG("LoginHandlerMgr::enterGame -- duplicate login kick old one\n");
         freeReplyObject(reply);
         if (!g_GatewayClient.kick(gid, userId, tkn)) {
-            _cache->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             return setErrorResponse(response, "duplicate login kick old one failed");
         }
     } else {
@@ -783,7 +658,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     ServerId gatewayId = 0;
     // 分配Gateway
     if (!g_ClientCenter.randomGatewayServer(gatewayId)) {
-        _cache->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         return setErrorResponse(response, "cant find gateway");
     }
 
@@ -797,38 +672,38 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 //    }
 //    
 //    if (!reply) {
-//        _cache->proxy.put(cache, true);
+//        g_CachePool.put(cache, true);
 //        return setErrorResponse(response, "set session failed");
 //    }
 //
 //    if (reply->type != REDIS_REPLY_INTEGER) {
 //        freeReplyObject(reply);
-//        _cache->proxy.put(cache, true);
+//        g_CachePool.put(cache, true);
 //        return setErrorResponse(response, "set session failed for return type invalid");
 //    }
 //
 //    if (reply->integer == 0) {
 //        // 设置失败
 //        freeReplyObject(reply);
-//        _cache->proxy.put(cache, false);
+//        g_CachePool.put(cache, false);
 //        return setErrorResponse(response, "set session failed for already set");
 //    }
 //    freeReplyObject(reply);
 
-    if (_setPassportSha1.empty()) {
+    if (g_CachePool.setPassportSha1().empty()) {
         reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Passport:%d %llu %d %d %d", SET_PASSPORT_CMD, userId, gToken, gatewayId, roleId, PASSPORT_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Passport:%d %llu %d %d %d", _setPassportSha1.c_str(), userId, gToken, gatewayId, roleId, PASSPORT_TIMEOUT);
+        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Passport:%d %llu %d %d %d", g_CachePool.setPassportSha1().c_str(), userId, gToken, gatewayId, roleId, PASSPORT_TIMEOUT);
     }
     
     if (!reply) {
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return setErrorResponse(response, "set passport failed");
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return setErrorResponse(response, "set passport failed for return type invalid");
     }
 
@@ -837,12 +712,12 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     // 删除登录临时token
     reply = (redisReply *)redisCommand(cache,"DEL Token:%d", userId);
     if (!reply) {
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return setErrorResponse(response, "delete token failed");
     }
 
     freeReplyObject(reply);
-    _cache->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
 
     JsonWriter json;
     json.start();
@@ -862,7 +737,7 @@ void LoginHandlerMgr::updateServerGroupData(const std::string& topic, const std:
 }
 
 void LoginHandlerMgr::_updateServerGroupData() {
-    redisContext *redis = _redis->proxy.take();
+    redisContext *redis = g_RedisPool.take();
     if (!redis) {
         ERROR_LOG("LoginHandlerMgr::_updateServerGroupData -- update server group data failed for cant connect db\n");
         return;
@@ -870,21 +745,21 @@ void LoginHandlerMgr::_updateServerGroupData() {
 
     redisReply *reply = (redisReply *)redisCommand(redis, "GET ServerGroups");
     if (!reply) {
-        _redis->proxy.put(redis, true);
+        g_RedisPool.put(redis, true);
         ERROR_LOG("LoginHandlerMgr::_updateServerGroupData -- update server group data failed for db error");
         return;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
         freeReplyObject(reply);
-        _redis->proxy.put(redis, true);
+        g_RedisPool.put(redis, true);
         ERROR_LOG("LoginHandlerMgr::_updateServerGroupData -- update server group data failed for invalid data type\n");
         return;
     }
 
     std::string serverGroupData(reply->str, reply->len);
     freeReplyObject(reply);
-    _redis->proxy.put(redis, false);
+    g_RedisPool.put(redis, false);
     {
         std::unique_lock<std::mutex> lock(_serverGroupDataLock);
         _serverGroupData = std::move(serverGroupData);
@@ -979,7 +854,7 @@ void LoginHandlerMgr::refreshServerGroupData() {
 }
 
 bool LoginHandlerMgr::checkToken(UserId userId, const std::string& token) {
-    redisContext *cache = _cache->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("LoginHandlerMgr::checkToken -- connect to cache failed\n");
         return false;
@@ -987,25 +862,25 @@ bool LoginHandlerMgr::checkToken(UserId userId, const std::string& token) {
 
     redisReply *reply = (redisReply *)redisCommand(cache, "GET Token:%d", userId);
     if (!reply) {
-        _cache->proxy.put(cache, true);
+        g_CachePool.put(cache, true);
         return false;
     }
 
     if (reply->type != REDIS_REPLY_STRING) {
         freeReplyObject(reply);
-        _cache->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         return false;
     }
 
     if (token.compare(reply->str) != 0) {
         ERROR_LOG("LoginHandlerMgr::checkToken -- token not match %s -- %s\n", token.c_str(), reply->str);
         freeReplyObject(reply);
-        _cache->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
         return false;
     }
 
     freeReplyObject(reply);
-    _cache->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
     return true;
 }
 

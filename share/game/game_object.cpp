@@ -17,6 +17,7 @@
 #include "corpc_routine_env.h"
 #include "game_object.h"
 #include "game_center.h"
+#include "cache_pool.h"
 #include "game_object_manager.h"
 #include "gateway_client.h"
 #include "record_client.h"
@@ -94,7 +95,7 @@ void GameObject::stop() {
         _cond.broadcast();
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
-        redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
+        redisContext *cache = g_CachePool.take();
         if (!cache) {
             ERROR_LOG("GameObject::stop -- role[%d] connect to cache failed\n", _roleId);
             return;
@@ -102,20 +103,20 @@ void GameObject::stop() {
 
         // 删除record标签
         redisReply *reply;
-        if (g_GameCenter.removeLocationSha1().empty()) {
+        if (g_CachePool.removeLocationSha1().empty()) {
             reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d", REMOVE_RECORD_CMD, _roleId, _lToken);
         } else {
-            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d", g_GameCenter.removeLocationSha1().c_str(), _roleId, _lToken);
+            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d", g_CachePool.removeLocationSha1().c_str(), _roleId, _lToken);
         }
 
         if (!reply) {
-            g_GameCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("GameObject::stop -- role[%d] remove location failed", _roleId);
             return;
         }
 
         freeReplyObject(reply);
-        g_GameCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
     }
 }
 
@@ -298,28 +299,28 @@ void *GameObject::heartbeatRoutine( void *arg ) {
 
         // 设置session超时
         bool success = true;
-        redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
+        redisContext *cache = g_CachePool.take();
         if (!cache) {
             ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d connect to cache failed\n", obj->_userId, obj->_roleId);
 
             success = false;
         } else {
             redisReply *reply;
-            if (g_GameCenter.setLocationExpireSha1().empty()) {
+            if (g_CachePool.setLocationExpireSha1().empty()) {
                 reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d %d", SET_LOCATION_EXPIRE_CMD, obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d", g_GameCenter.setLocationExpireSha1().c_str(), obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d", g_CachePool.setLocationExpireSha1().c_str(), obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
             }
             
             if (!reply) {
-                g_GameCenter.getCachePool()->proxy.put(cache, true);
+                g_CachePool.put(cache, true);
                 ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed for db error\n", obj->_userId, obj->_roleId);
 
                 success = false;
             } else {
                 success = reply->integer == 1;
                 freeReplyObject(reply);
-                g_GameCenter.getCachePool()->proxy.put(cache, false);
+                g_CachePool.put(cache, false);
 
                 if (!success) {
                     ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed\n", obj->_userId, obj->_roleId);

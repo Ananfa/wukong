@@ -16,8 +16,8 @@
 
 #include "corpc_routine_env.h"
 #include "record_object.h"
-#include "record_center.h"
-#include "record_object_manager.h"
+#include "cache_pool.h"
+#include "record_delegate.h"
 #include "redis_utils.h"
 #include "share/const.h"
 
@@ -51,7 +51,7 @@ void RecordObject::stop() {
         _cond.broadcast();
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
-        redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+        redisContext *cache = g_CachePool.take();
         if (!cache) {
             ERROR_LOG("RecordObject::stop -- role[%d] connect to cache failed\n", _roleId);
             return;
@@ -59,14 +59,14 @@ void RecordObject::stop() {
 
         // 删除record标签
         redisReply *reply;
-        if (g_RecordCenter.removeRecordSha1().empty()) {
+        if (g_CachePool.removeRecordSha1().empty()) {
             reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d", REMOVE_RECORD_CMD, _roleId, _rToken);
         } else {
-            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d", g_RecordCenter.removeRecordSha1().c_str(), _roleId, _rToken);
+            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d", g_CachePool.removeRecordSha1().c_str(), _roleId, _rToken);
         }
 
         if (!reply) {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("RecordObject::stop -- role[%d] remove record failed", _roleId);
             return;
         }
@@ -76,13 +76,13 @@ void RecordObject::stop() {
         // 设置cache数据超时时间
         reply = (redisReply *)redisCommand(cache, "EXPIRE Role:{%d} %d", _roleId, RECORD_EXPIRE);
         if (!reply) {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("RecordObject::stop -- role[%d] expire cache data failed for db error\n", _roleId);
             return;
         }
 
         freeReplyObject(reply);
-        g_RecordCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
     }
 }
 
@@ -107,28 +107,28 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
 
         // 设置session超时
         bool success = true;
-        redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+        redisContext *cache = g_CachePool.take();
         if (!cache) {
             ERROR_LOG("RecordObject::heartbeatRoutine -- role %d connect to cache failed\n", obj->_roleId);
 
             success = false;
         } else {
             redisReply *reply;
-            if (g_RecordCenter.setRecordExpireSha1().empty()) {
+            if (g_CachePool.setRecordExpireSha1().empty()) {
                 reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d", SET_RECORD_EXPIRE_CMD, obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d", g_RecordCenter.setRecordExpireSha1().c_str(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
+                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d", g_CachePool.setRecordExpireSha1().c_str(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
             }
             
             if (!reply) {
-                g_RecordCenter.getCachePool()->proxy.put(cache, true);
+                g_CachePool.put(cache, true);
                 ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed for db error\n", obj->_roleId);
 
                 success = false;
             } else {
                 success = reply->integer == 1;
                 freeReplyObject(reply);
-                g_RecordCenter.getCachePool()->proxy.put(cache, false);
+                g_CachePool.put(cache, false);
 
                 if (!success) {
                     ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed\n", obj->_roleId);
@@ -196,7 +196,7 @@ void *RecordObject::syncRoutine(void *arg) {
             syncDatas.clear();
         }
 
-        g_RecordCenter.getMakeProfileHandle()(syncDatas, profileDatas);
+        g_RecordDelegate.getMakeProfileHandle()(syncDatas, profileDatas);
         if (!profileDatas.empty()) {
             if (!obj->cacheProfile(profileDatas)) {
                 ERROR_LOG("RecordObject::syncRoutine -- role %d save profile failed\n", obj->_roleId);
@@ -211,21 +211,21 @@ void *RecordObject::syncRoutine(void *arg) {
 
 bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &datas) {
     // 将数据存到cache中，并且加入相应的存盘时间队列
-    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("RecordObject::cacheData -- role %d connect to cache failed\n", _roleId);
 
         return false;
     }
 
-    switch (RedisUtils::UpdateRole(cache, g_RecordCenter.updateRoleSha1(), _roleId, datas)) {
+    switch (RedisUtils::UpdateRole(cache, _roleId, datas)) {
         case REDIS_DB_ERROR: {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("RecordObject::cacheData -- role %d update data failed for db error\n", _roleId);
             return false;
         }
         case REDIS_FAIL: {
-            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             ERROR_LOG("RecordObject::cacheData -- role %d update data failed\n", _roleId);
             return false;
         }
@@ -248,40 +248,40 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
 
         redisReply *reply = (redisReply *)redisCommand(cache, "SADD Save:%d %d", whealPos, _roleId);
         if (!reply) {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", _roleId);
         } else {
             _saveTM = nextSaveTM;
             freeReplyObject(reply);
-            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
         }
     } else {
-        g_RecordCenter.getCachePool()->proxy.put(cache, false);
+        g_CachePool.put(cache, false);
     }
 
     return true;
 }
 
 bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas) {
-    redisContext *cache = g_RecordCenter.getCachePool()->proxy.take();
+    redisContext *cache = g_CachePool.take();
     if (!cache) {
         ERROR_LOG("RecordObject::cacheProfile -- role %d connect to cache failed\n", _roleId);
         return false;
     }
 
-    switch (RedisUtils::UpdateProfile(cache, g_RecordCenter.updateProfileSha1(), _roleId, profileDatas)) {
+    switch (RedisUtils::UpdateProfile(cache, _roleId, profileDatas)) {
         case REDIS_DB_ERROR: {
-            g_RecordCenter.getCachePool()->proxy.put(cache, true);
+            g_CachePool.put(cache, true);
             ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed for db error\n", _roleId);
             return false;
         }
         case REDIS_FAIL: {
-            g_RecordCenter.getCachePool()->proxy.put(cache, false);
+            g_CachePool.put(cache, false);
             ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed\n", _roleId);
             return false;
         }
     }
 
-    g_RecordCenter.getCachePool()->proxy.put(cache, false);
+    g_CachePool.put(cache, false);
     return true;
 }

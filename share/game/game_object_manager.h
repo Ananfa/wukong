@@ -28,8 +28,6 @@ namespace wukong {
     public:
         GameObjectManager(GameServerType type, ServerId id):_type(type), _id(id), _shutdown(false) {}
 
-        void init();
-
         ServerId getId() { return _id; }
 
         void shutdown();

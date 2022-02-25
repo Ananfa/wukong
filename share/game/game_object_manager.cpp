@@ -25,10 +25,6 @@
 
 using namespace wukong;
 
-void GameObjectManager::init() {
-    
-}
-
 void GameObjectManager::shutdown() {
     if (_shutdown) {
         return;

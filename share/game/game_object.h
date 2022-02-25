@@ -80,6 +80,8 @@ namespace wukong {
         ServerId _recordId; // 记录对象所在服务器id
         uint32_t _lToken;
 
+        uint32_t _sceneId = 0; // 大厅服时才为0
+
         bool _running = false;
         int _gwHeartbeatFailCount = 0;
 

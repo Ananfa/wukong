@@ -39,7 +39,6 @@ void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
     server->start(false);
     
     GameObjectManager *mgr = new GameObjectManager(GAME_SERVER_TYPE_LOBBY, lbid);
-    mgr->init();
 
     InnerLobbyServiceImpl *lobbyServiceImpl = new InnerLobbyServiceImpl(mgr);
     InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(mgr);

@@ -101,21 +101,12 @@ void GameObject::stop() {
             return;
         }
 
-        // 删除record标签
-        redisReply *reply;
-        if (g_CachePool.removeLocationSha1().empty()) {
-            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d", REMOVE_RECORD_CMD, _roleId, _lToken);
-        } else {
-            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d", g_CachePool.removeLocationSha1().c_str(), _roleId, _lToken);
-        }
-
-        if (!reply) {
+        if (RedisUtils::RemoveGameObjectAddress(cache, _roleId, _lToken) == REDIS_DB_ERROR) {
             g_CachePool.put(cache, true);
             ERROR_LOG("GameObject::stop -- role[%d] remove location failed", _roleId);
             return;
         }
 
-        freeReplyObject(reply);
         g_CachePool.put(cache, false);
     }
 }
@@ -305,25 +296,20 @@ void *GameObject::heartbeatRoutine( void *arg ) {
 
             success = false;
         } else {
-            redisReply *reply;
-            if (g_CachePool.setLocationExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d %d", SET_LOCATION_EXPIRE_CMD, obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
-            } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d", g_CachePool.setLocationExpireSha1().c_str(), obj->_roleId, obj->_lToken, TOKEN_TIMEOUT);
-            }
-            
-            if (!reply) {
-                g_CachePool.put(cache, true);
-                ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed for db error\n", obj->_userId, obj->_roleId);
-
-                success = false;
-            } else {
-                success = reply->integer == 1;
-                freeReplyObject(reply);
-                g_CachePool.put(cache, false);
-
-                if (!success) {
+            switch (RedisUtils::SetGameObjectAddressTTL(cache, obj->_roleId, obj->_lToken)) {
+                case REDIS_DB_ERROR: {
+                    g_CachePool.put(cache, true);
+                    ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed for db error\n", obj->_userId, obj->_roleId);
+                    success = false;
+                }
+                case REDIS_FAIL: {
+                    g_CachePool.put(cache, false);
                     ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed\n", obj->_userId, obj->_roleId);
+                    success = false;
+                }
+                case REDIS_SUCCESS: {
+                    g_CachePool.put(cache, false);
+                    success = true;
                 }
             }
         }

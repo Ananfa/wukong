@@ -17,6 +17,10 @@
 #ifndef scene_manager_h
 #define scene_manager_h
 
+#include <list>
+#include <map>
+#include <string>
+
 using namespace corpc;
 
 namespace wukong {
@@ -33,17 +37,19 @@ namespace wukong {
 
         size_t size(); // 获取当前场景对象数
 
-        bool exist(uint32_t sceneId); 
-        std::shared_ptr<Scene> getScene(uint32_t sceneId);
-        uint32_t loadScene(uint32_t defId, uint32_t sceneId);
-        bool remove(uint32_t sceneId); // 删除场景对象
+        bool exist(const std::string &sceneId); 
+        std::shared_ptr<Scene> getScene(const std::string &sceneId);
+        std::string loadScene(uint32_t defId, const std::string &sceneId, RoleId roleid, const std::string &teamid); // 失败时返回0
+        bool remove(const std::string &sceneId); // 删除场景对象
 
     private:
         ServerId _id;         // 场景服务器号
         bool _shutdown;
 
+        uint64_t _incSceneNo = 0; // 场景自增计数
+
         // 场景列表
-        std::map<uint32_t, std::shared_ptr<Scene>> _sceneId2SceneMap;
+        std::map<std::string, std::shared_ptr<Scene>> _sceneId2SceneMap;
     };
 
 }

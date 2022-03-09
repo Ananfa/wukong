@@ -183,16 +183,16 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 
     // 队伍成员同时登录时会导致进入游戏失败，且passport失效（因此需要重试）
     int leftTryTimes = 3;
+    label1:
     while (true) {
         // 查询玩家角色游戏对象所在（cache中key为Location:<roleId>的hash，由游戏对象负责维持心跳）
         //    若查到，设置玩家网关对象中的gameServerStub
         //    若没有查到，分配一个大厅服，并通知大厅服加载玩家游戏对象
         //       若返回失败，则登录失败
-        uint32_t lToken;
+        std::string lToken;
         GameServerType gstype;
         ServerId gsid;
-        RedisAccessResult res = RedisUtils::GetGameObjectAddress(cache, roleId, gstype, gsid, lToken);
-        switch (res) {
+        switch (RedisUtils::GetGameObjectAddress(cache, roleId, gstype, gsid, lToken)) {
             case REDIS_DB_ERROR: {
                 g_CachePool.put(cache, true);
                 ERROR_LOG("GatewayHandler::authHandle -- get location failed for db error\n");
@@ -205,17 +205,16 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
                 conn->close();
                 return;
             }
-        }
-
-        if (res == REDIS_SUCCESS) {
-            if (!obj->setGameServerStub(gstype, gsid)) {
-                g_CachePool.put(cache, false);
-                ERROR_LOG("GatewayHandler::authHandle -- set game server stub failed\n");
-                conn->close();
-                return;
+            case REDIS_SUCCESS: {
+                if (!obj->setGameServerStub(gstype, gsid)) {
+                    g_CachePool.put(cache, false);
+                    ERROR_LOG("GatewayHandler::authHandle -- set game server stub failed\n");
+                    conn->close();
+                    return;
+                }
+                obj->setLToken(lToken);
+                break label1;
             }
-            obj->setLToken(lToken);
-            break;
         }
 
         // 向Lobby服发initRole RPC前先释放数据库连接
@@ -253,7 +252,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     }
 
     // 在登记到已连接表之前，调用一次SET_SESSION_EXPIRE_CMD，确保session没有过期
-    switch (RedisUtils::ResetSessionTTL(cache, userId, gToken)) {
+    switch (RedisUtils::SetSessionTTL(cache, userId, gToken)) {
         case REDIS_DB_ERROR: {
             g_CachePool.put(cache, true);
             ERROR_LOG("GatewayHandler::authHandle -- user[%d] refresh session failed for db error\n", userId);

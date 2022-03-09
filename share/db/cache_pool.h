@@ -60,6 +60,10 @@ namespace wukong {
         const std::string &updateLocationSha1() { return _updateLocationSha1; }
         const std::string &setLocationExpireSha1() { return _setLocationExpireSha1; }
 
+        const std::string &setSceneLocationSha1() { return _setSceneLocationSha1; }
+        const std::string &removeSceneLocationSha1() { return _removeSceneLocationSha1; }
+        const std::string &setSceneLocationExpireSha1() { return _setSceneLocationExpireSha1; }
+
     private:
         static void *initRoutine(void *arg);
 
@@ -88,6 +92,10 @@ namespace wukong {
         std::string _removeLocationSha1; // 删除location的lua脚本sha1值
         std::string _updateLocationSha1; // 更新location的lua脚本sha1值
         std::string _setLocationExpireSha1; // 设置location的超时lua脚本sha1值
+
+        std::string _setSceneLocationSha1; // 设置场景location的lua脚本sha1值
+        std::string _removeSceneLocationSha1; // 删除场景location的lua脚本sha1值
+        std::string _setSceneLocationExpireSha1; // 设置场景location的超时lua脚本sha1值
 
     private:
         CachePool() = default;                                // ctor hidden

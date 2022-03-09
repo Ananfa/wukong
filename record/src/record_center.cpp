@@ -50,70 +50,53 @@ void *RecordCenter::saveRoutine(void *arg) {
         if (!cache) {
             ERROR_LOG("RecordCenter::saveRoutine -- connect to cache failed\n");
             continue;
-        } else {
-            gettimeofday(&t, NULL);
-            uint32_t wheelPos = t.tv_sec % SAVE_TIME_WHEEL_SIZE;
+        }
 
-            // 当前实现是每个Record服抢占一秒的集合进行处理，是否可以用redis集合的spop来实现逻辑提高存盘性能？
-            // pop出来的玩家ID要是存盘失败就会导致数据没有存盘怎么办？应该是存盘完成后才能删除，或者当没成功存盘时写回集合中
-            // pop出来处理中途服务器关闭导致数据没存盘怎么办？应该是存盘完成后才能删除
-            // 从上面分析，目前采用抢占集合方式进行处理相对可靠，通过并发启动多个存盘工作协程方式来提高存盘效率
+        gettimeofday(&t, NULL);
+        uint32_t wheelPos = t.tv_sec % SAVE_TIME_WHEEL_SIZE;
 
-            redisReply *reply = (redisReply *)redisCommand(cache, "SET SaveLock:%d 1 NX EX 60", wheelPos);
-            if (!reply) {
+        // 当前实现是每个Record服抢占一秒的集合进行处理，是否可以用redis集合的spop来实现逻辑提高存盘性能？
+        // pop出来的玩家ID要是存盘失败就会导致数据没有存盘怎么办？应该是存盘完成后才能删除，或者当没成功存盘时写回集合中
+        // pop出来处理中途服务器关闭导致数据没存盘怎么办？应该是存盘完成后才能删除
+        // 从上面分析，目前采用抢占集合方式进行处理相对可靠，通过并发启动多个存盘工作协程方式来提高存盘效率
+
+        switch (RedisUtils::SaveLock(cache, wheelPos)) {
+            case REDIS_DB_ERROR: {
                 g_CachePool.put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply null\n");
                 continue;
-            } else if (strcmp(reply->str, "OK")) {
-                // 上锁不成功
-                freeReplyObject(reply);
+            }
+            case REDIS_FAIL: {
                 g_CachePool.put(cache, false);
                 continue;
             }
+        }
 
-            freeReplyObject(reply);
-
-            // 读取整个SET
-            reply = (redisReply *)redisCommand(cache, "SMEMBERS Save:%d", wheelPos);
-            if (!reply) {
+        std::vector<RoleId> roleIds;
+        switch (RedisUtils::GetSaveList(cache, wheelPos, roleIds)) {
+            case REDIS_DB_ERROR: {
                 g_CachePool.put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply null\n");
                 continue;
             }
-
-            if (reply->type != REDIS_REPLY_ARRAY) {
-                freeReplyObject(reply);
+            case REDIS_FAIL: {
                 g_CachePool.put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply type invalid\n");
                 continue;
             }
+        }
 
-            std::list<RoleId> roleIds;
-            if (reply->elements > 0) {
-                for (int i = 0; i < reply->elements; i++) {
-                    RoleId roleId = atoi(reply->element[i]->str);
-                    if (roleId == 0) {
-                        ERROR_LOG("RecordCenter::saveRoutine -- invalid roleid\n");
-                        continue;
-                    }
+        g_CachePool.put(cache, false);
+        
+        for (RoleId roleId : roleIds){
+            // 开工作协程并发存盘
+            self->_saveSema.wait();
 
-                    roleIds.push_back(roleId);
-                }
-            }
-
-            freeReplyObject(reply);
-            g_CachePool.put(cache, false);
-            
-            for (RoleId roleId : roleIds){
-                // 开工作协程并发存盘
-                self->_saveSema.wait();
-
-                WorkerTask *task = new WorkerTask;
-                task->center = self;
-                task->roleId = roleId;
-                task->wheelPos = wheelPos;
-                RoutineEnvironment::startCoroutine(saveWorkerRoutine, task);
-            }
+            WorkerTask *task = new WorkerTask;
+            task->center = self;
+            task->roleId = roleId;
+            task->wheelPos = wheelPos;
+            RoutineEnvironment::startCoroutine(saveWorkerRoutine, task);
         }
     }
 }
@@ -142,11 +125,8 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         return nullptr;
     }
 
-    if (datas.size() == 0) {
-        // cache中没有数据，不需要保存
-        g_CachePool.put(cache, false);
-        WARN_LOG("DemoUtils::SaveRole -- load role data empty\n");
-    } else {
+    if (datas.size() > 0) {
+        // 先暂时归还cache连接
         g_CachePool.put(cache, false);
 
         // 保存到mysql中
@@ -168,19 +148,22 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         }
 
         g_MysqlPool.put(mysql, false);
+        
+        // 重新获取cache连接
+        cache = g_CachePool.take();
+        if (!cache) {
+            ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed when remove id from set\n");
+            
+            self->_saveSema.post();
+            return nullptr;
+        }
+    } else {
+        // cache中没有数据，不需要保存
+        WARN_LOG("DemoUtils::SaveRole -- load role data empty\n");
     }
 
     // 删除集合中玩家ID，这里一个个玩家ID单独从集合中删除而不是在最后删除集合是防止处理集合过程中集合插入新的ID
-    cache = g_CachePool.take();
-    if (!cache) {
-        ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed when remove id from set\n");
-        
-        self->_saveSema.post();
-        return nullptr;
-    }
-
-    redisReply *reply = (redisReply *)redisCommand(cache, "SREM Save:%d %d", wheelPos, roleId);
-    if (!reply) {
+    if (RedisUtils::RemoveSaveRoleId(cache, wheelPos, roleId) == REDIS_DB_ERROR) {
         g_CachePool.put(cache, true);
         ERROR_LOG("RecordCenter::saveRoutine -- redis reply null when remove id from set\n");
         
@@ -188,7 +171,6 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         return nullptr;
     }
 
-    freeReplyObject(reply);
     g_CachePool.put(cache, false);
 
     self->_saveSema.post();

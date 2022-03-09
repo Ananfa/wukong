@@ -16,7 +16,7 @@ message KickRequest {
 
 message ForwardOutTarget {
     uint32 userId = 1;
-    uint32 lToken = 2;
+    string lToken = 2;
 }
 
 message ForwardOutRequest {
@@ -30,7 +30,7 @@ message ForwardOutRequest {
 message SetGameObjectPosRequest {
     uint32 serverId = 1;
     uint32 userId = 2;
-    uint32 lToken = 3;
+    string lToken = 3;
     uint32 gsType = 4;
     uint32 gsId = 5;
 }
@@ -38,7 +38,7 @@ message SetGameObjectPosRequest {
 message GSHeartbeatRequest {
     uint32 serverId = 1;
     uint32 userId = 2;
-    uint32 lToken = 3;
+    string lToken = 3;
 }
 
 service GatewayService {

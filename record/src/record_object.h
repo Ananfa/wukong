@@ -35,7 +35,7 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordObjectManager *manager): _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
+        RecordObject(RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
         virtual ~RecordObject() = 0;
 
         virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas) = 0;
@@ -43,8 +43,8 @@ namespace wukong {
         virtual void syncIn(const ::wukong::pb::SyncRequest* request) = 0;
 
         RoleId getRoleId() { return _roleId; }
-        void setLToken(uint32_t lToken) { _lToken = lToken; }
-        uint32_t getLToken() { return _lToken; }
+        void setLToken(const std::string &lToken) { _lToken = lToken; }
+        const std::string& getLToken() { return _lToken; }
         ServerId getServerId() { return _serverId; }
 
         void start(); // 开始心跳，启动心跳协程
@@ -68,8 +68,8 @@ namespace wukong {
         std::map<std::string, bool> _dirty_map;
 
     private:
-        uint32_t _lToken; // 游戏对象唯一标识
-        uint32_t _rToken; // 记录对象唯一标识
+        std::string _lToken; // 游戏对象唯一标识
+        std::string _rToken; // 记录对象唯一标识
         bool _running;
 
         uint64_t _gameObjectHeartbeatExpire; // 游戏对象心跳超时时间

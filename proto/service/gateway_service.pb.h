@@ -369,9 +369,23 @@ class ForwardOutTarget final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
     kLTokenFieldNumber = 2,
+    kUserIdFieldNumber = 1,
   };
+  // string lToken = 2;
+  void clear_ltoken();
+  const std::string& ltoken() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ltoken(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ltoken();
+  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
+  void set_allocated_ltoken(std::string* ltoken);
+  private:
+  const std::string& _internal_ltoken() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
+  std::string* _internal_mutable_ltoken();
+  public:
+
   // uint32 userId = 1;
   void clear_userid();
   ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
@@ -381,15 +395,6 @@ class ForwardOutTarget final :
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 2;
-  void clear_ltoken();
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
-  void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ltoken() const;
-  void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
   // @@protoc_insertion_point(class_scope:wukong.pb.ForwardOutTarget)
  private:
   class _Internal;
@@ -397,8 +402,8 @@ class ForwardOutTarget final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
@@ -716,12 +721,26 @@ class SetGameObjectPosRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kLTokenFieldNumber = 3,
     kServerIdFieldNumber = 1,
     kUserIdFieldNumber = 2,
-    kLTokenFieldNumber = 3,
     kGsTypeFieldNumber = 4,
     kGsIdFieldNumber = 5,
   };
+  // string lToken = 3;
+  void clear_ltoken();
+  const std::string& ltoken() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ltoken(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ltoken();
+  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
+  void set_allocated_ltoken(std::string* ltoken);
+  private:
+  const std::string& _internal_ltoken() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
+  std::string* _internal_mutable_ltoken();
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -738,15 +757,6 @@ class SetGameObjectPosRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 lToken = 3;
-  void clear_ltoken();
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
-  void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ltoken() const;
-  void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // uint32 gsType = 4;
@@ -774,9 +784,9 @@ class SetGameObjectPosRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gstype_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gsid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -899,10 +909,24 @@ class GSHeartbeatRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kLTokenFieldNumber = 3,
     kServerIdFieldNumber = 1,
     kUserIdFieldNumber = 2,
-    kLTokenFieldNumber = 3,
   };
+  // string lToken = 3;
+  void clear_ltoken();
+  const std::string& ltoken() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ltoken(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ltoken();
+  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
+  void set_allocated_ltoken(std::string* ltoken);
+  private:
+  const std::string& _internal_ltoken() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
+  std::string* _internal_mutable_ltoken();
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -921,15 +945,6 @@ class GSHeartbeatRequest final :
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 3;
-  void clear_ltoken();
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
-  void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ltoken() const;
-  void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
   // @@protoc_insertion_point(class_scope:wukong.pb.GSHeartbeatRequest)
  private:
   class _Internal;
@@ -937,9 +952,9 @@ class GSHeartbeatRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
@@ -1262,24 +1277,50 @@ inline void ForwardOutTarget::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) 
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardOutTarget.userId)
 }
 
-// uint32 lToken = 2;
+// string lToken = 2;
 inline void ForwardOutTarget::clear_ltoken() {
-  ltoken_ = 0u;
+  ltoken_.ClearToEmpty();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardOutTarget::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardOutTarget::ltoken() const {
+inline const std::string& ForwardOutTarget::ltoken() const {
   // @@protoc_insertion_point(field_get:wukong.pb.ForwardOutTarget.lToken)
   return _internal_ltoken();
 }
-inline void ForwardOutTarget::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void ForwardOutTarget::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ForwardOutTarget::set_ltoken(ArgT0&& arg0, ArgT... args) {
+ 
+ ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardOutTarget.lToken)
+}
+inline std::string* ForwardOutTarget::mutable_ltoken() {
+  std::string* _s = _internal_mutable_ltoken();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ForwardOutTarget.lToken)
+  return _s;
+}
+inline const std::string& ForwardOutTarget::_internal_ltoken() const {
+  return ltoken_.Get();
+}
+inline void ForwardOutTarget::_internal_set_ltoken(const std::string& value) {
+  
+  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* ForwardOutTarget::_internal_mutable_ltoken() {
+  
+  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* ForwardOutTarget::release_ltoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ForwardOutTarget.lToken)
+  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void ForwardOutTarget::set_allocated_ltoken(std::string* ltoken) {
+  if (ltoken != nullptr) {
+    
+  } else {
+    
+  }
+  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ForwardOutTarget.lToken)
 }
 
 // -------------------------------------------------------------------
@@ -1476,24 +1517,50 @@ inline void SetGameObjectPosRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 
   // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.userId)
 }
 
-// uint32 lToken = 3;
+// string lToken = 3;
 inline void SetGameObjectPosRequest::clear_ltoken() {
-  ltoken_ = 0u;
+  ltoken_.ClearToEmpty();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::ltoken() const {
+inline const std::string& SetGameObjectPosRequest::ltoken() const {
   // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.lToken)
   return _internal_ltoken();
 }
-inline void SetGameObjectPosRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void SetGameObjectPosRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void SetGameObjectPosRequest::set_ltoken(ArgT0&& arg0, ArgT... args) {
+ 
+ ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.lToken)
+}
+inline std::string* SetGameObjectPosRequest::mutable_ltoken() {
+  std::string* _s = _internal_mutable_ltoken();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.SetGameObjectPosRequest.lToken)
+  return _s;
+}
+inline const std::string& SetGameObjectPosRequest::_internal_ltoken() const {
+  return ltoken_.Get();
+}
+inline void SetGameObjectPosRequest::_internal_set_ltoken(const std::string& value) {
+  
+  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* SetGameObjectPosRequest::_internal_mutable_ltoken() {
+  
+  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* SetGameObjectPosRequest::release_ltoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.SetGameObjectPosRequest.lToken)
+  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void SetGameObjectPosRequest::set_allocated_ltoken(std::string* ltoken) {
+  if (ltoken != nullptr) {
+    
+  } else {
+    
+  }
+  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.SetGameObjectPosRequest.lToken)
 }
 
 // uint32 gsType = 4;
@@ -1580,24 +1647,50 @@ inline void GSHeartbeatRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.userId)
 }
 
-// uint32 lToken = 3;
+// string lToken = 3;
 inline void GSHeartbeatRequest::clear_ltoken() {
-  ltoken_ = 0u;
+  ltoken_.ClearToEmpty();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 GSHeartbeatRequest::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 GSHeartbeatRequest::ltoken() const {
+inline const std::string& GSHeartbeatRequest::ltoken() const {
   // @@protoc_insertion_point(field_get:wukong.pb.GSHeartbeatRequest.lToken)
   return _internal_ltoken();
 }
-inline void GSHeartbeatRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void GSHeartbeatRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void GSHeartbeatRequest::set_ltoken(ArgT0&& arg0, ArgT... args) {
+ 
+ ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.lToken)
+}
+inline std::string* GSHeartbeatRequest::mutable_ltoken() {
+  std::string* _s = _internal_mutable_ltoken();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.GSHeartbeatRequest.lToken)
+  return _s;
+}
+inline const std::string& GSHeartbeatRequest::_internal_ltoken() const {
+  return ltoken_.Get();
+}
+inline void GSHeartbeatRequest::_internal_set_ltoken(const std::string& value) {
+  
+  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* GSHeartbeatRequest::_internal_mutable_ltoken() {
+  
+  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* GSHeartbeatRequest::release_ltoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.GSHeartbeatRequest.lToken)
+  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void GSHeartbeatRequest::set_allocated_ltoken(std::string* ltoken) {
+  if (ltoken != nullptr) {
+    
+  } else {
+    
+  }
+  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.GSHeartbeatRequest.lToken)
 }
 
 #ifdef __GNUC__

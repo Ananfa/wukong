@@ -75,67 +75,42 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
         return false;
     }
 
-    redisReply *reply = (redisReply *)redisCommand(cache, "HGET Record:%d loc", roleId);
-    if (!reply) {
-        g_CachePool.put(cache, true);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for db error\n", userId, roleId);
-        return false;
-    }
-
     ServerId recordId;
-    if (reply->type == REDIS_REPLY_STRING) {
-        recordId = std::stoi(reply->str);
-    } else if (reply->type == REDIS_REPLY_NIL) {
-        if (!g_ClientCenter.randomRecordServer(recordId)) {
-            freeReplyObject(reply);
-            g_CachePool.put(cache, false);
-            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d random record server failed\n", userId, roleId);
+    RedisAccessResult res = RedisUtils::GetRecordAddress(cache, roleId, recordId);
+    switch (res) {
+        case REDIS_DB_ERROR: {
+            g_CachePool.put(cache, true);
+            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for db error\n", userId, roleId);
             return false;
         }
-    } else {
-        freeReplyObject(reply);
-        g_CachePool.put(cache, false);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for invalid data type\n", userId, roleId);
-        return false;
+        case REDIS_FAIL: {
+            if (!g_ClientCenter.randomRecordServer(recordId)) {
+                g_CachePool.put(cache, false);
+                ERROR_LOG("GameObjectManager::loadRole -- user %d role %d random record server failed\n", userId, roleId);
+                return false;
+            }
+        }
     }
-
-    freeReplyObject(reply);
 
     // 生成lToken（直接用当前时间来生成）
     struct timeval t;
     gettimeofday(&t, NULL);
-    uint32_t lToken = (t.tv_sec % 1000) * 1000000 + t.tv_usec;
+    std::string lToken = std::to_string((t.tv_sec % 1000) * 1000000 + t.tv_usec);
 
-    // 尝试设置location
-    // TODO: loc的格式应该包含游戏服类型
-    if (g_CachePool.setLocationSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d %d %d %d", SET_LOCATION_CMD, roleId, lToken, _type, _id, TOKEN_TIMEOUT);
-    } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d %d %d", g_CachePool.setLocationSha1().c_str(), roleId, lToken, _type, _id, TOKEN_TIMEOUT);
-    }
-    
-    if (!reply) {
-        g_CachePool.put(cache, true);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed\n", userId, roleId);
-        return false;
-    }
-
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        freeReplyObject(reply);
-        g_CachePool.put(cache, true);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for return type invalid\n", userId, roleId);
-        return false;
+    res = RedisUtils::SetGameObjectAddress(cache, roleId, _type, _id, lToken);
+    switch (res) {
+        case REDIS_DB_ERROR: {
+            g_CachePool.put(cache, true);
+            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed\n", userId, roleId);
+            return false;
+        }
+        case REDIS_FAIL: {
+            g_CachePool.put(cache, false);
+            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for already set\n", userId, roleId);
+            return false;
+        }
     }
 
-    if (reply->integer == 0) {
-        // 设置失败
-        freeReplyObject(reply);
-        g_CachePool.put(cache, false);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for already set\n", userId, roleId);
-        return false;
-    }
-
-    freeReplyObject(reply);
     g_CachePool.put(cache, false);
 
     // 向Record服发加载数据RPC
@@ -179,6 +154,11 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
 
     // 创建GameObject
     auto obj = g_GameDelegate.getCreateGameObjectHandle()(userId, roleId, serverId, lToken, this, roleData);
+
+    if (!obj) {
+        ERROR_LOG("GameObjectManager::loadRole -- create game object failed\n");
+        return false;
+    }
 
     // 设置gateway和record stub
     if (!obj->setGatewayServerStub(gatewayId)) {

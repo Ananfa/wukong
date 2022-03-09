@@ -17,7 +17,7 @@ message ForwardInRequest {
 message EnterGameRequest {
     uint32 serverId = 1; // 物理服编号
     uint32 roleId = 2;
-    uint32 lToken = 3;
+    string lToken = 3;
     uint32 gatewayId = 4;
 }
 

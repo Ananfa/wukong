@@ -36,9 +36,9 @@ struct ForwardInRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ForwardInRequestDefaultTypeInternal _ForwardInRequest_default_instance_;
 constexpr EnterGameRequest::EnterGameRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : serverid_(0u)
+  : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , serverid_(0u)
   , roleid_(0u)
-  , ltoken_(0u)
   , gatewayid_(0u){}
 struct EnterGameRequestDefaultTypeInternal {
   constexpr EnterGameRequestDefaultTypeInternal()
@@ -92,7 +92,7 @@ const char descriptor_table_protodef_game_5fservice_2eproto[] PROTOBUF_SECTION_V
   "rId\030\001 \001(\r\022\014\n\004type\030\002 \001(\005\022\013\n\003tag\030\003 \001(\r\022\016\n\006"
   "roleId\030\004 \001(\r\022\016\n\006rawMsg\030\005 \001(\014\"W\n\020EnterGam"
   "eRequest\022\020\n\010serverId\030\001 \001(\r\022\016\n\006roleId\030\002 \001"
-  "(\r\022\016\n\006lToken\030\003 \001(\r\022\021\n\tgatewayId\030\004 \001(\r2\225\001"
+  "(\r\022\016\n\006lToken\030\003 \001(\t\022\021\n\tgatewayId\030\004 \001(\r2\225\001"
   "\n\013GameService\022\?\n\tforwardIn\022\033.wukong.pb.F"
   "orwardInRequest\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\022\?"
   "\n\tenterGame\022\033.wukong.pb.EnterGameRequest"
@@ -442,6 +442,11 @@ EnterGameRequest::EnterGameRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 EnterGameRequest::EnterGameRequest(const EnterGameRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_ltoken().empty()) {
+    ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_ltoken(), 
+      GetArenaForAllocation());
+  }
   ::memcpy(&serverid_, &from.serverid_,
     static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
     reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
@@ -449,6 +454,7 @@ EnterGameRequest::EnterGameRequest(const EnterGameRequest& from)
 }
 
 inline void EnterGameRequest::SharedCtor() {
+ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
@@ -464,6 +470,7 @@ EnterGameRequest::~EnterGameRequest() {
 
 inline void EnterGameRequest::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  ltoken_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void EnterGameRequest::ArenaDtor(void* object) {
@@ -482,6 +489,7 @@ void EnterGameRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  ltoken_.ClearToEmpty();
   ::memset(&serverid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&gatewayid_) -
       reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
@@ -508,10 +516,12 @@ const char* EnterGameRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 lToken = 3;
+      // string lToken = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          ltoken_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          auto str = _internal_mutable_ltoken();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "wukong.pb.EnterGameRequest.lToken"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -563,10 +573,14 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_roleid(), target);
   }
 
-  // uint32 lToken = 3;
-  if (this->_internal_ltoken() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_ltoken(), target);
+  // string lToken = 3;
+  if (!this->_internal_ltoken().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_ltoken().data(), static_cast<int>(this->_internal_ltoken().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "wukong.pb.EnterGameRequest.lToken");
+    target = stream->WriteStringMaybeAliased(
+        3, this->_internal_ltoken(), target);
   }
 
   // uint32 gatewayId = 4;
@@ -591,6 +605,13 @@ size_t EnterGameRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  // string lToken = 3;
+  if (!this->_internal_ltoken().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_ltoken());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
@@ -603,13 +624,6 @@ size_t EnterGameRequest::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_roleid());
-  }
-
-  // uint32 lToken = 3;
-  if (this->_internal_ltoken() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_ltoken());
   }
 
   // uint32 gatewayId = 4;
@@ -647,14 +661,14 @@ void EnterGameRequest::MergeFrom(const EnterGameRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (!from._internal_ltoken().empty()) {
+    _internal_set_ltoken(from._internal_ltoken());
+  }
   if (from._internal_serverid() != 0) {
     _internal_set_serverid(from._internal_serverid());
   }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
-  }
-  if (from._internal_ltoken() != 0) {
-    _internal_set_ltoken(from._internal_ltoken());
   }
   if (from._internal_gatewayid() != 0) {
     _internal_set_gatewayid(from._internal_gatewayid());
@@ -676,6 +690,11 @@ bool EnterGameRequest::IsInitialized() const {
 void EnterGameRequest::InternalSwap(EnterGameRequest* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &ltoken_, GetArenaForAllocation(),
+      &other->ltoken_, other->GetArenaForAllocation()
+  );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(EnterGameRequest, gatewayid_)
       + sizeof(EnterGameRequest::gatewayid_)

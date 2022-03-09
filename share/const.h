@@ -244,6 +244,38 @@ namespace wukong {
           redis.call('persist',KEYS[1])\
         end\
         return redis.call('hgetall',KEYS[1])";
+
+    const char SET_SCENE_LOCATION_CMD[] = "\
+        local ret = redis.call('hsetnx',KEYS[1],'sToken',ARGV[1])\
+        if ret==1 then\
+          redis.call('hmset',KEYS[1],'sid',ARGV[2])\
+          redis.call('expire',KEYS[1],ARGV[3])\
+          return 1\
+        else\
+          return 0\
+        end";
+
+    const char REMOVE_SCENE_LOCATION_CMD[] = "\
+        local sToken=redis.call('hget',KEYS[1],'sToken')\
+        if not sToken then\
+          return 0\
+        elseif sToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('del',KEYS[1])\
+        return 1";
+
+    const char SET_SCENE_LOCATION_EXPIRE_CMD[] = "\
+        local sToken = redis.call('hget',KEYS[1],'sToken')\
+        if not sToken then\
+          return 0\
+        elseif sToken ~= ARGV[1] then\
+          return 0\
+        end\
+        redis.call('expire',KEYS[1],ARGV[2])\
+        return 1";
+
+
 }
 
 #endif /* const_h */

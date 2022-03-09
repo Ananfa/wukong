@@ -57,31 +57,18 @@ void RecordObject::stop() {
             return;
         }
 
-        // 删除record标签
-        redisReply *reply;
-        if (g_CachePool.removeRecordSha1().empty()) {
-            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d", REMOVE_RECORD_CMD, _roleId, _rToken);
-        } else {
-            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d", g_CachePool.removeRecordSha1().c_str(), _roleId, _rToken);
-        }
-
-        if (!reply) {
+        if (RedisUtils::RemoveRecordAddress(cache, _roleId, _rToken) == REDIS_DB_ERROR) {
             g_CachePool.put(cache, true);
             ERROR_LOG("RecordObject::stop -- role[%d] remove record failed", _roleId);
             return;
         }
 
-        freeReplyObject(reply);
-
-        // 设置cache数据超时时间
-        reply = (redisReply *)redisCommand(cache, "EXPIRE Role:{%d} %d", _roleId, RECORD_EXPIRE);
-        if (!reply) {
+        if (RedisUtils::SetRoleTTL(cache, _roleId) == REDIS_DB_ERROR) {
             g_CachePool.put(cache, true);
             ERROR_LOG("RecordObject::stop -- role[%d] expire cache data failed for db error\n", _roleId);
             return;
         }
 
-        freeReplyObject(reply);
         g_CachePool.put(cache, false);
     }
 }
@@ -113,25 +100,20 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
 
             success = false;
         } else {
-            redisReply *reply;
-            if (g_CachePool.setRecordExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d", SET_RECORD_EXPIRE_CMD, obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
-            } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d", g_CachePool.setRecordExpireSha1().c_str(), obj->_roleId, obj->_rToken, TOKEN_TIMEOUT);
-            }
-            
-            if (!reply) {
-                g_CachePool.put(cache, true);
-                ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed for db error\n", obj->_roleId);
-
-                success = false;
-            } else {
-                success = reply->integer == 1;
-                freeReplyObject(reply);
-                g_CachePool.put(cache, false);
-
-                if (!success) {
+            switch (RedisUtils::SetRecordAddressTTL(cache, obj->_roleId, obj->_rToken)) {
+                case REDIS_DB_ERROR: {
+                    g_CachePool.put(cache, true);
+                    ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed for db error\n", obj->_roleId);
+                    success = false;
+                }
+                case REDIS_FAIL: {
+                    g_CachePool.put(cache, false);
                     ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed\n", obj->_roleId);
+                    success = false;
+                }
+                case REDIS_SUCCESS: {
+                    g_CachePool.put(cache, false);
+                    success = true;
                 }
             }
         }
@@ -246,8 +228,7 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
 
         uint32_t whealPos = nextSaveTM % SAVE_TIME_WHEEL_SIZE;
 
-        redisReply *reply = (redisReply *)redisCommand(cache, "SADD Save:%d %d", whealPos, _roleId);
-        if (!reply) {
+        if (RedisUtils::AddSaveRoleId(cache, whealPos, _roleId) == REDIS_DB_ERROR) {
             g_CachePool.put(cache, true);
             WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", _roleId);
         } else {

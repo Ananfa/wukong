@@ -39,10 +39,11 @@ void SceneServer::lobbyThread(InnerRpcServer *server, ServerId sid) {
     // 启动RPC服务
     server->start(false);
     
-    GameObjectManager *mgr = new GameObjectManager(GAME_SERVER_TYPE_SCENE, sid);
+    SceneManager *sceneMgr = new SceneManager(sid);
+    GameObjectManager *gameObjectMgr = new GameObjectManager(GAME_SERVER_TYPE_SCENE, sid);
 
-    InnerSceneServiceImpl *sceneServiceImpl = new InnerSceneServiceImpl(mgr);
-    InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(mgr);
+    InnerSceneServiceImpl *sceneServiceImpl = new InnerSceneServiceImpl(sceneMgr, gameObjectMgr);
+    InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(gameObjectMgr);
     server->registerService(sceneServiceImpl);
     server->registerService(gameServiceImpl);
 

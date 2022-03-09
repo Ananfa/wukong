@@ -36,14 +36,14 @@ namespace wukong {
 
     class GameObject: public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager) {}
+        GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager) {}
         virtual ~GameObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
 
         UserId getUserId() { return _userId; }
         RoleId getRoleId() { return _roleId; }
-        uint32_t getLToken() { return _lToken; }
+        const std::string &getLToken() { return _lToken; }
 
         bool setGatewayServerStub(ServerId sid);
         bool setRecordServerStub(ServerId sid);
@@ -78,7 +78,7 @@ namespace wukong {
         ServerId _gatewayId; // 网关对象所在服务器id
         std::shared_ptr<pb::RecordService_Stub> _recordServerStub; // 网关对象所在服务器stub
         ServerId _recordId; // 记录对象所在服务器id
-        uint32_t _lToken;
+        std::string _lToken;
 
         uint32_t _sceneId = 0; // 大厅服时才为0
 

@@ -10,7 +10,7 @@ package wukong.pb;
 
 message LoadRoleDataRequest {
     uint32 serverId = 1; // 物理服编号
-    uint32 lToken = 2;
+    string lToken = 2;
     uint32 roleId = 3;
 }
 
@@ -27,7 +27,7 @@ message SyncData {
 
 message SyncRequest {
     uint32 serverId = 1; // 物理服编号
-    uint32 lToken = 2;
+    string lToken = 2;
     uint32 roleId = 3;
     repeated SyncData datas = 4;    // 增加或修改的数据
     repeated string removes = 5;    // 删除的数据
@@ -36,7 +36,7 @@ message SyncRequest {
 message RSHeartbeatRequest {
     uint32 serverId = 1; // 物理服编号
     uint32 roleId = 2;
-    uint32 lToken = 3;
+    string lToken = 3;
 }
 
 // 玩家游戏对象所在服务器需要实现GameService服务

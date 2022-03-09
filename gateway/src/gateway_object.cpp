@@ -81,20 +81,12 @@ void GatewayObject::stop() {
             return;
         }
 
-        redisReply *reply;
-        if (g_CachePool.removeSessionSha1().empty()) {
-            reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, _userId, _gToken.c_str());
-        } else {
-            reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s", g_CachePool.removeSessionSha1().c_str(), _userId, _gToken.c_str());
-        }
-
-        if (!reply) {
+        if (RedisUtils::RemoveSession(cache, _userId, _gToken) == REDIS_DB_ERROR) {
             g_CachePool.put(cache, true);
             ERROR_LOG("GatewayObject::stop -- user[%d] remove session failed", _userId);
             return;
         }
 
-        freeReplyObject(reply);
         g_CachePool.put(cache, false);
     }
 }
@@ -126,21 +118,13 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
 
             success = false;
         } else {
-            redisReply *reply;
-            if (g_CachePool.setSessionExpireSha1().empty()) {
-                reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
-            } else {
-                reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Session:%d %s %d", g_CachePool.setSessionExpireSha1().c_str(), obj->_userId, obj->_gToken.c_str(), TOKEN_TIMEOUT);
-            }
-            
-            if (!reply) {
+            if (RedisUtils::SetSessionTTL(cache, obj->_userId, obj->_gToken) == REDIS_DB_ERROR) {
                 g_CachePool.put(cache, true);
                 ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed for db error\n", obj->_userId);
 
                 success = false;
             } else {
                 success = reply->integer == 1;
-                freeReplyObject(reply);
                 g_CachePool.put(cache, false);
 
                 if (!success) {

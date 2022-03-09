@@ -156,41 +156,24 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     // 生成rToken（直接用当前时间）
     struct timeval t;
     gettimeofday(&t, NULL);
-    uint32_t rToken = t.tv_sec;
+    std::string rToken = std::to_string(t.tv_sec);
 
-    redisReply *reply;
-    // 尝试设置record
-    if (g_CachePool.setRecordSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %d %d %d", SET_RECORD_CMD, roleId, rToken, _manager->getId(), 60);
-    } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %d %d %d", g_CachePool.setRecordSha1().c_str(), roleId, rToken, _manager->getId(), 60);
+    switch (RedisUtils::SetRecordAddress(cache, roleId, _manager->getId(), rToken)) {
+        case REDIS_DB_ERROR: {
+            g_CachePool.put(cache, true);
+            ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed\n", roleId);
+            response->set_errcode(3);
+            return;
+        }
+        case REDIS_FAIL: {
+            // 设置失败
+            freeReplyObject(reply);
+            g_CachePool.put(cache, false);
+            ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for already set\n", roleId);
+            response->set_errcode(5);
+            return;
+        }
     }
-    
-    if (!reply) {
-        g_CachePool.put(cache, true);
-        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed\n", roleId);
-        response->set_errcode(3);
-        return;
-    }
-
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        freeReplyObject(reply);
-        g_CachePool.put(cache, true);
-        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for return type invalid\n", roleId);
-        response->set_errcode(4);
-        return;
-    }
-
-    if (reply->integer == 0) {
-        // 设置失败
-        freeReplyObject(reply);
-        g_CachePool.put(cache, false);
-        ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for already set\n", roleId);
-        response->set_errcode(5);
-        return;
-    }
-
-    freeReplyObject(reply);
 
     // 加载玩家数据
     // 先从redis加载玩家数据，若redis没有，则从mysql加载并缓存到redis中

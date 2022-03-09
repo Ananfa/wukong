@@ -377,11 +377,25 @@ class EnterGameRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kLTokenFieldNumber = 3,
     kServerIdFieldNumber = 1,
     kRoleIdFieldNumber = 2,
-    kLTokenFieldNumber = 3,
     kGatewayIdFieldNumber = 4,
   };
+  // string lToken = 3;
+  void clear_ltoken();
+  const std::string& ltoken() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ltoken(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ltoken();
+  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
+  void set_allocated_ltoken(std::string* ltoken);
+  private:
+  const std::string& _internal_ltoken() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
+  std::string* _internal_mutable_ltoken();
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -400,15 +414,6 @@ class EnterGameRequest final :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 3;
-  void clear_ltoken();
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
-  void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ltoken() const;
-  void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
   // uint32 gatewayId = 4;
   void clear_gatewayid();
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid() const;
@@ -425,9 +430,9 @@ class EnterGameRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_game_5fservice_2eproto;
@@ -747,24 +752,50 @@ inline void EnterGameRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) 
   // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.roleId)
 }
 
-// uint32 lToken = 3;
+// string lToken = 3;
 inline void EnterGameRequest::clear_ltoken() {
-  ltoken_ = 0u;
+  ltoken_.ClearToEmpty();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::ltoken() const {
+inline const std::string& EnterGameRequest::ltoken() const {
   // @@protoc_insertion_point(field_get:wukong.pb.EnterGameRequest.lToken)
   return _internal_ltoken();
 }
-inline void EnterGameRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void EnterGameRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void EnterGameRequest::set_ltoken(ArgT0&& arg0, ArgT... args) {
+ 
+ ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.lToken)
+}
+inline std::string* EnterGameRequest::mutable_ltoken() {
+  std::string* _s = _internal_mutable_ltoken();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.EnterGameRequest.lToken)
+  return _s;
+}
+inline const std::string& EnterGameRequest::_internal_ltoken() const {
+  return ltoken_.Get();
+}
+inline void EnterGameRequest::_internal_set_ltoken(const std::string& value) {
+  
+  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* EnterGameRequest::_internal_mutable_ltoken() {
+  
+  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* EnterGameRequest::release_ltoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.EnterGameRequest.lToken)
+  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void EnterGameRequest::set_allocated_ltoken(std::string* ltoken) {
+  if (ltoken != nullptr) {
+    
+  } else {
+    
+  }
+  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.EnterGameRequest.lToken)
 }
 
 // uint32 gatewayId = 4;

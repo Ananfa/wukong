@@ -39,8 +39,8 @@ namespace wukong {
         std::shared_ptr<MessageServer::Connection> &getConn() { return _conn; }
         std::shared_ptr<pb::GameService_Stub> &getGameServerStub() { return _gameServerStub; }
         const std::string &getGToken() { return _gToken; }
-        void setLToken(uint32_t lToken) { _lToken = lToken; }
-        uint32_t &getLToken() { return _lToken; }
+        void setLToken(const std::string &lToken) { _lToken = lToken; }
+        const std::string &getLToken() { return _lToken; }
         UserId getUserId() { return _userId; }
         RoleId getRoleId() { return _roleId; }
 
@@ -63,7 +63,7 @@ namespace wukong {
         GameServerType _gameServerType; // 游戏对象所在服务器类型
         ServerId _gameServerId; // 游戏对象所在服务器id
         std::string _gToken; // 断线重连校验身份用
-        uint32_t _lToken; // 游戏对象唯一标识
+        std::string _lToken; // 游戏对象唯一标识
         UserId _userId;
         RoleId _roleId;
 

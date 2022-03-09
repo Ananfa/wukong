@@ -17,6 +17,7 @@
 #include "scene_service.h"
 #include "scene_config.h"
 #include "scene_server.h"
+#include "share/errcode.h"
 
 using namespace wukong;
 
@@ -111,7 +112,19 @@ void InnerSceneServiceImpl::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* co
                              const ::wukong::pb::LoadSceneRequest* request,
                              ::wukong::pb::LoadSceneResponse* response,
                              ::google::protobuf::Closure* done) {
-    // TODO: 在manager中查询场景是否已经存在，不存在时创建场景
+    // 判断manager中场景是否已经存在
+    if (!request->sceneid().empty() && _sceneManager->exist(request->sceneid())) {
+        response->set_errcode(SCENE_ALREADY_EXIST);
+        return;
+    }
+    
+    std::string sceneId = _sceneManager->loadScene(request-defid(), request->sceneid(), request->roleid(), request->teamid());
+    if (sceneId.empty()) {
+        response->set_errcode(LOAD_SCENE_FAILED);
+        return;
+    }
+    
+    response->set_sceneid(sceneid);
 }
 
 void InnerSceneServiceImpl::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
@@ -120,10 +133,12 @@ void InnerSceneServiceImpl::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* c
                              ::google::protobuf::Closure* done) {
     // TODO: 在sceneManager中查询场景
 
+    // TOTO: 如果是单人场景，记录警告日志后退出。 单人场景中的角色是场景创建时一并加载的，不需要通过enterScene接口
+
     // TODO: 在gameObjectManager中查询游戏对象，如果存在写错误日志并退出
 
     // TODO: 创建游戏对象，如果创建游戏对象失败，写错误日志并退出
 
-    // 问题：游戏对象加载后到进入场景过程中是否会进入场景失败导致游戏对象悬空？加载角色对象完成时发现场景销毁了？遇到这种情况直接销毁游戏对象？在场景中加载角色
+    // 问题：游戏对象加载后到进入场景过程中是否会进入场景失败导致游戏对象悬空？加载角色对象完成时发现场景销毁了？遇到这种情况直接销毁游戏对象
 
 }

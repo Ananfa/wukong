@@ -22,7 +22,7 @@
 using namespace corpc;
 
 namespace wukong {
-
+    // TODO: 支持连接多个不同redis数据库，思路：当前的RedisPool的单例去掉，增加一个RedisPoolMgr单例管理所有的RedisPool，每个RedisPool在配置中增加个名字，通过名字获取指定的RedisPool
     class RedisPool {
     public:
         static RedisPool& Instance() {

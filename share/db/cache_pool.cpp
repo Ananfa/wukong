@@ -341,6 +341,60 @@ void *CachePool::initRoutine(void *arg) {
     self->_setLocationExpireSha1 = reply->str;
     freeReplyObject(reply);
 
+    // init _setSceneLocationSha1
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SCENE_LOCATION_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("CachePool::initRoutine -- set-scene-location script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("CachePool::initRoutine -- set-scene-location script load failed\n");
+        return nullptr;
+    }
+
+    self->_setSceneLocationSha1 = reply->str;
+    freeReplyObject(reply);
+
+    // init _removeSceneLocationSha1
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", REMOVE_SCENE_LOCATION_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("CachePool::initRoutine -- remove-scene-location script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("CachePool::initRoutine -- remove-scene-location script load failed\n");
+        return nullptr;
+    }
+
+    self->_removeSceneLocationSha1 = reply->str;
+    freeReplyObject(reply);
+
+    // init _setSceneLocationExpireSha1
+    reply = (redisReply *)redisCommand(cache, "SCRIPT LOAD %s", SET_SCENE_LOCATION_EXPIRE_CMD);
+    if (!reply) {
+        self->_cache->proxy.put(cache, true);
+        ERROR_LOG("CachePool::initRoutine -- set-scene-location-expire script load failed for db error\n");
+        return nullptr;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        self->_cache->proxy.put(cache, false);
+        DEBUG_LOG("CachePool::initRoutine -- set-scene-location-expire script load failed\n");
+        return nullptr;
+    }
+
+    self->_setSceneLocationExpireSha1 = reply->str;
+    freeReplyObject(reply);
+
     self->_cache->proxy.put(cache, false);
 
     return nullptr;

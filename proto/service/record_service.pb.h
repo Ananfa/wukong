@@ -203,10 +203,24 @@ class LoadRoleDataRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kServerIdFieldNumber = 1,
     kLTokenFieldNumber = 2,
+    kServerIdFieldNumber = 1,
     kRoleIdFieldNumber = 3,
   };
+  // string lToken = 2;
+  void clear_ltoken();
+  const std::string& ltoken() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ltoken(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ltoken();
+  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
+  void set_allocated_ltoken(std::string* ltoken);
+  private:
+  const std::string& _internal_ltoken() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
+  std::string* _internal_mutable_ltoken();
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -214,15 +228,6 @@ class LoadRoleDataRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 lToken = 2;
-  void clear_ltoken();
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
-  void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ltoken() const;
-  void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // uint32 roleId = 3;
@@ -241,8 +246,8 @@ class LoadRoleDataRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_record_5fservice_2eproto;
@@ -692,8 +697,8 @@ class SyncRequest final :
   enum : int {
     kDatasFieldNumber = 4,
     kRemovesFieldNumber = 5,
-    kServerIdFieldNumber = 1,
     kLTokenFieldNumber = 2,
+    kServerIdFieldNumber = 1,
     kRoleIdFieldNumber = 3,
   };
   // repeated .wukong.pb.SyncData datas = 4;
@@ -738,6 +743,20 @@ class SyncRequest final :
   std::string* _internal_add_removes();
   public:
 
+  // string lToken = 2;
+  void clear_ltoken();
+  const std::string& ltoken() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ltoken(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ltoken();
+  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
+  void set_allocated_ltoken(std::string* ltoken);
+  private:
+  const std::string& _internal_ltoken() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
+  std::string* _internal_mutable_ltoken();
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -745,15 +764,6 @@ class SyncRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 lToken = 2;
-  void clear_ltoken();
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
-  void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ltoken() const;
-  void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // uint32 roleId = 3;
@@ -774,8 +784,8 @@ class SyncRequest final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::SyncData > datas_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> removes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_record_5fservice_2eproto;
@@ -897,10 +907,24 @@ class RSHeartbeatRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kLTokenFieldNumber = 3,
     kServerIdFieldNumber = 1,
     kRoleIdFieldNumber = 2,
-    kLTokenFieldNumber = 3,
   };
+  // string lToken = 3;
+  void clear_ltoken();
+  const std::string& ltoken() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_ltoken(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_ltoken();
+  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
+  void set_allocated_ltoken(std::string* ltoken);
+  private:
+  const std::string& _internal_ltoken() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
+  std::string* _internal_mutable_ltoken();
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -919,15 +943,6 @@ class RSHeartbeatRequest final :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 lToken = 3;
-  void clear_ltoken();
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken() const;
-  void set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ltoken() const;
-  void _internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
   // @@protoc_insertion_point(class_scope:wukong.pb.RSHeartbeatRequest)
  private:
   class _Internal;
@@ -935,9 +950,9 @@ class RSHeartbeatRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 ltoken_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_record_5fservice_2eproto;
 };
@@ -1154,24 +1169,50 @@ inline void LoadRoleDataRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 va
   // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleDataRequest.serverId)
 }
 
-// uint32 lToken = 2;
+// string lToken = 2;
 inline void LoadRoleDataRequest::clear_ltoken() {
-  ltoken_ = 0u;
+  ltoken_.ClearToEmpty();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleDataRequest::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleDataRequest::ltoken() const {
+inline const std::string& LoadRoleDataRequest::ltoken() const {
   // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleDataRequest.lToken)
   return _internal_ltoken();
 }
-inline void LoadRoleDataRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void LoadRoleDataRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void LoadRoleDataRequest::set_ltoken(ArgT0&& arg0, ArgT... args) {
+ 
+ ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleDataRequest.lToken)
+}
+inline std::string* LoadRoleDataRequest::mutable_ltoken() {
+  std::string* _s = _internal_mutable_ltoken();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.LoadRoleDataRequest.lToken)
+  return _s;
+}
+inline const std::string& LoadRoleDataRequest::_internal_ltoken() const {
+  return ltoken_.Get();
+}
+inline void LoadRoleDataRequest::_internal_set_ltoken(const std::string& value) {
+  
+  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* LoadRoleDataRequest::_internal_mutable_ltoken() {
+  
+  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* LoadRoleDataRequest::release_ltoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.LoadRoleDataRequest.lToken)
+  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void LoadRoleDataRequest::set_allocated_ltoken(std::string* ltoken) {
+  if (ltoken != nullptr) {
+    
+  } else {
+    
+  }
+  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.LoadRoleDataRequest.lToken)
 }
 
 // uint32 roleId = 3;
@@ -1404,24 +1445,50 @@ inline void SyncRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.SyncRequest.serverId)
 }
 
-// uint32 lToken = 2;
+// string lToken = 2;
 inline void SyncRequest::clear_ltoken() {
-  ltoken_ = 0u;
+  ltoken_.ClearToEmpty();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SyncRequest::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SyncRequest::ltoken() const {
+inline const std::string& SyncRequest::ltoken() const {
   // @@protoc_insertion_point(field_get:wukong.pb.SyncRequest.lToken)
   return _internal_ltoken();
 }
-inline void SyncRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void SyncRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void SyncRequest::set_ltoken(ArgT0&& arg0, ArgT... args) {
+ 
+ ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:wukong.pb.SyncRequest.lToken)
+}
+inline std::string* SyncRequest::mutable_ltoken() {
+  std::string* _s = _internal_mutable_ltoken();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.SyncRequest.lToken)
+  return _s;
+}
+inline const std::string& SyncRequest::_internal_ltoken() const {
+  return ltoken_.Get();
+}
+inline void SyncRequest::_internal_set_ltoken(const std::string& value) {
+  
+  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* SyncRequest::_internal_mutable_ltoken() {
+  
+  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* SyncRequest::release_ltoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.SyncRequest.lToken)
+  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void SyncRequest::set_allocated_ltoken(std::string* ltoken) {
+  if (ltoken != nullptr) {
+    
+  } else {
+    
+  }
+  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.SyncRequest.lToken)
 }
 
 // uint32 roleId = 3;
@@ -1603,24 +1670,50 @@ inline void RSHeartbeatRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:wukong.pb.RSHeartbeatRequest.roleId)
 }
 
-// uint32 lToken = 3;
+// string lToken = 3;
 inline void RSHeartbeatRequest::clear_ltoken() {
-  ltoken_ = 0u;
+  ltoken_.ClearToEmpty();
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 RSHeartbeatRequest::_internal_ltoken() const {
-  return ltoken_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 RSHeartbeatRequest::ltoken() const {
+inline const std::string& RSHeartbeatRequest::ltoken() const {
   // @@protoc_insertion_point(field_get:wukong.pb.RSHeartbeatRequest.lToken)
   return _internal_ltoken();
 }
-inline void RSHeartbeatRequest::_internal_set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  ltoken_ = value;
-}
-inline void RSHeartbeatRequest::set_ltoken(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_ltoken(value);
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void RSHeartbeatRequest::set_ltoken(ArgT0&& arg0, ArgT... args) {
+ 
+ ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:wukong.pb.RSHeartbeatRequest.lToken)
+}
+inline std::string* RSHeartbeatRequest::mutable_ltoken() {
+  std::string* _s = _internal_mutable_ltoken();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.RSHeartbeatRequest.lToken)
+  return _s;
+}
+inline const std::string& RSHeartbeatRequest::_internal_ltoken() const {
+  return ltoken_.Get();
+}
+inline void RSHeartbeatRequest::_internal_set_ltoken(const std::string& value) {
+  
+  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* RSHeartbeatRequest::_internal_mutable_ltoken() {
+  
+  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* RSHeartbeatRequest::release_ltoken() {
+  // @@protoc_insertion_point(field_release:wukong.pb.RSHeartbeatRequest.lToken)
+  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void RSHeartbeatRequest::set_allocated_ltoken(std::string* ltoken) {
+  if (ltoken != nullptr) {
+    
+  } else {
+    
+  }
+  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.RSHeartbeatRequest.lToken)
 }
 
 #ifdef __GNUC__

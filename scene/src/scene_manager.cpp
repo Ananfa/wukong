@@ -16,6 +16,7 @@
 
 #include "corpc_routine_env.h"
 #include "scene_manager.h"
+#include "scene_delegate.h"
 #include "share/const.h"
 
 #include <sys/time.h>
@@ -33,179 +34,148 @@ void SceneManager::shutdown() {
 
     _shutdown = true;
 
-    for (auto &gameObj : _roleId2GameObjectMap) {
-        gameObj.second->stop();
+    for (auto &scene : _sceneId2SceneMap) {
+        scene.second->stop();
     }
 
-    _roleId2GameObjectMap.clear();
+    _sceneId2SceneMap.clear();
 }
 
 size_t SceneManager::size() {
-    return _roleId2GameObjectMap.size();
+    return _sceneId2SceneMap.size();
 }
 
-bool SceneManager::exist(RoleId roleId) {
-    return _roleId2GameObjectMap.find(roleId) != _roleId2GameObjectMap.end();
+bool SceneManager::exist(const std::string &sceneId) {
+    return _sceneId2SceneMap.find(sceneId) != _sceneId2SceneMap.end();
 }
 
-std::shared_ptr<Scene> SceneManager::getScene(uint32_t sceneId) {
-    auto it = _roleId2GameObjectMap.find(roleId);
-    if (it == _roleId2GameObjectMap.end()) {
+std::shared_ptr<Scene> SceneManager::getScene(const std::string &sceneId) {
+    auto it = _sceneId2SceneMap.find(sceneId);
+    if (it == _sceneId2SceneMap.end()) {
         return nullptr;
     }
 
     return it->second;
 }
 
-bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayId) {
-    // 判断GameObject是否已经存在
-    if (exist(roleId)) {
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d game object already exist\n", userId, roleId);
-        return false;
+std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, RoleId roleid, const std::string &teamid) {
+    if (!sceneId.empty() && _sceneManager->exist(sceneId)) {
+        ERROR_LOG("SceneManager::loadScene -- scene %s already exist\n", sceneId.c_str());
+        return "";
     }
 
-    // 查询记录对象位置
-    //   若记录对象不存在，分配（负载均衡）record服
-    // 尝试设置location
-    // 设置成功时加载玩家数据（附带创建记录对象）
-    // 重新设置location过期（若这里不设置，后面创建的GameObject会等到第一次心跳时才销毁）
-    // 创建GameObject
-    redisContext *cache = g_GameCenter.getCachePool()->proxy.take();
-    if (!cache) {
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d connect to cache failed\n", userId, roleId);
-        return false;
+    // 通过delegate中的getSceneType来获取场景类型：单人副本、多人副本、永久场景
+    // 问题：对于永久场景，可能会有负载均衡分线需求，此时永久场景资源的动态伸缩如何进行？通过人工干预？该问题是游戏上层解决，不在框架考虑范围
+    assert(g_SceneDelegate.getGetSceneTypeHandle());
+    SceneType sType = g_SceneDelegate.getGetSceneTypeHandle()(defId);
+
+    if (sType == SCENE_TYPE_SINGLE_PLAYER && roleid == 0) {
+        ERROR_LOG("SceneManager::loadScene -- single player scene should have owner roleid\n");
+        return "";
     }
 
-    redisReply *reply = (redisReply *)redisCommand(cache, "HGET Record:%d loc", roleId);
-    if (!reply) {
-        g_GameCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for db error\n", userId, roleId);
-        return false;
-    }
-
-    ServerId recordId;
-    if (reply->type == REDIS_REPLY_STRING) {
-        recordId = std::stoi(reply->str);
-    } else if (reply->type == REDIS_REPLY_NIL) {
-        if (!g_ClientCenter.randomRecordServer(recordId)) {
-            freeReplyObject(reply);
-            g_GameCenter.getCachePool()->proxy.put(cache, false);
-            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d random record server failed\n", userId, roleId);
-            return false;
+    // 根据规则生成场景实例号
+    // 场景号生成规则：
+    // 个人副本场景实例号：PS_<roleID>
+    // W3L队伍场景实例号：TS_<队伍号>，由加载场景接口调用时传入，否则会按照多人副本场景实例号规则
+    // 多人副本场景实例号：MS_<场景服ID>_<场景服本地自增计数>
+    // 世界地图场景实例号：GS_<场景定义ID>
+    std::string realSceneId;
+    if (sceneId.empty()) {
+        switch (sType) {
+            case SCENE_TYPE_SINGLE_PLAYER: {
+                realSceneId = "PS_" + std::to_string(members.front());
+                break;
+            }
+            case SCENE_TYPE_MULTI_PLAYER: {
+                realSceneId = "MS_" + std::to_string(_id) + "_" + std::to_string(_incSceneNo);
+                break;
+            }
+            case SCENE_TYPE_GLOBAL: {
+                realSceneId = "GS_" + std::to_string(defId);
+                break;
+            }
         }
-    } else {
-        freeReplyObject(reply);
-        g_GameCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for invalid data type\n", userId, roleId);
+    }
+
+    // 如果不是个人场景，需要向redis进行注册新场景地址
+    if (sType != SCENE_TYPE_SINGLE_PLAYER) {
+        redisContext *cache = g_CachePool.take();
+        if (!cache) {
+            ERROR_LOG("SceneManager::loadScene -- connect to cache failed\n", userId, roleid);
+            return "";
+        }
+
+        // 生成lToken（直接用当前时间来生成）
+        struct timeval t;
+        gettimeofday(&t, NULL);
+        std::string sToken = std::to_string((t.tv_sec % 1000) * 1000000 + t.tv_usec);
+
+        switch (RedisUtils::SetSceneLocation(cache, realSceneId, sToken, _id)) {
+            case REDIS_DB_ERROR: {
+                g_CachePool.put(cache, true);
+                ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed\n", realSceneId.c_str());
+                return "";
+            }
+            case REDIS_FAIL: {
+                freeReplyObject(reply);
+                g_CachePool.put(cache, false);
+                ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed for already set\n", realSceneId.c_str());
+                return false;
+            }
+        }
+
+        g_CachePool.put(cache, false);
+    }
+
+    // 应该在这里(上了锁之后)获取成员列表
+    // 获取场景需预载入的玩家ID列表（对于单人场景就算场景拥有者玩家ID，对于W3L类型队伍场景就是队伍成员列表）
+    //       对于个人场景（预加载玩家ID为request参数中的roleid）
+    //       对于非个人场景（通过delegate中的GetMembers接口获得预加载列表）
+    std::list<uint32_t> members;
+    if (roleid != 0) {
+        members.push_back(roleid);
+    } else if (!teamid.empty()) {
+        assert(g_SceneDelegate.setGetMembersHandle());
+        members = g_SceneDelegate.setGetMembersHandle()(teamid); // 这里会产生协程切换，若操作太慢会导致锁被释放
+    }
+
+    // 创建场景对象
+    assert(g_SceneDelegate.getCreateSceneHandle());
+    auto scene = g_SceneDelegate.getCreateSceneHandle()(defId, realSceneId);
+
+    if (!scene) {
+        ERROR_LOG("SceneManager::loadScene -- load scene failed\n");
         return false;
     }
 
-    freeReplyObject(reply);
+    bool loadMembersFail = false;
+    // TODO: 成员预加载，若其中有玩家gameObj预加载失败，将所有已预加载的对象销毁并且销毁场景对象，返回加载失败
 
-    // 生成lToken（直接用当前时间来生成）
-    struct timeval t;
-    gettimeofday(&t, NULL);
-    uint32_t lToken = (t.tv_sec % 1000) * 1000000 + t.tv_usec;
+    // TODO: 将预加载的gameObj加入场景对象中
 
-    // 尝试设置location
-    // TODO: loc的格式应该包含游戏服类型
-    if (g_GameCenter.setLocationSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %d %d %d %d", SET_LOCATION_CMD, roleId, lToken, _type, _id, TOKEN_TIMEOUT);
-    } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %d %d %d %d", g_GameCenter.setLocationSha1().c_str(), roleId, lToken, _type, _id, TOKEN_TIMEOUT);
-    }
-    
-    if (!reply) {
-        g_GameCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed\n", userId, roleId);
-        return false;
+    if (loadMembersFail) {
+        if (sType != SCENE_TYPE_SINGLE_PLAYER) {
+            // TODO: 释放SceneLocation
+        }
     }
 
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        freeReplyObject(reply);
-        g_GameCenter.getCachePool()->proxy.put(cache, true);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for return type invalid\n", userId, roleId);
-        return false;
-    }
 
-    if (reply->integer == 0) {
-        // 设置失败
-        freeReplyObject(reply);
-        g_GameCenter.getCachePool()->proxy.put(cache, false);
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for already set\n", userId, roleId);
-        return false;
-    }
+    // 启动场景对象
+    _sceneId2SceneMap.insert(std::make_pair(realSceneId, scene));
+    scene->start();
 
-    freeReplyObject(reply);
-    g_GameCenter.getCachePool()->proxy.put(cache, false);
-
-    // 向Record服发加载数据RPC
-    std::string roleData;
-    ServerId serverId; // 角色所属区服号
-    if (!g_RecordClient.loadRoleData(recordId, roleId, lToken, serverId, roleData)) {
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d load role data failed\n", userId, roleId);
-        return false;
-    }
-
-    // 这里是否需要加一次对location超时设置，避免加载数据时location过期？
-    // 如果这里不加检测，创建的GameObject会等到第一次心跳设置location时才销毁
-    // 如果加检测会让登录流程延长
-    // cache = g_GameCenter.getCachePool()->proxy.take();
-    // reply = (redisReply *)redisCommand(cache, "EXPIRE Location:%d %d", roleId, 60);
-    // if (reply->integer != 1) {
-    //     // 设置超时失败，可能是key已经过期
-    //     freeReplyObject(reply);
-    //     g_GameCenter.getCachePool()->proxy.put(cache, false);
-    //     ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d load role data failed for cant set location expire\n", userId, roleId);
-    //     return;
-    // }
-    // freeReplyObject(reply);
-    // g_GameCenter.getCachePool()->proxy.put(cache, false);
-
-    // 创建GameObject
-    if (_shutdown) {
-        WARN_LOG("GameObjectManager::loadRole -- already shutdown\n");
-        return false;
-    }
-
-    if (_roleId2GameObjectMap.find(roleId) != _roleId2GameObjectMap.end()) {
-        ERROR_LOG("GameObjectManager::loadRole -- game object already exist\n");
-        return false;
-    }
-
-    if (!g_GameDelegate.getCreateGameObjectHandle()) {
-        ERROR_LOG("GameObjectManager::loadRole -- not set CreateGameObjectHandle\n");
-        return false;
-    }
-
-    // 创建GameObject
-    auto obj = g_GameDelegate.getCreateGameObjectHandle()(userId, roleId, serverId, lToken, this, roleData);
-
-    // 设置gateway和record stub
-    if (!obj->setGatewayServerStub(gatewayId)) {
-        ERROR_LOG("GameObjectManager::loadRole -- can't set gateway stub\n");
-        return false;
-    }
-
-    if (!obj->setRecordServerStub(recordId)) {
-        ERROR_LOG("GameObjectManager::loadRole -- can't set record stub\n");
-        return false;
-    }
-
-    _roleId2GameObjectMap.insert(std::make_pair(roleId, obj));
-    obj->start();
-
-    return true;
+    return realSceneId;
 }
 
-bool GameObjectManager::remove(RoleId roleId) {
-    auto it = _roleId2GameObjectMap.find(roleId);
-    if (it == _roleId2GameObjectMap.end()) {
+bool SceneManager::remove(const std::string &sceneId) {
+    auto it = _sceneId2SceneMap.find(roleId);
+    if (it == _sceneId2SceneMap.end()) {
         return false;
     }
 
     it->second->stop();
-    _roleId2GameObjectMap.erase(it);
+    _sceneId2SceneMap.erase(it);
 
     return true;
 }

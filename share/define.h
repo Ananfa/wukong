@@ -31,6 +31,12 @@ enum RedisAccessResult {
     REDIS_REPLY_INVALID = 3
 };
 
+enum SceneType {
+    SCENE_TYPE_SINGLE_PLAYER = 1, // 个人副本（无人时销毁内存对象）
+    SCENE_TYPE_MULTI_PLAYER = 2, // 多人副本（无人时销毁内存对象）
+    SCENE_TYPE_GLOBAL = 3 // 世界（永久）场景（无人也不销毁内存对象）
+};
+
 namespace wukong {
     struct Address {
         std::string host; // ip或域名

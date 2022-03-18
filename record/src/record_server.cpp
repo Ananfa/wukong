@@ -21,7 +21,7 @@
 #include "record_config.h"
 #include "record_service.h"
 #include "record_center.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
 #include "mysql_pool.h"
 #include "client_center.h"
 
@@ -105,6 +105,28 @@ bool RecordServer::init(int argc, char * argv[]) {
     // create IO layer
     _io = IO::create(g_RecordConfig.getIoRecvThreadNum(), g_RecordConfig.getIoSendThreadNum());
 
+    // 数据库初始化
+    const std::vector<RedisInfo>& redisInfos = g_RecordConfig.getRedisInfos();
+    for (auto &info : redisInfos) {
+        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnect);
+        if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
+            ERROR_LOG("RecordServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+            return false;
+        }
+    }
+
+    const std::vector<MysqlInfo>& mysqlInfos = g_RecordConfig.getMysqlInfos();
+    for (auto &info : mysqlInfos) {
+        MysqlPool *pool = MysqlPool::create(info.host.c_str(), info.user.c_str(), info.pwd.c_str(), info.dbName.c_str(), info.port, "", 0, info.maxConnect);
+        if (!g_MysqlPoolManager.addPool(info.dbName, pool)) {
+            ERROR_LOG("RecordServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+            return false;
+        }
+    }
+
+    g_RedisPoolManager.setCoreCache(g_RecordConfig.getCoreCache());
+    g_MysqlPoolManager.setCoreRecord(g_RecordConfig.getCoreRecord());
+
     return true;
 }
 
@@ -125,9 +147,6 @@ void RecordServer::run() {
     // 启动对外的RPC服务
     RpcServer *server = RpcServer::create(_io, 0, g_RecordConfig.getIp(), g_RecordConfig.getPort());
     server->registerService(recordServiceImpl);
-
-    g_CachePool.init(g_RecordConfig.getCache().host.c_str(), g_RecordConfig.getCache().pwd.c_str(), g_RecordConfig.getCache().port, g_RecordConfig.getCache().dbIndex, g_RecordConfig.getCache().maxConnect);
-    g_MysqlPool.init(g_RecordConfig.getMysql().host.c_str(), g_RecordConfig.getMysql().user.c_str(), g_RecordConfig.getMysql().pwd.c_str(), g_RecordConfig.getMysql().dbName.c_str(), g_RecordConfig.getMysql().port, "", 0, g_RecordConfig.getMysql().maxConnect);
 
     g_RecordCenter.init();
     g_ClientCenter.init(nullptr, g_RecordConfig.getZookeeper(), g_RecordConfig.getZooPath(), false, false, false, false);

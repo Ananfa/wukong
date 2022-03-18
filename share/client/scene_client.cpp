@@ -87,9 +87,9 @@ std::vector<GameClient::ServerInfo> SceneClient::getServerInfos() {
     return infos;
 }
 
-uint64_t SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) {
+std::string SceneClient::loadScene(ServerId sid, uint32_t defId, const std::string &sceneId) {
     std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
-    uint64_t ret = 0;
+    std::string ret;
 
     if (!stub) {
         ERROR_LOG("SceneClient::loadScene -- scene server %d stub not avaliable, waiting.\n", sid);
@@ -121,7 +121,7 @@ uint64_t SceneClient::loadScene(ServerId sid, uint32_t defId, uint64_t sceneId) 
     return ret;
 }
 
-void SceneClient::enterScene(ServerId sid, uint64_t sceneId, UserId userId, RoleId roleId, ServerId gwId) {
+void SceneClient::enterScene(ServerId sid, const std::string &sceneId, UserId userId, RoleId roleId, ServerId gwId) {
     std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
 
     if (!stub) {

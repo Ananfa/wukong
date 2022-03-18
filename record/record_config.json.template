@@ -15,19 +15,26 @@
     "zookeeper": "127.0.0.1:2181",              // ZooKeeper
     "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
     "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
-    "cache": {                                  // 缓存服务器
-        "host": "127.0.0.1",
-        "port": 6379,
-        "pwd": "",
-        "maxConnect": 8,                        // 最大连接数
-        "dbIndex": 0                            // 分库索引
-    },
-    "mysql": {
-        "host": "127.0.0.1",
-        "port": 3306,
-        "user": "root",
-        "pwd": "123456",
-        "maxConnect": 20,                       // 最大连接数
-        "dbName": "record"
-    }
+    "redis": [
+        {                                       // 缓存服务器
+            "dbName": "cache",
+            "host": "127.0.0.1",
+            "port": 6379,
+            "pwd": "",
+            "maxConnect": 8,                    // 最大连接数
+            "dbIndex": 0                        // 分库索引
+        }
+    ],
+    "mysql": [
+        {                                  // 落地mysql数据库
+            "dbName": "record"
+            "host": "127.0.0.1",
+            "port": 3306,
+            "user": "root",
+            "pwd": "123456",
+            "maxConnect": 8,                        // 最大连接数
+        }
+    ],
+    "coreCache": "cache",                       // 用作游戏服务器核心缓存redis库(redis中的一个)
+    "coreRecord": "record"                      // 用作游戏服务器核心落地mysql库(mysql中的一个)
 }

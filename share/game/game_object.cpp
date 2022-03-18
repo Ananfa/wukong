@@ -17,7 +17,8 @@
 #include "corpc_routine_env.h"
 #include "game_object.h"
 #include "game_center.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
+#include "redis_utils.h"
 #include "game_object_manager.h"
 #include "gateway_client.h"
 #include "record_client.h"
@@ -95,19 +96,19 @@ void GameObject::stop() {
         _cond.broadcast();
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("GameObject::stop -- role[%d] connect to cache failed\n", _roleId);
             return;
         }
 
         if (RedisUtils::RemoveGameObjectAddress(cache, _roleId, _lToken) == REDIS_DB_ERROR) {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("GameObject::stop -- role[%d] remove location failed", _roleId);
             return;
         }
 
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
     }
 }
 
@@ -290,7 +291,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
 
         // 设置session超时
         bool success = true;
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d connect to cache failed\n", obj->_userId, obj->_roleId);
 
@@ -298,17 +299,17 @@ void *GameObject::heartbeatRoutine( void *arg ) {
         } else {
             switch (RedisUtils::SetGameObjectAddressTTL(cache, obj->_roleId, obj->_lToken)) {
                 case REDIS_DB_ERROR: {
-                    g_CachePool.put(cache, true);
+                    g_RedisPoolManager.getCoreCache()->put(cache, true);
                     ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed for db error\n", obj->_userId, obj->_roleId);
                     success = false;
                 }
                 case REDIS_FAIL: {
-                    g_CachePool.put(cache, false);
+                    g_RedisPoolManager.getCoreCache()->put(cache, false);
                     ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed\n", obj->_userId, obj->_roleId);
                     success = false;
                 }
                 case REDIS_SUCCESS: {
-                    g_CachePool.put(cache, false);
+                    g_RedisPoolManager.getCoreCache()->put(cache, false);
                     success = true;
                 }
             }

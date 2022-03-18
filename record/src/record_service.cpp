@@ -17,7 +17,7 @@
 #include "record_service.h"
 #include "record_config.h"
 #include "record_server.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
 #include "mysql_pool.h"
 #include "proto_utils.h"
 #include "redis_utils.h"
@@ -146,7 +146,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     }
     
     // 设置record
-    redisContext *cache = g_CachePool.take();
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] connect to cache failed\n", roleId);
         response->set_errcode(2);
@@ -160,15 +160,14 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
 
     switch (RedisUtils::SetRecordAddress(cache, roleId, _manager->getId(), rToken)) {
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed\n", roleId);
             response->set_errcode(3);
             return;
         }
         case REDIS_FAIL: {
             // 设置失败
-            freeReplyObject(reply);
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] set record failed for already set\n", roleId);
             response->set_errcode(5);
             return;
@@ -179,14 +178,14 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     // 先从redis加载玩家数据，若redis没有，则从mysql加载并缓存到redis中
     ServerId serverId;
     if (RedisUtils::LoadRole(cache, roleId, serverId, datas, true) == REDIS_DB_ERROR) {
-        g_CachePool.put(cache, true);
+        g_RedisPoolManager.getCoreCache()->put(cache, true);
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] load failed\n", roleId);
         response->set_errcode(6);
         return;
     }
 
     if (datas.size() > 0) {
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
 
         // 创建record object
         obj = _manager->create(roleId, serverId, rToken, datas);
@@ -204,10 +203,10 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
         return;
     }
 
-    g_CachePool.put(cache, false);
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     // 从MySQL加载角色数据并缓存到redis中
-    MYSQL *mysql = g_MysqlPool.take();
+    MYSQL *mysql = g_MysqlPoolManager.getCoreRecord()->take();
     if (!mysql) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] connect to mysql failed\n", roleId);
         response->set_errcode(8);
@@ -216,13 +215,13 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
 
     std::string data;
     if (!MysqlUtils::LoadRole(mysql, roleId, serverId, data)) {
-        g_MysqlPool.put(mysql, true);
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] load role from mysql failed\n", roleId);
         response->set_errcode(9);
         return;
     }
 
-    g_MysqlPool.put(mysql, false);
+    g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
 
     if (data.empty()) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] no role data\n");
@@ -243,7 +242,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     }
 
     // 缓存到redis中
-    cache = g_CachePool.take();
+    cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] can't cache role data for connect to cache failed\n", roleId);
         response->set_errcode(13);
@@ -252,19 +251,19 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
 
     switch (RedisUtils::SaveRole(cache, roleId, serverId, datas)) {
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] cache role data failed for db error\n", roleId);
             response->set_errcode(13);
             return;
         }
         case REDIS_FAIL: {
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- [role %d] cache role data failed\n", roleId);
             response->set_errcode(14);
             return;
         }
     }
-    g_CachePool.put(cache, false);
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     // 创建record object
     obj = _manager->create(roleId, serverId, rToken, datas);

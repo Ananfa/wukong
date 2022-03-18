@@ -51,8 +51,6 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-    ../../share/db/cache_pool.cpp
-    ../../share/db/mysql_pool.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
     ../../utils/redis_utils.cpp
@@ -67,6 +65,7 @@ aux_source_directory(../../proto SOURCE_FILES)
 aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../proto/game SOURCE_FILES)
 aux_source_directory(../../share/client SOURCE_FILES)
+aux_source_directory(../../share/db SOURCE_FILES)
 aux_source_directory(../../record/src SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 

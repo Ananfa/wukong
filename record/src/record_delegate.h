@@ -25,7 +25,7 @@ using namespace corpc;
 
 namespace wukong {
     class RecordDelegate {
-        typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, uint32_t, RecordObjectManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandle;
+        typedef std::function<std::shared_ptr<RecordObject> (RoleId, ServerId, const std::string &rToken, RecordObjectManager*, std::list<std::pair<std::string, std::string>>)> CreateRecordObjectHandle;
         typedef std::function<void (const std::list<std::pair<std::string, std::string>>&, std::list<std::pair<std::string, std::string>>&)> MakeProfileHandle;
 
     public:

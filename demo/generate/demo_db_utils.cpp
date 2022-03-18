@@ -4,7 +4,7 @@
 #include "demo_utils.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
 #include "mysql_pool.h"
 #include "common.pb.h"
 
@@ -15,7 +15,7 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
     serverId = 0;
     pDatas.clear();
     // 先从cache中加载profile数据
-    redisContext *cache = g_CachePool.take();
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("DemoDBUtils::LoadProfile -- connect to cache failed\n");
         return false;
@@ -23,11 +23,11 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
 
     switch (RedisUtils::LoadProfile(cache, roleId, serverId, pDatas)) {
         case REDIS_SUCCESS: {
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
             return true;
         }
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("DemoDBUtils::LoadProfile -- load role profile failed for db error\n");
             return false;
         }
@@ -39,7 +39,7 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
 
     // cache中找不到profile数据，先从cache中尝试加载角色数据并存入cache中
     if (RedisUtils::LoadRole(cache, roleId, serverId, rDatas, false) == REDIS_DB_ERROR) {
-        g_CachePool.put(cache, true);
+        g_RedisPoolManager.getCoreCache()->put(cache, true);
         ERROR_LOG("DemoDBUtils::LoadProfile -- load role data failed for db error\n");
         return false;
     }
@@ -49,25 +49,25 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
 
         switch (RedisUtils::SaveProfile(cache, roleId, serverId, pDatas)) {
             case REDIS_DB_ERROR: {
-                g_CachePool.put(cache, true);
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed for db error\n");
                 return false;
             }
             case REDIS_FAIL: {
-                g_CachePool.put(cache, false);
+                g_RedisPoolManager.getCoreCache()->put(cache, false);
                 ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed\n");
                 return false;
             }
         }
 
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
         return true;
     }
     
-    g_CachePool.put(cache, false);
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     // cache中没有数据，需要从mysql中加载数据并存入cache中
-    MYSQL *mysql = g_MysqlPool.take();
+    MYSQL *mysql = g_MysqlPoolManager.getCoreRecord()->take();
     if (!mysql) {
         ERROR_LOG("DemoDBUtils::LoadProfile -- connect to mysql failed\n");
         return false;
@@ -75,11 +75,11 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
 
     std::string data;
     if (!MysqlUtils::LoadRole(mysql, roleId, serverId, data)) {
-        g_MysqlPool.put(mysql, true);
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
         return false;
     }
 
-    g_MysqlPool.put(mysql, false);
+    g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
 
     if (data.empty()) {
         ERROR_LOG("DemoDBUtils::LoadProfile -- no role data\n");
@@ -104,7 +104,7 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
 
     DemoUtils::MakeProfile(rDatas, pDatas);
 
-    cache = g_CachePool.take();
+    cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("DemoDBUtils::LoadProfile -- connect to cache failed\n");
         return false;
@@ -112,17 +112,17 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
 
     switch (RedisUtils::SaveProfile(cache, roleId, serverId, pDatas)) {
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed for db error\n");
             return false;
         }
         case REDIS_FAIL: {
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
             ERROR_LOG("DemoDBUtils::LoadProfile -- save role profile failed\n");
             return false;
         }
     }
 
-    g_CachePool.put(cache, false);
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
     return true;
 }

@@ -19,44 +19,77 @@
 
 #include "corpc_redis.h"
 
+#include <map>
+#include <string>
+
 using namespace corpc;
 
 namespace wukong {
-    // TODO: 支持连接多个不同redis数据库，思路：当前的RedisPool的单例去掉，增加一个RedisPoolMgr单例管理所有的RedisPool，每个RedisPool在配置中增加个名字，通过名字获取指定的RedisPool
+    // 注意：RedisPool的实现不考虑销毁流程
     class RedisPool {
-    public:
-        static RedisPool& Instance() {
-            static RedisPool instance;
-            return instance;
-        }
+        struct InitScriptsContext {
+            RedisPool *pool;
+            
+            std::map<std::string, std::string> scripts;
+        };
         
-        void init(const char *host, const char *pwd, uint16_t port, uint16_t dbIndex, uint32_t maxConnectNum);
+    public:
+        static RedisPool* create(const char *host, const char *pwd, uint16_t port, uint16_t dbIndex, uint32_t maxConnectNum);
 
+    public:
         RedisConnectPool *getPool() { return _redis; }
+        const char *getSha1(const char *sha1Name);
 
         redisContext *take();
         void put(redisContext* cache, bool error);
 
-        const std::string &bindRoleSha1() { return _bindRoleSha1; }
+        void addScripts(const std::map<std::string, std::string> &scripts);
 
     private:
-        static void *initRoutine(void *arg);
+        RedisPool() {}
+        virtual ~RedisPool() {}
+
+        void init(const char *host, const char *pwd, uint16_t port, uint16_t dbIndex, uint32_t maxConnectNum);
+
+        static void *initScriptsRoutine(void *arg);
 
     private:
         RedisConnectPool *_redis;
 
-        std::string _bindRoleSha1; // 添加roleId的lua脚本sha1值
+        std::map<std::string, std::string> _sha1Map; // 记录所有sha1值
+    };
+
+    class RedisPoolManager {
+    public:
+        static RedisPoolManager& Instance() {
+            static RedisPoolManager instance;
+            return instance;
+        }
+
+        bool addPool(const std::string &poolName, RedisPool* pool); // 注意：此方法不是线程安全的，应该在服务器启动时调用
+        RedisPool *getPool(const std::string &poolName);
+
+        bool setCoreCache(const std::string &poolName);
+        RedisPool *getCoreCache() { return _coreCache; }
+        bool setCorePersist(const std::string &poolName);
+        RedisPool *getCorePersist() { return _corePersist; }
 
     private:
-        RedisPool() = default;                                // ctor hidden
-        ~RedisPool() = default;                               // destruct hidden
-        RedisPool(RedisPool const&) = delete;                 // copy ctor delete
-        RedisPool(RedisPool &&) = delete;                     // move ctor delete
-        RedisPool& operator=(RedisPool const&) = delete;      // assign op. delete
-        RedisPool& operator=(RedisPool &&) = delete;          // move assign op. delete
+        std::map<std::string, RedisPool*> _poolMap;
+
+        RedisPool *_coreCache = nullptr;
+        RedisPool *_corePersist = nullptr;
+
+    private:
+        RedisPoolManager() = default;                                       // ctor hidden
+        ~RedisPoolManager() = default;                                      // destruct hidden
+        RedisPoolManager(RedisPoolManager const&) = delete;                 // copy ctor delete
+        RedisPoolManager(RedisPoolManager &&) = delete;                     // move ctor delete
+        RedisPoolManager& operator=(RedisPoolManager const&) = delete;      // assign op. delete
+        RedisPoolManager& operator=(RedisPoolManager &&) = delete;          // move assign op. delete
     };
 }
 
-#define g_RedisPool RedisPool::Instance()
+#define g_RedisPoolManager RedisPoolManager::Instance()
 
 #endif /* redis_pool_h */

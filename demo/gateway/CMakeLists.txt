@@ -36,7 +36,7 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-	../../share/db/cache_pool.cpp
+	../../share/db/redis_pool.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
     ../../utils/redis_utils.cpp)

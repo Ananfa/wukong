@@ -111,6 +111,18 @@ bool SceneServer::init(int argc, char * argv[]) {
     // 初始化rpc clients
     _rpcClient = RpcClient::create(_io);
 
+    // 数据库初始化
+    const std::vector<RedisInfo>& redisInfos = g_SceneConfig.getRedisInfos();
+    for (auto &info : redisInfos) {
+        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnectNum);
+        if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
+            ERROR_LOG("SceneServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+            return false;
+        }
+    }
+
+    g_RedisPoolManager.setCoreCache(g_SceneConfig.getCoreCache());
+
     return true;
 }
 

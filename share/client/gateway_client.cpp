@@ -118,7 +118,7 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
     return infos;
 }
 
-void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &msg) {
+void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, std::string>> &targets, const std::string &msg) {
     if (sid == 0) { // 全服广播
         if (targets.size() > 0) { // 全服广播不应设置指定目标
             WARN_LOG("GatewayClient::broadcast -- targets list not empty when global broadcast\n");

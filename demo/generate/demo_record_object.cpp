@@ -4,7 +4,7 @@
 
 using namespace demo;
 
-DemoRecordObject::DemoRecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordObjectManager *manager): wukong::RecordObject(roleId, serverId, rToken, manager) {
+DemoRecordObject::DemoRecordObject(RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): wukong::RecordObject(roleId, serverId, rToken, manager) {
     // 设置属性初始值(基础类型可以有默认值)
     _name = "";
     _exp = 0;

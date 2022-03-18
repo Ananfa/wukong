@@ -18,7 +18,8 @@
 #include "gateway_object.h"
 #include "gateway_object_manager.h"
 #include "gateway_server.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
+#include "redis_utils.h"
 #include "lobby_client.h"
 #include "scene_client.h"
 #include "share/const.h"
@@ -75,19 +76,19 @@ void GatewayObject::stop() {
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要重新考虑redis操作的地方
         // 清除session
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("GatewayObject::stop -- user[%d] connect to cache failed\n", _userId);
             return;
         }
 
         if (RedisUtils::RemoveSession(cache, _userId, _gToken) == REDIS_DB_ERROR) {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("GatewayObject::stop -- user[%d] remove session failed", _userId);
             return;
         }
 
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
     }
 }
 
@@ -112,24 +113,29 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
 
         // 设置session超时
         bool success = true;
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] connect to cache failed\n", obj->_userId);
 
             success = false;
         } else {
-            if (RedisUtils::SetSessionTTL(cache, obj->_userId, obj->_gToken) == REDIS_DB_ERROR) {
-                g_CachePool.put(cache, true);
-                ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed for db error\n", obj->_userId);
+            switch (RedisUtils::SetSessionTTL(cache, obj->_userId, obj->_gToken)) {
+                case REDIS_DB_ERROR: {
+                    g_RedisPoolManager.getCoreCache()->put(cache, true);
+                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed for db error\n", obj->_userId);
 
-                success = false;
-            } else {
-                success = reply->integer == 1;
-                g_CachePool.put(cache, false);
-
-                if (!success) {
-                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed\n", obj->_userId);
+                    success = false;
+                    break;
                 }
+                case REDIS_FAIL: {
+                    g_RedisPoolManager.getCoreCache()->put(cache, false);
+                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%d] check session failed\n", obj->_userId);
+                    break;
+                }
+                default: {
+                    g_RedisPoolManager.getCoreCache()->put(cache, false);
+                    break;
+                } 
             }
         }
 

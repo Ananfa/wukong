@@ -8,7 +8,7 @@ namespace demo {
     // 注意：此对象非线程安全
     class LobbyGameObject: public DemoGameObject {
     public:
-        LobbyGameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager);
+        LobbyGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager);
         virtual ~LobbyGameObject();
 
         virtual void update(uint64_t nowSec);

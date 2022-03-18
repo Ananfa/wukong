@@ -230,7 +230,7 @@ void InnerGatewayServiceImpl::heartbeat(::google::protobuf::RpcController* contr
     }
 
     if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("InnerGatewayServiceImpl::heartbeat -- ltoken not match, local ltoken:%d, remote ltoken:%d\n", obj->getLToken(), request->ltoken());
+        ERROR_LOG("InnerGatewayServiceImpl::heartbeat -- ltoken not match, local ltoken:%s, remote ltoken:%s\n", obj->getLToken().c_str(), request->ltoken().c_str());
         return;
     }
 

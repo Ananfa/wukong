@@ -2,7 +2,7 @@
 
 using namespace demo;
 
-LobbyGameObject::LobbyGameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager): DemoGameObject(userId, roleId, serverId, lToken, manager) {
+LobbyGameObject::LobbyGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): DemoGameObject(userId, roleId, serverId, lToken, manager) {
 
 }
 

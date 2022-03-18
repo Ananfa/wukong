@@ -16,7 +16,7 @@
 
 #include "corpc_routine_env.h"
 #include "record_object.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
 #include "record_delegate.h"
 #include "redis_utils.h"
 #include "share/const.h"
@@ -51,25 +51,25 @@ void RecordObject::stop() {
         _cond.broadcast();
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("RecordObject::stop -- role[%d] connect to cache failed\n", _roleId);
             return;
         }
 
         if (RedisUtils::RemoveRecordAddress(cache, _roleId, _rToken) == REDIS_DB_ERROR) {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("RecordObject::stop -- role[%d] remove record failed", _roleId);
             return;
         }
 
         if (RedisUtils::SetRoleTTL(cache, _roleId) == REDIS_DB_ERROR) {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("RecordObject::stop -- role[%d] expire cache data failed for db error\n", _roleId);
             return;
         }
 
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
     }
 }
 
@@ -94,7 +94,7 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
 
         // 设置session超时
         bool success = true;
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("RecordObject::heartbeatRoutine -- role %d connect to cache failed\n", obj->_roleId);
 
@@ -102,17 +102,17 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
         } else {
             switch (RedisUtils::SetRecordAddressTTL(cache, obj->_roleId, obj->_rToken)) {
                 case REDIS_DB_ERROR: {
-                    g_CachePool.put(cache, true);
+                    g_RedisPoolManager.getCoreCache()->put(cache, true);
                     ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed for db error\n", obj->_roleId);
                     success = false;
                 }
                 case REDIS_FAIL: {
-                    g_CachePool.put(cache, false);
+                    g_RedisPoolManager.getCoreCache()->put(cache, false);
                     ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed\n", obj->_roleId);
                     success = false;
                 }
                 case REDIS_SUCCESS: {
-                    g_CachePool.put(cache, false);
+                    g_RedisPoolManager.getCoreCache()->put(cache, false);
                     success = true;
                 }
             }
@@ -193,7 +193,7 @@ void *RecordObject::syncRoutine(void *arg) {
 
 bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &datas) {
     // 将数据存到cache中，并且加入相应的存盘时间队列
-    redisContext *cache = g_CachePool.take();
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("RecordObject::cacheData -- role %d connect to cache failed\n", _roleId);
 
@@ -202,12 +202,12 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
 
     switch (RedisUtils::UpdateRole(cache, _roleId, datas)) {
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("RecordObject::cacheData -- role %d update data failed for db error\n", _roleId);
             return false;
         }
         case REDIS_FAIL: {
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
             ERROR_LOG("RecordObject::cacheData -- role %d update data failed\n", _roleId);
             return false;
         }
@@ -229,22 +229,21 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
         uint32_t whealPos = nextSaveTM % SAVE_TIME_WHEEL_SIZE;
 
         if (RedisUtils::AddSaveRoleId(cache, whealPos, _roleId) == REDIS_DB_ERROR) {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", _roleId);
         } else {
             _saveTM = nextSaveTM;
-            freeReplyObject(reply);
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
         }
     } else {
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
     }
 
     return true;
 }
 
 bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas) {
-    redisContext *cache = g_CachePool.take();
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("RecordObject::cacheProfile -- role %d connect to cache failed\n", _roleId);
         return false;
@@ -252,17 +251,17 @@ bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &
 
     switch (RedisUtils::UpdateProfile(cache, _roleId, profileDatas)) {
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed for db error\n", _roleId);
             return false;
         }
         case REDIS_FAIL: {
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
             ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed\n", _roleId);
             return false;
         }
     }
 
-    g_CachePool.put(cache, false);
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
     return true;
 }

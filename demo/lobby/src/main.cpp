@@ -13,7 +13,9 @@ int main(int argc, char * argv[]) {
         return -1;
     }
 
-    g_GameDelegate.setCreateGameObjectHandle([](UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
+    // TODO: 这里可以设置上层功能使用的redis lua脚本
+
+    g_GameDelegate.setCreateGameObjectHandle([](UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
         std::shared_ptr<GameObject> obj(new LobbyGameObject(userId, roleId, serverId, lToken, mgr));
         if (!obj->initData(data)) {
             ERROR_LOG("create game object failed because init data failed, role: %d\n", roleId);

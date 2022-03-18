@@ -15,7 +15,7 @@
  */
 
 #include "record_center.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
 #include "mysql_pool.h"
 #include "redis_utils.h"
 #include "mysql_utils.h"
@@ -46,7 +46,7 @@ void *RecordCenter::saveRoutine(void *arg) {
         }
         lastSec = t.tv_sec;
 
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("RecordCenter::saveRoutine -- connect to cache failed\n");
             continue;
@@ -62,12 +62,12 @@ void *RecordCenter::saveRoutine(void *arg) {
 
         switch (RedisUtils::SaveLock(cache, wheelPos)) {
             case REDIS_DB_ERROR: {
-                g_CachePool.put(cache, true);
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply null\n");
                 continue;
             }
             case REDIS_FAIL: {
-                g_CachePool.put(cache, false);
+                g_RedisPoolManager.getCoreCache()->put(cache, false);
                 continue;
             }
         }
@@ -75,18 +75,18 @@ void *RecordCenter::saveRoutine(void *arg) {
         std::vector<RoleId> roleIds;
         switch (RedisUtils::GetSaveList(cache, wheelPos, roleIds)) {
             case REDIS_DB_ERROR: {
-                g_CachePool.put(cache, true);
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply null\n");
                 continue;
             }
             case REDIS_FAIL: {
-                g_CachePool.put(cache, true);
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("RecordCenter::saveRoutine -- redis reply type invalid\n");
                 continue;
             }
         }
 
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
         
         for (RoleId roleId : roleIds){
             // 开工作协程并发存盘
@@ -109,7 +109,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
     delete task;
 
     // 先从cache中加载profile数据
-    redisContext *cache = g_CachePool.take();
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed\n");
         self->_saveSema.post();
@@ -119,7 +119,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
     std::list<std::pair<std::string, std::string>> datas;
     ServerId serverId;
     if (RedisUtils::LoadRole(cache, roleId, serverId, datas, false) == REDIS_DB_ERROR) {
-        g_CachePool.put(cache, true);
+        g_RedisPoolManager.getCoreCache()->put(cache, true);
         ERROR_LOG("DemoUtils::SaveRole -- load role data failed\n");
         self->_saveSema.post();
         return nullptr;
@@ -127,10 +127,10 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
 
     if (datas.size() > 0) {
         // 先暂时归还cache连接
-        g_CachePool.put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
 
         // 保存到mysql中
-        MYSQL *mysql = g_MysqlPool.take();
+        MYSQL *mysql = g_MysqlPoolManager.getCoreRecord()->take();
         if (!mysql) {
             ERROR_LOG("DemoUtils::SaveRole -- connect to mysql failed\n");
             
@@ -141,16 +141,16 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         std::string roleData = ProtoUtils::marshalDataFragments(datas);
         if (!MysqlUtils::UpdateRole(mysql, roleId, roleData)) {
             ERROR_LOG("DemoUtils::SaveRole -- save to mysql failed\n");
-            g_MysqlPool.put(mysql, true);
+            g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
             
             self->_saveSema.post();
             return nullptr;
         }
 
-        g_MysqlPool.put(mysql, false);
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
         
         // 重新获取cache连接
-        cache = g_CachePool.take();
+        cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed when remove id from set\n");
             
@@ -164,14 +164,14 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
 
     // 删除集合中玩家ID，这里一个个玩家ID单独从集合中删除而不是在最后删除集合是防止处理集合过程中集合插入新的ID
     if (RedisUtils::RemoveSaveRoleId(cache, wheelPos, roleId) == REDIS_DB_ERROR) {
-        g_CachePool.put(cache, true);
+        g_RedisPoolManager.getCoreCache()->put(cache, true);
         ERROR_LOG("RecordCenter::saveRoutine -- redis reply null when remove id from set\n");
         
         self->_saveSema.post();
         return nullptr;
     }
 
-    g_CachePool.put(cache, false);
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     self->_saveSema.post();
     return nullptr;

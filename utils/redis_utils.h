@@ -14,6 +14,8 @@ namespace wukong {
         static uint64_t CreateUserID(redisContext *redis);
         static uint64_t CreateRoleID(redisContext *redis);
 
+        static RedisAccessResult LoadSha1(redisContext *redis, const std::string &script, std::string &sha1);
+
         static RedisAccessResult LoginLock(redisContext *redis, const std::string &account);
         static RedisAccessResult GetUserID(redisContext *redis, const std::string &account, UserId &userId);
         static RedisAccessResult SetUserID(redisContext *redis, const std::string &account, UserId userId);
@@ -50,7 +52,7 @@ namespace wukong {
         static RedisAccessResult GetRecordAddress(redisContext *redis, RoleId roleId, ServerId &recordId);
         static RedisAccessResult SetRecordAddress(redisContext *redis, RoleId roleId, ServerId recordId, const std::string &rToken);
         static RedisAccessResult RemoveRecordAddress(redisContext *redis, RoleId roleId, const std::string &rToken);
-        static RedisAccessResult SetRecordAddressTTL(RoleId roleId, const std::string &rToken);
+        static RedisAccessResult SetRecordAddressTTL(redisContext *redis, RoleId roleId, const std::string &rToken);
 
         static RedisAccessResult SaveLock(redisContext *redis, uint32_t wheelPos);
         static RedisAccessResult GetSaveList(redisContext *redis, uint32_t wheelPos, std::vector<RoleId> &roleIds);

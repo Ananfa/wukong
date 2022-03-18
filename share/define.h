@@ -47,6 +47,25 @@ namespace wukong {
         ServerId id;
         uint32_t weight;
     };
+
+    struct RedisInfo {
+        std::string dbName;     // 库名
+        std::string host;       // db服务器host
+        std::string pwd;
+        uint16_t port;          // db服务器port
+        uint16_t dbIndex;       // db分库索引
+        uint16_t maxConnect;    // 最大连接数
+    };
+
+    struct MysqlInfo {
+        std::string host;
+        uint16_t port;
+        std::string user;
+        std::string pwd;
+        uint16_t maxConnect;    // 最大连接数
+        std::string dbName;
+    };
+
 }
 
 #endif /* define_h */

@@ -50,12 +50,14 @@ namespace wukong {
     const uint16_t S2C_MESSAGE_ID_ENTERGAME        = 2; // 进入游戏消息
     const uint16_t S2C_MESSAGE_ID_RECONNECTED      = 3; // 重连确认消息
 
+    const char SET_PASSPORT_NAME[] = "set_pass";
     const char SET_PASSPORT_CMD[] = "\
         redis.call('hmset',KEYS[1],'gToken',ARGV[1],'gateId',ARGV[2],'roleId',ARGV[3])\
         redis.call('expire',KEYS[1],ARGV[4])\
         return 1";
 
     // passport只能被用一次
+    const char CHECK_PASSPORT_NAME[] = "chk_pass";
     const char CHECK_PASSPORT_CMD[] = "\
         local vals = redis.call('hmget',KEYS[1],'gateId','gToken','roleId')\
         if not vals[1] or not vals[2] or not vals[3] or vals[1] ~= ARGV[1] or vals[2] ~= ARGV[2] then\
@@ -63,6 +65,7 @@ namespace wukong {
         end\
         return tonumber(vals[3])";
 
+    const char SET_SESSION_NAME[] = "set_sess";
     const char SET_SESSION_CMD[] = "\
         local ret=redis.call('hsetnx',KEYS[1],'gToken',ARGV[1])\
         if ret==1 then\
@@ -73,6 +76,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char REMOVE_SESSION_NAME[] = "rm_sess";
     const char REMOVE_SESSION_CMD[] = "\
         local gToken=redis.call('hget',KEYS[1],'gToken')\
         if not gToken then\
@@ -83,6 +87,7 @@ namespace wukong {
         redis.call('del',KEYS[1])\
         return 1";
 
+//    const char CHECK_SESSION_NAME[] = "chk_sess";
 //    const char CHECK_SESSION_CMD[] = "\
         local gateId = redis.call('hget',KEYS[1],'gateId')\
         if not gateId then\
@@ -106,6 +111,7 @@ namespace wukong {
         end\
         return tonumber(roleId)";
 
+    const char SET_SESSION_EXPIRE_NAME[] = "set_sess_ex";
     const char SET_SESSION_EXPIRE_CMD[] = "\
         local gToken = redis.call('hget',KEYS[1],'gToken')\
         if not gToken then\
@@ -116,6 +122,7 @@ namespace wukong {
         local ret = redis.call('expire',KEYS[1],ARGV[2])\
         return ret";
 
+    const char SET_LOCATION_NAME[] = "set_loc";
     const char SET_LOCATION_CMD[] = "\
         local ret = redis.call('hsetnx',KEYS[1],'lToken',ARGV[1])\
         if ret==1 then\
@@ -126,6 +133,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char REMOVE_LOCATION_NAME[] = "rm_loc";
     const char REMOVE_LOCATION_CMD[] = "\
         local lToken=redis.call('hget',KEYS[1],'lToken')\
         if not lToken then\
@@ -136,6 +144,7 @@ namespace wukong {
         redis.call('del',KEYS[1])\
         return 1";
 
+    const char UPDATE_LOCATION_NAME[] = "up_loc";
     const char UPDATE_LOCATION_CMD[] = "\
         local lToken = redis.call('hget',KEYS[1],'lToken')\
         if not lToken then\
@@ -147,6 +156,7 @@ namespace wukong {
         redis.call('expire',KEYS[1],ARGV[4])\
         return 1";
 
+    const char SET_LOCATION_EXPIRE_NAME[] = "set_loc";
     const char SET_LOCATION_EXPIRE_CMD[] = "\
         local lToken = redis.call('hget',KEYS[1],'lToken')\
         if not lToken then\
@@ -157,6 +167,7 @@ namespace wukong {
         redis.call('expire',KEYS[1],ARGV[2])\
         return 1";
 
+    const char SET_RECORD_NAME[] = "set_rec";
     const char SET_RECORD_CMD[] = "\
         local ret = redis.call('hsetnx',KEYS[1],'rToken',ARGV[1])\
         if ret==1 then\
@@ -167,6 +178,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char REMOVE_RECORD_NAME[] = "rm_rec";
     const char REMOVE_RECORD_CMD[] = "\
         local rToken=redis.call('hget',KEYS[1],'rToken')\
         if not rToken then\
@@ -177,6 +189,7 @@ namespace wukong {
         redis.call('del',KEYS[1])\
         return 1";
 
+    const char SET_RECORD_EXPIRE_NAME[] = "set_rec_ex";
     const char SET_RECORD_EXPIRE_CMD[] = "\
         local rToken = redis.call('hget',KEYS[1],'rToken')\
         if not rToken then\
@@ -187,6 +200,7 @@ namespace wukong {
         redis.call('expire',KEYS[1],ARGV[2])\
         return 1";
 
+    const char BIND_ROLE_NAME[] = "bind_role";
     const char BIND_ROLE_CMD[] = "\
         local ret = redis.call('scard',KEYS[1])\
         if ret<tonumber(ARGV[2]) then\
@@ -197,6 +211,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char SAVE_PROFILE_NAME[] = "save_prof";
     const char SAVE_PROFILE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==0 then\
@@ -207,6 +222,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char UPDATE_PROFILE_NAME[] = "up_prof";
     const char UPDATE_PROFILE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==1 then\
@@ -217,6 +233,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char SAVE_ROLE_NAME[] = "save_role";
     const char SAVE_ROLE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==0 then\
@@ -226,6 +243,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char UPDATE_ROLE_NAME[] = "up_role";
     const char UPDATE_ROLE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==1 then\
@@ -235,6 +253,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char LOAD_ROLE_NAME[] = "load_role";
     const char LOAD_ROLE_CMD[] = "\
         local ret = redis.call('exists',KEYS[1])\
         if ret==0 then\
@@ -245,6 +264,7 @@ namespace wukong {
         end\
         return redis.call('hgetall',KEYS[1])";
 
+    const char SET_SCENE_LOCATION_NAME[] = "set_scene_loc";
     const char SET_SCENE_LOCATION_CMD[] = "\
         local ret = redis.call('hsetnx',KEYS[1],'sToken',ARGV[1])\
         if ret==1 then\
@@ -255,6 +275,7 @@ namespace wukong {
           return 0\
         end";
 
+    const char REMOVE_SCENE_LOCATION_NAME[] = "rm_scene_loc";
     const char REMOVE_SCENE_LOCATION_CMD[] = "\
         local sToken=redis.call('hget',KEYS[1],'sToken')\
         if not sToken then\
@@ -265,6 +286,7 @@ namespace wukong {
         redis.call('del',KEYS[1])\
         return 1";
 
+    const char SET_SCENE_LOCATION_EXPIRE_NAME[] = "set_scene_loc_ex";
     const char SET_SCENE_LOCATION_EXPIRE_CMD[] = "\
         local sToken = redis.call('hget',KEYS[1],'sToken')\
         if not sToken then\
@@ -274,7 +296,6 @@ namespace wukong {
         end\
         redis.call('expire',KEYS[1],ARGV[2])\
         return 1";
-
 
 }
 

@@ -23,7 +23,7 @@
 #include "game_service.h"
 #include "game_center.h"
 #include "client_center.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -109,6 +109,18 @@ bool LobbyServer::init(int argc, char * argv[]) {
     // 初始化rpc clients
     _rpcClient = RpcClient::create(_io);
 
+    // 数据库初始化
+    const std::vector<RedisInfo>& redisInfos = g_LobbyConfig.getRedisInfos();
+    for (auto &info : redisInfos) {
+        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnect);
+        if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
+            ERROR_LOG("LobbyServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    g_RedisPoolManager.setCoreCache(g_LobbyConfig.getCoreCache());
+
     return true;
 }
 
@@ -132,8 +144,6 @@ void LobbyServer::run() {
     RpcServer *server = RpcServer::create(_io, 0, g_LobbyConfig.getIp(), g_LobbyConfig.getPort());
     server->registerService(lobbyServiceImpl);
     server->registerService(gameServiceImpl);
-
-    g_CachePool.init(g_LobbyConfig.getCache().host.c_str(), g_LobbyConfig.getCache().pwd.c_str(), g_LobbyConfig.getCache().port, g_LobbyConfig.getCache().dbIndex, g_LobbyConfig.getCache().maxConnect);
 
     g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod());
     g_ClientCenter.init(_rpcClient, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());

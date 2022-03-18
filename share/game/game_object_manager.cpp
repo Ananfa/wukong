@@ -16,7 +16,8 @@
 
 #include "corpc_routine_env.h"
 #include "game_object_manager.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
+#include "redis_utils.h"
 #include "game_delegate.h"
 #include "client_center.h"
 #include "share/const.h"
@@ -69,7 +70,7 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     // 设置成功时加载玩家数据（附带创建记录对象）
     // 重新设置location过期（若这里不设置，后面创建的GameObject会等到第一次心跳时才销毁）
     // 创建GameObject
-    redisContext *cache = g_CachePool.take();
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("GameObjectManager::loadRole -- user %d role %d connect to cache failed\n", userId, roleId);
         return false;
@@ -79,13 +80,13 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     RedisAccessResult res = RedisUtils::GetRecordAddress(cache, roleId, recordId);
     switch (res) {
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for db error\n", userId, roleId);
             return false;
         }
         case REDIS_FAIL: {
             if (!g_ClientCenter.randomRecordServer(recordId)) {
-                g_CachePool.put(cache, false);
+                g_RedisPoolManager.getCoreCache()->put(cache, false);
                 ERROR_LOG("GameObjectManager::loadRole -- user %d role %d random record server failed\n", userId, roleId);
                 return false;
             }
@@ -100,18 +101,18 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     res = RedisUtils::SetGameObjectAddress(cache, roleId, _type, _id, lToken);
     switch (res) {
         case REDIS_DB_ERROR: {
-            g_CachePool.put(cache, true);
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed\n", userId, roleId);
             return false;
         }
         case REDIS_FAIL: {
-            g_CachePool.put(cache, false);
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
             ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for already set\n", userId, roleId);
             return false;
         }
     }
 
-    g_CachePool.put(cache, false);
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     // 向Record服发加载数据RPC
     std::string roleData;
@@ -124,17 +125,17 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     // 这里是否需要加一次对location超时设置，避免加载数据时location过期？
     // 如果这里不加检测，创建的GameObject会等到第一次心跳设置location时才销毁
     // 如果加检测会让登录流程延长
-    // cache = g_CachePool.take();
+    // cache = g_MysqlPoolManager.getCoreCache()->take();
     // reply = (redisReply *)redisCommand(cache, "EXPIRE Location:%d %d", roleId, 60);
     // if (reply->integer != 1) {
     //     // 设置超时失败，可能是key已经过期
     //     freeReplyObject(reply);
-    //     g_CachePool.put(cache, false);
+    //     g_MysqlPoolManager.getCoreCache()->put(cache, false);
     //     ERROR_LOG("InnerLobbyServiceImpl::initRole -- user %d role %d load role data failed for cant set location expire\n", userId, roleId);
     //     return;
     // }
     // freeReplyObject(reply);
-    // g_CachePool.put(cache, false);
+    // g_MysqlPoolManager.getCoreCache()->put(cache, false);
 
     // 创建GameObject
     if (_shutdown) {

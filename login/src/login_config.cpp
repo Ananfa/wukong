@@ -83,130 +83,132 @@ bool LoginConfig::parse(const char *path) {
     }
     _roleNumForPlayer = doc["roleNumForPlayer"].GetUint();
 
-    if (!doc.HasMember("cache")) {
-        ERROR_LOG("config error -- cache not define\n");
+    const Value& rediss = doc["redis"];
+    if (!rediss.IsArray()) {
+        ERROR_LOG("config error -- redis not array\n");
         return false;
     }
-    
-    const Value& cache = doc["cache"];
-    if (!cache.IsObject()) {
-        ERROR_LOG("config error -- cache not object\n");
+
+    std::map<std::string, bool> redisNameMap;
+    for (SizeType i = 0; i < rediss.Size(); i++) {
+        const Value& redis = rediss[i];
+
+        RedisInfo info;
+        if (!redis.HasMember("dbName")) {
+            ERROR_LOG("config error -- redis[%d] dbName not define\n", i);
+            return false;
+        }
+        info.dbName = redis["dbName"].GetString();
+        if (redisNameMap.find(info.dbName) != redisNameMap.end()) {
+            ERROR_LOG("config error -- redis dbName %s duplicate\n", info.dbName.c_str());
+            return false;
+        }
+
+        if (!redis.HasMember("host")) {
+            ERROR_LOG("config error -- redis[%s].host not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.host = redis["host"].GetString();
+        
+        if (redis.HasMember("pwd")) {
+            info.pwd = redis["pwd"].GetString();
+        }
+        
+        if (!redis.HasMember("port")) {
+            ERROR_LOG("config error -- redis[%s].port not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.port = redis["port"].GetUint();
+        
+        if (!redis.HasMember("dbIndex")) {
+            ERROR_LOG("config error -- redis[%s].dbIndex not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.dbIndex = redis["dbIndex"].GetUint();
+        
+        if (!redis.HasMember("maxConnect")) {
+            ERROR_LOG("config error -- redis[%s].maxConnect not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.maxConnect = redis["maxConnect"].GetUint();
+
+        redisNameMap.insert(std::make_pair(info.dbName, true));
+        _redisInfos.push_back(info);
+    }
+
+    const Value& mysqls = doc["mysql"];
+    if (!mysqls.IsArray()) {
+        ERROR_LOG("config error -- mysql not array\n");
         return false;
     }
+
+    std::map<std::string, bool> mysqlNameMap;
+    for (SizeType i = 0; i < mysqls.Size(); i++) {
+        const Value& mysql = mysqls[i];
+
+        MysqlInfo info;
+        
+        if (!mysql.HasMember("dbName")) {
+            ERROR_LOG("config error -- mysql.dbName not define\n");
+            return false;
+        }
+        info.dbName = mysql["dbName"].GetString();
+        if (mysqlNameMap.find(info.dbName) != mysqlNameMap.end()) {
+            ERROR_LOG("config error -- mysql dbName %s duplicate\n", info.dbName.c_str());
+            return false;
+        }
     
-    if (!cache.HasMember("host")) {
-        ERROR_LOG("config error -- cache.host not define\n");
+        if (!mysql.HasMember("host")) {
+            ERROR_LOG("config error -- mysql[%s].host not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.host = mysql["host"].GetString();
+        
+        if (!mysql.HasMember("port")) {
+            ERROR_LOG("config error -- mysql[%s].port not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.port = mysql["port"].GetUint();
+        
+        if (!mysql.HasMember("user")) {
+            ERROR_LOG("config error -- mysql[%s].user not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.user = mysql["user"].GetString();
+        
+        if (!mysql.HasMember("pwd")) {
+            ERROR_LOG("config error -- mysql[%s].pwd not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.pwd = mysql["pwd"].GetString();
+        
+        if (!mysql.HasMember("maxConnect")) {
+            ERROR_LOG("config error -- mysql[%s].maxConnect not define\n", info.dbName.c_str());
+            return false;
+        }
+        info.maxConnect = mysql["maxConnect"].GetUint();
+    
+        mysqlNameMap.insert(std::make_pair(info.dbName, true));
+        _mysqlInfos.push_back(info);
+    }
+
+    if (!doc.HasMember("coreCache")) {
+        ERROR_LOG("config error -- coreCache not define\n");
         return false;
     }
-    _cache.host = cache["host"].GetString();
+    _coreCache = doc["coreCache"].GetString();
     
-    if (cache.HasMember("pwd")) {
-        _cache.pwd = cache["pwd"].GetString();
-    }
-    
-    if (!cache.HasMember("port")) {
-        ERROR_LOG("config error -- cache.port not define\n");
+    if (!doc.HasMember("corePersist")) {
+        ERROR_LOG("config error -- corePersist not define\n");
         return false;
     }
-    _cache.port = cache["port"].GetUint();
+    _corePersist = doc["corePersist"].GetString();
     
-    if (!cache.HasMember("dbIndex")) {
-        ERROR_LOG("config error -- cache.dbIndex not define\n");
+    if (!doc.HasMember("coreRecord")) {
+        ERROR_LOG("config error -- coreRecord not define\n");
         return false;
     }
-    _cache.dbIndex = cache["dbIndex"].GetUint();
-    
-    if (!cache.HasMember("maxConnect")) {
-        ERROR_LOG("config error -- cache.maxConnect not define\n");
-        return false;
-    }
-    _cache.maxConnect = cache["maxConnect"].GetUint();
-    
-    if (!doc.HasMember("redis")) {
-        ERROR_LOG("config error -- db not define\n");
-        return false;
-    }
-    
-    const Value& redis = doc["redis"];
-    if (!redis.IsObject()) {
-        ERROR_LOG("config error -- redis not object\n");
-        return false;
-    }
-    
-    if (!redis.HasMember("host")) {
-        ERROR_LOG("config error -- redis.host not define\n");
-        return false;
-    }
-    _redis.host = redis["host"].GetString();
-    
-    if (redis.HasMember("pwd")) {
-        _redis.pwd = redis["pwd"].GetString();
-    }
-    
-    if (!redis.HasMember("port")) {
-        ERROR_LOG("config error -- redis.port not define\n");
-        return false;
-    }
-    _redis.port = redis["port"].GetUint();
-    
-    if (!redis.HasMember("dbIndex")) {
-        ERROR_LOG("config error -- redis.dbIndex not define\n");
-        return false;
-    }
-    _redis.dbIndex = redis["dbIndex"].GetUint();
-    
-    if (!redis.HasMember("maxConnect")) {
-        ERROR_LOG("config error -- redis.maxConnect not define\n");
-        return false;
-    }
-    _redis.maxConnect = redis["maxConnect"].GetUint();
-    
-    if (!doc.HasMember("mysql")) {
-        ERROR_LOG("config error -- mysql not define\n");
-        return false;
-    }
-    
-    const Value& mysql = doc["mysql"];
-    if (!mysql.IsObject()) {
-        ERROR_LOG("config error -- mysql not object\n");
-        return false;
-    }
-    
-    if (!mysql.HasMember("host")) {
-        ERROR_LOG("config error -- mysql.host not define\n");
-        return false;
-    }
-    _mysql.host = mysql["host"].GetString();
-    
-    if (!mysql.HasMember("port")) {
-        ERROR_LOG("config error -- mysql.port not define\n");
-        return false;
-    }
-    _mysql.port = mysql["port"].GetUint();
-    
-    if (!mysql.HasMember("user")) {
-        ERROR_LOG("config error -- mysql.user not define\n");
-        return false;
-    }
-    _mysql.user = mysql["user"].GetString();
-    
-    if (!mysql.HasMember("pwd")) {
-        ERROR_LOG("config error -- mysql.pwd not define\n");
-        return false;
-    }
-    _mysql.pwd = mysql["pwd"].GetString();
-    
-    if (!mysql.HasMember("maxConnect")) {
-        ERROR_LOG("config error -- mysql.maxConnect not define\n");
-        return false;
-    }
-    _mysql.maxConnect = mysql["maxConnect"].GetUint();
-    
-    if (!mysql.HasMember("dbName")) {
-        ERROR_LOG("config error -- mysql.dbName not define\n");
-        return false;
-    }
-    _mysql.dbName = mysql["dbName"].GetString();
+    _coreRecord = doc["coreRecord"].GetString();
     
     _zooPath = ZK_LOGIN_SERVER + "/" + std::to_string(_id) + "|" + _serviceIp + ":" + std::to_string(_servicePort);
 

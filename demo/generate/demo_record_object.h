@@ -15,7 +15,7 @@ namespace demo {
         
     class DemoRecordObject: public wukong::RecordObject {
     public:
-        DemoRecordObject(RoleId roleId, ServerId serverId, uint32_t rToken, RecordObjectManager *manager);
+        DemoRecordObject(RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager);
         virtual ~DemoRecordObject() {}
 
         virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas);

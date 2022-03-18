@@ -25,7 +25,7 @@
 #include "gateway_object_manager.h"
 #include "gateway_handler.h"
 #include "client_center.h"
-#include "cache_pool.h"
+#include "redis_pool.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -108,7 +108,7 @@ bool GatewayServer::init(int argc, char * argv[]) {
     // parse config file content to config object
     if (!g_GatewayConfig.parse(configFileName)) {
         ERROR_LOG("Parse config error\n");
-        return -1;
+        return false;
     }
     
     // create IO layer
@@ -116,6 +116,18 @@ bool GatewayServer::init(int argc, char * argv[]) {
 
     // 初始化rpc clients
     _rpcClient = RpcClient::create(_io);
+
+    // 数据库初始化
+    const std::vector<RedisInfo>& redisInfos = g_GatewayConfig.getRedisInfos();
+    for (auto &info : redisInfos) {
+        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnect);
+        if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
+            ERROR_LOG("GatewayServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+            return false;
+        }
+    }
+
+    g_RedisPoolManager.setCoreCache(g_GatewayConfig.getCoreCache());
 
     return true;
 }
@@ -137,8 +149,6 @@ void GatewayServer::run() {
     // 启动对外的RPC服务
     RpcServer *server = RpcServer::create(_io, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
     server->registerService(gatewayServiceImpl);
-
-    g_CachePool.init(g_GatewayConfig.getCache().host.c_str(), g_GatewayConfig.getCache().pwd.c_str(), g_GatewayConfig.getCache().port, g_GatewayConfig.getCache().dbIndex, g_GatewayConfig.getCache().maxConnect);
 
     g_ClientCenter.init(_rpcClient, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();

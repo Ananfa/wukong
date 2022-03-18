@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include "share/define.h"
 
 namespace wukong {
 
@@ -28,14 +29,6 @@ namespace wukong {
     public:
         struct ServerInfo {
             uint32_t id;            // 服务号（Gateway服务唯一标识，与zookeeper注册发现有关）
-        };
-
-        struct RedisInfo {
-            std::string host;       // db服务器host
-            std::string pwd;
-            uint16_t port;          // db服务器port
-            uint16_t dbIndex;       // db分库索引
-            uint16_t maxConnect;    // 最大连接数
         };
 
     public:
@@ -55,8 +48,10 @@ namespace wukong {
         uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
         uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
 
-        const RedisInfo& getCache() const { return _cache; }
-
+        const std::vector<RedisInfo>& getRedisInfos() const { return _redisInfos; }
+        
+        const std::string& getCoreCache() const { return _coreCache; }
+        
         uint32_t getUpdatePeriod() const { return _updatePeriod; }
         
         bool enableSceneClient() const { return _enableSceneClient; }
@@ -74,7 +69,9 @@ namespace wukong {
         uint32_t _ioRecvThreadNum;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
-        RedisInfo _cache; // 缓存库配置
+        std::vector<RedisInfo> _redisInfos; // Redis库配置
+
+        std::string _coreCache;  // 用作游戏服务器核心缓存redis库(redis中的一个)
 
         uint32_t _updatePeriod; // 游戏对象update方法调用周期，单位毫秒，0表示不进行update
 

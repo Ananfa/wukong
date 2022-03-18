@@ -57,7 +57,7 @@ std::shared_ptr<RecordObject> RecordObjectManager::getRecordObject(RoleId roleId
     return it->second;
 }
 
-std::shared_ptr<RecordObject> RecordObjectManager::create(RoleId roleId, ServerId serverId, uint32_t rToken, std::list<std::pair<std::string, std::string>> &datas) {
+std::shared_ptr<RecordObject> RecordObjectManager::create(RoleId roleId, ServerId serverId, const std::string &rToken, std::list<std::pair<std::string, std::string>> &datas) {
     if (_shutdown) {
         WARN_LOG("RecordObjectManager::create -- already shutdown\n");
         return nullptr;

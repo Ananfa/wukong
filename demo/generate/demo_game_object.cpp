@@ -6,7 +6,7 @@
 using namespace wukong;
 using namespace demo;
 
-DemoGameObject::DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager): wukong::GameObject(userId, roleId, serverId, lToken, manager) {
+DemoGameObject::DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): wukong::GameObject(userId, roleId, serverId, lToken, manager) {
     // 设置属性初始值(基础类型可以有默认值)
     _name = "";
     _exp = 0;

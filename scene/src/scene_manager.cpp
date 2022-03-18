@@ -100,7 +100,7 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
 
     // 如果不是个人场景，需要向redis进行注册新场景地址
     if (sType != SCENE_TYPE_SINGLE_PLAYER) {
-        redisContext *cache = g_CachePool.take();
+        redisContext *cache = g_MysqlPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("SceneManager::loadScene -- connect to cache failed\n", userId, roleid);
             return "";
@@ -113,19 +113,19 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
 
         switch (RedisUtils::SetSceneLocation(cache, realSceneId, sToken, _id)) {
             case REDIS_DB_ERROR: {
-                g_CachePool.put(cache, true);
+                g_MysqlPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed\n", realSceneId.c_str());
                 return "";
             }
             case REDIS_FAIL: {
                 freeReplyObject(reply);
-                g_CachePool.put(cache, false);
+                g_MysqlPoolManager.getCoreCache()->put(cache, false);
                 ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed for already set\n", realSceneId.c_str());
                 return false;
             }
         }
 
-        g_CachePool.put(cache, false);
+        g_MysqlPoolManager.getCoreCache()->put(cache, false);
     }
 
     // 应该在这里(上了锁之后)获取成员列表

@@ -61,7 +61,7 @@ namespace wukong {
         void shutdown();
         bool kick(ServerId sid, UserId userId, const std::string &gToken);
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
-        void broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, uint32_t>> &targets, const std::string &rawMsg);
+        void broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, std::string>> &targets, const std::string &rawMsg);
         // TODO: 对全服的broadcast
     
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }

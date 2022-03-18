@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include "share/define.h"
 
 namespace wukong {
 
@@ -29,23 +30,6 @@ namespace wukong {
         struct ServerInfo {
             uint32_t id;            // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
             // 目前只有一个id，可以根据需要扩展
-        };
-
-        struct RedisInfo {
-            std::string host;       // db服务器host
-            std::string pwd;
-            uint16_t port;          // db服务器port
-            uint16_t dbIndex;       // db分库索引
-            uint16_t maxConnect;    // 最大连接数
-        };
-
-        struct MysqlInfo {
-            std::string host;
-            uint16_t port;
-            std::string user;
-            std::string pwd;
-            uint16_t maxConnect;    // 最大连接数
-            std::string dbName;
         };
 
     public:
@@ -65,8 +49,11 @@ namespace wukong {
         uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
         uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
 
-        const RedisInfo& getCache() const { return _cache; }
-        const MysqlInfo& getMysql() const { return _mysql; }
+        const std::vector<RedisInfo>& getRedisInfos() const { return _redisInfos; }
+        const std::vector<MysqlInfo>& getMysqlInfos() const { return _mysqlInfos; }
+
+        const std::string& getCoreCache() const { return _coreCache; }
+        const std::string& getCoreRecord() const { return _coreRecord; }
         
         const std::string& getZooPath() const { return _zooPath; }
 
@@ -81,8 +68,11 @@ namespace wukong {
         uint32_t _ioRecvThreadNum;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
-        RedisInfo _cache; // 缓存库配置
-        MysqlInfo _mysql; // 数据库配置
+        std::vector<RedisInfo> _redisInfos; // Redis库配置
+        std::vector<MysqlInfo> _mysqlInfos;
+
+        std::string _coreCache;  // 用作游戏服务器核心缓存redis库(redis中的一个)
+        std::string _coreRecord;  // 用作游戏服务器核心落地mysql库(mysql中的一个)
 
         std::string _zooPath;
 

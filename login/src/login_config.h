@@ -18,29 +18,13 @@
 #define login_config_h
 
 #include <string>
+#include <vector>
+#include "share/define.h"
 
 namespace wukong {
 
     // 单例模式实现
     class LoginConfig {
-    public:
-        struct RedisInfo {
-            std::string host;       // db服务器host
-            std::string pwd;
-            uint16_t port;          // db服务器port
-            uint16_t dbIndex;       // db分库索引
-            uint16_t maxConnect;    // 最大连接数
-        };
-        
-        struct MysqlInfo {
-            std::string host;
-            uint16_t port;
-            std::string user;
-            std::string pwd;
-            uint16_t maxConnect;    // 最大连接数
-            std::string dbName;
-        };
-
     public:
         static LoginConfig& Instance() {
             static LoginConfig theSingleton;
@@ -62,10 +46,13 @@ namespace wukong {
 
         uint32_t getRoleNumForPlayer() const { return _roleNumForPlayer; }
 
-        const RedisInfo& getCache() const { return _cache; }
-        const RedisInfo& getRedis() const { return _redis; }
-        const MysqlInfo& getMysql() const { return _mysql; }
+        const std::vector<RedisInfo>& getRedisInfos() const { return _redisInfos; }
+        const std::vector<MysqlInfo>& getMysqlInfos() const { return _mysqlInfos; }
 
+        const std::string& getCoreCache() const { return _coreCache; }
+        const std::string& getCorePersist() const { return _corePersist; }
+        const std::string& getCoreRecord() const { return _coreRecord; }
+        
         const std::string& getZooPath() const { return _zooPath; }
 
     private:
@@ -81,9 +68,14 @@ namespace wukong {
 
         uint32_t _roleNumForPlayer; // 每个玩家在一个区服中可创建的角色数量
         
-        RedisInfo _cache; // 缓存路由对象、游戏对象和存储对象对应的存在锁，玩家的session，缓存角色数据，角色轮廓数据，发布订阅等
-        RedisInfo _redis; // 存储玩家的openid对应userid关系，userid对应roleid列表关系，逻辑服与服务器组对应关系等
-        MysqlInfo _mysql; // mysql落地存储角色主体数据（因角色数据量大，存到redis中不太合适）
+        // 缓存路由对象、游戏对象和存储对象对应的存在锁，玩家的session，缓存角色数据，角色轮廓数据，发布订阅等
+        // 存储玩家的openid对应userid关系，userid对应roleid列表关系，逻辑服与服务器组对应关系等
+        std::vector<RedisInfo> _redisInfos; // Redis库配置
+        std::vector<MysqlInfo> _mysqlInfos; // mysql落地存储角色主体数据（因角色数据量大，存到redis中不太合适）
+
+        std::string _coreCache;  // 用作游戏服务器核心缓存redis库(redis中的一个)
+        std::string _corePersist;  // 用作游戏服务器核心落地redis库(redis中的一个)
+        std::string _coreRecord;  // 用作游戏服务器核心落地mysql库(mysql中的一个)
 
         std::string _zooPath;
         

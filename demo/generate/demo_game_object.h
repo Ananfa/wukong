@@ -17,7 +17,7 @@ namespace demo {
     // 注意：此对象非线程安全
     class DemoGameObject: public wukong::GameObject {
     public:
-        DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, uint32_t lToken, GameObjectManager *manager);
+        DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager);
         virtual ~DemoGameObject();
 
         virtual bool initData(const std::string &data);

@@ -24,7 +24,6 @@
 #include "login_handler_mgr.h"
 #include "client_center.h"
 
-#include "cache_pool.h"
 #include "redis_pool.h"
 #include "mysql_pool.h"
 
@@ -98,14 +97,33 @@ bool LoginServer::init(int argc, char * argv[]) {
     // 启动http服务
     _httpServer = HttpServer::create(_io, g_LoginConfig.getWorkerThreadNum(), g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
 
+    // 数据库初始化
+    const std::vector<RedisInfo>& redisInfos = g_LoginConfig.getRedisInfos();
+    for (auto &info : redisInfos) {
+        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnect);
+        if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
+            ERROR_LOG("LoginServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+            return false;
+        }
+    }
+
+    const std::vector<MysqlInfo>& mysqlInfos = g_LoginConfig.getMysqlInfos();
+    for (auto &info : mysqlInfos) {
+        MysqlPool *pool = MysqlPool::create(info.host.c_str(), info.user.c_str(), info.pwd.c_str(), info.dbName.c_str(), info.port, "", 0, info.maxConnect);
+        if (!g_MysqlPoolManager.addPool(info.dbName, pool)) {
+            ERROR_LOG("LoginServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+            return false;
+        }
+    }
+
+    g_RedisPoolManager.setCoreCache(g_LoginConfig.getCoreCache());
+    g_RedisPoolManager.setCorePersist(g_LoginConfig.getCoreCache());
+    g_MysqlPoolManager.setCoreRecord(g_LoginConfig.getCoreRecord());
+
     return true;
 }
 
 void LoginServer::run() {
-    g_CachePool.init(g_LoginConfig.getCache().host.c_str(), g_LoginConfig.getCache().pwd.c_str(), g_LoginConfig.getCache().port, g_LoginConfig.getCache().dbIndex, g_LoginConfig.getCache().maxConnect);
-    g_RedisPool.init(g_LoginConfig.getRedis().host.c_str(), g_LoginConfig.getRedis().pwd.c_str(), g_LoginConfig.getRedis().port, g_LoginConfig.getRedis().dbIndex, g_LoginConfig.getRedis().maxConnect);
-    g_MysqlPool.init(g_LoginConfig.getMysql().host.c_str(), g_LoginConfig.getMysql().user.c_str(), g_LoginConfig.getMysql().pwd.c_str(), g_LoginConfig.getMysql().dbName.c_str(), g_LoginConfig.getMysql().port, "", 0, g_LoginConfig.getMysql().maxConnect);
-
     g_LoginHandlerMgr.init(_httpServer);
     g_ClientCenter.init(_rpcClient, g_LoginConfig.getZookeeper(), g_LoginConfig.getZooPath(), true, false, false, false);
     RoutineEnvironment::runEventLoop();

@@ -3,7 +3,6 @@
 #include <assert.h>
 #include "corpc_utils.h"
 #include "redis_utils.h"
-#include "cache_pool.h"
 #include "redis_pool.h"
 #include "const.h"
 
@@ -41,6 +40,22 @@ uint64_t RedisUtils::CreateRoleID(redisContext *redis) {
     uint64_t ret = reply->integer * 100 + r;
     freeReplyObject(reply);
     return ret;
+}
+
+RedisAccessResult RedisUtils::LoadSha1(redisContext *redis, const std::string &script, std::string &sha1) {
+    redisReply *reply = (redisReply *)redisCommand(redis, "SCRIPT LOAD %s", script.c_str());
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+    
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        return REDIS_FAIL;
+    }
+
+    sha1 = reply->str;
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
 }
 
 RedisAccessResult RedisUtils::LoginLock(redisContext *redis, const std::string &account) {
@@ -89,7 +104,7 @@ RedisAccessResult RedisUtils::SetUserID(redisContext *redis, const std::string &
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult GetUserRoleIdList(redisContext *redis, UserId userId, std::vector<RoleId> &roleIds) {
+RedisAccessResult RedisUtils::GetUserRoleIdList(redisContext *redis, UserId userId, std::vector<RoleId> &roleIds) {
     redisReply *reply = (redisReply *)redisCommand(redis, "SMEMBERS RoleIds:{%d}", userId);
     if (!reply) {
         return REDIS_DB_ERROR;
@@ -155,7 +170,7 @@ RedisAccessResult RedisUtils::SetLoginToken(redisContext *redis, UserId userId, 
 }
 
 RedisAccessResult RedisUtils::GetLoginToken(redisContext *redis, UserId userId, std::string &token) {
-    redisReply *reply = (redisReply *)redisCommand(cache, "GET Token:%d", userId);
+    redisReply *reply = (redisReply *)redisCommand(redis, "GET Token:%d", userId);
     if (!reply) {
         return REDIS_DB_ERROR;
     }
@@ -172,7 +187,7 @@ RedisAccessResult RedisUtils::GetLoginToken(redisContext *redis, UserId userId, 
 
 RedisAccessResult RedisUtils::RemoveLoginToken(redisContext *redis, UserId userId) {
     // 删除登录临时token
-    redisReply *reply = (redisReply *)redisCommand(cache,"DEL Token:%d", userId);
+    redisReply *reply = (redisReply *)redisCommand(redis,"DEL Token:%d", userId);
     if (!reply) {
         return REDIS_DB_ERROR;
     }
@@ -213,12 +228,12 @@ RedisAccessResult RedisUtils::GetServerGroupsData(redisContext *redis, std::stri
 }
 
 RedisAccessResult RedisUtils::BindRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
-    const std::string &cmdSha1 = g_RedisPool.bindRoleSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCorePersist()->getSha1(BIND_ROLE_NAME);
     redisReply *reply;
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 2 RoleIds:%d:{%d} RoleIds:{%d} %d %d", BIND_ROLE_CMD, serverId, userId, userId, roleId, maxRoleNum);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 2 RoleIds:%d:{%d} RoleIds:{%d} %d %d", cmdSha1.c_str(), serverId, userId, userId, roleId, maxRoleNum);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 2 RoleIds:%d:{%d} RoleIds:{%d} %d %d", cmdSha1, serverId, userId, userId, roleId, maxRoleNum);
     }
     
     if (!reply) {
@@ -260,13 +275,13 @@ RedisAccessResult RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, Se
 }
 
 RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
-    const std::string &cmdSha1 = g_CachePool.saveProfileSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SAVE_PROFILE_NAME);
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 7;
     argv.reserve(argNum);
     argvlen.reserve(argNum);
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         argv.push_back("EVAL");
         argvlen.push_back(4);
         argv.push_back(SAVE_PROFILE_CMD);
@@ -274,8 +289,8 @@ RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, RoleId roleId, Se
     } else {
         argv.push_back("EVALSHA");
         argvlen.push_back(7);
-        argv.push_back(cmdSha1.c_str());
-        argvlen.push_back(cmdSha1.length());
+        argv.push_back(cmdSha1);
+        argvlen.push_back(strlen(cmdSha1));
     }
     
     argv.push_back("1");
@@ -318,13 +333,13 @@ RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, RoleId roleId, Se
 
 RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
     // 将轮廓数据存到cache中，若cache中没有找到则不需要更新轮廓数据
-    const std::string &cmdSha1 = g_CachePool.updateProfileSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(UPDATE_PROFILE_NAME);
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 5;
     argv.reserve(argNum);
     argvlen.reserve(argNum);
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         argv.push_back("EVAL");
         argvlen.push_back(4);
         argv.push_back(UPDATE_PROFILE_CMD);
@@ -334,8 +349,8 @@ RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, RoleId roleId, 
     } else {
         argv.push_back("EVALSHA");
         argvlen.push_back(7);
-        argv.push_back(cmdSha1.c_str());
-        argvlen.push_back(cmdSha1.length());
+        argv.push_back(cmdSha1);
+        argvlen.push_back(strlen(cmdSha1));
         argv.push_back("1");
         argvlen.push_back(1);
     }
@@ -370,12 +385,12 @@ RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, RoleId roleId, 
 }
 
 RedisAccessResult RedisUtils::LoadRole(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
-    const std::string &cmdSha1 = g_CachePool.loadRoleSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(LOAD_ROLE_NAME);
     redisReply *reply;
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Role:{%d} %d", LOAD_ROLE_CMD, roleId, clearTTL ? 1 : 0);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Role:{%d} %d", cmdSha1.c_str(), roleId, clearTTL ? 1 : 0);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Role:{%d} %d", cmdSha1, roleId, clearTTL ? 1 : 0);
     }
     
     if (!reply) {
@@ -400,13 +415,13 @@ RedisAccessResult RedisUtils::LoadRole(redisContext *redis, RoleId roleId, Serve
 }
 
 RedisAccessResult RedisUtils::SaveRole(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
-    const std::string &cmdSha1 = g_CachePool.saveRoleSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SAVE_ROLE_NAME);
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 6;
     argv.reserve(argNum);
     argvlen.reserve(argNum);
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         argv.push_back("EVAL");
         argvlen.push_back(4);
         argv.push_back(SAVE_ROLE_CMD);
@@ -414,8 +429,8 @@ RedisAccessResult RedisUtils::SaveRole(redisContext *redis, RoleId roleId, Serve
     } else {
         argv.push_back("EVALSHA");
         argvlen.push_back(7);
-        argv.push_back(cmdSha1.c_str());
-        argvlen.push_back(cmdSha1.length());
+        argv.push_back(cmdSha1);
+        argvlen.push_back(strlen(cmdSha1));
     }
     
     argv.push_back("1");
@@ -454,13 +469,13 @@ RedisAccessResult RedisUtils::SaveRole(redisContext *redis, RoleId roleId, Serve
 
 RedisAccessResult RedisUtils::UpdateRole(redisContext *redis, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas) {
     // 将角色数据存到cache中
-    const std::string &cmdSha1 = g_CachePool.updateRoleSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(UPDATE_ROLE_NAME);
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
     int argNum = datas.size() * 2 + 4;
     argv.reserve(argNum);
     argvlen.reserve(argNum);
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         argv.push_back("EVAL");
         argvlen.push_back(4);
         argv.push_back(UPDATE_ROLE_CMD);
@@ -468,8 +483,8 @@ RedisAccessResult RedisUtils::UpdateRole(redisContext *redis, RoleId roleId, con
     } else {
         argv.push_back("EVALSHA");
         argvlen.push_back(7);
-        argv.push_back(cmdSha1.c_str());
-        argvlen.push_back(cmdSha1.length());
+        argv.push_back(cmdSha1);
+        argvlen.push_back(strlen(cmdSha1));
     }
     
     argv.push_back("1");
@@ -512,11 +527,12 @@ RedisAccessResult RedisUtils::SetRoleTTL(redisContext *redis, RoleId roleId) {
 }
 
 RedisAccessResult RedisUtils::SetPassport(redisContext *redis, UserId userId, ServerId gateId, const std::string &gToken, RoleId roleId) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_PASSPORT_NAME);
     redisReply *reply;
-    if (g_CachePool.setPassportSha1().empty()) {
-        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Passport:%d %s %d %d %d", SET_PASSPORT_CMD, userId, gToken.c_str(), gatewayId, roleId, PASSPORT_TIMEOUT);
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Passport:%d %s %d %d %d", SET_PASSPORT_CMD, userId, gToken.c_str(), gateId, roleId, PASSPORT_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Passport:%d %s %d %d %d", g_CachePool.setPassportSha1().c_str(), userId, gToken.c_str(), gatewayId, roleId, PASSPORT_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Passport:%d %s %d %d %d", cmdSha1, userId, gToken.c_str(), gateId, roleId, PASSPORT_TIMEOUT);
     }
     
     if (!reply) {
@@ -533,12 +549,12 @@ RedisAccessResult RedisUtils::SetPassport(redisContext *redis, UserId userId, Se
 }
 
 RedisAccessResult RedisUtils::CheckPassport(redisContext *redis, UserId userId, ServerId gateId, const std::string &gToken, RoleId &roleId) {
-    const std::string &cmdSha1 = g_CachePool.checkPassportSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(CHECK_PASSPORT_NAME);
     redisReply *reply;
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Passport:%d %d %s", CHECK_PASSPORT_CMD, userId, gateId, gToken.c_str());
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Passport:%d %d %s", cmdSha1.c_str(), userId, gateId, gToken.c_str());
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Passport:%d %d %s", cmdSha1, userId, gateId, gToken.c_str());
     }
     
     if (!reply) {
@@ -556,12 +572,12 @@ RedisAccessResult RedisUtils::CheckPassport(redisContext *redis, UserId userId, 
 }
 
 RedisAccessResult RedisUtils::SetSession(redisContext *redis, UserId userId, ServerId gateId, const std::string &gToken, RoleId roleId) {
-    const std::string &cmdSha1 = g_CachePool.setSessionSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_SESSION_NAME);
     redisReply *reply;
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s %d %d %d", SET_SESSION_CMD, userId, gToken.c_str(), gateId, roleId, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s %d %d %d", cmdSha1.c_str(), userId, gToken.c_str(), gateId, roleId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s %d %d %d", cmdSha1, userId, gToken.c_str(), gateId, roleId, TOKEN_TIMEOUT);
     }
     
     if (!reply) {
@@ -610,12 +626,12 @@ RedisAccessResult RedisUtils::GetSession(redisContext *redis, UserId userId, Ser
 }
 
 RedisAccessResult RedisUtils::SetSessionTTL(redisContext *redis, UserId userId, const std::string &gToken) {
-    const std::string &cmdSha1 = g_CachePool.setSessionExpireSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_SESSION_EXPIRE_NAME);
     redisReply *reply;
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s %d", SET_SESSION_EXPIRE_CMD, userId, gToken.c_str(), TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s %d", cmdSha1.c_str(), userId, gToken.c_str(), TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s %d", cmdSha1, userId, gToken.c_str(), TOKEN_TIMEOUT);
     }
     
     if (!reply) {
@@ -632,12 +648,12 @@ RedisAccessResult RedisUtils::SetSessionTTL(redisContext *redis, UserId userId, 
 }
 
 RedisAccessResult RedisUtils::RemoveSession(redisContext *redis, UserId userId, const std::string &gToken) {
-    const std::string &cmdSha1 = g_CachePool.removeSessionSha1();
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(REMOVE_SESSION_NAME);
     redisReply *reply;
-    if (cmdSha1.empty()) {
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Session:%d %s", REMOVE_SESSION_CMD, userId, gToken.c_str());
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s", cmdSha1.c_str(), userId, gToken.c_str());
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Session:%d %s", cmdSha1, userId, gToken.c_str());
     }
 
     if (!reply) {
@@ -684,11 +700,12 @@ RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId r
 }
 
 RedisAccessResult RedisUtils::SetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType stype, ServerId sid, const std::string &lToken) {
-    const std::string &cmdSha1 = g_CachePool.setLocationSha1();
-    if (cmdSha1.empty()) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_LOCATION_NAME);
+    redisReply *reply;
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Location:%d %s %d %d %d", SET_LOCATION_CMD, roleId, lToken.c_str(), stype, sid, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Location:%d %s %d %d %d", cmdSha1.c_str(), roleId, lToken.c_str(), stype, sid, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Location:%d %s %d %d %d", cmdSha1, roleId, lToken.c_str(), stype, sid, TOKEN_TIMEOUT);
     }
 
     if (!reply) {
@@ -705,11 +722,12 @@ RedisAccessResult RedisUtils::SetGameObjectAddress(redisContext *redis, RoleId r
 }
 
 RedisAccessResult RedisUtils::RemoveGameObjectAddress(redisContext *redis, RoleId roleId, const std::string &lToken) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(REMOVE_LOCATION_NAME);
     redisReply *reply;
-    if (g_CachePool.removeLocationSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %s", REMOVE_LOCATION_CMD, roleId, lToken.c_str());
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Location:%d %s", REMOVE_LOCATION_CMD, roleId, lToken.c_str());
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %s", g_CachePool.removeLocationSha1().c_str(), roleId, lToken.c_str());
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Location:%d %s", cmdSha1, roleId, lToken.c_str());
     }
 
     if (!reply) {
@@ -721,11 +739,12 @@ RedisAccessResult RedisUtils::RemoveGameObjectAddress(redisContext *redis, RoleI
 }
 
 RedisAccessResult RedisUtils::SetGameObjectAddressTTL(redisContext *redis, RoleId roleId, const std::string &lToken) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_LOCATION_EXPIRE_NAME);
     redisReply *reply;
-    if (g_CachePool.setLocationExpireSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Location:%d %s %d", SET_LOCATION_EXPIRE_CMD, roleId, lToken.c_str(), TOKEN_TIMEOUT);
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Location:%d %s %d", SET_LOCATION_EXPIRE_CMD, roleId, lToken.c_str(), TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Location:%d %s %d", g_CachePool.setLocationExpireSha1().c_str(), roleId, lToken.c_str(), TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Location:%d %s %d", cmdSha1, roleId, lToken.c_str(), TOKEN_TIMEOUT);
     }
     
     if (!reply) {
@@ -758,12 +777,13 @@ RedisAccessResult RedisUtils::GetRecordAddress(redisContext *redis, RoleId roleI
 }
 
 RedisAccessResult RedisUtils::SetRecordAddress(redisContext *redis, RoleId roleId, ServerId recordId, const std::string &rToken) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_RECORD_NAME);
     redisReply *reply;
     // 尝试设置record
-    if (g_CachePool.setRecordSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %s %d %d", SET_RECORD_CMD, roleId, rToken.c_str(), recordId, TOKEN_TIMEOUT);
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Record:%d %s %d %d", SET_RECORD_CMD, roleId, rToken.c_str(), recordId, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %s %d %d", g_CachePool.setRecordSha1().c_str(), roleId, rToken.c_str(), recordId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Record:%d %s %d %d", cmdSha1, roleId, rToken.c_str(), recordId, TOKEN_TIMEOUT);
     }
     
     if (!reply) {
@@ -780,11 +800,12 @@ RedisAccessResult RedisUtils::SetRecordAddress(redisContext *redis, RoleId roleI
 }
 
 RedisAccessResult RedisUtils::RemoveRecordAddress(redisContext *redis, RoleId roleId, const std::string &rToken) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(REMOVE_RECORD_NAME);
     redisReply *reply;
-    if (g_CachePool.removeRecordSha1().empty()) {
+    if (!cmdSha1) {
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Record:%d %s", REMOVE_RECORD_CMD, roleId, rToken.c_str());
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Record:%d %s", g_CachePool.removeRecordSha1().c_str(), roleId, rToken.c_str());
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Record:%d %s", cmdSha1, roleId, rToken.c_str());
     }
 
     if (!reply) {
@@ -795,12 +816,13 @@ RedisAccessResult RedisUtils::RemoveRecordAddress(redisContext *redis, RoleId ro
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SetRecordAddressTTL(RoleId roleId, const std::string &rToken) {
+RedisAccessResult RedisUtils::SetRecordAddressTTL(redisContext *redis, RoleId roleId, const std::string &rToken) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_RECORD_EXPIRE_NAME);
     redisReply *reply;
-    if (g_CachePool.setRecordExpireSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Record:%d %s %d", SET_RECORD_EXPIRE_CMD, roleId, rToken.c_str(), TOKEN_TIMEOUT);
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Record:%d %s %d", SET_RECORD_EXPIRE_CMD, roleId, rToken.c_str(), TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Record:%d %s %d", g_CachePool.setRecordExpireSha1().c_str(), roleId, rToken.c_str(), TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Record:%d %s %d", cmdSha1, roleId, rToken.c_str(), TOKEN_TIMEOUT);
     }
     
     if (!reply) {
@@ -843,7 +865,7 @@ RedisAccessResult RedisUtils::GetSaveList(redisContext *redis, uint32_t wheelPos
         return REDIS_FAIL;
     }
 
-    std::vector<RoleId> roleIds;
+    roleIds.clear();
     if (reply->elements > 0) {
         roleIds.reserve(reply->elements);
         for (int i = 0; i < reply->elements; i++) {
@@ -862,7 +884,7 @@ RedisAccessResult RedisUtils::GetSaveList(redisContext *redis, uint32_t wheelPos
 }
 
 RedisAccessResult RedisUtils::AddSaveRoleId(redisContext *redis, uint32_t wheelPos, RoleId roleId) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "SADD Save:%d %d", whealPos, roleId);
+    redisReply *reply = (redisReply *)redisCommand(redis, "SADD Save:%d %d", wheelPos, roleId);
     if (!reply) {
         return REDIS_DB_ERROR;
     }
@@ -882,11 +904,13 @@ RedisAccessResult RedisUtils::RemoveSaveRoleId(redisContext *redis, uint32_t whe
 }
 
 RedisAccessResult RedisUtils::SetSceneLocation(redisContext *redis, const std::string &sceneId, const std::string &sToken, ServerId sceneServerId) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_SCENE_LOCATION_NAME);
+    redisReply *reply;
     // 尝试设置scene location
-    if (g_CachePool.setSceneLocationSha1().empty()) {
-        reply = (redisReply *)redisCommand(cache, "EVAL %s 1 Scene:%s %s %d %d", SET_SCENE_LOCATION_CMD, sceneId.c_str(), sToken.c_str(), sceneServerId, TOKEN_TIMEOUT);
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Scene:%s %s %d %d", SET_SCENE_LOCATION_CMD, sceneId.c_str(), sToken.c_str(), sceneServerId, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(cache, "EVALSHA %s 1 Scene:%s %s %d %d", g_CachePool.setSceneLocationSha1().c_str(), sceneId.c_str(), sToken.c_str(), sceneServerId, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Scene:%s %s %d %d", cmdSha1, sceneId.c_str(), sToken.c_str(), sceneServerId, TOKEN_TIMEOUT);
     }
     
     if (!reply) {

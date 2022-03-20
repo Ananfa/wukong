@@ -45,6 +45,7 @@ namespace wukong {
 
     private:
         GetTargetSceneIdHandle _getTargetSceneId;
+        // 注意：_needLoadScene和_isSceneAutoLoadRole只有当会登录到场景中时才需要设置
         NeedLoadSceneHandle _needLoadScene;
         IsSceneAutoLoadRoleHandle _isSceneAutoLoadRole;
     };

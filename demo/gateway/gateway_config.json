@@ -25,10 +25,16 @@
     "disconnectTimeout": 30,
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
-    "cache": {
-        "host": "172.29.11.244",
-        "port": 6379,
-        "maxConnect": 8,
-        "dbIndex": 6
-    }
+    "redis": [
+        {
+            "dbName": "cache",
+            "host": "192.168.32.1",
+            "port": 6379,
+            "pwd": "",
+            "maxConnect": 8,
+            "dbIndex": 6
+        }
+    ],
+    "coreCache": "cache",
+    "enableSceneClient": true
 }

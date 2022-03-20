@@ -177,7 +177,7 @@ bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {
         std::string addr = address.ip + std::to_string(address.port);
         auto iter = addr2stubs.find(addr);
         if (iter != addr2stubs.end()) {
-            ERROR_LOG("RecordClient::setServers -- duplicate rpc addr: %s\n", addr.c_str());
+            ERROR_LOG("SceneClient::setServers -- duplicate rpc addr: %s\n", addr.c_str());
             continue;
         }
 

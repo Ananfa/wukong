@@ -1,27 +1,30 @@
 {
     "ip": "127.0.0.1",
+    "port": 10001,
     "servers": [
         {
-            "id": 10001,
-            "rpcPort": 10001
+            "id": 10001
         },
         {
-            "id": 10002,
-            "rpcPort": 10002
+            "id": 10002
         },
         {
-            "id": 10003,
-            "rpcPort": 10003
+            "id": 10003
         }
     ],
     "zookeeper": "127.0.0.1:2181",
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
-    "cache": {
-        "host": "192.168.92.3",
-        "port": 6379,
-        "maxConnect": 8,
-        "dbIndex": 0
-    },
+    "redis": [
+        {
+            "dbName": "cache",
+            "host": "192.168.32.1",
+            "port": 6379,
+            "pwd": "",
+            "maxConnect": 8,
+            "dbIndex": 6
+        }
+    ],
+    "coreCache": "cache",
     "updatePeriod": 0
 }

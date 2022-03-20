@@ -156,7 +156,7 @@ namespace wukong {
         redis.call('expire',KEYS[1],ARGV[4])\
         return 1";
 
-    const char SET_LOCATION_EXPIRE_NAME[] = "set_loc";
+    const char SET_LOCATION_EXPIRE_NAME[] = "set_loc_ex";
     const char SET_LOCATION_EXPIRE_CMD[] = "\
         local lToken = redis.call('hget',KEYS[1],'lToken')\
         if not lToken then\

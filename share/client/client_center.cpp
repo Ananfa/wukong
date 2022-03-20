@@ -68,7 +68,7 @@ void ClientCenter::init(RpcClient *rpcc, const std::string& zooAddr, const std::
     }
 
     // zoo注册
-    g_ZkClient.init(zooAddr, ZK_TIMEOUT, [&]() {
+    g_ZkClient.init(zooAddr, ZK_TIMEOUT, [zooPath,connectGateway,connectRecord,connectLobby,connectScene]() { // 注意: 此处lamda的capture参数不能用引用方式，因为lamda会在另外的协程运行，此时丢失了init方法所在协程的栈上下文
         // 对servers配置中每一个server进行节点注册
         g_ZkClient.createEphemeralNode(zooPath, ZK_DEFAULT_VALUE, [](const std::string &path, const ZkRet &ret) {
             if (ret) {

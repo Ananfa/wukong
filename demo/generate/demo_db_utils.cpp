@@ -98,7 +98,7 @@ bool DemoDBUtils::LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::
         pDatas.push_back(std::make_pair(fragment.fragname(), fragment.fragdata()));
     }
 
-    if (rDatas.size() == 0) {
+    if (pDatas.size() == 0) {
         return false;
     }
 

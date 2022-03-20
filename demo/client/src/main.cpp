@@ -23,7 +23,7 @@ struct AccountInfo {
     std::string cipher;
     uint32_t userId = 0;
     uint32_t roleId = 0;
-    uint64_t gToken = 0;
+    std::string gToken;
     uint32_t lastRecvSerial = 0;
     std::string gatewayHost;
     uint16_t gatewayPort;
@@ -70,7 +70,7 @@ static void *test_login(void *arg) {
     DEBUG_LOG("account: %s\n", accountInfo->account.c_str());
 
     if (accountInfo->userId == 0) {
-        uint64_t token = 0;
+        std::string token;
 
         // ====== 登录 ===== //
         {
@@ -100,7 +100,7 @@ static void *test_login(void *arg) {
                 }
 
                 accountInfo->userId = doc["userId"].GetUint();
-                token = doc["token"].GetUint64();
+                token = doc["token"].GetString();
 
                 const Value& roles = doc["roles"];
                 if (roles.Size() > 0) {
@@ -111,7 +111,7 @@ static void *test_login(void *arg) {
             });
         }
 
-        DEBUG_LOG("userId: %d, roleId: %d, token: %llu\n", accountInfo->userId, accountInfo->roleId, token);
+        DEBUG_LOG("userId: %d, roleId: %d, token: %s\n", accountInfo->userId, accountInfo->roleId, token.c_str());
         if (accountInfo->userId == 0) {
             ERROR_LOG("login failed, account: %s\n", accountInfo->account.c_str());
             return nullptr;
@@ -125,7 +125,7 @@ static void *test_login(void *arg) {
             request.setUrl("http://127.0.0.1:11000/createRole");
             request.setQueryHeader("Content-Type", "application/x-www-form-urlencoded");
             request.addQueryParam("userId", std::to_string(accountInfo->userId));
-            request.addQueryParam("token", std::to_string(token));
+            request.addQueryParam("token", token);
             request.addQueryParam("serverId", "1");
             request.addQueryParam("name", "robot");
             g_HttpClient.doPost(&request, [&](const HttpResponse &response) {
@@ -166,7 +166,7 @@ static void *test_login(void *arg) {
             request.setQueryHeader("Content-Type", "application/x-www-form-urlencoded");
             request.addQueryParam("userId", std::to_string(accountInfo->userId));
             request.addQueryParam("roleId", std::to_string(accountInfo->roleId));
-            request.addQueryParam("token", std::to_string(token));
+            request.addQueryParam("token", token);
             request.addQueryParam("serverId", "1");
             g_HttpClient.doPost(&request, [&](const HttpResponse &response) {
                 DEBUG_LOG("enter game response: %s\n", response.body().c_str());
@@ -187,13 +187,13 @@ static void *test_login(void *arg) {
                     return;
                 }
 
-                accountInfo->gToken = doc["gToken"].GetUint64();
+                accountInfo->gToken = doc["gToken"].GetString();
                 accountInfo->gatewayHost = doc["host"].GetString();
                 accountInfo->gatewayPort = doc["port"].GetUint();
             });
         }
 
-        if (accountInfo->gToken == 0) {
+        if (accountInfo->gToken.empty()) {
             ERROR_LOG("enter game failed, account: %s, userId: %d, roleId: %d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId);
             return nullptr;
         }
@@ -213,7 +213,7 @@ static void *test_login(void *arg) {
     // 发送身份认证消息
     std::shared_ptr<pb::AuthRequest> authreq(new pb::AuthRequest);
     authreq->set_userid(accountInfo->userId);
-    authreq->set_token(std::to_string(accountInfo->gToken).c_str());
+    authreq->set_token(accountInfo->gToken.c_str());
     authreq->set_cipher(accountInfo->cipher.c_str());
     authreq->set_recvserial(accountInfo->lastRecvSerial);
     DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d, recvSerial: %d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->lastRecvSerial);
@@ -233,7 +233,7 @@ static void *test_login(void *arg) {
             client->recv(rType, recvTag, rMsg);
             if (!rType) {
                 if (!client->isRunning()) {
-                    ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %llu, enter: %d, sendHelloAt:%d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->gToken, enterGame, sendHelloAt);
+                    ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d, sendHelloAt:%d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->gToken.c_str(), enterGame, sendHelloAt);
 
                     exit(0);
                     // 断线处理，由于服务器在处理connect消息和auth消息时有概率顺序反了导致断线，这里直接进行重登

@@ -101,7 +101,12 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
             auto countInfos = response->counts();
 
             for (auto it = countInfos.begin(); it != countInfos.end(); ++it) {
-                infos.push_back({it->serverid(), kv.second.outerAddr, kv.second.outerPort, it->count(), 0});
+                auto it1 = localStubs.find(it->serverid());
+                if (it1 == localStubs.end()) {
+                    ERROR_LOG("GatewayClient::getServerInfos -- Server[%d] stub info not exist\n", it->serverid());
+                    continue;
+                }
+                infos.push_back({it->serverid(), it1->second.outerAddr, it1->second.outerPort, it->count(), 0});
                 totalCount += it->count();
             }
         }

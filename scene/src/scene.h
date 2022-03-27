@@ -22,18 +22,19 @@
 using namespace corpc;
 
 namespace wukong {
-
     class Scene: public std::enable_shared_from_this<Scene> {
     public:
-        Scene(uint32_t defId, uint32_t sceneId, uint32_t sToken, SceneManager *manager): _defId(defId), _sceneId(sceneId), _sToken(sToken), _manager(manager) {}
+        Scene(uint32_t defId, SceneType type, const std::string &sceneId, const std::string &sToken, SceneManager *manager): _defId(defId), _type(type), _sceneId(sceneId), _sToken(sToken), _manager(manager) {}
         virtual ~Scene() = 0;
 
         // 问题：场景数据加载在scene manager进行，但是场景数据每个游戏都不同，怎样定义初始化场景接口？通过pb的编解码？通过pb基类指针？通过void *指针转换
         virtual bool initData(void *data) = 0;
 
         uint32_t getDefId() { return _defId; }
-        uint32_t getSceneId() { return _sceneId; }
+        const std::string &getSceneId() { return _sceneId; }
         uint32_t getSToken() { return _sToken; }
+
+        SceneType getType() { return _type; }
 
         void start(); // 开始心跳，启动心跳协程（个人场景不需要redis心跳，gameobj有心跳就够了，gameobj销毁时scene也要销毁，由scene的update进行判断--场景没人时自毁处理）
         void stop(); // 停止心跳，清除游戏对象列表（调用游戏对象stop）
@@ -45,7 +46,9 @@ namespace wukong {
         //void removeRole(RoleId roleId); // 好像不需要这个接口，现在的场景切换流程是对象销毁重建（会从一个场景直接将对象挪到另一个场景吗？），对象销毁后由update逻辑清理
 
     private:
-        uint32_t _sToken;
+        std::string _sToken;
+
+        SceneType _type;
 
         // 是否多人场景？单人场景不进行redis心跳，单人场景在场景加载时会同时加载gameObj
         bool _multiRolesScene;
@@ -59,7 +62,10 @@ namespace wukong {
 
     protected:
         uint32_t _defId;
-        uint32_t _sceneId;
+        std::string _sceneId;
+
+    public:
+        friend class SceneManager;
 	};
 }
 

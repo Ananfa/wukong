@@ -218,7 +218,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             }
         }
 
-        // 向Lobby服发initRole RPC前先释放数据库连接
+        // 向Lobby服发loadRole RPC前先释放数据库连接
         g_RedisPoolManager.getCoreCache()->put(cache, false);
 
         if (leftTryTimes > 0) {
@@ -245,7 +245,6 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             }
         } else {
             // 进游戏失败，这种情况可能是服务器负载高导致的，此时不清Session会好点
-            g_RedisPoolManager.getCoreCache()->put(cache, false);
             ERROR_LOG("GatewayHandler::authHandle -- init role failed\n");
             conn->close();
             return;

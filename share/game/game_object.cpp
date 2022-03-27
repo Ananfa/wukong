@@ -112,6 +112,10 @@ void GameObject::stop() {
     }
 }
 
+void GameObject::onEnterGame() {
+    _gwHeartbeatFailCount = 0; // 重置心跳
+}
+
 void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
     if (!_gatewayServerStub) {
         ERROR_LOG("GameObject::send -- gateway stub not set\n");
@@ -315,7 +319,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
             }
         }
 
-        if (success) {
+        if (success && obj->_needGatewayHB) {
             // 对网关对象进行心跳
             // 三次心跳不到gateway对象才销毁
             if (!obj->heartbeatToGateway()) {
@@ -343,12 +347,8 @@ void *GameObject::heartbeatRoutine( void *arg ) {
         if (!success) {
 //exit(0);
             if (obj->_running) {
-                if (!obj->_manager->remove(obj->_roleId)) {
-                    assert(false);
-                    ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d remove game object failed\n", obj->_userId, obj->_roleId);
-                }
-
-                obj->_running = false;
+                obj->_manager->leaveGame(obj->_roleId);
+                assert(obj->_running = false);
             }
         }
     }

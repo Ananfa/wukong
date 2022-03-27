@@ -21,31 +21,29 @@
 #include <map>
 #include <string>
 
+#include "game_object_manager.h"
+#include "scene.h"
+
 using namespace corpc;
 
 namespace wukong {
-    class SceneManager {
+    class SceneManager: public GameObjectManager {
     public:
-        SceneManager(ServerId id):_id(id), _shutdown(false) {}
-
-        void init();
-
-        ServerId getId() { return _id; }
+        SceneManager(ServerId id): GameObjectManager(GAME_SERVER_TYPE_SCENE, id) {}
+        virtual ~SceneManager() {}
 
         void shutdown();
-        bool isShutdown() { return _shutdown; }
 
-        size_t size(); // 获取当前场景对象数
+        size_t sceneCount(); // 获取当前场景对象数
 
-        bool exist(const std::string &sceneId); 
+        bool existScene(const std::string &sceneId); 
         std::shared_ptr<Scene> getScene(const std::string &sceneId);
-        std::string loadScene(uint32_t defId, const std::string &sceneId, RoleId roleid, const std::string &teamid); // 失败时返回0
-        bool remove(const std::string &sceneId); // 删除场景对象
+        std::string loadScene(uint32_t defId, const std::string &sceneId, RoleId roleid, const std::string &teamid); // 失败时返回""
+        bool removeScene(const std::string &sceneId); // 删除场景对象
+        void leaveGame(RoleId roleId); // 角色离开游戏（重载）
+        void leaveScene(RoleId roleId); // 角色离开场景（离队时也调用此方法）
 
     private:
-        ServerId _id;         // 场景服务器号
-        bool _shutdown;
-
         uint64_t _incSceneNo = 0; // 场景自增计数
 
         // 场景列表

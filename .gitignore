@@ -9,3 +9,7 @@ install_manifest.txt
 Makefile
 xcuserdata
 libcorpc_test.xcworkspace
+demo/unityClient/WukongDemoClient/Library
+demo/unityClient/WukongDemoClient/ProjectSettings
+demo/unityClient/WukongDemoClient/Logs
+demo/unityClient/WukongDemoClient/obj

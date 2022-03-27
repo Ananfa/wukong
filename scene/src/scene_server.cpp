@@ -40,10 +40,9 @@ void SceneServer::lobbyThread(InnerRpcServer *server, ServerId sid) {
     server->start(false);
     
     SceneManager *sceneMgr = new SceneManager(sid);
-    GameObjectManager *gameObjectMgr = new GameObjectManager(GAME_SERVER_TYPE_SCENE, sid);
 
-    InnerSceneServiceImpl *sceneServiceImpl = new InnerSceneServiceImpl(sceneMgr, gameObjectMgr);
-    InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(gameObjectMgr);
+    InnerSceneServiceImpl *sceneServiceImpl = new InnerSceneServiceImpl(sceneMgr);
+    InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(sceneMgr);
     server->registerService(sceneServiceImpl);
     server->registerService(gameServiceImpl);
 

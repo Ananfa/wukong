@@ -97,7 +97,5 @@ void InnerGameServiceImpl::enterGame(::google::protobuf::RpcController* controll
         return;
     }
 
-    obj->_gwHeartbeatFailCount = 0; // 重置心跳
-
     obj->onEnterGame();
 }

@@ -27,18 +27,19 @@ namespace wukong {
     class GameObjectManager {
     public:
         GameObjectManager(GameServerType type, ServerId id):_type(type), _id(id), _shutdown(false) {}
+        virtual ~GameObjectManager() {}
 
         ServerId getId() { return _id; }
 
         void shutdown();
         bool isShutdown() { return _shutdown; }
 
-        size_t size(); // 获取当前游戏对象数
+        size_t roleCount(); // 获取当前游戏对象数
 
-        bool exist(RoleId roleId); 
+        bool existRole(RoleId roleId); 
         std::shared_ptr<GameObject> getGameObject(RoleId roleId);
         bool loadRole(UserId userId, RoleId roleId, ServerId gatewayId);
-        bool remove(RoleId roleId); // 删除玩家游戏对象
+        void leaveGame(RoleId roleId); // 离开游戏--删除玩家游戏对象（只在心跳失败时调用，离开场景（离队）不调用此方法）
 
         // TODO: 实现广播和多播接口
     private:

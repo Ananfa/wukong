@@ -54,7 +54,7 @@ namespace wukong {
     
     class InnerSceneServiceImpl : public pb::InnerSceneService {
     public:
-        InnerSceneServiceImpl(SceneManager *sceneManager, GameObjectManager *gameObjectManager): _sceneManager(sceneManager), _gameObjectManager(gameObjectManager) {}
+        InnerSceneServiceImpl(SceneManager *sceneManager): _sceneManager(sceneManager) {}
 
         virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                              const ::corpc::Void* request,
@@ -75,7 +75,6 @@ namespace wukong {
 
     private:
         SceneManager *_sceneManager;
-        GameObjectManager *_gameObjectManager;
     };
     
 }

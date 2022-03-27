@@ -40,11 +40,11 @@ void GameObjectManager::shutdown() {
     _roleId2GameObjectMap.clear();
 }
 
-size_t GameObjectManager::size() {
+size_t GameObjectManager::roleCount() {
     return _roleId2GameObjectMap.size();
 }
 
-bool GameObjectManager::exist(RoleId roleId) {
+bool GameObjectManager::existRole(RoleId roleId) {
     return _roleId2GameObjectMap.find(roleId) != _roleId2GameObjectMap.end();
 }
 
@@ -161,6 +161,7 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
         return false;
     }
 
+    // TODO: 这里可以不用设置gateway stub
     // 设置gateway和record stub
     if (!obj->setGatewayServerStub(gatewayId)) {
         ERROR_LOG("GameObjectManager::loadRole -- can't set gateway stub\n");
@@ -178,14 +179,10 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     return true;
 }
 
-bool GameObjectManager::remove(RoleId roleId) {
+void GameObjectManager::leaveGame(RoleId roleId) {
     auto it = _roleId2GameObjectMap.find(roleId);
-    if (it == _roleId2GameObjectMap.end()) {
-        return false;
-    }
+    assert(it != _roleId2GameObjectMap.end())
 
     it->second->stop();
     _roleId2GameObjectMap.erase(it);
-
-    return true;
 }

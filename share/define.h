@@ -34,7 +34,8 @@ enum RedisAccessResult {
 enum SceneType {
     SCENE_TYPE_SINGLE_PLAYER = 1, // 个人副本（无人时销毁内存对象）
     SCENE_TYPE_MULTI_PLAYER = 2, // 多人副本（无人时销毁内存对象）
-    SCENE_TYPE_GLOBAL = 3 // 世界（永久）场景（无人也不销毁内存对象）
+    SCENE_TYPE_TEAM = 3, // 队伍副本（只要有一个队员故障下线，场景及其他队员一并踢下线）
+    SCENE_TYPE_GLOBAL = 4 // 世界（永久）场景（无人也不销毁内存对象）
 };
 
 namespace wukong {

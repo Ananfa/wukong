@@ -36,7 +36,7 @@ namespace wukong {
 
     class GameObject: public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager) {}
+        GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager, bool needGatewayHB): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager), _needGatewayHB(needGatewayHB) {}
         virtual ~GameObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
@@ -44,6 +44,9 @@ namespace wukong {
         UserId getUserId() { return _userId; }
         RoleId getRoleId() { return _roleId; }
         const std::string &getLToken() { return _lToken; }
+
+        void setSceneId(const std::string &sceneId) { _sceneId = sceneId; }
+        const std::string &getSceneId() { return _sceneId; }
 
         bool setGatewayServerStub(ServerId sid);
         bool setRecordServerStub(ServerId sid);
@@ -55,7 +58,7 @@ namespace wukong {
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
 
-        virtual void onEnterGame() = 0;
+        virtual void onEnterGame();
 
         void send(int32_t type, uint16_t tag, const std::string &rawMsg);
         void send(int32_t type, uint16_t tag, google::protobuf::Message &msg);
@@ -80,9 +83,10 @@ namespace wukong {
         ServerId _recordId; // 记录对象所在服务器id
         std::string _lToken;
 
-        uint32_t _sceneId = 0; // 大厅服时才为0
+        std::string _sceneId; // 大厅服时才为""
 
         bool _running = false;
+        bool _needGatewayHB;
         int _gwHeartbeatFailCount = 0;
 
         Cond _cond;
@@ -95,9 +99,6 @@ namespace wukong {
         ServerId _serverId;
         
         std::map<std::string, bool> _dirty_map;
-
-    public:
-        friend class InnerGameServiceImpl;
     };
 }
 

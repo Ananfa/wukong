@@ -903,7 +903,7 @@ RedisAccessResult RedisUtils::RemoveSaveRoleId(redisContext *redis, uint32_t whe
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SetSceneLocation(redisContext *redis, const std::string &sceneId, const std::string &sToken, ServerId sceneServerId) {
+RedisAccessResult RedisUtils::SetSceneAddress(redisContext *redis, const std::string &sceneId, const std::string &sToken, ServerId sceneServerId) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_SCENE_LOCATION_NAME);
     redisReply *reply;
     // 尝试设置scene location
@@ -911,6 +911,45 @@ RedisAccessResult RedisUtils::SetSceneLocation(redisContext *redis, const std::s
         reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Scene:%s %s %d %d", SET_SCENE_LOCATION_CMD, sceneId.c_str(), sToken.c_str(), sceneServerId, TOKEN_TIMEOUT);
     } else {
         reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Scene:%s %s %d %d", cmdSha1, sceneId.c_str(), sToken.c_str(), sceneServerId, TOKEN_TIMEOUT);
+    }
+    
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    if (reply->integer == 0) {
+        freeReplyObject(reply);
+        return REDIS_FAIL;
+    }
+
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
+}
+
+RedisAccessResult RedisUtils::RemoveSceneAddress(redisContext *redis, const std::string &sceneId, const std::string &sToken) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(REMOVE_SCENE_LOCATION_NAME);
+    redisReply *reply;
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Scene:%s %s", REMOVE_SCENE_LOCATION_CMD, sceneId.c_str(), sToken.c_str());
+    } else {
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Scene:%s %s", cmdSha1, sceneId.c_str(), sToken.c_str());
+    }
+
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
+}
+
+RedisAccessResult RedisUtils::SetSceneAddressTTL(redisContext *redis, const std::string &sceneId, const std::string &sToken) {
+    const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_SCENE_LOCATION_EXPIRE_NAME);
+    redisReply *reply;
+    if (!cmdSha1) {
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Scene:%s %s %d", SET_SCENE_LOCATION_EXPIRE_CMD, sceneId.c_str(), sToken.c_str(), TOKEN_TIMEOUT);
+    } else {
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Scene:%s %s %d", cmdSha1, sceneId.c_str(), sToken.c_str(), TOKEN_TIMEOUT);
     }
     
     if (!reply) {

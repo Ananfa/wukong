@@ -297,6 +297,8 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
 }
 
 void DemoGameObject::onEnterGame() {
+    GameObject::onEnterGame();
+
     std::list<std::pair<std::string, std::string>> datas;
     buildAllDatas(datas);
     std::string msgData = ProtoUtils::marshalDataFragments(datas);

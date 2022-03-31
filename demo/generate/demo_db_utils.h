@@ -12,7 +12,7 @@ namespace demo {
     
     class DemoDBUtils {
     public:
-        static bool LoadProfile(RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
+        static bool LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas);
     };
 
 }

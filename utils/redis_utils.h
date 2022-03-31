@@ -29,11 +29,11 @@ namespace wukong {
         static RedisAccessResult GetServerGroupsData(redisContext *redis, std::string &data);
 
         static RedisAccessResult BindRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum);
-        static RedisAccessResult LoadProfile(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas);
-        static RedisAccessResult SaveProfile(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
+        static RedisAccessResult LoadProfile(redisContext *redis, RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas);
+        static RedisAccessResult SaveProfile(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
         static RedisAccessResult UpdateProfile(redisContext *redis, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas);
-        static RedisAccessResult LoadRole(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL);
-        static RedisAccessResult SaveRole(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
+        static RedisAccessResult LoadRole(redisContext *redis, RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL);
+        static RedisAccessResult SaveRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
         static RedisAccessResult UpdateRole(redisContext *redis, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas);
         static RedisAccessResult SetRoleTTL(redisContext *redis, RoleId roleId);
 

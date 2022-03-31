@@ -118,7 +118,8 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
 
     std::list<std::pair<std::string, std::string>> datas;
     ServerId serverId;
-    if (RedisUtils::LoadRole(cache, roleId, serverId, datas, false) == REDIS_DB_ERROR) {
+    UserId userId;
+    if (RedisUtils::LoadRole(cache, roleId, userId, serverId, datas, false) == REDIS_DB_ERROR) {
         g_RedisPoolManager.getCoreCache()->put(cache, true);
         ERROR_LOG("DemoUtils::SaveRole -- load role data failed\n");
         self->_saveSema.post();

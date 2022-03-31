@@ -67,7 +67,7 @@ void InnerGameServiceImpl::forwardIn(::google::protobuf::RpcController* controll
                                 ::google::protobuf::Closure* done) {
     auto obj = _manager->getGameObject(request->roleid());
     if (!obj) {
-        ERROR_LOG("InnerGameServiceImpl::forwardIn -- game object not found\n");
+        ERROR_LOG("InnerGameServiceImpl::forwardIn -- role[%llu] game object not found\n", request->roleid());
 //exit(0);
         return;
     }
@@ -82,18 +82,18 @@ void InnerGameServiceImpl::enterGame(::google::protobuf::RpcController* controll
     // 获取GameObject
     auto obj = _manager->getGameObject(request->roleid());
     if (!obj) {
-        ERROR_LOG("InnerGameServiceImpl::enterGame -- game object not found\n");
+        ERROR_LOG("InnerGameServiceImpl::enterGame -- role[%llu] game object not found\n", request->roleid());
         return;
     }
 
     if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("InnerGameServiceImpl::enterGame -- ltoken not match\n");
+        ERROR_LOG("InnerGameServiceImpl::enterGame -- role[%llu] ltoken not match\n", request->roleid());
         return;
     }
 
     // 刷新gateway stub
     if (!obj->setGatewayServerStub(request->gatewayid())) {
-        ERROR_LOG("InnerGameServiceImpl::enterGame -- set gateway stub failed\n");
+        ERROR_LOG("InnerGameServiceImpl::enterGame -- role[%llu] set gateway stub failed\n", request->roleid());
         return;
     }
 

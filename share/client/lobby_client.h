@@ -51,7 +51,7 @@ namespace wukong {
         
         std::shared_ptr<pb::LobbyService_Stub> getLobbyServiceStub(ServerId sid);
         
-        bool loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
+        bool loadRole(ServerId sid, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
         void shutdown();
 
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }

@@ -10,13 +10,13 @@ message ForwardInRequest {
     uint32 serverId = 1; // 物理服编号
     int32 type = 2; // 消息类型
     uint32 tag = 3; // 消息tag（用于客户端与服务器RPC）
-    uint32 roleId = 4; // 发送目标角色
+    uint64 roleId = 4; // 发送目标角色
     bytes rawMsg = 5; // 原始消息数据
 }
 
 message EnterGameRequest {
     uint32 serverId = 1; // 物理服编号
-    uint32 roleId = 2;
+    uint64 roleId = 2;
     string lToken = 3;
     uint32 gatewayId = 4;
 }

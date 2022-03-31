@@ -87,7 +87,7 @@ std::vector<GameClient::ServerInfo> LobbyClient::getServerInfos() {
     return infos;
 }
 
-bool LobbyClient::loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId gwId) {
+bool LobbyClient::loadRole(ServerId sid, RoleId roleId, ServerId gwId) {
     std::shared_ptr<pb::LobbyService_Stub> stub = getLobbyServiceStub(sid);
     bool ret = false;
 
@@ -100,7 +100,6 @@ bool LobbyClient::loadRole(ServerId sid, UserId userId, RoleId roleId, ServerId 
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
     request->set_serverid(sid);
-    request->set_userid(userId);
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
     stub->loadRole(controller, request, response, nullptr);

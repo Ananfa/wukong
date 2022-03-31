@@ -21,8 +21,8 @@ namespace pb {
 constexpr KickRequest::KickRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : gtoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , serverid_(0u)
-  , userid_(0u){}
+  , userid_(uint64_t{0u})
+  , serverid_(0u){}
 struct KickRequestDefaultTypeInternal {
   constexpr KickRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -35,7 +35,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT KickRequestDefaultTypeInternal 
 constexpr ForwardOutTarget::ForwardOutTarget(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , userid_(0u){}
+  , userid_(uint64_t{0u}){}
 struct ForwardOutTargetDefaultTypeInternal {
   constexpr ForwardOutTargetDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -64,8 +64,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ForwardOutRequestDefaultTypeInt
 constexpr SetGameObjectPosRequest::SetGameObjectPosRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , userid_(uint64_t{0u})
   , serverid_(0u)
-  , userid_(0u)
   , gstype_(0u)
   , gsid_(0u){}
 struct SetGameObjectPosRequestDefaultTypeInternal {
@@ -80,8 +80,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT SetGameObjectPosRequestDefaultT
 constexpr GSHeartbeatRequest::GSHeartbeatRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , serverid_(0u)
-  , userid_(0u){}
+  , userid_(uint64_t{0u})
+  , serverid_(0u){}
 struct GSHeartbeatRequestDefaultTypeInternal {
   constexpr GSHeartbeatRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -162,16 +162,16 @@ const char descriptor_table_protodef_gateway_5fservice_2eproto[] PROTOBUF_SECTIO
   "\n\025gateway_service.proto\022\twukong.pb\032\022corp"
   "c_option.proto\032\014common.proto\032\022inner_comm"
   "on.proto\"\?\n\013KickRequest\022\020\n\010serverId\030\001 \001("
-  "\r\022\016\n\006userId\030\002 \001(\r\022\016\n\006gToken\030\003 \001(\t\"2\n\020For"
-  "wardOutTarget\022\016\n\006userId\030\001 \001(\r\022\016\n\006lToken\030"
+  "\r\022\016\n\006userId\030\002 \001(\004\022\016\n\006gToken\030\003 \001(\t\"2\n\020For"
+  "wardOutTarget\022\016\n\006userId\030\001 \001(\004\022\016\n\006lToken\030"
   "\002 \001(\t\"~\n\021ForwardOutRequest\022\020\n\010serverId\030\001"
   " \001(\r\022\014\n\004type\030\002 \001(\005\022\013\n\003tag\030\003 \001(\r\022,\n\007targe"
   "ts\030\004 \003(\0132\033.wukong.pb.ForwardOutTarget\022\016\n"
   "\006rawMsg\030\005 \001(\014\"i\n\027SetGameObjectPosRequest"
-  "\022\020\n\010serverId\030\001 \001(\r\022\016\n\006userId\030\002 \001(\r\022\016\n\006lT"
+  "\022\020\n\010serverId\030\001 \001(\r\022\016\n\006userId\030\002 \001(\004\022\016\n\006lT"
   "oken\030\003 \001(\t\022\016\n\006gsType\030\004 \001(\r\022\014\n\004gsId\030\005 \001(\r"
   "\"F\n\022GSHeartbeatRequest\022\020\n\010serverId\030\001 \001(\r"
-  "\022\016\n\006userId\030\002 \001(\r\022\016\n\006lToken\030\003 \001(\t2\245\003\n\016Gat"
+  "\022\016\n\006userId\030\002 \001(\004\022\016\n\006lToken\030\003 \001(\t2\245\003\n\016Gat"
   "ewayService\022*\n\010shutdown\022\013.corpc.Void\032\013.c"
   "orpc.Void\"\004\230\361\004\001\022:\n\004kick\022\026.wukong.pb.Kick"
   "Request\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\022A\n\016g"
@@ -238,18 +238,18 @@ KickRequest::KickRequest(const KickRequest& from)
     gtoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_gtoken(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&userid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(userid_));
+  ::memcpy(&userid_, &from.userid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(serverid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.KickRequest)
 }
 
 inline void KickRequest::SharedCtor() {
 gtoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&userid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(userid_));
+    reinterpret_cast<char*>(&userid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(serverid_));
 }
 
 KickRequest::~KickRequest() {
@@ -281,9 +281,9 @@ void KickRequest::Clear() {
   (void) cached_has_bits;
 
   gtoken_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&userid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(userid_));
+  ::memset(&userid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&serverid_) -
+      reinterpret_cast<char*>(&userid_)) + sizeof(serverid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -300,10 +300,10 @@ const char* KickRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 userId = 2;
+      // uint64 userId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -351,10 +351,10 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 userId = 2;
+  // uint64 userId = 2;
   if (this->_internal_userid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_userid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_userid(), target);
   }
 
   // string gToken = 3;
@@ -390,18 +390,18 @@ size_t KickRequest::ByteSizeLong() const {
         this->_internal_gtoken());
   }
 
+  // uint64 userId = 2;
+  if (this->_internal_userid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_userid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
-  }
-
-  // uint32 userId = 2;
-  if (this->_internal_userid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_userid());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -435,11 +435,11 @@ void KickRequest::MergeFrom(const KickRequest& from) {
   if (!from._internal_gtoken().empty()) {
     _internal_set_gtoken(from._internal_gtoken());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
   if (from._internal_userid() != 0) {
     _internal_set_userid(from._internal_userid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -464,11 +464,11 @@ void KickRequest::InternalSwap(KickRequest* other) {
       &other->gtoken_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(KickRequest, userid_)
-      + sizeof(KickRequest::userid_)
-      - PROTOBUF_FIELD_OFFSET(KickRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      PROTOBUF_FIELD_OFFSET(KickRequest, serverid_)
+      + sizeof(KickRequest::serverid_)
+      - PROTOBUF_FIELD_OFFSET(KickRequest, userid_)>(
+          reinterpret_cast<char*>(&userid_),
+          reinterpret_cast<char*>(&other->userid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata KickRequest::GetMetadata() const {
@@ -506,7 +506,7 @@ ForwardOutTarget::ForwardOutTarget(const ForwardOutTarget& from)
 
 inline void ForwardOutTarget::SharedCtor() {
 ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-userid_ = 0u;
+userid_ = uint64_t{0u};
 }
 
 ForwardOutTarget::~ForwardOutTarget() {
@@ -538,7 +538,7 @@ void ForwardOutTarget::Clear() {
   (void) cached_has_bits;
 
   ltoken_.ClearToEmpty();
-  userid_ = 0u;
+  userid_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -548,10 +548,10 @@ const char* ForwardOutTarget::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // uint32 userId = 1;
+      // uint64 userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -593,10 +593,10 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // uint32 userId = 1;
+  // uint64 userId = 1;
   if (this->_internal_userid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_userid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(1, this->_internal_userid(), target);
   }
 
   // string lToken = 2;
@@ -632,10 +632,10 @@ size_t ForwardOutTarget::ByteSizeLong() const {
         this->_internal_ltoken());
   }
 
-  // uint32 userId = 1;
+  // uint64 userId = 1;
   if (this->_internal_userid() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
         this->_internal_userid());
   }
 
@@ -1039,18 +1039,18 @@ SetGameObjectPosRequest::SetGameObjectPosRequest(const SetGameObjectPosRequest& 
     ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_ltoken(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
+  ::memcpy(&userid_, &from.userid_,
     static_cast<size_t>(reinterpret_cast<char*>(&gsid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gsid_));
+    reinterpret_cast<char*>(&userid_)) + sizeof(gsid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.SetGameObjectPosRequest)
 }
 
 inline void SetGameObjectPosRequest::SharedCtor() {
 ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&userid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&gsid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gsid_));
+    reinterpret_cast<char*>(&userid_)) + sizeof(gsid_));
 }
 
 SetGameObjectPosRequest::~SetGameObjectPosRequest() {
@@ -1082,9 +1082,9 @@ void SetGameObjectPosRequest::Clear() {
   (void) cached_has_bits;
 
   ltoken_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
+  ::memset(&userid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&gsid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(gsid_));
+      reinterpret_cast<char*>(&userid_)) + sizeof(gsid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1101,10 +1101,10 @@ const char* SetGameObjectPosRequest::_InternalParse(const char* ptr, ::PROTOBUF_
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 userId = 2;
+      // uint64 userId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1166,10 +1166,10 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 userId = 2;
+  // uint64 userId = 2;
   if (this->_internal_userid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_userid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_userid(), target);
   }
 
   // string lToken = 3;
@@ -1217,18 +1217,18 @@ size_t SetGameObjectPosRequest::ByteSizeLong() const {
         this->_internal_ltoken());
   }
 
+  // uint64 userId = 2;
+  if (this->_internal_userid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_userid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
-  }
-
-  // uint32 userId = 2;
-  if (this->_internal_userid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_userid());
   }
 
   // uint32 gsType = 4;
@@ -1276,11 +1276,11 @@ void SetGameObjectPosRequest::MergeFrom(const SetGameObjectPosRequest& from) {
   if (!from._internal_ltoken().empty()) {
     _internal_set_ltoken(from._internal_ltoken());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
   if (from._internal_userid() != 0) {
     _internal_set_userid(from._internal_userid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   if (from._internal_gstype() != 0) {
     _internal_set_gstype(from._internal_gstype());
@@ -1313,9 +1313,9 @@ void SetGameObjectPosRequest::InternalSwap(SetGameObjectPosRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(SetGameObjectPosRequest, gsid_)
       + sizeof(SetGameObjectPosRequest::gsid_)
-      - PROTOBUF_FIELD_OFFSET(SetGameObjectPosRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      - PROTOBUF_FIELD_OFFSET(SetGameObjectPosRequest, userid_)>(
+          reinterpret_cast<char*>(&userid_),
+          reinterpret_cast<char*>(&other->userid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SetGameObjectPosRequest::GetMetadata() const {
@@ -1347,18 +1347,18 @@ GSHeartbeatRequest::GSHeartbeatRequest(const GSHeartbeatRequest& from)
     ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_ltoken(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&userid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(userid_));
+  ::memcpy(&userid_, &from.userid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(serverid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.GSHeartbeatRequest)
 }
 
 inline void GSHeartbeatRequest::SharedCtor() {
 ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&userid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(userid_));
+    reinterpret_cast<char*>(&userid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(serverid_));
 }
 
 GSHeartbeatRequest::~GSHeartbeatRequest() {
@@ -1390,9 +1390,9 @@ void GSHeartbeatRequest::Clear() {
   (void) cached_has_bits;
 
   ltoken_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&userid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(userid_));
+  ::memset(&userid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&serverid_) -
+      reinterpret_cast<char*>(&userid_)) + sizeof(serverid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1409,10 +1409,10 @@ const char* GSHeartbeatRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 userId = 2;
+      // uint64 userId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1460,10 +1460,10 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 userId = 2;
+  // uint64 userId = 2;
   if (this->_internal_userid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_userid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_userid(), target);
   }
 
   // string lToken = 3;
@@ -1499,18 +1499,18 @@ size_t GSHeartbeatRequest::ByteSizeLong() const {
         this->_internal_ltoken());
   }
 
+  // uint64 userId = 2;
+  if (this->_internal_userid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_userid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
-  }
-
-  // uint32 userId = 2;
-  if (this->_internal_userid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_userid());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1544,11 +1544,11 @@ void GSHeartbeatRequest::MergeFrom(const GSHeartbeatRequest& from) {
   if (!from._internal_ltoken().empty()) {
     _internal_set_ltoken(from._internal_ltoken());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
   if (from._internal_userid() != 0) {
     _internal_set_userid(from._internal_userid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1573,11 +1573,11 @@ void GSHeartbeatRequest::InternalSwap(GSHeartbeatRequest* other) {
       &other->ltoken_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(GSHeartbeatRequest, userid_)
-      + sizeof(GSHeartbeatRequest::userid_)
-      - PROTOBUF_FIELD_OFFSET(GSHeartbeatRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      PROTOBUF_FIELD_OFFSET(GSHeartbeatRequest, serverid_)
+      + sizeof(GSHeartbeatRequest::serverid_)
+      - PROTOBUF_FIELD_OFFSET(GSHeartbeatRequest, userid_)>(
+          reinterpret_cast<char*>(&userid_),
+          reinterpret_cast<char*>(&other->userid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata GSHeartbeatRequest::GetMetadata() const {

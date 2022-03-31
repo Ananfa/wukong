@@ -121,7 +121,7 @@ std::string SceneClient::loadScene(ServerId sid, uint32_t defId, const std::stri
     return ret;
 }
 
-void SceneClient::enterScene(ServerId sid, const std::string &sceneId, UserId userId, RoleId roleId, ServerId gwId) {
+void SceneClient::enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId) {
     std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
 
     if (!stub) {
@@ -131,7 +131,6 @@ void SceneClient::enterScene(ServerId sid, const std::string &sceneId, UserId us
 
     pb::EnterSceneRequest *request = new pb::EnterSceneRequest();
     request->set_serverid(sid);
-    request->set_userid(userId);
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
     request->set_sceneid(sceneId);

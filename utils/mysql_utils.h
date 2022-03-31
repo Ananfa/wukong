@@ -11,7 +11,7 @@ namespace wukong {
     class MysqlUtils {
     public:
         static bool SaveUser(MYSQL *mysql, const std::string &account, UserId userId);
-        static bool LoadRole(MYSQL *mysql, RoleId roleId, ServerId &serverId, std::string &data);
+        static bool LoadRole(MYSQL *mysql, RoleId roleId, UserId &userId, ServerId &serverId, std::string &data);
         static bool CreateRole(MYSQL *mysql, RoleId roleId, UserId userId, ServerId serverId, const std::string &data);
         static bool UpdateRole(MYSQL *mysql, RoleId roleId, const std::string &data);
     };

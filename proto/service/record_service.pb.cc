@@ -21,8 +21,8 @@ namespace pb {
 constexpr LoadRoleDataRequest::LoadRoleDataRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , serverid_(0u)
-  , roleid_(0u){}
+  , roleid_(uint64_t{0u})
+  , serverid_(0u){}
 struct LoadRoleDataRequestDefaultTypeInternal {
   constexpr LoadRoleDataRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -36,7 +36,8 @@ constexpr LoadRoleDataResponse::LoadRoleDataResponse(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : data_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , errcode_(0u)
-  , serverid_(0u){}
+  , serverid_(0u)
+  , userid_(uint64_t{0u}){}
 struct LoadRoleDataResponseDefaultTypeInternal {
   constexpr LoadRoleDataResponseDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -64,8 +65,8 @@ constexpr SyncRequest::SyncRequest(
   : datas_()
   , removes_()
   , ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , serverid_(0u)
-  , roleid_(0u){}
+  , roleid_(uint64_t{0u})
+  , serverid_(0u){}
 struct SyncRequestDefaultTypeInternal {
   constexpr SyncRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -78,8 +79,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT SyncRequestDefaultTypeInternal 
 constexpr RSHeartbeatRequest::RSHeartbeatRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , serverid_(0u)
-  , roleid_(0u){}
+  , roleid_(uint64_t{0u})
+  , serverid_(0u){}
 struct RSHeartbeatRequestDefaultTypeInternal {
   constexpr RSHeartbeatRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -111,6 +112,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_record_5fservice_2eproto::offs
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleDataResponse, errcode_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleDataResponse, serverid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleDataResponse, userid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleDataResponse, data_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SyncData, _internal_metadata_),
@@ -141,9 +143,9 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_record_5fservice_2eproto::offs
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::wukong::pb::LoadRoleDataRequest)},
   { 8, -1, sizeof(::wukong::pb::LoadRoleDataResponse)},
-  { 16, -1, sizeof(::wukong::pb::SyncData)},
-  { 23, -1, sizeof(::wukong::pb::SyncRequest)},
-  { 33, -1, sizeof(::wukong::pb::RSHeartbeatRequest)},
+  { 17, -1, sizeof(::wukong::pb::SyncData)},
+  { 24, -1, sizeof(::wukong::pb::SyncRequest)},
+  { 34, -1, sizeof(::wukong::pb::RSHeartbeatRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -158,33 +160,34 @@ const char descriptor_table_protodef_record_5fservice_2eproto[] PROTOBUF_SECTION
   "\n\024record_service.proto\022\twukong.pb\032\022corpc"
   "_option.proto\032\014common.proto\032\022inner_commo"
   "n.proto\"G\n\023LoadRoleDataRequest\022\020\n\010server"
-  "Id\030\001 \001(\r\022\016\n\006lToken\030\002 \001(\t\022\016\n\006roleId\030\003 \001(\r"
-  "\"G\n\024LoadRoleDataResponse\022\017\n\007errCode\030\001 \001("
-  "\r\022\020\n\010serverId\030\002 \001(\r\022\014\n\004data\030\003 \001(\014\"&\n\010Syn"
-  "cData\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\014\"t\n\013Syn"
-  "cRequest\022\020\n\010serverId\030\001 \001(\r\022\016\n\006lToken\030\002 \001"
-  "(\t\022\016\n\006roleId\030\003 \001(\r\022\"\n\005datas\030\004 \003(\0132\023.wuko"
-  "ng.pb.SyncData\022\017\n\007removes\030\005 \003(\t\"F\n\022RSHea"
-  "rtbeatRequest\022\020\n\010serverId\030\001 \001(\r\022\016\n\006roleI"
-  "d\030\002 \001(\r\022\016\n\006lToken\030\003 \001(\t2\351\002\n\rRecordServic"
-  "e\022*\n\010shutdown\022\013.corpc.Void\032\013.corpc.Void\""
-  "\004\230\361\004\001\022A\n\016getOnlineCount\022\013.corpc.Void\032\027.w"
-  "ukong.pb.OnlineCounts\"\t\220\361\004\001\240\361\004\350\007\022U\n\014load"
-  "RoleData\022\036.wukong.pb.LoadRoleDataRequest"
-  "\032\037.wukong.pb.LoadRoleDataResponse\"\004\220\361\004\001\022"
-  "\?\n\004sync\022\026.wukong.pb.SyncRequest\032\024.wukong"
-  ".pb.BoolValue\"\t\220\361\004\001\240\361\004\320\017\022K\n\theartbeat\022\035."
-  "wukong.pb.RSHeartbeatRequest\032\024.wukong.pb"
-  ".BoolValue\"\t\220\361\004\001\240\361\004\320\017\032\004\200\361\004\0042\341\002\n\022InnerRec"
-  "ordService\022*\n\010shutdown\022\013.corpc.Void\032\013.co"
-  "rpc.Void\"\004\230\361\004\001\022<\n\016getOnlineCount\022\013.corpc"
-  ".Void\032\026.wukong.pb.Uint32Value\"\005\240\361\004\364\003\022U\n\014"
-  "loadRoleData\022\036.wukong.pb.LoadRoleDataReq"
-  "uest\032\037.wukong.pb.LoadRoleDataResponse\"\004\220"
-  "\361\004\001\022;\n\004sync\022\026.wukong.pb.SyncRequest\032\024.wu"
-  "kong.pb.BoolValue\"\005\240\361\004\320\017\022G\n\theartbeat\022\035."
-  "wukong.pb.RSHeartbeatRequest\032\024.wukong.pb"
-  ".BoolValue\"\005\240\361\004\320\017\032\004\200\361\004\004B\003\200\001\001b\006proto3"
+  "Id\030\001 \001(\r\022\016\n\006lToken\030\002 \001(\t\022\016\n\006roleId\030\003 \001(\004"
+  "\"W\n\024LoadRoleDataResponse\022\017\n\007errCode\030\001 \001("
+  "\r\022\020\n\010serverId\030\002 \001(\r\022\016\n\006userId\030\003 \001(\004\022\014\n\004d"
+  "ata\030\004 \001(\014\"&\n\010SyncData\022\013\n\003key\030\001 \001(\t\022\r\n\005va"
+  "lue\030\002 \001(\014\"t\n\013SyncRequest\022\020\n\010serverId\030\001 \001"
+  "(\r\022\016\n\006lToken\030\002 \001(\t\022\016\n\006roleId\030\003 \001(\004\022\"\n\005da"
+  "tas\030\004 \003(\0132\023.wukong.pb.SyncData\022\017\n\007remove"
+  "s\030\005 \003(\t\"F\n\022RSHeartbeatRequest\022\020\n\010serverI"
+  "d\030\001 \001(\r\022\016\n\006roleId\030\002 \001(\004\022\016\n\006lToken\030\003 \001(\t2"
+  "\351\002\n\rRecordService\022*\n\010shutdown\022\013.corpc.Vo"
+  "id\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016getOnlineCount\022"
+  "\013.corpc.Void\032\027.wukong.pb.OnlineCounts\"\t\220"
+  "\361\004\001\240\361\004\350\007\022U\n\014loadRoleData\022\036.wukong.pb.Loa"
+  "dRoleDataRequest\032\037.wukong.pb.LoadRoleDat"
+  "aResponse\"\004\220\361\004\001\022\?\n\004sync\022\026.wukong.pb.Sync"
+  "Request\032\024.wukong.pb.BoolValue\"\t\220\361\004\001\240\361\004\320\017"
+  "\022K\n\theartbeat\022\035.wukong.pb.RSHeartbeatReq"
+  "uest\032\024.wukong.pb.BoolValue\"\t\220\361\004\001\240\361\004\320\017\032\004\200"
+  "\361\004\0042\341\002\n\022InnerRecordService\022*\n\010shutdown\022\013"
+  ".corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022<\n\016getOnl"
+  "ineCount\022\013.corpc.Void\032\026.wukong.pb.Uint32"
+  "Value\"\005\240\361\004\364\003\022U\n\014loadRoleData\022\036.wukong.pb"
+  ".LoadRoleDataRequest\032\037.wukong.pb.LoadRol"
+  "eDataResponse\"\004\220\361\004\001\022;\n\004sync\022\026.wukong.pb."
+  "SyncRequest\032\024.wukong.pb.BoolValue\"\005\240\361\004\320\017"
+  "\022G\n\theartbeat\022\035.wukong.pb.RSHeartbeatReq"
+  "uest\032\024.wukong.pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361\004\004B"
+  "\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_record_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -193,7 +196,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_record_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_record_5fservice_2eproto = {
-  false, false, 1196, descriptor_table_protodef_record_5fservice_2eproto, "record_service.proto", 
+  false, false, 1212, descriptor_table_protodef_record_5fservice_2eproto, "record_service.proto", 
   &descriptor_table_record_5fservice_2eproto_once, descriptor_table_record_5fservice_2eproto_deps, 3, 5,
   schemas, file_default_instances, TableStruct_record_5fservice_2eproto::offsets,
   file_level_metadata_record_5fservice_2eproto, file_level_enum_descriptors_record_5fservice_2eproto, file_level_service_descriptors_record_5fservice_2eproto,
@@ -230,18 +233,18 @@ LoadRoleDataRequest::LoadRoleDataRequest(const LoadRoleDataRequest& from)
     ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_ltoken(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+  ::memcpy(&roleid_, &from.roleid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.LoadRoleDataRequest)
 }
 
 inline void LoadRoleDataRequest::SharedCtor() {
 ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
 }
 
 LoadRoleDataRequest::~LoadRoleDataRequest() {
@@ -273,9 +276,9 @@ void LoadRoleDataRequest::Clear() {
   (void) cached_has_bits;
 
   ltoken_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&roleid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+  ::memset(&roleid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&serverid_) -
+      reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -301,10 +304,10 @@ const char* LoadRoleDataRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAME
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 3;
+      // uint64 roleId = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -353,10 +356,10 @@ failure:
         2, this->_internal_ltoken(), target);
   }
 
-  // uint32 roleId = 3;
+  // uint64 roleId = 3;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(3, this->_internal_roleid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -382,18 +385,18 @@ size_t LoadRoleDataRequest::ByteSizeLong() const {
         this->_internal_ltoken());
   }
 
+  // uint64 roleId = 3;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
-  }
-
-  // uint32 roleId = 3;
-  if (this->_internal_roleid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_roleid());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -427,11 +430,11 @@ void LoadRoleDataRequest::MergeFrom(const LoadRoleDataRequest& from) {
   if (!from._internal_ltoken().empty()) {
     _internal_set_ltoken(from._internal_ltoken());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -456,11 +459,11 @@ void LoadRoleDataRequest::InternalSwap(LoadRoleDataRequest* other) {
       &other->ltoken_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(LoadRoleDataRequest, roleid_)
-      + sizeof(LoadRoleDataRequest::roleid_)
-      - PROTOBUF_FIELD_OFFSET(LoadRoleDataRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      PROTOBUF_FIELD_OFFSET(LoadRoleDataRequest, serverid_)
+      + sizeof(LoadRoleDataRequest::serverid_)
+      - PROTOBUF_FIELD_OFFSET(LoadRoleDataRequest, roleid_)>(
+          reinterpret_cast<char*>(&roleid_),
+          reinterpret_cast<char*>(&other->roleid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata LoadRoleDataRequest::GetMetadata() const {
@@ -493,8 +496,8 @@ LoadRoleDataResponse::LoadRoleDataResponse(const LoadRoleDataResponse& from)
       GetArenaForAllocation());
   }
   ::memcpy(&errcode_, &from.errcode_,
-    static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
-    reinterpret_cast<char*>(&errcode_)) + sizeof(serverid_));
+    static_cast<size_t>(reinterpret_cast<char*>(&userid_) -
+    reinterpret_cast<char*>(&errcode_)) + sizeof(userid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.LoadRoleDataResponse)
 }
 
@@ -502,8 +505,8 @@ inline void LoadRoleDataResponse::SharedCtor() {
 data_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&errcode_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
-    reinterpret_cast<char*>(&errcode_)) + sizeof(serverid_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&userid_) -
+    reinterpret_cast<char*>(&errcode_)) + sizeof(userid_));
 }
 
 LoadRoleDataResponse::~LoadRoleDataResponse() {
@@ -536,8 +539,8 @@ void LoadRoleDataResponse::Clear() {
 
   data_.ClearToEmpty();
   ::memset(&errcode_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&serverid_) -
-      reinterpret_cast<char*>(&errcode_)) + sizeof(serverid_));
+      reinterpret_cast<char*>(&userid_) -
+      reinterpret_cast<char*>(&errcode_)) + sizeof(userid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -561,9 +564,16 @@ const char* LoadRoleDataResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAM
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bytes data = 3;
+      // uint64 userId = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes data = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_data();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -610,10 +620,16 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_serverid(), target);
   }
 
-  // bytes data = 3;
+  // uint64 userId = 3;
+  if (this->_internal_userid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(3, this->_internal_userid(), target);
+  }
+
+  // bytes data = 4;
   if (!this->_internal_data().empty()) {
     target = stream->WriteBytesMaybeAliased(
-        3, this->_internal_data(), target);
+        4, this->_internal_data(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -632,7 +648,7 @@ size_t LoadRoleDataResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // bytes data = 3;
+  // bytes data = 4;
   if (!this->_internal_data().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
@@ -651,6 +667,13 @@ size_t LoadRoleDataResponse::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
+  }
+
+  // uint64 userId = 3;
+  if (this->_internal_userid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_userid());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -690,6 +713,9 @@ void LoadRoleDataResponse::MergeFrom(const LoadRoleDataResponse& from) {
   if (from._internal_serverid() != 0) {
     _internal_set_serverid(from._internal_serverid());
   }
+  if (from._internal_userid() != 0) {
+    _internal_set_userid(from._internal_userid());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -713,8 +739,8 @@ void LoadRoleDataResponse::InternalSwap(LoadRoleDataResponse* other) {
       &other->data_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(LoadRoleDataResponse, serverid_)
-      + sizeof(LoadRoleDataResponse::serverid_)
+      PROTOBUF_FIELD_OFFSET(LoadRoleDataResponse, userid_)
+      + sizeof(LoadRoleDataResponse::userid_)
       - PROTOBUF_FIELD_OFFSET(LoadRoleDataResponse, errcode_)>(
           reinterpret_cast<char*>(&errcode_),
           reinterpret_cast<char*>(&other->errcode_));
@@ -990,18 +1016,18 @@ SyncRequest::SyncRequest(const SyncRequest& from)
     ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_ltoken(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+  ::memcpy(&roleid_, &from.roleid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.SyncRequest)
 }
 
 inline void SyncRequest::SharedCtor() {
 ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
 }
 
 SyncRequest::~SyncRequest() {
@@ -1035,9 +1061,9 @@ void SyncRequest::Clear() {
   datas_.Clear();
   removes_.Clear();
   ltoken_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&roleid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+  ::memset(&roleid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&serverid_) -
+      reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1063,10 +1089,10 @@ const char* SyncRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 3;
+      // uint64 roleId = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1141,10 +1167,10 @@ failure:
         2, this->_internal_ltoken(), target);
   }
 
-  // uint32 roleId = 3;
+  // uint64 roleId = 3;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(3, this->_internal_roleid(), target);
   }
 
   // repeated .wukong.pb.SyncData datas = 4;
@@ -1203,18 +1229,18 @@ size_t SyncRequest::ByteSizeLong() const {
         this->_internal_ltoken());
   }
 
+  // uint64 roleId = 3;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
-  }
-
-  // uint32 roleId = 3;
-  if (this->_internal_roleid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_roleid());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1250,11 +1276,11 @@ void SyncRequest::MergeFrom(const SyncRequest& from) {
   if (!from._internal_ltoken().empty()) {
     _internal_set_ltoken(from._internal_ltoken());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1281,11 +1307,11 @@ void SyncRequest::InternalSwap(SyncRequest* other) {
       &other->ltoken_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(SyncRequest, roleid_)
-      + sizeof(SyncRequest::roleid_)
-      - PROTOBUF_FIELD_OFFSET(SyncRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      PROTOBUF_FIELD_OFFSET(SyncRequest, serverid_)
+      + sizeof(SyncRequest::serverid_)
+      - PROTOBUF_FIELD_OFFSET(SyncRequest, roleid_)>(
+          reinterpret_cast<char*>(&roleid_),
+          reinterpret_cast<char*>(&other->roleid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SyncRequest::GetMetadata() const {
@@ -1317,18 +1343,18 @@ RSHeartbeatRequest::RSHeartbeatRequest(const RSHeartbeatRequest& from)
     ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_ltoken(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+  ::memcpy(&roleid_, &from.roleid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.RSHeartbeatRequest)
 }
 
 inline void RSHeartbeatRequest::SharedCtor() {
 ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&serverid_) -
+    reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
 }
 
 RSHeartbeatRequest::~RSHeartbeatRequest() {
@@ -1360,9 +1386,9 @@ void RSHeartbeatRequest::Clear() {
   (void) cached_has_bits;
 
   ltoken_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&roleid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+  ::memset(&roleid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&serverid_) -
+      reinterpret_cast<char*>(&roleid_)) + sizeof(serverid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1379,10 +1405,10 @@ const char* RSHeartbeatRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 2;
+      // uint64 roleId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1430,10 +1456,10 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 roleId = 2;
+  // uint64 roleId = 2;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_roleid(), target);
   }
 
   // string lToken = 3;
@@ -1469,18 +1495,18 @@ size_t RSHeartbeatRequest::ByteSizeLong() const {
         this->_internal_ltoken());
   }
 
+  // uint64 roleId = 2;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
-  }
-
-  // uint32 roleId = 2;
-  if (this->_internal_roleid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_roleid());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1514,11 +1540,11 @@ void RSHeartbeatRequest::MergeFrom(const RSHeartbeatRequest& from) {
   if (!from._internal_ltoken().empty()) {
     _internal_set_ltoken(from._internal_ltoken());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -1543,11 +1569,11 @@ void RSHeartbeatRequest::InternalSwap(RSHeartbeatRequest* other) {
       &other->ltoken_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(RSHeartbeatRequest, roleid_)
-      + sizeof(RSHeartbeatRequest::roleid_)
-      - PROTOBUF_FIELD_OFFSET(RSHeartbeatRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      PROTOBUF_FIELD_OFFSET(RSHeartbeatRequest, serverid_)
+      + sizeof(RSHeartbeatRequest::serverid_)
+      - PROTOBUF_FIELD_OFFSET(RSHeartbeatRequest, roleid_)>(
+          reinterpret_cast<char*>(&roleid_),
+          reinterpret_cast<char*>(&other->roleid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RSHeartbeatRequest::GetMetadata() const {

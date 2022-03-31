@@ -192,8 +192,8 @@ class ForwardInRequest final :
     kRawMsgFieldNumber = 5,
     kServerIdFieldNumber = 1,
     kTypeFieldNumber = 2,
-    kTagFieldNumber = 3,
     kRoleIdFieldNumber = 4,
+    kTagFieldNumber = 3,
   };
   // bytes rawMsg = 5;
   void clear_rawmsg();
@@ -227,6 +227,15 @@ class ForwardInRequest final :
   void _internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
+  // uint64 roleId = 4;
+  void clear_roleid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid() const;
+  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_roleid() const;
+  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // uint32 tag = 3;
   void clear_tag();
   ::PROTOBUF_NAMESPACE_ID::uint32 tag() const;
@@ -234,15 +243,6 @@ class ForwardInRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_tag() const;
   void _internal_set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 roleId = 4;
-  void clear_roleid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
-  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_roleid() const;
-  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:wukong.pb.ForwardInRequest)
@@ -255,8 +255,8 @@ class ForwardInRequest final :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rawmsg_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::int32 type_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 tag_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_game_5fservice_2eproto;
 };
@@ -378,8 +378,8 @@ class EnterGameRequest final :
 
   enum : int {
     kLTokenFieldNumber = 3,
-    kServerIdFieldNumber = 1,
     kRoleIdFieldNumber = 2,
+    kServerIdFieldNumber = 1,
     kGatewayIdFieldNumber = 4,
   };
   // string lToken = 3;
@@ -396,6 +396,15 @@ class EnterGameRequest final :
   std::string* _internal_mutable_ltoken();
   public:
 
+  // uint64 roleId = 2;
+  void clear_roleid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid() const;
+  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_roleid() const;
+  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -403,15 +412,6 @@ class EnterGameRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 roleId = 2;
-  void clear_roleid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
-  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_roleid() const;
-  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // uint32 gatewayId = 4;
@@ -431,8 +431,8 @@ class EnterGameRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_game_5fservice_2eproto;
@@ -642,22 +642,22 @@ inline void ForwardInRequest::set_tag(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.tag)
 }
 
-// uint32 roleId = 4;
+// uint64 roleId = 4;
 inline void ForwardInRequest::clear_roleid() {
-  roleid_ = 0u;
+  roleid_ = uint64_t{0u};
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::_internal_roleid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 ForwardInRequest::_internal_roleid() const {
   return roleid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardInRequest::roleid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 ForwardInRequest::roleid() const {
   // @@protoc_insertion_point(field_get:wukong.pb.ForwardInRequest.roleId)
   return _internal_roleid();
 }
-inline void ForwardInRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void ForwardInRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   
   roleid_ = value;
 }
-inline void ForwardInRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void ForwardInRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   _internal_set_roleid(value);
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardInRequest.roleId)
 }
@@ -732,22 +732,22 @@ inline void EnterGameRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value
   // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.serverId)
 }
 
-// uint32 roleId = 2;
+// uint64 roleId = 2;
 inline void EnterGameRequest::clear_roleid() {
-  roleid_ = 0u;
+  roleid_ = uint64_t{0u};
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::_internal_roleid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 EnterGameRequest::_internal_roleid() const {
   return roleid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::roleid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 EnterGameRequest::roleid() const {
   // @@protoc_insertion_point(field_get:wukong.pb.EnterGameRequest.roleId)
   return _internal_roleid();
 }
-inline void EnterGameRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void EnterGameRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   
   roleid_ = value;
 }
-inline void EnterGameRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void EnterGameRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   _internal_set_roleid(value);
   // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.roleId)
 }

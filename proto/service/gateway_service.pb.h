@@ -204,8 +204,8 @@ class KickRequest final :
 
   enum : int {
     kGTokenFieldNumber = 3,
-    kServerIdFieldNumber = 1,
     kUserIdFieldNumber = 2,
+    kServerIdFieldNumber = 1,
   };
   // string gToken = 3;
   void clear_gtoken();
@@ -221,6 +221,15 @@ class KickRequest final :
   std::string* _internal_mutable_gtoken();
   public:
 
+  // uint64 userId = 2;
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -228,15 +237,6 @@ class KickRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 userId = 2;
-  void clear_userid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
-  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
-  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:wukong.pb.KickRequest)
@@ -247,8 +247,8 @@ class KickRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr gtoken_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
@@ -386,13 +386,13 @@ class ForwardOutTarget final :
   std::string* _internal_mutable_ltoken();
   public:
 
-  // uint32 userId = 1;
+  // uint64 userId = 1;
   void clear_userid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
-  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
   private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
-  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
   // @@protoc_insertion_point(class_scope:wukong.pb.ForwardOutTarget)
@@ -403,7 +403,7 @@ class ForwardOutTarget final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
@@ -722,8 +722,8 @@ class SetGameObjectPosRequest final :
 
   enum : int {
     kLTokenFieldNumber = 3,
-    kServerIdFieldNumber = 1,
     kUserIdFieldNumber = 2,
+    kServerIdFieldNumber = 1,
     kGsTypeFieldNumber = 4,
     kGsIdFieldNumber = 5,
   };
@@ -741,6 +741,15 @@ class SetGameObjectPosRequest final :
   std::string* _internal_mutable_ltoken();
   public:
 
+  // uint64 userId = 2;
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -748,15 +757,6 @@ class SetGameObjectPosRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 userId = 2;
-  void clear_userid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
-  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
-  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // uint32 gsType = 4;
@@ -785,8 +785,8 @@ class SetGameObjectPosRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gstype_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gsid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -910,8 +910,8 @@ class GSHeartbeatRequest final :
 
   enum : int {
     kLTokenFieldNumber = 3,
-    kServerIdFieldNumber = 1,
     kUserIdFieldNumber = 2,
+    kServerIdFieldNumber = 1,
   };
   // string lToken = 3;
   void clear_ltoken();
@@ -927,6 +927,15 @@ class GSHeartbeatRequest final :
   std::string* _internal_mutable_ltoken();
   public:
 
+  // uint64 userId = 2;
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -934,15 +943,6 @@ class GSHeartbeatRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 userId = 2;
-  void clear_userid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
-  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
-  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:wukong.pb.GSHeartbeatRequest)
@@ -953,8 +953,8 @@ class GSHeartbeatRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_gateway_5fservice_2eproto;
 };
@@ -1187,22 +1187,22 @@ inline void KickRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   // @@protoc_insertion_point(field_set:wukong.pb.KickRequest.serverId)
 }
 
-// uint32 userId = 2;
+// uint64 userId = 2;
 inline void KickRequest::clear_userid() {
-  userid_ = 0u;
+  userid_ = uint64_t{0u};
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 KickRequest::_internal_userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 KickRequest::_internal_userid() const {
   return userid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 KickRequest::userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 KickRequest::userid() const {
   // @@protoc_insertion_point(field_get:wukong.pb.KickRequest.userId)
   return _internal_userid();
 }
-inline void KickRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void KickRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   
   userid_ = value;
 }
-inline void KickRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void KickRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:wukong.pb.KickRequest.userId)
 }
@@ -1257,22 +1257,22 @@ inline void KickRequest::set_allocated_gtoken(std::string* gtoken) {
 
 // ForwardOutTarget
 
-// uint32 userId = 1;
+// uint64 userId = 1;
 inline void ForwardOutTarget::clear_userid() {
-  userid_ = 0u;
+  userid_ = uint64_t{0u};
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardOutTarget::_internal_userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 ForwardOutTarget::_internal_userid() const {
   return userid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 ForwardOutTarget::userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 ForwardOutTarget::userid() const {
   // @@protoc_insertion_point(field_get:wukong.pb.ForwardOutTarget.userId)
   return _internal_userid();
 }
-inline void ForwardOutTarget::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void ForwardOutTarget::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   
   userid_ = value;
 }
-inline void ForwardOutTarget::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void ForwardOutTarget::set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:wukong.pb.ForwardOutTarget.userId)
 }
@@ -1497,22 +1497,22 @@ inline void SetGameObjectPosRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint3
   // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.serverId)
 }
 
-// uint32 userId = 2;
+// uint64 userId = 2;
 inline void SetGameObjectPosRequest::clear_userid() {
-  userid_ = 0u;
+  userid_ = uint64_t{0u};
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::_internal_userid() const {
   return userid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::userid() const {
   // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.userId)
   return _internal_userid();
 }
-inline void SetGameObjectPosRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void SetGameObjectPosRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   
   userid_ = value;
 }
-inline void SetGameObjectPosRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void SetGameObjectPosRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.userId)
 }
@@ -1627,22 +1627,22 @@ inline void GSHeartbeatRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 val
   // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.serverId)
 }
 
-// uint32 userId = 2;
+// uint64 userId = 2;
 inline void GSHeartbeatRequest::clear_userid() {
-  userid_ = 0u;
+  userid_ = uint64_t{0u};
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 GSHeartbeatRequest::_internal_userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 GSHeartbeatRequest::_internal_userid() const {
   return userid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 GSHeartbeatRequest::userid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 GSHeartbeatRequest::userid() const {
   // @@protoc_insertion_point(field_get:wukong.pb.GSHeartbeatRequest.userId)
   return _internal_userid();
 }
-inline void GSHeartbeatRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void GSHeartbeatRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   
   userid_ = value;
 }
-inline void GSHeartbeatRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void GSHeartbeatRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   _internal_set_userid(value);
   // @@protoc_insertion_point(field_set:wukong.pb.GSHeartbeatRequest.userId)
 }

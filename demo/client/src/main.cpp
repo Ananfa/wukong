@@ -270,6 +270,10 @@ static void *test_login(void *arg) {
                 RoutineEnvironment::startCoroutine(test_login, (void*)accountInfo);
                 
 #else
+                // 这里有个问题：重登时正好gameobj向gatewayobj心跳，在gatewayobj的旧对象销毁新对象重建过程中刚好心跳请求到达，因此返回心跳失败--找不到gatewayobj，
+                // 在心跳RPC结果返回过程中，新gatewayobj创建完成并且通知gameobj连接建立，gameobj通知客户端进入游戏完成，（此处进行心跳失败处理将gateway对象stub清除了），
+                // 客户端发1000消息给服务器，gateway将消息转给lobby中的游戏对象，游戏对象返回1000消息发现gateway对象stub为空
+
                 AccountInfo *newAccountInfo = new AccountInfo;
                 newAccountInfo->account = accountInfo->account;
                 delete accountInfo;

@@ -43,7 +43,7 @@ bool GameObject::setGatewayServerStub(ServerId sid) {
     }
 
     if (!_gatewayServerStub) {
-        ERROR_LOG("GameObject::setGatewayServerStub -- user %d gateway server[sid: %d] not found\n", _userId, sid);
+        ERROR_LOG("GameObject::setGatewayServerStub -- user[%llu] role[%llu] gateway server[sid: %d] not found\n", _userId, _roleId, sid);
         return false;
     }
 
@@ -58,7 +58,7 @@ bool GameObject::setRecordServerStub(ServerId sid) {
     }
 
     if (!_recordServerStub) {
-        ERROR_LOG("GameObject::setRecordServerStub -- user %d record server[sid: %d] not found\n", _userId, sid);
+        ERROR_LOG("GameObject::setRecordServerStub -- user[%llu] role[%llu] record server[sid: %d] not found\n", _userId, _roleId, sid);
         return false;
     }
 
@@ -91,6 +91,7 @@ void GameObject::start() {
 
 void GameObject::stop() {
     if (_running) {
+        DEBUG_LOG("GameObject::stop user[%llu] role[%llu] token:%s\n", _userId, _roleId, _lToken.c_str());
         _running = false;
 
         _cond.broadcast();
@@ -98,13 +99,13 @@ void GameObject::stop() {
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
-            ERROR_LOG("GameObject::stop -- role[%d] connect to cache failed\n", _roleId);
+            ERROR_LOG("GameObject::stop -- user[%llu] role[%llu] connect to cache failed\n", _userId, _roleId);
             return;
         }
 
         if (RedisUtils::RemoveGameObjectAddress(cache, _roleId, _lToken) == REDIS_DB_ERROR) {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("GameObject::stop -- role[%d] remove location failed", _roleId);
+            ERROR_LOG("GameObject::stop -- user[%llu] role[%llu] remove location failed", _userId, _roleId);
             return;
         }
 
@@ -112,13 +113,18 @@ void GameObject::stop() {
     }
 }
 
+void GameObject::leaveGame() {
+    _manager->leaveGame(_roleId);
+}
+
 void GameObject::onEnterGame() {
     _gwHeartbeatFailCount = 0; // 重置心跳
+    _enterTimes++;
 }
 
 void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
     if (!_gatewayServerStub) {
-        ERROR_LOG("GameObject::send -- gateway stub not set\n");
+        ERROR_LOG("GameObject::send(raw) -- user[%llu] role[%llu] type %d gateway stub not set\n", _userId, _roleId, type);
         return;
     }
     
@@ -140,7 +146,7 @@ void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
 
 void GameObject::send(int32_t type, uint16_t tag, google::protobuf::Message &msg) {
     if (!_gatewayServerStub) {
-        ERROR_LOG("GameObject::send -- gateway stub not set\n");
+        ERROR_LOG("GameObject::send -- user[%llu] role[%llu] type %d gateway stub not set\n", _userId, _roleId, type);
         return;
     }
 
@@ -151,10 +157,10 @@ void GameObject::send(int32_t type, uint16_t tag, google::protobuf::Message &msg
     send(type, tag, bufStr);
 }
 
-bool GameObject::reportGameObjectPos() {
+int GameObject::reportGameObjectPos() {
     if (!_gatewayServerStub) {
-        ERROR_LOG("GameObject::setGameObjectPos -- gateway stub not set\n");
-        return false;
+        ERROR_LOG("GameObject::setGameObjectPos -- user[%llu] role[%llu] gateway stub not set\n", _userId, _roleId);
+        return -1;
     }
 
     pb::SetGameObjectPosRequest *request = new pb::SetGameObjectPosRequest();
@@ -167,12 +173,12 @@ bool GameObject::reportGameObjectPos() {
     request->set_gsid(_manager->getId());
     _gatewayServerStub->setGameObjectPos(controller, request, response, nullptr);
     
-    bool ret;
+    int ret;
     if (controller->Failed()) {
         ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
-        ret = false;
+        ret = -2;
     } else {
-        ret = response->value();
+        ret = response->value()?1:0;
     }
     
     delete controller;
@@ -182,10 +188,10 @@ bool GameObject::reportGameObjectPos() {
     return ret;
 }
 
-bool GameObject::heartbeatToGateway() {
+int GameObject::heartbeatToGateway() {
     if (!_gatewayServerStub) {
-        ERROR_LOG("GameObject::heartbeatToGateway -- gateway stub not set\n");
-        return false;
+        ERROR_LOG("GameObject::heartbeatToGateway -- user[%llu] role[%llu] gateway stub not set\n", _userId, _roleId);
+        return -1;
     }
 
     pb::GSHeartbeatRequest *request = new pb::GSHeartbeatRequest();
@@ -196,12 +202,41 @@ bool GameObject::heartbeatToGateway() {
     request->set_ltoken(_lToken);
     _gatewayServerStub->heartbeat(controller, request, response, nullptr);
     
-    bool ret;
+    int ret;
     if (controller->Failed()) {
         ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
-        ret = false;
+        ret = -2;
     } else {
-        ret = response->value();
+        ret = response->value()?1:0;
+    }
+    
+    delete controller;
+    delete response;
+    delete request;
+
+    return ret;
+}
+
+int GameObject::heartbeatToRecord() {
+    if (!_recordServerStub) {
+        ERROR_LOG("GameObject::heartbeatToRecord -- user[%llu] role[%llu] record stub not set\n", _userId, _roleId);
+        return -1;
+    }
+
+    pb::RSHeartbeatRequest *request = new pb::RSHeartbeatRequest();
+    pb::BoolValue *response = new pb::BoolValue();
+    Controller *controller = new Controller();
+    request->set_serverid(_recordId);
+    request->set_roleid(_roleId);
+    request->set_ltoken(_lToken);
+    _recordServerStub->heartbeat(controller, request, response, nullptr);
+    
+    int ret;
+    if (controller->Failed()) {
+        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+        ret = -2;
+    } else {
+        ret = response->value()?1:0;
     }
     
     delete controller;
@@ -213,7 +248,7 @@ bool GameObject::heartbeatToGateway() {
 
 bool GameObject::sync(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {
     if (!_recordServerStub) {
-        ERROR_LOG("GameObject::sync -- record stub not set\n");
+        ERROR_LOG("GameObject::sync -- user[%llu] role[%llu] record stub not set\n", _userId, _roleId);
         return false;
     }
 
@@ -248,41 +283,10 @@ bool GameObject::sync(std::list<std::pair<std::string, std::string>> &datas, std
     return result;
 }
 
-bool GameObject::heartbeatToRecord() {
-    if (!_recordServerStub) {
-        ERROR_LOG("GameObject::heartbeatToRecord -- record stub not set\n");
-        return false;
-    }
-
-    pb::RSHeartbeatRequest *request = new pb::RSHeartbeatRequest();
-    pb::BoolValue *response = new pb::BoolValue();
-    Controller *controller = new Controller();
-    request->set_serverid(_recordId);
-    request->set_roleid(_roleId);
-    request->set_ltoken(_lToken);
-    _recordServerStub->heartbeat(controller, request, response, nullptr);
-    
-    bool ret;
-    if (controller->Failed()) {
-        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
-        ret = false;
-    } else {
-        ret = response->value();
-    }
-    
-    delete controller;
-    delete response;
-    delete request;
-
-    return ret;
-}
-
 void *GameObject::heartbeatRoutine( void *arg ) {
     GameObjectRoutineArg* routineArg = (GameObjectRoutineArg*)arg;
     std::shared_ptr<GameObject> obj = std::move(routineArg->obj);
     delete routineArg;
-
-    //int gwHeartbeatFailCount = 0;
 
     while (obj->_running) {
         // 目前只有心跳和停服会销毁游戏对象
@@ -297,19 +301,19 @@ void *GameObject::heartbeatRoutine( void *arg ) {
         bool success = true;
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
-            ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d connect to cache failed\n", obj->_userId, obj->_roleId);
+            ERROR_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] connect to cache failed\n", obj->_userId, obj->_roleId);
 
             success = false;
         } else {
             switch (RedisUtils::SetGameObjectAddressTTL(cache, obj->_roleId, obj->_lToken)) {
                 case REDIS_DB_ERROR: {
                     g_RedisPoolManager.getCoreCache()->put(cache, true);
-                    ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed for db error\n", obj->_userId, obj->_roleId);
+                    ERROR_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] check session failed for db error\n", obj->_userId, obj->_roleId);
                     success = false;
                 }
                 case REDIS_FAIL: {
                     g_RedisPoolManager.getCoreCache()->put(cache, false);
-                    ERROR_LOG("GameObject::heartbeatRoutine -- user %d role %d check session failed\n", obj->_userId, obj->_roleId);
+                    ERROR_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] check session failed\n", obj->_userId, obj->_roleId);
                     success = false;
                 }
                 case REDIS_SUCCESS: {
@@ -319,27 +323,57 @@ void *GameObject::heartbeatRoutine( void *arg ) {
             }
         }
 
-        if (success && obj->_needGatewayHB) {
-            // 对网关对象进行心跳
-            // 三次心跳不到gateway对象才销毁
-            if (!obj->heartbeatToGateway()) {
-                obj->_gwHeartbeatFailCount++;
+        // TODO: 对gateway对象进行心跳改为失败时发通知不直接导致游戏对象删除，交由上层决定是否删除游戏对象
+        if (success) {
+            if (obj->_gatewayServerStub) {
+                // 对网关对象进行心跳
+                // 三次心跳不到gateway对象才销毁
+                int curEnterTimes = obj->_enterTimes;
+                switch (obj->heartbeatToGateway()) {
+                    case -2: {// rpc出错（心跳超时）
+                        obj->_gwHeartbeatFailCount++;
+                        WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat timeout, count:%d\n", obj->_userId, obj->_roleId, obj->_gwHeartbeatFailCount);
+                        break;
+                    }
+                    case 0: {// gateway对象不存在
+                        // 注意：
+                        // 这里有个问题：重登时正好gameobj向gatewayobj心跳，在gatewayobj的旧对象销毁新对象重建过程中刚好心跳请求到达，因此返回心跳失败--找不到gatewayobj，
+                        // 在心跳RPC结果返回过程中，新gatewayobj创建完成并且通知gameobj连接建立，gameobj通知客户端进入游戏完成，（此处进行心跳失败处理将gateway对象stub清除了），
+                        // 导致gameobj错误的丢掉了gatewayobj的连接。
+                        // 解决方法：gameobj中增加一个登录计数值，心跳前和心跳后的登录计数值一样才是真的断线
+                        if (curEnterTimes == obj->_enterTimes) {
+                            WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to gw failed for gw object not exit\n", obj->_userId, obj->_roleId);
+
+                            obj->_gatewayServerStub = nullptr;
+                            obj->onOffline();
+                        } else {
+                            WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to gw failed but enter times not match\n", obj->_userId, obj->_roleId);
+                            obj->_gwHeartbeatFailCount++;
+                        }
+                        
+                        break;
+                    }
+                    case 1: {
+                        obj->_gwHeartbeatFailCount = 0;
+                        break;
+                    }
+                }
 
                 if (obj->_gwHeartbeatFailCount >= 3) {
-                    WARN_LOG("GameObject::heartbeatRoutine -- user %d role %d heartbeat to gw failed\n", obj->_userId, obj->_roleId);
-                    success = false;
+                    WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to gw failed\n", obj->_userId, obj->_roleId);
+
+                    obj->_gatewayServerStub = nullptr;
+                    obj->onOffline();
                 }
-            } else {
-                obj->_gwHeartbeatFailCount = 0;
             }
         }
 
         if (success) {
             // 对记录对象进行心跳
-            success = obj->heartbeatToRecord();
+            success = obj->heartbeatToRecord() == 1;
 
             if (!success) {
-                WARN_LOG("GameObject::heartbeatRoutine -- user %d role %d heartbeat to record failed\n", obj->_userId, obj->_roleId);
+                WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to record failed\n", obj->_userId, obj->_roleId);
             }
         }
 
@@ -347,7 +381,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
         if (!success) {
 //exit(0);
             if (obj->_running) {
-                obj->_manager->leaveGame(obj->_roleId);
+                obj->leaveGame();
                 assert(obj->_running = false);
             }
         }

@@ -20,9 +20,8 @@ namespace wukong {
 namespace pb {
 constexpr LoadRoleRequest::LoadRoleRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : serverid_(0u)
-  , userid_(0u)
-  , roleid_(0u)
+  : roleid_(uint64_t{0u})
+  , serverid_(0u)
   , gatewayid_(0u){}
 struct LoadRoleRequestDefaultTypeInternal {
   constexpr LoadRoleRequestDefaultTypeInternal()
@@ -46,7 +45,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_lobby_5fservice_2eproto::offse
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, serverid_),
-  PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, roleid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LoadRoleRequest, gatewayid_),
 };
@@ -61,19 +59,19 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_lobby_5fservice_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\023lobby_service.proto\022\twukong.pb\032\022corpc_"
   "option.proto\032\014common.proto\032\022inner_common"
-  ".proto\"V\n\017LoadRoleRequest\022\020\n\010serverId\030\001 "
-  "\001(\r\022\016\n\006userId\030\002 \001(\r\022\016\n\006roleId\030\003 \001(\r\022\021\n\tg"
-  "atewayId\030\004 \001(\r2\307\001\n\014LobbyService\022*\n\010shutd"
-  "own\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016g"
-  "etOnlineCount\022\013.corpc.Void\032\027.wukong.pb.O"
-  "nlineCounts\"\t\220\361\004\001\240\361\004\350\007\022B\n\010loadRole\022\032.wuk"
-  "ong.pb.LoadRoleRequest\032\024.wukong.pb.BoolV"
-  "alue\"\004\220\361\004\001\032\004\200\361\004\0032\307\001\n\021InnerLobbyService\022*"
-  "\n\010shutdown\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361"
-  "\004\001\022<\n\016getOnlineCount\022\013.corpc.Void\032\026.wuko"
-  "ng.pb.Uint32Value\"\005\240\361\004\364\003\022B\n\010loadRole\022\032.w"
-  "ukong.pb.LoadRoleRequest\032\024.wukong.pb.Boo"
-  "lValue\"\004\220\361\004\001\032\004\200\361\004\003B\003\200\001\001b\006proto3"
+  ".proto\"F\n\017LoadRoleRequest\022\020\n\010serverId\030\001 "
+  "\001(\r\022\016\n\006roleId\030\002 \001(\004\022\021\n\tgatewayId\030\003 \001(\r2\307"
+  "\001\n\014LobbyService\022*\n\010shutdown\022\013.corpc.Void"
+  "\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016getOnlineCount\022\013."
+  "corpc.Void\032\027.wukong.pb.OnlineCounts\"\t\220\361\004"
+  "\001\240\361\004\350\007\022B\n\010loadRole\022\032.wukong.pb.LoadRoleR"
+  "equest\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\032\004\200\361\004\003"
+  "2\307\001\n\021InnerLobbyService\022*\n\010shutdown\022\013.cor"
+  "pc.Void\032\013.corpc.Void\"\004\230\361\004\001\022<\n\016getOnlineC"
+  "ount\022\013.corpc.Void\032\026.wukong.pb.Uint32Valu"
+  "e\"\005\240\361\004\364\003\022B\n\010loadRole\022\032.wukong.pb.LoadRol"
+  "eRequest\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\032\004\200\361"
+  "\004\003B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_lobby_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -82,7 +80,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_lobby_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_lobby_5fservice_2eproto = {
-  false, false, 591, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 
+  false, false, 575, descriptor_table_protodef_lobby_5fservice_2eproto, "lobby_service.proto", 
   &descriptor_table_lobby_5fservice_2eproto_once, descriptor_table_lobby_5fservice_2eproto_deps, 3, 1,
   schemas, file_default_instances, TableStruct_lobby_5fservice_2eproto::offsets,
   file_level_metadata_lobby_5fservice_2eproto, file_level_enum_descriptors_lobby_5fservice_2eproto, file_level_service_descriptors_lobby_5fservice_2eproto,
@@ -114,17 +112,17 @@ LoadRoleRequest::LoadRoleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 LoadRoleRequest::LoadRoleRequest(const LoadRoleRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&serverid_, &from.serverid_,
+  ::memcpy(&roleid_, &from.roleid_,
     static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.LoadRoleRequest)
 }
 
 inline void LoadRoleRequest::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
 }
 
 LoadRoleRequest::~LoadRoleRequest() {
@@ -154,9 +152,9 @@ void LoadRoleRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&serverid_, 0, static_cast<size_t>(
+  ::memset(&roleid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&gatewayid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+      reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -173,23 +171,16 @@ const char* LoadRoleRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 userId = 2;
+      // uint64 roleId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 3;
+      // uint32 gatewayId = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // uint32 gatewayId = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           gatewayid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -229,22 +220,16 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 userId = 2;
-  if (this->_internal_userid() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_userid(), target);
-  }
-
-  // uint32 roleId = 3;
+  // uint64 roleId = 2;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_roleid(), target);
   }
 
-  // uint32 gatewayId = 4;
+  // uint32 gatewayId = 3;
   if (this->_internal_gatewayid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_gatewayid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_gatewayid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -263,6 +248,13 @@ size_t LoadRoleRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  // uint64 roleId = 2;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
@@ -270,21 +262,7 @@ size_t LoadRoleRequest::ByteSizeLong() const {
         this->_internal_serverid());
   }
 
-  // uint32 userId = 2;
-  if (this->_internal_userid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_userid());
-  }
-
-  // uint32 roleId = 3;
-  if (this->_internal_roleid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_roleid());
-  }
-
-  // uint32 gatewayId = 4;
+  // uint32 gatewayId = 3;
   if (this->_internal_gatewayid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
@@ -319,14 +297,11 @@ void LoadRoleRequest::MergeFrom(const LoadRoleRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
-  if (from._internal_userid() != 0) {
-    _internal_set_userid(from._internal_userid());
-  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   if (from._internal_gatewayid() != 0) {
     _internal_set_gatewayid(from._internal_gatewayid());
@@ -351,9 +326,9 @@ void LoadRoleRequest::InternalSwap(LoadRoleRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(LoadRoleRequest, gatewayid_)
       + sizeof(LoadRoleRequest::gatewayid_)
-      - PROTOBUF_FIELD_OFFSET(LoadRoleRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      - PROTOBUF_FIELD_OFFSET(LoadRoleRequest, roleid_)>(
+          reinterpret_cast<char*>(&roleid_),
+          reinterpret_cast<char*>(&other->roleid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata LoadRoleRequest::GetMetadata() const {

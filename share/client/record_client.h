@@ -56,7 +56,7 @@ namespace wukong {
         /* 业务逻辑 */
         void shutdown();
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
-        bool loadRoleData(ServerId sid, RoleId roleId, const std::string &lToken, ServerId &serverId, std::string &roleData); // 加载角色（游戏对象）
+        bool loadRoleData(ServerId sid, RoleId roleId, UserId &userId, const std::string &lToken, ServerId &serverId, std::string &roleData); // 加载角色（游戏对象）
 
         bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
         /* 加入Server */

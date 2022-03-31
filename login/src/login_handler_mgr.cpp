@@ -287,12 +287,13 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
             // 查询轮廓数据
             for (RoleProfile &info : roles){
+                UserId uid;
                 std::list<std::pair<std::string, std::string>> pDatas;
-                if (!_delegate.loadProfile(info.roleId, info.serverId, pDatas)) {
+                if (!_delegate.loadProfile(info.roleId, uid, info.serverId, pDatas)) {
                     ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed\n", info.roleId);
                     continue;
                 }
-
+                assert(uid == userId);
                 info.pData = ProtoUtils::marshalDataFragments(pDatas);
             }
 
@@ -477,7 +478,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
         return setErrorResponse(response, "connect to cache failed");
     }
 
-    switch (RedisUtils::SaveRole(cache, roleId, serverId, roleDatas)) {
+    switch (RedisUtils::SaveRole(cache, roleId, userId, serverId, roleDatas)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
             return setErrorResponse(response, "cache role failed for db error");
@@ -491,7 +492,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     // 缓存profile，即上述第5步
     std::list<std::pair<std::string, std::string>> profileDatas;
     _delegate.makeProfile(roleDatas, profileDatas);
-    switch (RedisUtils::SaveProfile(cache, roleId, serverId, profileDatas)) {
+    switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, profileDatas)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("LoginHandlerMgr::createRole -- cache profile failed for db error\n");
@@ -598,7 +599,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
     if (orgGwId) {
         // 通知Gateway踢出玩家
-        DEBUG_LOG("LoginHandlerMgr::enterGame -- duplicate login kick old one\n");
+        DEBUG_LOG("LoginHandlerMgr::enterGame -- user[%llu] role[%llu] duplicate login kick old one\n", userId, roleId);
         if (!g_GatewayClient.kick(orgGwId, userId, orgTkn)) {
             g_RedisPoolManager.getCoreCache()->put(cache, false);
             return setErrorResponse(response, "duplicate login kick old one failed");
@@ -772,7 +773,7 @@ void LoginHandlerMgr::refreshServerGroupData() {
 bool LoginHandlerMgr::checkToken(UserId userId, const std::string& token) {
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
-        ERROR_LOG("LoginHandlerMgr::checkToken -- connect to cache failed\n");
+        ERROR_LOG("LoginHandlerMgr::checkToken -- user[%llu] connect to cache failed\n", userId);
         return false;
     }
 
@@ -790,7 +791,7 @@ bool LoginHandlerMgr::checkToken(UserId userId, const std::string& token) {
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     if (token.compare(tkn) != 0) {
-        ERROR_LOG("LoginHandlerMgr::checkToken -- token not match %s -- %s\n", token.c_str(), tkn.c_str());
+        ERROR_LOG("LoginHandlerMgr::checkToken -- user[%llu] token not match %s -- %s\n", userId, token.c_str(), tkn.c_str());
         return false;
     }
 

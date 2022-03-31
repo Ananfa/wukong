@@ -76,7 +76,7 @@ std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
     return infos;
 }
 
-bool RecordClient::loadRoleData(ServerId sid, RoleId roleId, const std::string &lToken, ServerId &serverId, std::string &roleData) {
+bool RecordClient::loadRoleData(ServerId sid, RoleId roleId, UserId &userId, const std::string &lToken, ServerId &serverId, std::string &roleData) {
     std::shared_ptr<pb::RecordService_Stub> stub = getStub(sid);
     
     if (!stub) {
@@ -98,6 +98,7 @@ bool RecordClient::loadRoleData(ServerId sid, RoleId roleId, const std::string &
     } else if (response->errcode() == 0) {
         result = true;
         serverId = response->serverid();
+        userId = response->userid();
         roleData = response->data();
     }
 

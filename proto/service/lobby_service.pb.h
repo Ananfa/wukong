@@ -187,11 +187,19 @@ class LoadRoleRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kRoleIdFieldNumber = 2,
     kServerIdFieldNumber = 1,
-    kUserIdFieldNumber = 2,
-    kRoleIdFieldNumber = 3,
-    kGatewayIdFieldNumber = 4,
+    kGatewayIdFieldNumber = 3,
   };
+  // uint64 roleId = 2;
+  void clear_roleid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid() const;
+  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_roleid() const;
+  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -201,25 +209,7 @@ class LoadRoleRequest final :
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 userId = 2;
-  void clear_userid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid() const;
-  void set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_userid() const;
-  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 roleId = 3;
-  void clear_roleid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 roleid() const;
-  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_roleid() const;
-  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 gatewayId = 4;
+  // uint32 gatewayId = 3;
   void clear_gatewayid();
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid() const;
   void set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -235,9 +225,8 @@ class LoadRoleRequest final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 userid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_lobby_5fservice_2eproto;
@@ -423,47 +412,27 @@ inline void LoadRoleRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value)
   // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.serverId)
 }
 
-// uint32 userId = 2;
-inline void LoadRoleRequest::clear_userid() {
-  userid_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::_internal_userid() const {
-  return userid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::userid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleRequest.userId)
-  return _internal_userid();
-}
-inline void LoadRoleRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  userid_ = value;
-}
-inline void LoadRoleRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.userId)
-}
-
-// uint32 roleId = 3;
+// uint64 roleId = 2;
 inline void LoadRoleRequest::clear_roleid() {
-  roleid_ = 0u;
+  roleid_ = uint64_t{0u};
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::_internal_roleid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 LoadRoleRequest::_internal_roleid() const {
   return roleid_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::roleid() const {
+inline ::PROTOBUF_NAMESPACE_ID::uint64 LoadRoleRequest::roleid() const {
   // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleRequest.roleId)
   return _internal_roleid();
 }
-inline void LoadRoleRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void LoadRoleRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   
   roleid_ = value;
 }
-inline void LoadRoleRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+inline void LoadRoleRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
   _internal_set_roleid(value);
   // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.roleId)
 }
 
-// uint32 gatewayId = 4;
+// uint32 gatewayId = 3;
 inline void LoadRoleRequest::clear_gatewayid() {
   gatewayid_ = 0u;
 }

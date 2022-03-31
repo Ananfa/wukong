@@ -95,14 +95,13 @@ void InnerLobbyServiceImpl::getOnlineCount(::google::protobuf::RpcController* co
                                       const ::corpc::Void* request,
                                       ::wukong::pb::Uint32Value* response,
                                       ::google::protobuf::Closure* done) {
-    response->set_value(_manager->size());
+    response->set_value(_manager->roleCount());
 }
 
 void InnerLobbyServiceImpl::loadRole(::google::protobuf::RpcController* controller,
                                 const ::wukong::pb::LoadRoleRequest* request,
                                 ::wukong::pb::BoolValue* response,
                                 ::google::protobuf::Closure* done) {
-    UserId userId = request->userid();
     RoleId roleId = request->roleid();
     ServerId gwId = request->gatewayid();
 
@@ -115,8 +114,8 @@ void InnerLobbyServiceImpl::loadRole(::google::protobuf::RpcController* controll
     uint32_t targetSceneId = g_LobbyDelegate.getGetTargetSceneIdHandle()(roleId);
 
     if (targetSceneId == 0) {
-        if (!_manager->loadRole(userId, roleId, gwId)) {
-            ERROR_LOG("InnerLobbyServiceImpl::loadRole -- user %d role %d load failed\n", userId, roleId);
+        if (!_manager->loadRole(roleId, gwId)) {
+            ERROR_LOG("InnerLobbyServiceImpl::loadRole -- role %d load failed\n", roleId);
             return;
         }
 

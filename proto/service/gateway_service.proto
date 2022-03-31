@@ -10,12 +10,12 @@ package wukong.pb;
 
 message KickRequest {
     uint32 serverId = 1;
-    uint32 userId = 2;
+    uint64 userId = 2;
     string gToken = 3;
 }
 
 message ForwardOutTarget {
-    uint32 userId = 1;
+    uint64 userId = 1;
     string lToken = 2;
 }
 
@@ -29,7 +29,7 @@ message ForwardOutRequest {
 
 message SetGameObjectPosRequest {
     uint32 serverId = 1;
-    uint32 userId = 2;
+    uint64 userId = 2;
     string lToken = 3;
     uint32 gsType = 4;
     uint32 gsId = 5;
@@ -37,7 +37,7 @@ message SetGameObjectPosRequest {
 
 message GSHeartbeatRequest {
     uint32 serverId = 1;
-    uint32 userId = 2;
+    uint64 userId = 2;
     string lToken = 3;
 }
 

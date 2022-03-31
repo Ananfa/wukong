@@ -13,8 +13,8 @@ int main(int argc, char * argv[]) {
         return -1;
     }
 
-    g_RecordDelegate.setCreateRecordObjectHandle([](RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager* mgr, std::list<std::pair<std::string, std::string>> datas) -> std::shared_ptr<RecordObject> {
-        std::shared_ptr<RecordObject> obj(new DemoRecordObject(roleId, serverId, rToken, mgr));
+    g_RecordDelegate.setCreateRecordObjectHandle([](UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager* mgr, std::list<std::pair<std::string, std::string>> datas) -> std::shared_ptr<RecordObject> {
+        std::shared_ptr<RecordObject> obj(new DemoRecordObject(userId, roleId, serverId, rToken, mgr));
         if (!obj->initData(datas)) {
             ERROR_LOG("create record object failed because init data failed, role: %d\n", roleId);
             return nullptr;

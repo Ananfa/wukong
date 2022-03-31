@@ -23,8 +23,8 @@ constexpr ForwardInRequest::ForwardInRequest(
   : rawmsg_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , serverid_(0u)
   , type_(0)
-  , tag_(0u)
-  , roleid_(0u){}
+  , roleid_(uint64_t{0u})
+  , tag_(0u){}
 struct ForwardInRequestDefaultTypeInternal {
   constexpr ForwardInRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -37,8 +37,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ForwardInRequestDefaultTypeInte
 constexpr EnterGameRequest::EnterGameRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , roleid_(uint64_t{0u})
   , serverid_(0u)
-  , roleid_(0u)
   , gatewayid_(0u){}
 struct EnterGameRequestDefaultTypeInternal {
   constexpr EnterGameRequestDefaultTypeInternal()
@@ -90,9 +90,9 @@ const char descriptor_table_protodef_game_5fservice_2eproto[] PROTOBUF_SECTION_V
   "\n\022game_service.proto\022\twukong.pb\032\022corpc_o"
   "ption.proto\"_\n\020ForwardInRequest\022\020\n\010serve"
   "rId\030\001 \001(\r\022\014\n\004type\030\002 \001(\005\022\013\n\003tag\030\003 \001(\r\022\016\n\006"
-  "roleId\030\004 \001(\r\022\016\n\006rawMsg\030\005 \001(\014\"W\n\020EnterGam"
+  "roleId\030\004 \001(\004\022\016\n\006rawMsg\030\005 \001(\014\"W\n\020EnterGam"
   "eRequest\022\020\n\010serverId\030\001 \001(\r\022\016\n\006roleId\030\002 \001"
-  "(\r\022\016\n\006lToken\030\003 \001(\t\022\021\n\tgatewayId\030\004 \001(\r2\225\001"
+  "(\004\022\016\n\006lToken\030\003 \001(\t\022\021\n\tgatewayId\030\004 \001(\r2\225\001"
   "\n\013GameService\022\?\n\tforwardIn\022\033.wukong.pb.F"
   "orwardInRequest\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\022\?"
   "\n\tenterGame\022\033.wukong.pb.EnterGameRequest"
@@ -145,8 +145,8 @@ ForwardInRequest::ForwardInRequest(const ForwardInRequest& from)
       GetArenaForAllocation());
   }
   ::memcpy(&serverid_, &from.serverid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+    static_cast<size_t>(reinterpret_cast<char*>(&tag_) -
+    reinterpret_cast<char*>(&serverid_)) + sizeof(tag_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.ForwardInRequest)
 }
 
@@ -154,8 +154,8 @@ inline void ForwardInRequest::SharedCtor() {
 rawmsg_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&roleid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&tag_) -
+    reinterpret_cast<char*>(&serverid_)) + sizeof(tag_));
 }
 
 ForwardInRequest::~ForwardInRequest() {
@@ -188,8 +188,8 @@ void ForwardInRequest::Clear() {
 
   rawmsg_.ClearToEmpty();
   ::memset(&serverid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&roleid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(roleid_));
+      reinterpret_cast<char*>(&tag_) -
+      reinterpret_cast<char*>(&serverid_)) + sizeof(tag_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -220,10 +220,10 @@ const char* ForwardInRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 4;
+      // uint64 roleId = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -282,10 +282,10 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_tag(), target);
   }
 
-  // uint32 roleId = 4;
+  // uint64 roleId = 4;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(4, this->_internal_roleid(), target);
   }
 
   // bytes rawMsg = 5;
@@ -331,18 +331,18 @@ size_t ForwardInRequest::ByteSizeLong() const {
         this->_internal_type());
   }
 
+  // uint64 roleId = 4;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
+  }
+
   // uint32 tag = 3;
   if (this->_internal_tag() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_tag());
-  }
-
-  // uint32 roleId = 4;
-  if (this->_internal_roleid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_roleid());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -382,11 +382,11 @@ void ForwardInRequest::MergeFrom(const ForwardInRequest& from) {
   if (from._internal_type() != 0) {
     _internal_set_type(from._internal_type());
   }
-  if (from._internal_tag() != 0) {
-    _internal_set_tag(from._internal_tag());
-  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_tag() != 0) {
+    _internal_set_tag(from._internal_tag());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -411,8 +411,8 @@ void ForwardInRequest::InternalSwap(ForwardInRequest* other) {
       &other->rawmsg_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(ForwardInRequest, roleid_)
-      + sizeof(ForwardInRequest::roleid_)
+      PROTOBUF_FIELD_OFFSET(ForwardInRequest, tag_)
+      + sizeof(ForwardInRequest::tag_)
       - PROTOBUF_FIELD_OFFSET(ForwardInRequest, serverid_)>(
           reinterpret_cast<char*>(&serverid_),
           reinterpret_cast<char*>(&other->serverid_));
@@ -447,18 +447,18 @@ EnterGameRequest::EnterGameRequest(const EnterGameRequest& from)
     ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_ltoken(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
+  ::memcpy(&roleid_, &from.roleid_,
     static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.EnterGameRequest)
 }
 
 inline void EnterGameRequest::SharedCtor() {
 ltoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
 }
 
 EnterGameRequest::~EnterGameRequest() {
@@ -490,9 +490,9 @@ void EnterGameRequest::Clear() {
   (void) cached_has_bits;
 
   ltoken_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
+  ::memset(&roleid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&gatewayid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+      reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -509,10 +509,10 @@ const char* EnterGameRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 2;
+      // uint64 roleId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -567,10 +567,10 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 roleId = 2;
+  // uint64 roleId = 2;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_roleid(), target);
   }
 
   // string lToken = 3;
@@ -612,18 +612,18 @@ size_t EnterGameRequest::ByteSizeLong() const {
         this->_internal_ltoken());
   }
 
+  // uint64 roleId = 2;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_serverid());
-  }
-
-  // uint32 roleId = 2;
-  if (this->_internal_roleid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_roleid());
   }
 
   // uint32 gatewayId = 4;
@@ -664,11 +664,11 @@ void EnterGameRequest::MergeFrom(const EnterGameRequest& from) {
   if (!from._internal_ltoken().empty()) {
     _internal_set_ltoken(from._internal_ltoken());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   if (from._internal_gatewayid() != 0) {
     _internal_set_gatewayid(from._internal_gatewayid());
@@ -698,9 +698,9 @@ void EnterGameRequest::InternalSwap(EnterGameRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(EnterGameRequest, gatewayid_)
       + sizeof(EnterGameRequest::gatewayid_)
-      - PROTOBUF_FIELD_OFFSET(EnterGameRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      - PROTOBUF_FIELD_OFFSET(EnterGameRequest, roleid_)>(
+          reinterpret_cast<char*>(&roleid_),
+          reinterpret_cast<char*>(&other->roleid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata EnterGameRequest::GetMetadata() const {

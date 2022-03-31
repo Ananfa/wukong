@@ -11,13 +11,14 @@ package wukong.pb;
 message LoadRoleDataRequest {
     uint32 serverId = 1; // 物理服编号
     string lToken = 2;
-    uint32 roleId = 3;
+    uint64 roleId = 3;
 }
 
 message LoadRoleDataResponse {
     uint32 errCode = 1;
     uint32 serverId = 2; // 游戏内角色所属逻辑服号
-    bytes data = 3;
+    uint64 userId = 3;
+    bytes data = 4;
 }
 
 message SyncData {
@@ -28,14 +29,14 @@ message SyncData {
 message SyncRequest {
     uint32 serverId = 1; // 物理服编号
     string lToken = 2;
-    uint32 roleId = 3;
+    uint64 roleId = 3;
     repeated SyncData datas = 4;    // 增加或修改的数据
     repeated string removes = 5;    // 删除的数据
 }
 
 message RSHeartbeatRequest {
     uint32 serverId = 1; // 物理服编号
-    uint32 roleId = 2;
+    uint64 roleId = 2;
     string lToken = 3;
 }
 

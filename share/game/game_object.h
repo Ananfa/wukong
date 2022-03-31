@@ -36,7 +36,7 @@ namespace wukong {
 
     class GameObject: public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager, bool needGatewayHB): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager), _needGatewayHB(needGatewayHB) {}
+        GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager) {}
         virtual ~GameObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
@@ -54,19 +54,24 @@ namespace wukong {
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
 
+        void leaveGame();
+
         virtual void update(uint64_t nowSec) = 0; // 周期处理逻辑
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
 
-        virtual void onEnterGame();
+        virtual void onEnterGame(); // 客户端登录进入游戏（gateObj与gameObj建立连接）
+        virtual void onOffline() {} // 客户端断线（gameObj失去gateObj关联）
+
+        bool isOnline() { return _gatewayServerStub != nullptr; }
 
         void send(int32_t type, uint16_t tag, const std::string &rawMsg);
         void send(int32_t type, uint16_t tag, google::protobuf::Message &msg);
         
     private:
-        bool reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
-        bool heartbeatToGateway();
-        bool heartbeatToRecord();
+        int reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
+        int heartbeatToGateway();
+        int heartbeatToRecord();
 
         bool sync(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes);
 
@@ -86,19 +91,19 @@ namespace wukong {
         std::string _sceneId; // 大厅服时才为""
 
         bool _running = false;
-        bool _needGatewayHB;
         int _gwHeartbeatFailCount = 0;
+        int _enterTimes = 0; // 重登次数
 
         Cond _cond;
         
-        GameObjectManager *_manager; // 关联的manager
-
     protected:
         UserId _userId;
         RoleId _roleId;
         ServerId _serverId;
         
         std::map<std::string, bool> _dirty_map;
+
+        GameObjectManager *_manager; // 关联的manager
     };
 }
 

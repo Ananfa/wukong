@@ -13,14 +13,14 @@ bool MysqlUtils::SaveUser(MYSQL *mysql, const std::string &account, UserId userI
     return true;
 }
 
-bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, ServerId &serverId, std::string &data) {
+bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, UserId &userId, ServerId &serverId, std::string &data) {
     MYSQL_STMT *stmt = mysql_stmt_init(mysql);
     if (!stmt) {
         ERROR_LOG("MysqlUtils::LoadRole -- init mysql stmt failed\n");
         return false;
     }
 
-    if (mysql_stmt_prepare(stmt, "SELECT serverid,data FROM role WHERE roleid=?", 45)) {
+    if (mysql_stmt_prepare(stmt, "SELECT userid,serverid,data FROM role WHERE roleid=?", 52)) {
         ERROR_LOG("MysqlUtils::LoadRole -- prepare mysql stmt error: %s (errno: %d)\n",
                   mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
         mysql_stmt_close(stmt);
@@ -49,23 +49,29 @@ bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, ServerId &serverId, std::
         return false;
     }
 
-    MYSQL_BIND rs_bind[13];
-    my_bool    is_null[2];
+    MYSQL_BIND rs_bind[3];
+    my_bool    is_null[3];
     memset(rs_bind, 0, sizeof(rs_bind));
 
     /* set up and bind result set output buffers */
     rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
     rs_bind[0].is_null = &is_null[0];
-    rs_bind[0].buffer = (void *)&serverId;
-    rs_bind[0].buffer_length = sizeof(serverId);
+    rs_bind[0].buffer = (void *)&userId;
+    rs_bind[0].buffer_length = sizeof(userId);
     rs_bind[0].is_unsigned = true;
 
-    size_t data_length = 0;
-    rs_bind[1].buffer_type = MYSQL_TYPE_MEDIUM_BLOB;
+    rs_bind[1].buffer_type = MYSQL_TYPE_LONG;
     rs_bind[1].is_null = &is_null[1];
-    rs_bind[1].buffer = 0;
-    rs_bind[1].buffer_length = 0;
-    rs_bind[1].length = &data_length;
+    rs_bind[1].buffer = (void *)&serverId;
+    rs_bind[1].buffer_length = sizeof(serverId);
+    rs_bind[1].is_unsigned = true;
+
+    size_t data_length = 0;
+    rs_bind[2].buffer_type = MYSQL_TYPE_MEDIUM_BLOB;
+    rs_bind[2].is_null = &is_null[2];
+    rs_bind[2].buffer = 0;
+    rs_bind[2].buffer_length = 0;
+    rs_bind[2].length = &data_length;
 
     if (mysql_stmt_bind_result(stmt, rs_bind)) {
         ERROR_LOG("MysqlUtils::LoadRole -- bind result for mysql stmt error: %s (errno: %d)\n",
@@ -84,10 +90,10 @@ bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, ServerId &serverId, std::
 
     if (data_length > 0) {
         data.assign(data_length, 0);
-        rs_bind[1].buffer = (uint8_t *)data.data();
-        rs_bind[1].buffer_length = data_length;
+        rs_bind[2].buffer = (uint8_t *)data.data();
+        rs_bind[2].buffer_length = data_length;
 
-        if (mysql_stmt_fetch_column(stmt, &rs_bind[1], 1, 0)) {
+        if (mysql_stmt_fetch_column(stmt, &rs_bind[2], 2, 0)) {
             ERROR_LOG("MysqlUtils::LoadRole -- fetch column for mysql stmt error: %s (errno: %d)\n",
                       mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
             mysql_stmt_close(stmt);

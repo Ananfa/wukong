@@ -12,7 +12,7 @@ message LoadSceneRequest {
     uint32 serverId = 1; // 物理服编号
     uint32 defId = 2; // 场景定义号
     string sceneId = 3; // 场景实例号
-    uint32 roleId = 4; // 对于个人场景需要带上角色id（个人场景加载时会自动加载角色游戏对象），非个人场景则不填
+    uint64 roleId = 4; // 对于个人场景需要带上角色id（个人场景加载时会自动加载角色游戏对象），非个人场景则不填
     string teamId = 5; // 对于需要同时加载所有队伍成员进场景的队伍场景需要提供队伍号
 }
 
@@ -23,10 +23,9 @@ message LoadSceneResponse {
 
 message EnterSceneRequest {
     uint32 serverId = 1; // 物理服编号
-    uint32 userId = 2;
-    uint32 roleId = 3;
-    uint32 gatewayId = 4;
-    string sceneId = 5;
+    uint64 roleId = 2;
+    uint32 gatewayId = 3;
+    string sceneId = 4;
 }
 
 // 玩家游戏对象所在服务器需要实现GameService服务

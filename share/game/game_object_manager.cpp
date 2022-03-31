@@ -57,10 +57,10 @@ std::shared_ptr<GameObject> GameObjectManager::getGameObject(RoleId roleId) {
     return it->second;
 }
 
-bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayId) {
+bool GameObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
     // 判断GameObject是否已经存在
-    if (exist(roleId)) {
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d game object already exist\n", userId, roleId);
+    if (existRole(roleId)) {
+        ERROR_LOG("GameObjectManager::loadRole -- role[%llu] game object already exist\n", roleId);
         return false;
     }
 
@@ -72,7 +72,7 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     // 创建GameObject
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d connect to cache failed\n", userId, roleId);
+        ERROR_LOG("GameObjectManager::loadRole -- role[%llu] connect to cache failed\n", roleId);
         return false;
     }
 
@@ -81,13 +81,13 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     switch (res) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d get record failed for db error\n", userId, roleId);
+            ERROR_LOG("GameObjectManager::loadRole -- role[%llu] get record failed for db error\n", roleId);
             return false;
         }
         case REDIS_FAIL: {
             if (!g_ClientCenter.randomRecordServer(recordId)) {
                 g_RedisPoolManager.getCoreCache()->put(cache, false);
-                ERROR_LOG("GameObjectManager::loadRole -- user %d role %d random record server failed\n", userId, roleId);
+                ERROR_LOG("GameObjectManager::loadRole -- role[%llu] random record server failed\n", roleId);
                 return false;
             }
         }
@@ -102,12 +102,12 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     switch (res) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed\n", userId, roleId);
+            ERROR_LOG("GameObjectManager::loadRole -- role[%llu] set location failed\n", roleId);
             return false;
         }
         case REDIS_FAIL: {
             g_RedisPoolManager.getCoreCache()->put(cache, false);
-            ERROR_LOG("GameObjectManager::loadRole -- user %d role %d set location failed for already set\n", userId, roleId);
+            ERROR_LOG("GameObjectManager::loadRole -- role[%llu] set location failed for already set\n", roleId);
             return false;
         }
     }
@@ -117,8 +117,9 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     // 向Record服发加载数据RPC
     std::string roleData;
     ServerId serverId; // 角色所属区服号
-    if (!g_RecordClient.loadRoleData(recordId, roleId, lToken, serverId, roleData)) {
-        ERROR_LOG("GameObjectManager::loadRole -- user %d role %d load role data failed\n", userId, roleId);
+    UserId userId;
+    if (!g_RecordClient.loadRoleData(recordId, roleId, userId, lToken, serverId, roleData)) {
+        ERROR_LOG("GameObjectManager::loadRole -- role[%llu] load role data failed\n", roleId);
         return false;
     }
 
@@ -139,17 +140,17 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
 
     // 创建GameObject
     if (_shutdown) {
-        WARN_LOG("GameObjectManager::loadRole -- already shutdown\n");
+        WARN_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] already shutdown\n", userId, roleId);
         return false;
     }
 
     if (_roleId2GameObjectMap.find(roleId) != _roleId2GameObjectMap.end()) {
-        ERROR_LOG("GameObjectManager::loadRole -- game object already exist\n");
+        ERROR_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] game object already exist\n", userId, roleId);
         return false;
     }
 
     if (!g_GameDelegate.getCreateGameObjectHandle()) {
-        ERROR_LOG("GameObjectManager::loadRole -- not set CreateGameObjectHandle\n");
+        ERROR_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] not set CreateGameObjectHandle\n", userId, roleId);
         return false;
     }
 
@@ -157,19 +158,21 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
     auto obj = g_GameDelegate.getCreateGameObjectHandle()(userId, roleId, serverId, lToken, this, roleData);
 
     if (!obj) {
-        ERROR_LOG("GameObjectManager::loadRole -- create game object failed\n");
+        ERROR_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] create game object failed\n", userId, roleId);
         return false;
     }
 
-    // TODO: 这里可以不用设置gateway stub
     // 设置gateway和record stub
-    if (!obj->setGatewayServerStub(gatewayId)) {
-        ERROR_LOG("GameObjectManager::loadRole -- can't set gateway stub\n");
-        return false;
+    if (gatewayId != 0) {
+        // 这里可以不用设置gateway stub
+        if (!obj->setGatewayServerStub(gatewayId)) {
+            ERROR_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] can't set gateway stub\n", userId, roleId);
+            return false;
+        }
     }
 
     if (!obj->setRecordServerStub(recordId)) {
-        ERROR_LOG("GameObjectManager::loadRole -- can't set record stub\n");
+        ERROR_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] can't set record stub\n", userId, roleId);
         return false;
     }
 
@@ -181,7 +184,7 @@ bool GameObjectManager::loadRole(UserId userId, RoleId roleId, ServerId gatewayI
 
 void GameObjectManager::leaveGame(RoleId roleId) {
     auto it = _roleId2GameObjectMap.find(roleId);
-    assert(it != _roleId2GameObjectMap.end())
+    assert(it != _roleId2GameObjectMap.end());
 
     it->second->stop();
     _roleId2GameObjectMap.erase(it);

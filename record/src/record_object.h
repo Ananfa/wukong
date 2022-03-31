@@ -35,13 +35,14 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
+        RecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
         virtual ~RecordObject() = 0;
 
         virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas) = 0;
 
         virtual void syncIn(const ::wukong::pb::SyncRequest* request) = 0;
 
+        UserId getUserId() { return _userId; }
         RoleId getRoleId() { return _roleId; }
         void setLToken(const std::string &lToken) { _lToken = lToken; }
         const std::string& getLToken() { return _lToken; }
@@ -63,6 +64,7 @@ namespace wukong {
         bool cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas);
 
     protected:
+        UserId _userId;
         RoleId _roleId;
         ServerId _serverId; // 角色所属区服ID
         std::map<std::string, bool> _dirty_map;

@@ -251,7 +251,7 @@ RedisAccessResult RedisUtils::BindRole(redisContext *redis, RoleId roleId, UserI
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas) {
     redisReply *reply = (redisReply *)redisCommand(redis, "HGETALL Profile:{%llu}", roleId);
     if (!reply) {
         return REDIS_DB_ERROR;
@@ -263,7 +263,9 @@ RedisAccessResult RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, Se
     }
 
     for (int i = 0; i < reply->elements; i += 2) {
-        if (strcmp(reply->element[i]->str, "serverId") == 0) {
+        if (strcmp(reply->element[i]->str, "userId") == 0) {
+            userId = atoi(reply->element[i+1]->str);
+        } else if (strcmp(reply->element[i]->str, "serverId") == 0) {
             serverId = atoi(reply->element[i+1]->str);
         } else {
             datas.push_back(std::make_pair(reply->element[i]->str, reply->element[i+1]->str));
@@ -274,11 +276,11 @@ RedisAccessResult RedisUtils::LoadProfile(redisContext *redis, RoleId roleId, Se
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SAVE_PROFILE_NAME);
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
-    int argNum = datas.size() * 2 + 7;
+    int argNum = datas.size() * 2 + 9;
     argv.reserve(argNum);
     argvlen.reserve(argNum);
     if (!cmdSha1) {
@@ -303,6 +305,12 @@ RedisAccessResult RedisUtils::SaveProfile(redisContext *redis, RoleId roleId, Se
 
     argv.push_back("86400");    // 1天超时时间
     argvlen.push_back(5);
+
+    argv.push_back("userId");
+    argvlen.push_back(6);
+    std::string userIdStr = std::to_string(userId);
+    argv.push_back(userIdStr.c_str());
+    argvlen.push_back(userIdStr.length());
 
     argv.push_back("serverId");
     argvlen.push_back(8);
@@ -384,7 +392,7 @@ RedisAccessResult RedisUtils::UpdateProfile(redisContext *redis, RoleId roleId, 
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::LoadRole(redisContext *redis, RoleId roleId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
+RedisAccessResult RedisUtils::LoadRole(redisContext *redis, RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas, bool clearTTL) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(LOAD_ROLE_NAME);
     redisReply *reply;
     if (!cmdSha1) {
@@ -403,7 +411,9 @@ RedisAccessResult RedisUtils::LoadRole(redisContext *redis, RoleId roleId, Serve
     }
 
     for (int i = 0; i < reply->elements; i += 2) {
-        if (strcmp(reply->element[i]->str, "serverId") == 0) {
+        if (strcmp(reply->element[i]->str, "userId") == 0) {
+            userId = atoi(reply->element[i+1]->str);
+        } else if (strcmp(reply->element[i]->str, "serverId") == 0) {
             serverId = atoi(reply->element[i+1]->str);
         } else {
             datas.push_back(std::make_pair(reply->element[i]->str, reply->element[i+1]->str));
@@ -414,11 +424,11 @@ RedisAccessResult RedisUtils::LoadRole(redisContext *redis, RoleId roleId, Serve
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SaveRole(redisContext *redis, RoleId roleId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
+RedisAccessResult RedisUtils::SaveRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SAVE_ROLE_NAME);
     std::vector<const char *> argv;
     std::vector<size_t> argvlen;
-    int argNum = datas.size() * 2 + 6;
+    int argNum = datas.size() * 2 + 8;
     argv.reserve(argNum);
     argvlen.reserve(argNum);
     if (!cmdSha1) {
@@ -440,6 +450,12 @@ RedisAccessResult RedisUtils::SaveRole(redisContext *redis, RoleId roleId, Serve
     sprintf(tmpStr,"Role:{%llu}", roleId);
     argv.push_back(tmpStr);
     argvlen.push_back(strlen(tmpStr));
+
+    argv.push_back("userId");
+    argvlen.push_back(6);
+    std::string userIdStr = std::to_string(userId);
+    argv.push_back(userIdStr.c_str());
+    argvlen.push_back(userIdStr.length());
 
     argv.push_back("serverId");
     argvlen.push_back(8);

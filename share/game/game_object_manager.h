@@ -38,7 +38,7 @@ namespace wukong {
 
         bool existRole(RoleId roleId); 
         std::shared_ptr<GameObject> getGameObject(RoleId roleId);
-        bool loadRole(UserId userId, RoleId roleId, ServerId gatewayId);
+        bool loadRole(RoleId roleId, ServerId gatewayId);
         void leaveGame(RoleId roleId); // 离开游戏--删除玩家游戏对象（只在心跳失败时调用，离开场景（离队）不调用此方法）
 
         // TODO: 实现广播和多播接口

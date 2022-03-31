@@ -148,7 +148,7 @@ void InnerGatewayServiceImpl::kick(::google::protobuf::RpcController* controller
         if (!obj) {
             ERROR_LOG("InnerGatewayServiceImpl::kick -- obj not exist\n");
         } else {
-            ERROR_LOG("InnerGatewayServiceImpl::kick -- user[%d] token not match, %s -- %s\n", request->userid(), obj->getGToken().c_str(), request->gtoken().c_str());
+            ERROR_LOG("InnerGatewayServiceImpl::kick -- user[%llu] token not match, %s -- %s\n", request->userid(), obj->getGToken().c_str(), request->gtoken().c_str());
         }
         
         response->set_value(false);
@@ -181,12 +181,12 @@ void InnerGatewayServiceImpl::forwardOut(::google::protobuf::RpcController* cont
             const ::wukong::pb::ForwardOutTarget& target = request->targets(i);
             auto obj = _manager->getGatewayObject(target.userid());
             if (!obj) {
-                WARN_LOG("InnerGatewayServiceImpl::forwardOut -- gateway object not found\n");
+                WARN_LOG("InnerGatewayServiceImpl::forwardOut -- user[%llu] gateway object not found\n", target.userid());
                 continue;
             }
 
             if (obj->getLToken() != target.ltoken()) {
-                WARN_LOG("InnerGatewayServiceImpl::forwardOut -- gateway object ltoken not match\n");
+                WARN_LOG("InnerGatewayServiceImpl::forwardOut -- user[%llu] gateway object ltoken not match\n", target.userid());
                 continue;
             }
 
@@ -203,12 +203,12 @@ void InnerGatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController
                                           ::google::protobuf::Closure* done) {
     std::shared_ptr<GatewayObject> obj = _manager->getGatewayObject(request->userid());
     if (!obj) {
-        ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- gateway object not found\n");
+        ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] gateway object not found\n", request->userid());
         return;
     }
 
     if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- ltoken not match\n");
+        ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] ltoken not match\n", request->userid());
         return;
     }
 
@@ -225,12 +225,12 @@ void InnerGatewayServiceImpl::heartbeat(::google::protobuf::RpcController* contr
                                    ::google::protobuf::Closure* done) {
     std::shared_ptr<GatewayObject> obj = _manager->getGatewayObject(request->userid());
     if (!obj) {
-        ERROR_LOG("InnerGatewayServiceImpl::heartbeat -- gateway object not found\n");
+        ERROR_LOG("InnerGatewayServiceImpl::heartbeat -- user[%llu] gateway object not found\n", request->userid());
         return;
     }
 
     if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("InnerGatewayServiceImpl::heartbeat -- ltoken not match, local ltoken:%s, remote ltoken:%s\n", obj->getLToken().c_str(), request->ltoken().c_str());
+        ERROR_LOG("InnerGatewayServiceImpl::heartbeat -- user[%llu] role[%llu] ltoken not match, local ltoken:%s, remote ltoken:%s\n", obj->getUserId(), obj->getRoleId(), obj->getLToken().c_str(), request->ltoken().c_str());
         return;
     }
 

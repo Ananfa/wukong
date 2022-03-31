@@ -3,6 +3,7 @@
 
 #include "demo_game_object.h"
 #include "common.pb.h"
+#include "corpc_timer.h"
 
 namespace demo {
     // 注意：此对象非线程安全
@@ -13,6 +14,10 @@ namespace demo {
 
         virtual void update(uint64_t nowSec);
         virtual void onEnterGame();
+        virtual void onOffline();
+
+    private:
+    	std::shared_ptr<Timer> _leaveGameTimer;
     };
 }
 

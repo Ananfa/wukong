@@ -24,7 +24,7 @@ constexpr LoadSceneRequest::LoadSceneRequest(
   , teamid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , serverid_(0u)
   , defid_(0u)
-  , roleid_(0u){}
+  , roleid_(uint64_t{0u}){}
 struct LoadSceneRequestDefaultTypeInternal {
   constexpr LoadSceneRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -50,9 +50,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LoadSceneResponseDefaultTypeInt
 constexpr EnterSceneRequest::EnterSceneRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : sceneid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , roleid_(uint64_t{0u})
   , serverid_(0u)
-  , userid_(0u)
-  , roleid_(0u)
   , gatewayid_(0u){}
 struct EnterSceneRequestDefaultTypeInternal {
   constexpr EnterSceneRequestDefaultTypeInternal()
@@ -93,7 +92,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_scene_5fservice_2eproto::offse
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, serverid_),
-  PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, roleid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, gatewayid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::EnterSceneRequest, sceneid_),
@@ -115,26 +113,25 @@ const char descriptor_table_protodef_scene_5fservice_2eproto[] PROTOBUF_SECTION_
   "option.proto\032\014common.proto\032\022inner_common"
   ".proto\"d\n\020LoadSceneRequest\022\020\n\010serverId\030\001"
   " \001(\r\022\r\n\005defId\030\002 \001(\r\022\017\n\007sceneId\030\003 \001(\t\022\016\n\006"
-  "roleId\030\004 \001(\r\022\016\n\006teamId\030\005 \001(\t\"5\n\021LoadScen"
+  "roleId\030\004 \001(\004\022\016\n\006teamId\030\005 \001(\t\"5\n\021LoadScen"
   "eResponse\022\017\n\007errCode\030\001 \001(\r\022\017\n\007sceneId\030\002 "
-  "\001(\t\"i\n\021EnterSceneRequest\022\020\n\010serverId\030\001 \001"
-  "(\r\022\016\n\006userId\030\002 \001(\r\022\016\n\006roleId\030\003 \001(\r\022\021\n\tga"
-  "tewayId\030\004 \001(\r\022\017\n\007sceneId\030\005 \001(\t2\224\002\n\014Scene"
-  "Service\022*\n\010shutdown\022\013.corpc.Void\032\013.corpc"
-  ".Void\"\004\230\361\004\001\022A\n\016getOnlineCount\022\013.corpc.Vo"
-  "id\032\027.wukong.pb.OnlineCounts\"\t\220\361\004\001\240\361\004\350\007\022L"
-  "\n\tloadScene\022\033.wukong.pb.LoadSceneRequest"
-  "\032\034.wukong.pb.LoadSceneResponse\"\004\220\361\004\001\022A\n\n"
-  "enterScene\022\034.wukong.pb.EnterSceneRequest"
-  "\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\032\004\200\361\004\0052\224\002\n\021InnerS"
-  "ceneService\022*\n\010shutdown\022\013.corpc.Void\032\013.c"
-  "orpc.Void\"\004\230\361\004\001\022<\n\016getOnlineCount\022\013.corp"
-  "c.Void\032\026.wukong.pb.Uint32Value\"\005\240\361\004\364\003\022L\n"
-  "\tloadScene\022\033.wukong.pb.LoadSceneRequest\032"
-  "\034.wukong.pb.LoadSceneResponse\"\004\220\361\004\001\022A\n\ne"
-  "nterScene\022\034.wukong.pb.EnterSceneRequest\032"
-  "\013.corpc.Void\"\010\230\361\004\001\220\361\004\001\032\004\200\361\004\005B\003\200\001\001b\006proto"
-  "3"
+  "\001(\t\"Y\n\021EnterSceneRequest\022\020\n\010serverId\030\001 \001"
+  "(\r\022\016\n\006roleId\030\002 \001(\004\022\021\n\tgatewayId\030\003 \001(\r\022\017\n"
+  "\007sceneId\030\004 \001(\t2\224\002\n\014SceneService\022*\n\010shutd"
+  "own\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016g"
+  "etOnlineCount\022\013.corpc.Void\032\027.wukong.pb.O"
+  "nlineCounts\"\t\220\361\004\001\240\361\004\350\007\022L\n\tloadScene\022\033.wu"
+  "kong.pb.LoadSceneRequest\032\034.wukong.pb.Loa"
+  "dSceneResponse\"\004\220\361\004\001\022A\n\nenterScene\022\034.wuk"
+  "ong.pb.EnterSceneRequest\032\013.corpc.Void\"\010\230"
+  "\361\004\001\250\361\004\001\032\004\200\361\004\0052\224\002\n\021InnerSceneService\022*\n\010s"
+  "hutdown\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022"
+  "<\n\016getOnlineCount\022\013.corpc.Void\032\026.wukong."
+  "pb.Uint32Value\"\005\240\361\004\364\003\022L\n\tloadScene\022\033.wuk"
+  "ong.pb.LoadSceneRequest\032\034.wukong.pb.Load"
+  "SceneResponse\"\004\220\361\004\001\022A\n\nenterScene\022\034.wuko"
+  "ng.pb.EnterSceneRequest\032\013.corpc.Void\"\010\230\361"
+  "\004\001\220\361\004\001\032\004\200\361\004\005B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_scene_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -143,7 +140,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_scene_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_scene_5fservice_2eproto = {
-  false, false, 921, descriptor_table_protodef_scene_5fservice_2eproto, "scene_service.proto", 
+  false, false, 905, descriptor_table_protodef_scene_5fservice_2eproto, "scene_service.proto", 
   &descriptor_table_scene_5fservice_2eproto_once, descriptor_table_scene_5fservice_2eproto_deps, 3, 3,
   schemas, file_default_instances, TableStruct_scene_5fservice_2eproto::offsets,
   file_level_metadata_scene_5fservice_2eproto, file_level_enum_descriptors_scene_5fservice_2eproto, file_level_service_descriptors_scene_5fservice_2eproto,
@@ -266,10 +263,10 @@ const char* LoadSceneRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 4;
+      // uint64 roleId = 4;
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -333,10 +330,10 @@ failure:
         3, this->_internal_sceneid(), target);
   }
 
-  // uint32 roleId = 4;
+  // uint64 roleId = 4;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(4, this->_internal_roleid(), target);
   }
 
   // string teamId = 5;
@@ -393,10 +390,10 @@ size_t LoadSceneRequest::ByteSizeLong() const {
         this->_internal_defid());
   }
 
-  // uint32 roleId = 4;
+  // uint64 roleId = 4;
   if (this->_internal_roleid() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
         this->_internal_roleid());
   }
 
@@ -734,18 +731,18 @@ EnterSceneRequest::EnterSceneRequest(const EnterSceneRequest& from)
     sceneid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_sceneid(), 
       GetArenaForAllocation());
   }
-  ::memcpy(&serverid_, &from.serverid_,
+  ::memcpy(&roleid_, &from.roleid_,
     static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.EnterSceneRequest)
 }
 
 inline void EnterSceneRequest::SharedCtor() {
 sceneid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&serverid_) - reinterpret_cast<char*>(this)),
+    reinterpret_cast<char*>(&roleid_) - reinterpret_cast<char*>(this)),
     0, static_cast<size_t>(reinterpret_cast<char*>(&gatewayid_) -
-    reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+    reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
 }
 
 EnterSceneRequest::~EnterSceneRequest() {
@@ -777,9 +774,9 @@ void EnterSceneRequest::Clear() {
   (void) cached_has_bits;
 
   sceneid_.ClearToEmpty();
-  ::memset(&serverid_, 0, static_cast<size_t>(
+  ::memset(&roleid_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&gatewayid_) -
-      reinterpret_cast<char*>(&serverid_)) + sizeof(gatewayid_));
+      reinterpret_cast<char*>(&roleid_)) + sizeof(gatewayid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -796,30 +793,23 @@ const char* EnterSceneRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 userId = 2;
+      // uint64 roleId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 roleId = 3;
+      // uint32 gatewayId = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // uint32 gatewayId = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           gatewayid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string sceneId = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+      // string sceneId = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_sceneid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "wukong.pb.EnterSceneRequest.sceneId"));
@@ -861,32 +851,26 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_serverid(), target);
   }
 
-  // uint32 userId = 2;
-  if (this->_internal_userid() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_userid(), target);
-  }
-
-  // uint32 roleId = 3;
+  // uint64 roleId = 2;
   if (this->_internal_roleid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_roleid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_roleid(), target);
   }
 
-  // uint32 gatewayId = 4;
+  // uint32 gatewayId = 3;
   if (this->_internal_gatewayid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_gatewayid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_gatewayid(), target);
   }
 
-  // string sceneId = 5;
+  // string sceneId = 4;
   if (!this->_internal_sceneid().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_sceneid().data(), static_cast<int>(this->_internal_sceneid().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "wukong.pb.EnterSceneRequest.sceneId");
     target = stream->WriteStringMaybeAliased(
-        5, this->_internal_sceneid(), target);
+        4, this->_internal_sceneid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -905,11 +889,18 @@ size_t EnterSceneRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string sceneId = 5;
+  // string sceneId = 4;
   if (!this->_internal_sceneid().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_sceneid());
+  }
+
+  // uint64 roleId = 2;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
   }
 
   // uint32 serverId = 1;
@@ -919,21 +910,7 @@ size_t EnterSceneRequest::ByteSizeLong() const {
         this->_internal_serverid());
   }
 
-  // uint32 userId = 2;
-  if (this->_internal_userid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_userid());
-  }
-
-  // uint32 roleId = 3;
-  if (this->_internal_roleid() != 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-        this->_internal_roleid());
-  }
-
-  // uint32 gatewayId = 4;
+  // uint32 gatewayId = 3;
   if (this->_internal_gatewayid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
@@ -971,14 +948,11 @@ void EnterSceneRequest::MergeFrom(const EnterSceneRequest& from) {
   if (!from._internal_sceneid().empty()) {
     _internal_set_sceneid(from._internal_sceneid());
   }
-  if (from._internal_serverid() != 0) {
-    _internal_set_serverid(from._internal_serverid());
-  }
-  if (from._internal_userid() != 0) {
-    _internal_set_userid(from._internal_userid());
-  }
   if (from._internal_roleid() != 0) {
     _internal_set_roleid(from._internal_roleid());
+  }
+  if (from._internal_serverid() != 0) {
+    _internal_set_serverid(from._internal_serverid());
   }
   if (from._internal_gatewayid() != 0) {
     _internal_set_gatewayid(from._internal_gatewayid());
@@ -1008,9 +982,9 @@ void EnterSceneRequest::InternalSwap(EnterSceneRequest* other) {
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(EnterSceneRequest, gatewayid_)
       + sizeof(EnterSceneRequest::gatewayid_)
-      - PROTOBUF_FIELD_OFFSET(EnterSceneRequest, serverid_)>(
-          reinterpret_cast<char*>(&serverid_),
-          reinterpret_cast<char*>(&other->serverid_));
+      - PROTOBUF_FIELD_OFFSET(EnterSceneRequest, roleid_)>(
+          reinterpret_cast<char*>(&roleid_),
+          reinterpret_cast<char*>(&other->roleid_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata EnterSceneRequest::GetMetadata() const {

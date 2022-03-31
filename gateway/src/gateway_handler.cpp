@@ -232,7 +232,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             }
 
             // 通知Lobby服加载玩家游戏对象
-            if (!g_LobbyClient.loadRole(sid, userId, roleId, gateId)) {
+            if (!g_LobbyClient.loadRole(sid, roleId, gateId)) {
                 // 等待1秒后重新查询
                 sleep(1); // 1秒后重试
             }

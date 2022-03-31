@@ -53,7 +53,7 @@ namespace wukong {
         std::shared_ptr<pb::SceneService_Stub> getSceneServiceStub(ServerId sid);
         
         std::string loadScene(ServerId sid, uint32_t defId, const std::string &sceneId);
-        void enterScene(ServerId sid, const std::string &sceneId, UserId userId, RoleId roleId, ServerId gwId);
+        void enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId);
         
         void shutdown();
 

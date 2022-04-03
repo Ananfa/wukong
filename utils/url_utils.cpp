@@ -1,7 +1,7 @@
 #include <cctype>
 #include <cstdlib>
 
-#include "url.h"
+#include "url_utils.h"
 
 using namespace wukong;
 
@@ -15,7 +15,7 @@ inline uint8_t FROMHEX( uint8_t x )
     return ( x > 64 ? x - 55 : x - 48 );
 }
 
-void Url::encode( const std::string & src, std::string & dst )
+void UrlUtils::encode( const std::string & src, std::string & dst )
 {
     dst.clear();
     dst.reserve( src.size() * 3 + 1 );
@@ -38,7 +38,7 @@ void Url::encode( const std::string & src, std::string & dst )
     }
 }
 
-void Url::decode( const std::string & src, std::string & dst )
+void UrlUtils::decode( const std::string & src, std::string & dst )
 {
     dst.clear();
     dst.reserve( src.size()+1 );

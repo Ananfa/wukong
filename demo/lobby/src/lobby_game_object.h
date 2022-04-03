@@ -4,6 +4,7 @@
 #include "demo_game_object.h"
 #include "common.pb.h"
 #include "corpc_timer.h"
+#include "event.h"
 
 namespace demo {
     // 注意：此对象非线程安全
@@ -12,12 +13,18 @@ namespace demo {
         LobbyGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager);
         virtual ~LobbyGameObject();
 
-        virtual void update(uint64_t nowSec);
+        virtual void update(timeval now);
         virtual void onEnterGame();
         virtual void onOffline();
 
+        virtual void start();
+
+        void onLevelUp(Event e) {}
+
     private:
     	std::shared_ptr<Timer> _leaveGameTimer;
+
+        EventEmitter _emiter;
     };
 }
 

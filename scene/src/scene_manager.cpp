@@ -110,7 +110,7 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
 
     // 如果不是个人场景，需要向redis进行注册新场景地址
     if (sType != SCENE_TYPE_SINGLE_PLAYER) {
-        redisContext *cache = g_MysqlPoolManager.getCoreCache()->take();
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
             ERROR_LOG("SceneManager::loadScene -- connect to cache failed\n");
             return "";
@@ -123,19 +123,19 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
 
         switch (RedisUtils::SetSceneAddress(cache, realSceneId, sToken, _id)) {
             case REDIS_DB_ERROR: {
-                g_MysqlPoolManager.getCoreCache()->put(cache, true);
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed\n", realSceneId.c_str());
                 return "";
             }
             case REDIS_FAIL: {
                 freeReplyObject(reply);
-                g_MysqlPoolManager.getCoreCache()->put(cache, false);
+                g_RedisPoolManager.getCoreCache()->put(cache, false);
                 ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed for already set\n", realSceneId.c_str());
-                return false;
+                return "";
             }
         }
 
-        g_MysqlPoolManager.getCoreCache()->put(cache, false);
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
     }
 
     // 应该在这里(上了锁之后)获取成员列表
@@ -156,36 +156,6 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
 
     if (!scene) {
         ERROR_LOG("SceneManager::loadScene -- load scene failed\n");
-        return false;
-    }
-
-    bool loadMembersFail = false;
-    // TODO: 成员预加载，若其中有玩家gameObj预加载失败，将所有已预加载的对象销毁并且销毁场景对象，返回加载失败
-    for (auto roleId : members) {
-        //if (_gameObjectManager->loadRole(UserId userId, RoleId roleId, ServerId gatewayId)) {
-        //    
-        //}
-    }
-
-
-    // TODO: 将预加载的gameObj加入场景对象中
-
-    if (loadMembersFail) {
-        if (sType != SCENE_TYPE_SINGLE_PLAYER) {
-            redisContext *cache = g_MysqlPoolManager.getCoreCache()->take();
-            if (!cache) {
-                ERROR_LOG("SceneManager::loadScene -- connect to cache failed when remove scene address\n");
-            } else {
-                // 释放SceneLocation
-                if (RedisUtils::RemoveSceneAddress(cache, realSceneId, sToken) == REDIS_DB_ERROR) {
-                    g_MysqlPoolManager.getCoreCache()->put(cache, true);
-                    ERROR_LOG("SceneManager::loadScene -- remove scene:%s location failed\n", realSceneId.c_str());
-                } else {
-                    g_MysqlPoolManager.getCoreCache()->put(cache, false);
-                }
-            }
-        }
-
         return "";
     }
 
@@ -193,27 +163,41 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
     _sceneId2SceneMap.insert(std::make_pair(realSceneId, scene));
     scene->start();
 
+    // 成员预加载，若其中有玩家gameObj预加载失败，将所有已预加载的对象销毁并且销毁场景对象，返回加载失败
+    for (auto roleId : members) {
+        if (_gameObjectManager->loadRole(roleId, 0)) {
+            scene->enter(_roleId2GameObjectMap[roleId]);
+        } else {
+            ERROR_LOG("SceneManager::loadScene -- load scene defId[%d] sceneId[%s] failed for load role[%llu] failed\n", defId, realSceneId.c_str(), roleId);
+            
+            removeScene(realSceneId);
+            return "";
+        }
+    }
+
     return realSceneId;
 }
 
-bool SceneManager::removeScene(const std::string &sceneId) {
+void SceneManager::removeScene(const std::string &sceneId) {
     auto it = _sceneId2SceneMap.find(sceneId);
-    if (it == _sceneId2SceneMap.end()) {
-        return false;
+    assert(it != _sceneId2SceneMap.end());
+
+    // 踢出场景中所有玩家(强制离线)，正常的离线不是由场景销毁导致的
+    for (auto it1 : it->second->_roles) {
+        DEBUG_LOG("SceneManager::removeScene -- remove role %d\n", it1->first);
+        // 删除游戏对象
+        it1->second->stop();
+        _roleId2GameObjectMap.erase(it1->first);
     }
 
     it->second->stop();
     _sceneId2SceneMap.erase(it);
-
-    return true;
 }
 
 void SceneManager::leaveGame(RoleId roleId) {
     // 如果角色与场景绑定，需要一并销毁场景（如：W3L队伍场景（离队不算），个人场景）
     auto it = _roleId2GameObjectMap.find(roleId);
-    if (it == _roleId2GameObjectMap.end()) {
-        return false;
-    }
+    assert(it != _roleId2GameObjectMap.end());
 
     const std::string &sceneId = it->second->getSceneId();
     if (!sceneId.empty()) {
@@ -222,30 +206,32 @@ void SceneManager::leaveGame(RoleId roleId) {
 
         SceneType sType = it1->second->getType();
         if (sType == SCENE_TYPE_SINGLE_PLAYER || sType == SCENE_TYPE_TEAM) {
-            // TODO: 踢出场景中所有玩家并销毁场景
-
-
+            // 直接销毁场景（由于场景绑定角色或队伍，少一个人都不行）
+            removeScene(sceneId);
         } else {
             // 按离开场景逻辑走
-            return leaveScene(roleId);
+            leaveScene(roleId);
+
+            // 删除游戏对象
+            it->second->stop();
+            _roleId2GameObjectMap.erase(it);
         }
     } else {
+        // 删除游戏对象
         it->second->stop();
         _roleId2GameObjectMap.erase(it);
-
-        return true;
     }
 }
 
 void SceneManager::leaveScene(RoleId roleId) {
-    // TODO:
-//    assert(it->second->_roles.find(roleId) != it->second->_roles.end());
-//    it->second->_roles.erase(roleId);
-//
-//    it->second->stop();
-//    _roleId2GameObjectMap.erase(it);
+    auto it = _roleId2GameObjectMap.find(roleId);
+    assert(it != _roleId2GameObjectMap.end());
 
-    // TODO：AOI通知
+    const std::string &sceneId = it->second->getSceneId();
+    auto it1 = _sceneId2SceneMap.find(sceneId);
+    assert(it1 != _sceneId2SceneMap.end());  // 不应该找不到场景
+
+    it1->second->leave(roleId);
 
     return true;
 }

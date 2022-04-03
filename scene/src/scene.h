@@ -22,13 +22,14 @@
 using namespace corpc;
 
 namespace wukong {
+    struct SceneRoutineArg {
+        std::shared_ptr<Scene> obj;
+    };
+
     class Scene: public std::enable_shared_from_this<Scene> {
     public:
         Scene(uint32_t defId, SceneType type, const std::string &sceneId, const std::string &sToken, SceneManager *manager): _defId(defId), _type(type), _sceneId(sceneId), _sToken(sToken), _manager(manager) {}
         virtual ~Scene() = 0;
-
-        // 问题：场景数据加载在scene manager进行，但是场景数据每个游戏都不同，怎样定义初始化场景接口？通过pb的编解码？通过pb基类指针？通过void *指针转换
-        virtual bool initData(void *data) = 0;
 
         uint32_t getDefId() { return _defId; }
         const std::string &getSceneId() { return _sceneId; }
@@ -38,22 +39,28 @@ namespace wukong {
 
         void start(); // 开始心跳，启动心跳协程（个人场景不需要redis心跳，gameobj有心跳就够了，gameobj销毁时scene也要销毁，由scene的update进行判断--场景没人时自毁处理）
         void stop(); // 停止心跳，清除游戏对象列表（调用游戏对象stop）
-        // 问题：游戏对象心跳失败销毁时如何通知scene清除游戏对象？scene在update中判断游戏对象状态，清理running为false的游戏对象（解耦，避免游戏对象stop时直接调用scene的游戏对象列表）
+        
+        virtual void update(timeval now) = 0; // 周期处理逻辑（注意：不要有产生协程切换的逻辑）
 
-        virtual void update(uint64_t nowSec) = 0; // 周期处理逻辑（逻辑包括清理running为false的游戏对象）
+        bool enter(std::shared_ptr<GameObject> role);
+        bool leave(RoleId roleId);
+        
+        void onEnter(RoleId roleId) = 0; // 如：可以进行进入场景AOI通知
+        void onLeave(RoleId roleId) = 0; // 如：可以进行离开场景AOI通知
 
-        void addRole(std::shared_ptr<GameObject> role);
-        //void removeRole(RoleId roleId); // 好像不需要这个接口，现在的场景切换流程是对象销毁重建（会从一个场景直接将对象挪到另一个场景吗？），对象销毁后由update逻辑清理
+    private:
+        static void *heartbeatRoutine(void *arg);  // 非个人场景需要启动心跳协程，周期对scenelocation重设超时时间，心跳失败时需通知Manager销毁场景对象
+
+        static void *updateRoutine(void *arg); // 逻辑协程（周期逻辑更新）
 
     private:
         std::string _sToken;
 
         SceneType _type;
 
-        // 是否多人场景？单人场景不进行redis心跳，单人场景在场景加载时会同时加载gameObj
-        bool _multiRolesScene;
-        // 是否永久（非副本）场景？副本场景没人时会自毁
-        bool _forever;
+        bool _running = false;
+
+        Cond _cond;
 
     	SceneManager *_manager; // 关联的场景manager
 

@@ -41,6 +41,7 @@ set(SOURCE_FILES
     ../../utils/string_utils.cpp
     ../../utils/proto_utils.cpp
     ../../utils/redis_utils.cpp
+    ../../utils/event.cpp
     ../proto/demo.pb.cc
     ../generate/demo_game_object.cpp
     ../generate/demo_utils.cpp)

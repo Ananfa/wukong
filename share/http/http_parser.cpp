@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 #include "corpc_utils.h"
-#include "url.h"
+#include "url_utils.h"
 
 #include "http_message.h"
 #include "http_parser.h"
@@ -305,7 +305,7 @@ void HttpParser::parsePostParams(RequestMessage *request, char *params) {
                 request->addParam(key, "");
             } else {
                 std::string v;
-                Url::decode(std::string(value), v);
+                UrlUtils::decode(std::string(value), v);
                 request->addParam(key, v.c_str());
             }
         }

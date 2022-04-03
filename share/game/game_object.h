@@ -23,6 +23,7 @@
 #include "record_service.pb.h"
 #include <list>
 #include <map>
+#include <sys/time.h>
 
 using namespace corpc;
 
@@ -51,12 +52,12 @@ namespace wukong {
         bool setGatewayServerStub(ServerId sid);
         bool setRecordServerStub(ServerId sid);
 
-        void start(); // 开始心跳，启动心跳协程
-        void stop(); // 停止心跳
+        virtual void start(); // 开始心跳，启动心跳协程
+        virtual void stop(); // 停止心跳
 
         void leaveGame();
 
-        virtual void update(uint64_t nowSec) = 0; // 周期处理逻辑
+        virtual void update(timeval now) = 0; // 周期处理逻辑（注意：不要有产生协程切换的逻辑）
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
 
@@ -95,7 +96,7 @@ namespace wukong {
         int _enterTimes = 0; // 重登次数
 
         Cond _cond;
-        
+
     protected:
         UserId _userId;
         RoleId _roleId;

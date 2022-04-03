@@ -166,6 +166,10 @@ bool SceneConfig::parse(const char *path) {
         _updatePeriod = doc["updatePeriod"].GetUint();
     }
 
+    if (_updatePeriod == 0) {
+        WARN_LOG("updatePeriod is 0, scenes won't be updated\n");
+    }
+
     if (!doc.HasMember("enableLobbyClient")) {
         _enableLobbyClient = false;
     } else {

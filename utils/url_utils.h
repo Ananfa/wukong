@@ -6,7 +6,7 @@
 
 namespace wukong {
     
-    class Url {
+    class UrlUtils {
     public :
         static void encode( const std::string & src, std::string & dst );
         static void decode( const std::string & src, std::string & dst );

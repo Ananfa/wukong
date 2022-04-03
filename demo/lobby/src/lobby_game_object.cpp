@@ -11,7 +11,7 @@ LobbyGameObject::~LobbyGameObject() {
 
 }
 
-void LobbyGameObject::update(uint64_t nowSec) {
+void LobbyGameObject::update(timeval now) {
     // TODO:
 }
 
@@ -25,7 +25,7 @@ void LobbyGameObject::onEnterGame() { // 重登了
         _leaveGameTimer = nullptr;
     }
 
-    // TODO: 其他逻辑
+    // TODO: 其他进入游戏逻辑
 }
 
 void LobbyGameObject::onOffline() { // 断线了
@@ -37,4 +37,25 @@ void LobbyGameObject::onOffline() { // 断线了
     });
     ERROR_LOG("LobbyGameObject::onOffline -- user[%llu] role[%llu] start leave-game-timer:%llu\n", _userId, _roleId, _leaveGameTimer.get());
     
+    // TODO: 其他离线逻辑
+}
+
+void LobbyGameObject::start() {
+    DemoGameObject::start();
+
+    // TODO: 这里应该初始化游戏对象中的各种组件模块，绑定各模块的事件处理
+
+    // 【测试代码】：事件处理测试
+    _emiter.addEventHandle("level_up", [obj = shared_from_this()](const Event &e) {
+        std::shared_ptr<LobbyGameObject> self = std::static_pointer_cast<LobbyGameObject>(obj);
+        self->onLevelUp(e);
+    });
+}
+
+void LobbyGameObject::stop() {
+    _emiter.clear();
+
+    // TODO: 各种模块销毁
+
+    DemoGameObject::stop();
 }

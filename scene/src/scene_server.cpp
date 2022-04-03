@@ -148,7 +148,7 @@ void SceneServer::run() {
 
     // TODO: 场景服是否需要g_SceneCenter负责场景相关sha1值维护？
 
-    g_GameCenter.init(GAME_SERVER_TYPE_SCENE, g_SceneConfig.getUpdatePeriod(), g_SceneConfig.getCache().host.c_str(), g_SceneConfig.getCache().port, g_SceneConfig.getCache().dbIndex, g_SceneConfig.getCache().maxConnect);
+    g_GameCenter.init(GAME_SERVER_TYPE_SCENE, 0, g_SceneConfig.getCache().host.c_str(), g_SceneConfig.getCache().port, g_SceneConfig.getCache().dbIndex, g_SceneConfig.getCache().maxConnect);
     g_ClientCenter.init(_rpcClient, g_SceneConfig.getZookeeper(), g_SceneConfig.getZooPath(), true, true, g_SceneConfig.enableLobbyClient(), g_SceneConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

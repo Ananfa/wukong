@@ -39,9 +39,9 @@ namespace wukong {
         bool existScene(const std::string &sceneId); 
         std::shared_ptr<Scene> getScene(const std::string &sceneId);
         std::string loadScene(uint32_t defId, const std::string &sceneId, RoleId roleid, const std::string &teamid); // 失败时返回""
-        bool removeScene(const std::string &sceneId); // 删除场景对象
+        void removeScene(const std::string &sceneId); // 删除场景对象
         void leaveGame(RoleId roleId); // 角色离开游戏（重载）
-        void leaveScene(RoleId roleId); // 角色离开场景（离队时也调用此方法）
+        void leaveScene(RoleId roleId); // 角色离开场景（切换场景和离队时也调用此方法）
 
     private:
         uint64_t _incSceneNo = 0; // 场景自增计数

@@ -24,8 +24,6 @@
 #include "record_client.h"
 #include "share/const.h"
 
-#include <sys/time.h>
-
 using namespace wukong;
 
 static void callDoneHandle(::google::protobuf::Message *request, Controller *controller) {
@@ -345,7 +343,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
                             WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to gw failed for gw object not exit\n", obj->_userId, obj->_roleId);
 
                             obj->_gatewayServerStub = nullptr;
-                            obj->onOffline();
+                            obj->onOffline(); // 通知上层玩家离线
                         } else {
                             WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to gw failed but enter times not match\n", obj->_userId, obj->_roleId);
                             obj->_gwHeartbeatFailCount++;
@@ -363,7 +361,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
                     WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to gw failed\n", obj->_userId, obj->_roleId);
 
                     obj->_gatewayServerStub = nullptr;
-                    obj->onOffline();
+                    obj->onOffline(); // 通知上层玩家离线
                 }
             }
         }
@@ -379,7 +377,6 @@ void *GameObject::heartbeatRoutine( void *arg ) {
 
         // 若设置超时不成功，销毁游戏对象
         if (!success) {
-//exit(0);
             if (obj->_running) {
                 obj->leaveGame();
                 assert(obj->_running = false);
@@ -434,7 +431,7 @@ void *GameObject::updateRoutine(void *arg) {
         }
 
         gettimeofday(&t, NULL);
-        obj->update(t.tv_sec);
+        obj->update(t);
     }
 
     return nullptr;

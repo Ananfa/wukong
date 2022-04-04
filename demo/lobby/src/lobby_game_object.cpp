@@ -4,11 +4,11 @@ using namespace demo;
 using namespace corpc;
 
 LobbyGameObject::LobbyGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): DemoGameObject(userId, roleId, serverId, lToken, manager) {
-
+//DEBUG_LOG("LobbyGameObject::LobbyGameObject()\n");
 }
 
 LobbyGameObject::~LobbyGameObject() {
-
+//DEBUG_LOG("LobbyGameObject::~LobbyGameObject()\n");
 }
 
 void LobbyGameObject::update(timeval now) {
@@ -32,7 +32,14 @@ void LobbyGameObject::onStart() {
 }
 
 void LobbyGameObject::onDestory() {
+    // 若不清emiter，会导致shared_ptr循环引用问题
     _emiter.clear();
+
+    // 若不清timer，会导致shared_ptr循环引用问题
+    if (_leaveGameTimer) {
+        _leaveGameTimer->stop();
+        _leaveGameTimer = nullptr;
+    }
 
     // TODO: 各种模块销毁
 }
@@ -42,7 +49,7 @@ void LobbyGameObject::onEnterGame() { // 重登了
 
     // 取消离开游戏计时器
     if (_leaveGameTimer) {
-        ERROR_LOG("LobbyGameObject::onEnterGame -- user[%llu] role[%llu] cancel leave-game-timer:%llu\n", _userId, _roleId, _leaveGameTimer.get());
+        //DEBUG_LOG("LobbyGameObject::onEnterGame -- user[%llu] role[%llu] cancel leave-game-timer:%llu\n", _userId, _roleId, _leaveGameTimer.get());
         _leaveGameTimer->stop();
         _leaveGameTimer = nullptr;
     }
@@ -55,7 +62,7 @@ void LobbyGameObject::onOffline() { // 断线了
     _leaveGameTimer = Timer::create(5000, [self = shared_from_this()]() {
         self->leaveGame();
     });
-    ERROR_LOG("LobbyGameObject::onOffline -- user[%llu] role[%llu] start leave-game-timer:%llu\n", _userId, _roleId, _leaveGameTimer.get());
+    //DEBUG_LOG("LobbyGameObject::onOffline -- user[%llu] role[%llu] start leave-game-timer:%llu\n", _userId, _roleId, _leaveGameTimer.get());
     
     // TODO: 其他离线逻辑
 }

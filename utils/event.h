@@ -17,38 +17,38 @@ template<class T>
 class EventDataImpl : public EventData
 {
 public:
-    EventDataImpl(T &v) : _v(v) {}
+    EventDataImpl(const T &v) : _v(v) {}
     T _v;
 };
 
 class EventParam
 {
 public:
-    EventParam() {}
-    ~EventParam() { delete _data; }
+    ~EventParam() {
+        delete _data;
+    }
+
+    EventParam(EventParam &&ep)
+    {
+        _data = ep._data;
+        ep._data = nullptr;
+    }
 
     template<class T >
-    EventParam(T &v)
+    EventParam(const T &v)
     {
         _data = new EventDataImpl<T>(v);
     }
 
-    template<class T >
-    EventParam(T &&v)
-    {
-        _data = v._data;
-        v._data = nullptr;
-    }
-
-    template<class T >
-    void getData(T &v)
+    template<class T>
+    void getData(T &v) const
     {
         if (_data) {
-            v = static_cast<EventDataImpl<T>*>(_data)._v;
+            v = static_cast<EventDataImpl<T>*>(_data)->_v;
         }
     }
 
-private:
+public:
     EventData *_data = nullptr;
 };
 
@@ -78,6 +78,13 @@ public:
 private:
     std::string _name;
     std::map<std::string, EventParam> _dataMap;
+
+private:
+    Event() = default;                          // ctor hidden
+    Event(Event const&) = delete;               // copy ctor hidden
+    Event(Event &&) = delete;                   // move ctor hidden
+    Event& operator=(Event const&) = delete;    // assign op. hidden
+    Event& operator=(Event &&) = delete;        // move assign op. hidden
 };
 
 typedef std::function<void (const Event &)> EventHandle;

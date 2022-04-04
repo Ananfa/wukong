@@ -20,7 +20,7 @@ namespace demo {
         virtual void onStart();
         virtual void onDestory();
 
-        void onLevelUp(Event e) {}
+        void onLevelUp(const Event &e);
 
     private:
     	std::shared_ptr<Timer> _leaveGameTimer;

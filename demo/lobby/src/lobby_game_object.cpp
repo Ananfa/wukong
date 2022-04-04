@@ -12,7 +12,11 @@ LobbyGameObject::~LobbyGameObject() {
 }
 
 void LobbyGameObject::update(timeval now) {
-    // TODO:
+    // 【测试代码】：测试发事件（每秒发一次事件）
+    uint32_t lv = 1;
+    Event e("level_up");
+    e.setParam("lv", lv);
+    _emiter.fireEvent(e);
 }
 
 void LobbyGameObject::onStart() {
@@ -21,6 +25,8 @@ void LobbyGameObject::onStart() {
     // 【测试代码】：事件处理测试
     _emiter.addEventHandle("level_up", [obj = shared_from_this()](const Event &e) {
         std::shared_ptr<LobbyGameObject> self = std::static_pointer_cast<LobbyGameObject>(obj);
+        uint32_t lv;
+        e.getParam("lv", lv);
         self->onLevelUp(e);
     });
 }
@@ -52,4 +58,9 @@ void LobbyGameObject::onOffline() { // 断线了
     ERROR_LOG("LobbyGameObject::onOffline -- user[%llu] role[%llu] start leave-game-timer:%llu\n", _userId, _roleId, _leaveGameTimer.get());
     
     // TODO: 其他离线逻辑
+}
+
+// 【测试代码】：
+void LobbyGameObject::onLevelUp(const Event &e) {
+    DEBUG_LOG("LobbyGameObject::onLevelUp\n");
 }

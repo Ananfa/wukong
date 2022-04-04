@@ -52,23 +52,26 @@ namespace wukong {
         bool setGatewayServerStub(ServerId sid);
         bool setRecordServerStub(ServerId sid);
 
-        virtual void start(); // 开始心跳，启动心跳协程
-        virtual void stop(); // 停止心跳
-
-        void leaveGame();
-
-        virtual void update(timeval now) = 0; // 周期处理逻辑（注意：不要有产生协程切换的逻辑）
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
 
-        virtual void onEnterGame(); // 客户端登录进入游戏（gateObj与gameObj建立连接）
-        virtual void onOffline() {} // 客户端断线（gameObj失去gateObj关联）
+        virtual void update(timeval now) = 0; // 周期处理逻辑（注意：不要有产生协程切换的逻辑）
+        virtual void onStart() = 0;
+        virtual void onDestory() = 0;
+        virtual void onEnterGame() = 0; // 客户端登录进入游戏（gateObj与gameObj建立连接）
+        virtual void onOffline() = 0; // 客户端断线（gameObj失去gateObj关联）
 
         bool isOnline() { return _gatewayServerStub != nullptr; }
 
         void send(int32_t type, uint16_t tag, const std::string &rawMsg);
         void send(int32_t type, uint16_t tag, google::protobuf::Message &msg);
         
+        void start(); // 开始心跳，启动心跳协程
+        void stop(); // 停止心跳
+
+        void enterGame();
+        void leaveGame();
+
     private:
         int reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
         int heartbeatToGateway();
@@ -105,6 +108,9 @@ namespace wukong {
         std::map<std::string, bool> _dirty_map;
 
         GameObjectManager *_manager; // 关联的manager
+
+    public:
+        friend class GameObjectManager;
     };
 }
 

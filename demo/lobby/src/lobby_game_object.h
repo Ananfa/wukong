@@ -17,7 +17,8 @@ namespace demo {
         virtual void onEnterGame();
         virtual void onOffline();
 
-        virtual void start();
+        virtual void onStart();
+        virtual void onDestory();
 
         void onLevelUp(Event e) {}
 

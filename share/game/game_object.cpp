@@ -85,12 +85,16 @@ void GameObject::start() {
         arg->obj = shared_from_this();
         RoutineEnvironment::startCoroutine(updateRoutine, arg);
     }
+
+    onStart();
 }
 
 void GameObject::stop() {
     if (_running) {
         DEBUG_LOG("GameObject::stop user[%llu] role[%llu] token:%s\n", _userId, _roleId, _lToken.c_str());
         _running = false;
+
+        onDestory();
 
         _cond.broadcast();
 
@@ -111,13 +115,14 @@ void GameObject::stop() {
     }
 }
 
-void GameObject::leaveGame() {
-    _manager->leaveGame(_roleId);
-}
-
-void GameObject::onEnterGame() {
+void GameObject::enterGame() {
     _gwHeartbeatFailCount = 0; // 重置心跳
     _enterTimes++;
+    onEnterGame();
+}
+
+void GameObject::leaveGame() {
+    _manager->leaveGame(_roleId);
 }
 
 void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {

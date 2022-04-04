@@ -97,5 +97,5 @@ void InnerGameServiceImpl::enterGame(::google::protobuf::RpcController* controll
         return;
     }
 
-    obj->onEnterGame();
+    obj->enterGame();
 }

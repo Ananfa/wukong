@@ -40,6 +40,7 @@ void SceneServer::lobbyThread(InnerRpcServer *server, ServerId sid) {
     server->start(false);
     
     SceneManager *sceneMgr = new SceneManager(sid);
+    sceneMgr->init();
 
     InnerSceneServiceImpl *sceneServiceImpl = new InnerSceneServiceImpl(sceneMgr);
     InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(sceneMgr);
@@ -126,6 +127,9 @@ bool SceneServer::init(int argc, char * argv[]) {
 }
 
 void SceneServer::run() {
+    // 注意：GameCenter要在game object manager之前init，因为跨服事件队列处理协程需要先启动
+    g_GameCenter.init(GAME_SERVER_TYPE_SCENE, 0, g_SceneConfig.getCache().host.c_str(), g_SceneConfig.getCache().port, g_SceneConfig.getCache().dbIndex, g_SceneConfig.getCache().maxConnect);
+
     SceneServiceImpl *sceneServiceImpl = new SceneServiceImpl();
     GameServiceImpl *gameServiceImpl = new GameServiceImpl();
 
@@ -148,7 +152,7 @@ void SceneServer::run() {
 
     // TODO: 场景服是否需要g_SceneCenter负责场景相关sha1值维护？
 
-    g_GameCenter.init(GAME_SERVER_TYPE_SCENE, 0, g_SceneConfig.getCache().host.c_str(), g_SceneConfig.getCache().port, g_SceneConfig.getCache().dbIndex, g_SceneConfig.getCache().maxConnect);
+    // 注意：ClientCenter在最后才init，因为服务器准备好才向zookeeper注册
     g_ClientCenter.init(_rpcClient, g_SceneConfig.getZookeeper(), g_SceneConfig.getZooPath(), true, true, g_SceneConfig.enableLobbyClient(), g_SceneConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

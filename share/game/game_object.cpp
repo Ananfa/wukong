@@ -94,6 +94,14 @@ void GameObject::stop() {
         DEBUG_LOG("GameObject::stop user[%llu] role[%llu] token:%s\n", _userId, _roleId, _lToken.c_str());
         _running = false;
 
+        // 若不清emiter，会导致shared_ptr循环引用问题
+        _emiter.clear();
+
+        for (auto ref : _globalEventHandleRefs) {
+            _manager->unregGlobalEventHandle(ref);
+        }
+        _globalEventHandleRefs.clear();
+
         onDestory();
 
         _cond.broadcast();
@@ -123,6 +131,23 @@ void GameObject::enterGame() {
 
 void GameObject::leaveGame() {
     _manager->leaveGame(_roleId);
+}
+
+void GameObject::regLocalEventHandle(const std::string &name, EventHandle handle) {
+    _emiter.addEventHandle(name, handle);
+}
+
+void GameObject::regGlobalEventHandle(const std::string &name, EventHandle handle) {
+    uint32_t ref = _manager->regGlobalEventHandle(name, handle);
+    _globalEventHandleRefs.push_back(ref);
+}
+
+void GameObject::fireLocalEvent(const Event &event) {
+    _emiter.fireEvent(event);
+}
+
+void GameObject::fireGlobalEvent(const Event &event) {
+    _manager->fireGlobalEvent(event);
 }
 
 void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {

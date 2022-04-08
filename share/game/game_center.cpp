@@ -15,13 +15,24 @@
  */
 
 #include "game_center.h"
+#include "redis_pool.h"
 #include "share/const.h"
+#include "corpc_pubsub.h"
 
 using namespace wukong;
 
 void GameCenter::init(GameServerType stype, uint32_t gameObjectUpdatePeriod) {
     _type = stype;
     _gameObjectUpdatePeriod = gameObjectUpdatePeriod;
+
+    RoutineEnvironment::startCoroutine(registerEventQueueRoutine, this); // 注册事件通知队列
+
+    // 初始化全服事件发布订阅服务
+    // 获取并订阅服务器组列表信息
+    std::list<std::string> topics;
+    topics.push_back("GEvent");
+    PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool(), topics);
+    PubsubService::Subscribe("GEvent", false, std::bind(&GameCenter::handleGlobalEvent, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 bool GameCenter::registerMessage(int msgType,
@@ -85,4 +96,63 @@ void *GameCenter::handleMessageRoutine(void *arg) {
     delete info;
     
     return nullptr;
+}
+
+void *GameCenter::registerEventQueueRoutine(void * arg) {
+    GameCenter *self = (GameCenter *)arg;
+
+    GlobalEventRegisterQueue& queue = self->_eventRegisterQueue;
+
+    // 初始化pipe readfd
+    int readFd = queue.getReadFd();
+    co_register_fd(readFd);
+    co_set_timeout(readFd, -1, 1000);
+    
+    int ret;
+    std::vector<char> buf(1024);
+    while (true) {
+        // 等待处理信号
+        ret = (int)read(readFd, &buf[0], 1024);
+        assert(ret != 0);
+        if (ret < 0) {
+            if (errno == EAGAIN) {
+                continue;
+            } else {
+                // 管道出错
+                ERROR_LOG("GameCenter::registerEventQueueRoutine read from pipe fd %d ret %d errno %d (%s)\n",
+                       readFd, ret, errno, strerror(errno));
+                
+                // TODO: 如何处理？退出协程？
+                // sleep 10 milisecond
+                msleep(10);
+            }
+        }
+        
+        // 处理任务队列
+        std::shared_ptr<GlobalEventQueue> eventQueue = queue.pop();
+        while (eventQueue) {
+            self->_eventQueues.push_back(eventQueue);
+                        
+            eventQueue = queue.pop();
+        }
+    }
+    
+    return NULL;
+}
+
+void GameCenter::registerEventQueue(std::shared_ptr<GlobalEventQueue> queue) {
+    _eventRegisterQueue.push(queue);
+}
+
+void GameCenter::handleGlobalEvent(const std::string& topic, const std::string& msg) {
+    // 解析消息
+    std::shared_ptr<wukong::pb::GlobalEventMessage> eventMsg = std::make_shared<wukong::pb::GlobalEventMessage>();
+    if (!eventMsg->ParseFromString(msg)) {
+        ERROR_LOG("GameCenter::handleGlobalEvent -- parse event data failed\n");
+        return;
+    }
+
+    for (auto queue : _eventQueues) {
+        queue->push(eventMsg);
+    }
 }

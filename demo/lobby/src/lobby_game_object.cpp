@@ -13,28 +13,33 @@ LobbyGameObject::~LobbyGameObject() {
 
 void LobbyGameObject::update(timeval now) {
     // 【测试代码】：测试发事件（每秒发一次事件）
-    uint32_t lv = 1;
-    Event e("level_up");
-    e.setParam("lv", lv);
-    _emiter.fireEvent(e);
+    uint32_t testValue = 1;
+    Event e("test_local_event");
+    e.setParam("testValue", testValue);
+    fireLocalEvent(e);
+
+    std::string data = "hello world";
+    Event ge("test_global_event");
+    ge.setParam("data", data);
+    fireGlobalEvent(ge);
 }
 
 void LobbyGameObject::onStart() {
     // TODO: 这里应该初始化游戏对象中的各种组件模块，绑定各模块的事件处理
 
-    // 【测试代码】：事件处理测试
-    _emiter.addEventHandle("level_up", [obj = shared_from_this()](const Event &e) {
-        std::shared_ptr<LobbyGameObject> self = std::static_pointer_cast<LobbyGameObject>(obj);
-        uint32_t lv;
-        e.getParam("lv", lv);
-        self->onLevelUp(e);
+    // 【测试代码】：事件处理测试（以下是两种注册事件处理的方式，第一种是用bind，第二种是用lamda）
+    regLocalEventHandle("test_local_event", std::bind(&LobbyGameObject::onTestLocalEvent, std::static_pointer_cast<LobbyGameObject>(shared_from_this()), std::placeholders::_1));
+
+    regLocalEventHandle("test_local_event", [self = std::static_pointer_cast<LobbyGameObject>(shared_from_this())](const Event &e) {
+        uint32_t testValue;
+        e.getParam("testValue", testValue);
+        self->onTestLocalEvent1(testValue);
     });
+
+    regGlobalEventHandle("test_global_event", std::bind(&LobbyGameObject::onTestGlobalEvent, std::static_pointer_cast<LobbyGameObject>(shared_from_this()), std::placeholders::_1));
 }
 
 void LobbyGameObject::onDestory() {
-    // 若不清emiter，会导致shared_ptr循环引用问题
-    _emiter.clear();
-
     // 若不清timer，会导致shared_ptr循环引用问题
     if (_leaveGameTimer) {
         _leaveGameTimer->stop();
@@ -68,6 +73,18 @@ void LobbyGameObject::onOffline() { // 断线了
 }
 
 // 【测试代码】：
-void LobbyGameObject::onLevelUp(const Event &e) {
-    DEBUG_LOG("LobbyGameObject::onLevelUp\n");
+void LobbyGameObject::onTestLocalEvent(const Event &e) {
+    uint32_t testValue;
+    e.getParam("testValue", testValue);
+    ERROR_LOG("LobbyGameObject::onTestLocalEvent, value:%d\n", testValue);
+}
+
+void LobbyGameObject::onTestLocalEvent1(uint32_t testValue) {
+    ERROR_LOG("LobbyGameObject::onTestLocalEvent1, value:%d\n", testValue);
+}
+
+void LobbyGameObject::onTestGlobalEvent(const Event &e) {
+    std::string data;
+    e.getParam("data", data);
+    ERROR_LOG("LobbyGameObject::onTestGlobalEvent, data:%s\n", data.c_str());
 }

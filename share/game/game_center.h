@@ -23,13 +23,15 @@
 
 #include <google/protobuf/message.h>
 
-#include <vector>
+#include <list>
 #include <mutex>
 #include <atomic>
+#include <functional>
 
 using namespace corpc;
 
 namespace wukong {
+
     class GameCenter
     {
         typedef std::function<void (std::shared_ptr<GameObject>, uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandle;
@@ -65,14 +67,24 @@ namespace wukong {
 
         void handleMessage(std::shared_ptr<GameObject>, int msgType, uint16_t tag, const std::string &rawMsg);
 
+        void registerEventQueue(std::shared_ptr<GlobalEventQueue> queue);
+
     private:
-        static void *handleMessageRoutine( void * arg );
+        static void *handleMessageRoutine(void * arg);
+
+        static void *registerEventQueueRoutine(void * arg);
+
+        void handleGlobalEvent(const std::string& topic, const std::string& msg);
 
     private:
         GameServerType _type;
         uint32_t _gameObjectUpdatePeriod; // 游戏对象update执行周期，单位毫秒，为0时表示不进行update
 
         std::map<int, RegisterMessageInfo> _registerMessageMap;
+
+        std::list<std::shared_ptr<GlobalEventQueue>> _eventQueues; // 全服事件通知队列列表
+
+        GlobalEventRegisterQueue _eventRegisterQueue; // 用于多线程同步注册事件队列时
 
     private:
         GameCenter(): _gameObjectUpdatePeriod(0) {}                  // ctor hidden

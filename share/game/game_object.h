@@ -21,6 +21,7 @@
 #include "share/define.h"
 #include "gateway_service.pb.h"
 #include "record_service.pb.h"
+#include "event.h"
 #include <list>
 #include <map>
 #include <sys/time.h>
@@ -72,6 +73,13 @@ namespace wukong {
         void enterGame();
         void leaveGame();
 
+        // 注意：这里不提供注销事件处理的接口方法，在gameobject销毁（stop）的时候一次性注销所有绑定的事件处理
+        void regLocalEventHandle(const std::string &name, EventHandle handle);
+        void regGlobalEventHandle(const std::string &name, EventHandle handle);
+        
+        void fireLocalEvent(const Event &event);
+        void fireGlobalEvent(const Event &event);
+
     private:
         int reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
         int heartbeatToGateway();
@@ -99,6 +107,9 @@ namespace wukong {
         int _enterTimes = 0; // 重登次数
 
         Cond _cond;
+
+        EventEmitter _emiter;
+        std::vector<uint32_t> _globalEventHandleRefs; // 用于gameobject销毁时注销注册的全局事件处理
 
     protected:
         UserId _userId;

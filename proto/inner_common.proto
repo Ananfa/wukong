@@ -10,3 +10,8 @@ message OnlineCount {
 message OnlineCounts {
     repeated OnlineCount counts = 1;
 }
+
+message GlobalEventMessage {
+	string topic = 1;
+	bytes data = 2;
+}

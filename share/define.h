@@ -1,7 +1,11 @@
 #ifndef define_h
 #define define_h
 
+#include "corpc_define.h"
+#include "inner_common.pb.h"
 #include <string>
+
+using namespace corpc;
 
 // 服务器id
 typedef uint16_t ServerId;
@@ -67,6 +71,13 @@ namespace wukong {
         std::string dbName;
     };
 
+#ifdef USE_NO_LOCK_QUEUE
+    typedef Co_MPSC_NoLockQueue<std::shared_ptr<wukong::pb::GlobalEventMessage>> GlobalEventQueue;
+    typedef Co_MPSC_NoLockQueue<std::shared_ptr<GlobalEventQueue>> GlobalEventRegisterQueue;
+#else
+    typedef CoSyncQueue<std::shared_ptr<wukong::pb::GlobalEventMessage>> GlobalEventQueue;
+    typedef CoSyncQueue<std::shared_ptr<GlobalEventQueue>> GlobalEventRegisterQueue;
+#endif
 }
 
 #endif /* define_h */

@@ -46,7 +46,7 @@ struct TableStruct_inner_5fcommon_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[2]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -55,6 +55,9 @@ struct TableStruct_inner_5fcommon_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_inner_5fcommon_2eproto;
 namespace wukong {
 namespace pb {
+class GlobalEventMessage;
+struct GlobalEventMessageDefaultTypeInternal;
+extern GlobalEventMessageDefaultTypeInternal _GlobalEventMessage_default_instance_;
 class OnlineCount;
 struct OnlineCountDefaultTypeInternal;
 extern OnlineCountDefaultTypeInternal _OnlineCount_default_instance_;
@@ -64,6 +67,7 @@ extern OnlineCountsDefaultTypeInternal _OnlineCounts_default_instance_;
 }  // namespace pb
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
+template<> ::wukong::pb::GlobalEventMessage* Arena::CreateMaybeMessage<::wukong::pb::GlobalEventMessage>(Arena*);
 template<> ::wukong::pb::OnlineCount* Arena::CreateMaybeMessage<::wukong::pb::OnlineCount>(Arena*);
 template<> ::wukong::pb::OnlineCounts* Arena::CreateMaybeMessage<::wukong::pb::OnlineCounts>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
@@ -368,6 +372,166 @@ class OnlineCounts final :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_inner_5fcommon_2eproto;
 };
+// -------------------------------------------------------------------
+
+class GlobalEventMessage final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.GlobalEventMessage) */ {
+ public:
+  inline GlobalEventMessage() : GlobalEventMessage(nullptr) {}
+  ~GlobalEventMessage() override;
+  explicit constexpr GlobalEventMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GlobalEventMessage(const GlobalEventMessage& from);
+  GlobalEventMessage(GlobalEventMessage&& from) noexcept
+    : GlobalEventMessage() {
+    *this = ::std::move(from);
+  }
+
+  inline GlobalEventMessage& operator=(const GlobalEventMessage& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GlobalEventMessage& operator=(GlobalEventMessage&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GlobalEventMessage& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GlobalEventMessage* internal_default_instance() {
+    return reinterpret_cast<const GlobalEventMessage*>(
+               &_GlobalEventMessage_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(GlobalEventMessage& a, GlobalEventMessage& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GlobalEventMessage* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GlobalEventMessage* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline GlobalEventMessage* New() const final {
+    return new GlobalEventMessage();
+  }
+
+  GlobalEventMessage* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<GlobalEventMessage>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GlobalEventMessage& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const GlobalEventMessage& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GlobalEventMessage* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.GlobalEventMessage";
+  }
+  protected:
+  explicit GlobalEventMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTopicFieldNumber = 1,
+    kDataFieldNumber = 2,
+  };
+  // string topic = 1;
+  void clear_topic();
+  const std::string& topic() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_topic(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_topic();
+  PROTOBUF_MUST_USE_RESULT std::string* release_topic();
+  void set_allocated_topic(std::string* topic);
+  private:
+  const std::string& _internal_topic() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_topic(const std::string& value);
+  std::string* _internal_mutable_topic();
+  public:
+
+  // bytes data = 2;
+  void clear_data();
+  const std::string& data() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_data(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_data();
+  PROTOBUF_MUST_USE_RESULT std::string* release_data();
+  void set_allocated_data(std::string* data);
+  private:
+  const std::string& _internal_data() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_data(const std::string& value);
+  std::string* _internal_mutable_data();
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.GlobalEventMessage)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr topic_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_inner_5fcommon_2eproto;
+};
 // ===================================================================
 
 
@@ -463,9 +627,107 @@ OnlineCounts::counts() const {
   return counts_;
 }
 
+// -------------------------------------------------------------------
+
+// GlobalEventMessage
+
+// string topic = 1;
+inline void GlobalEventMessage::clear_topic() {
+  topic_.ClearToEmpty();
+}
+inline const std::string& GlobalEventMessage::topic() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.GlobalEventMessage.topic)
+  return _internal_topic();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void GlobalEventMessage::set_topic(ArgT0&& arg0, ArgT... args) {
+ 
+ topic_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:wukong.pb.GlobalEventMessage.topic)
+}
+inline std::string* GlobalEventMessage::mutable_topic() {
+  std::string* _s = _internal_mutable_topic();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.GlobalEventMessage.topic)
+  return _s;
+}
+inline const std::string& GlobalEventMessage::_internal_topic() const {
+  return topic_.Get();
+}
+inline void GlobalEventMessage::_internal_set_topic(const std::string& value) {
+  
+  topic_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* GlobalEventMessage::_internal_mutable_topic() {
+  
+  return topic_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* GlobalEventMessage::release_topic() {
+  // @@protoc_insertion_point(field_release:wukong.pb.GlobalEventMessage.topic)
+  return topic_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void GlobalEventMessage::set_allocated_topic(std::string* topic) {
+  if (topic != nullptr) {
+    
+  } else {
+    
+  }
+  topic_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), topic,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.GlobalEventMessage.topic)
+}
+
+// bytes data = 2;
+inline void GlobalEventMessage::clear_data() {
+  data_.ClearToEmpty();
+}
+inline const std::string& GlobalEventMessage::data() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.GlobalEventMessage.data)
+  return _internal_data();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void GlobalEventMessage::set_data(ArgT0&& arg0, ArgT... args) {
+ 
+ data_.SetBytes(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:wukong.pb.GlobalEventMessage.data)
+}
+inline std::string* GlobalEventMessage::mutable_data() {
+  std::string* _s = _internal_mutable_data();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.GlobalEventMessage.data)
+  return _s;
+}
+inline const std::string& GlobalEventMessage::_internal_data() const {
+  return data_.Get();
+}
+inline void GlobalEventMessage::_internal_set_data(const std::string& value) {
+  
+  data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* GlobalEventMessage::_internal_mutable_data() {
+  
+  return data_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* GlobalEventMessage::release_data() {
+  // @@protoc_insertion_point(field_release:wukong.pb.GlobalEventMessage.data)
+  return data_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void GlobalEventMessage::set_allocated_data(std::string* data) {
+  if (data != nullptr) {
+    
+  } else {
+    
+  }
+  data_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), data,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.GlobalEventMessage.data)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 

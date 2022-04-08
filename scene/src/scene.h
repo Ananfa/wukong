@@ -41,12 +41,19 @@ namespace wukong {
         void stop(); // 停止心跳，清除游戏对象列表（调用游戏对象stop）
         
         virtual void update(timeval now) = 0; // 周期处理逻辑（注意：不要有产生协程切换的逻辑）
+        virtual void onEnter(RoleId roleId) = 0; // 如：可以进行进入场景AOI通知
+        virtual void onLeave(RoleId roleId) = 0; // 如：可以进行离开场景AOI通知
+        virtual void onDestory() = 0;
 
         bool enter(std::shared_ptr<GameObject> role);
         bool leave(RoleId roleId);
         
-        void onEnter(RoleId roleId) = 0; // 如：可以进行进入场景AOI通知
-        void onLeave(RoleId roleId) = 0; // 如：可以进行离开场景AOI通知
+        // 注意：这里不提供注销事件处理的接口方法，在gameobject销毁（stop）的时候一次性注销所有绑定的事件处理
+        void regLocalEventHandle(const std::string &name, EventHandle handle);
+        void regGlobalEventHandle(const std::string &name, EventHandle handle);
+        
+        void fireLocalEvent(const Event &event);
+        void fireGlobalEvent(const Event &event);
 
     private:
         static void *heartbeatRoutine(void *arg);  // 非个人场景需要启动心跳协程，周期对scenelocation重设超时时间，心跳失败时需通知Manager销毁场景对象
@@ -66,6 +73,9 @@ namespace wukong {
 
     	// 场景中的游戏对象列表（注意：不要产生shared_ptr循环引用）
     	std::map<RoleId, std::shared_ptr<GameObject>> _roles;
+
+        EventEmitter _emiter;
+        std::vector<uint32_t> _globalEventHandleRefs; // 用于gameobject销毁时注销注册的全局事件处理
 
     protected:
         uint32_t _defId;

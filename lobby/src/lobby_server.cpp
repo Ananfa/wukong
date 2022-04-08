@@ -39,6 +39,7 @@ void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
     server->start(false);
     
     GameObjectManager *mgr = new GameObjectManager(GAME_SERVER_TYPE_LOBBY, lbid);
+    mgr->init();
 
     InnerLobbyServiceImpl *lobbyServiceImpl = new InnerLobbyServiceImpl(mgr);
     InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(mgr);
@@ -125,6 +126,9 @@ bool LobbyServer::init(int argc, char * argv[]) {
 }
 
 void LobbyServer::run() {
+    // 注意：GameCenter要在game object manager之前init，因为跨服事件队列处理协程需要先启动
+    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod());
+
     LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl();
     GameServiceImpl *gameServiceImpl = new GameServiceImpl();
 
@@ -145,7 +149,7 @@ void LobbyServer::run() {
     server->registerService(lobbyServiceImpl);
     server->registerService(gameServiceImpl);
 
-    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod());
+    // 注意：ClientCenter在最后才init，因为服务器准备好才向zookeeper注册
     g_ClientCenter.init(_rpcClient, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

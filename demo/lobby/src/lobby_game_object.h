@@ -4,7 +4,6 @@
 #include "demo_game_object.h"
 #include "common.pb.h"
 #include "corpc_timer.h"
-#include "event.h"
 
 namespace demo {
     // 注意：此对象非线程安全
@@ -20,12 +19,13 @@ namespace demo {
         virtual void onStart();
         virtual void onDestory();
 
-        void onLevelUp(const Event &e);
+        // 【测试代码】
+        void onTestLocalEvent(const Event &e);
+        void onTestLocalEvent1(uint32_t testValue);
+        void onTestGlobalEvent(const Event &e);
 
     private:
     	std::shared_ptr<Timer> _leaveGameTimer;
-
-        EventEmitter _emiter;
     };
 }
 

@@ -65,12 +65,14 @@ public:
     }
 
     template<class T>
-    void getParam(const std::string &k, T &v) const
+    bool getParam(const std::string &k, T &v) const
     {
         auto it = _dataMap.find(k);
         if (it != _dataMap.end()) {
             it->second.getData(v);
+            return true;
         }
+        return false;
     }
 
     const std::string &getName() const { return _name; }

@@ -37,9 +37,19 @@ void Scene::stop() {
         DEBUG_LOG("Scene::stop sceneId[%s] defId[%d]\n", _sceneId.c_str(), _defId);
         _running = false;
 
-        _cond.broadcast();
+        // 若不清emiter，会导致shared_ptr循环引用问题
+        _emiter.clear();
+
+        for (auto ref : _globalEventHandleRefs) {
+            _manager->unregGlobalEventHandle(ref);
+        }
+        _globalEventHandleRefs.clear();
 
         _roles.clear();
+
+        onDestory();
+
+        _cond.broadcast();
 
         // 非个人场景删除scene location key
         if (_type != SCENE_TYPE_SINGLE_PLAYER) {
@@ -81,6 +91,23 @@ bool Scene::leave(RoleId roleId) {
     // 注意：如果onLeave中会进行协程切换，这里可能会已经被删除了（比如：场景进入了销毁流程），因此这里不用erase(it)而是用erase(roleId)
     _roles.erase(roleId);
     return true;
+}
+
+void Scene::regLocalEventHandle(const std::string &name, EventHandle handle) {
+    _emiter.addEventHandle(name, handle);
+}
+
+void Scene::regGlobalEventHandle(const std::string &name, EventHandle handle) {
+    uint32_t ref = _manager->regGlobalEventHandle(name, handle);
+    _globalEventHandleRefs.push_back(ref);
+}
+
+void Scene::fireLocalEvent(const Event &event) {
+    _emiter.fireEvent(event);
+}
+
+void Scene::fireGlobalEvent(const Event &event) {
+    _manager->fireGlobalEvent(event);
 }
 
 void *Scene::heartbeatRoutine(void *arg) {

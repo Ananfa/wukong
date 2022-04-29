@@ -9,7 +9,7 @@ using namespace demo;
 
 int main(int argc, char * argv[]) {
     if (!g_LobbyServer.init(argc, argv)) {
-        ERROR_LOG("Can't init login server\n");
+        ERROR_LOG("Can't init lobby server\n");
         return -1;
     }
 
@@ -25,8 +25,8 @@ int main(int argc, char * argv[]) {
         return obj;
     });
 
-    g_LobbyDelegate.setGetTargetSceneIdHandle([](RoleId roleId) -> uint32_t {
-        return 0; // 返回0表示在大厅中加载游戏对象
+    g_LobbyDelegate.setGetTargetSceneIdHandle([](RoleId roleId) -> std::string {
+        return ""; // 返回空串表示在大厅中加载游戏对象
     });
 
     // 注册消息处理

@@ -24,7 +24,7 @@ using namespace corpc;
 
 namespace wukong {
     class LobbyDelegate {
-        typedef std::function<uint32_t (RoleId)> GetTargetSceneIdHandle; // 获取登录时角色应进入的场景实例号，返回0表示在大厅登录
+        typedef std::function<std::string (RoleId)> GetTargetSceneIdHandle; // 获取登录时角色应进入的场景实例号，返回0表示在大厅登录
         typedef std::function<bool (uint32_t)> NeedLoadSceneHandle; // 判断场景（参数为场景实例号）不存在时是否需要加载场景
         typedef std::function<bool (uint32_t)> IsSceneAutoLoadRoleHandle; // 判断场景（参数为场景实例号）是否会自动加载角色
 

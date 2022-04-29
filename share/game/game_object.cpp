@@ -196,6 +196,7 @@ int GameObject::reportGameObjectPos() {
     Controller *controller = new Controller();
     request->set_serverid(_gatewayId);
     request->set_userid(_userId);
+    request->set_roleid(_roleId);
     request->set_ltoken(_lToken);
     request->set_gstype(g_GameCenter.getType());
     request->set_gsid(_manager->getId());
@@ -387,7 +388,8 @@ void *GameObject::heartbeatRoutine( void *arg ) {
                     }
                 }
 
-                if (obj->_gwHeartbeatFailCount >= 3) {
+                // 这里不需要判断curEnterTimes == obj->_enterTimes是因为_enterTimes被改变的时候_gwHeartbeatFailCount被设置为0
+                if (/*curEnterTimes == obj->_enterTimes && */obj->_gwHeartbeatFailCount >= 3) {
                     WARN_LOG("GameObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat to gw failed\n", obj->_userId, obj->_roleId);
 
                     obj->_gatewayServerStub = nullptr;

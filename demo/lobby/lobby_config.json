@@ -26,5 +26,6 @@
         }
     ],
     "coreCache": "cache",
-    "updatePeriod": 0
+    "updatePeriod": 1000,
+    "enableSceneClient": true
 }

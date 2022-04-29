@@ -87,7 +87,8 @@ std::vector<GameClient::ServerInfo> SceneClient::getServerInfos() {
     return infos;
 }
 
-std::string SceneClient::loadScene(ServerId sid, uint32_t defId, const std::string &sceneId) {
+std::string SceneClient::loadScene(ServerId sid, uint32_t defId, const std::string &sceneId, RoleId roleId, const std::string &teamId) {
+    ERROR_LOG("SceneClient::loadScene : %s\n", sceneId.c_str());
     std::shared_ptr<pb::SceneService_Stub> stub = getSceneServiceStub(sid);
     std::string ret;
 
@@ -102,6 +103,8 @@ std::string SceneClient::loadScene(ServerId sid, uint32_t defId, const std::stri
     request->set_serverid(sid);
     request->set_defid(defId);
     request->set_sceneid(sceneId);
+    request->set_roleid(roleId);
+    request->set_teamid(teamId);
     stub->loadScene(controller, request, response, nullptr);
 
     if (controller->Failed()) {

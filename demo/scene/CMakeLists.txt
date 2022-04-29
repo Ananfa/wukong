@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(example_redis)
 
 # Check dependency libraries
-find_library(PROTOBUF_LIB protobuf)
+find_library(PROTOBUF_LIB protobuf /usr/local/protobuf/lib)
 if(NOT PROTOBUF_LIB)
     message(FATAL_ERROR "protobuf library not found")
 endif()
@@ -57,7 +57,7 @@ aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../proto/game SOURCE_FILES)
 aux_source_directory(../../share/client SOURCE_FILES)
 aux_source_directory(../../share/game SOURCE_FILES)
-aux_source_directory(../../lobby/src SOURCE_FILES)
+aux_source_directory(../../scene/src SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -68,9 +68,10 @@ set(CMAKE_MACOSX_RPATH 0)
 # Set cflags
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11 -fPIC -Wall -Wno-reorder -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -O0 -DDEBUG=1 ${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 -DLOG_LEVEL=3 ${CMAKE_CXX_FLAGS}")
 
 # Add include directories
+include_directories(/usr/local/protobuf/include)
 include_directories(/usr/local/include)
 include_directories(/usr/local/include/co)
 include_directories(/usr/local/include/corpc)
@@ -81,7 +82,7 @@ include_directories(../proto)
 include_directories(../generate)
 include_directories(../share)
 include_directories(../..)
-include_directories(../../lobby/src)
+include_directories(../../scene/src)
 include_directories(../../share)
 include_directories(../../share/game)
 include_directories(../../share/client)
@@ -94,7 +95,7 @@ include_directories(../../proto/service)
 include_directories(../../deps/rapidjson/include)
 
 # Add target
-add_executable(lobbyd ${SOURCE_FILES})
+add_executable(scened ${SOURCE_FILES})
 
 set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lzookeeper_st -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
-target_link_libraries(lobbyd ${MY_LINK_LIBRARIES})
+target_link_libraries(scened ${MY_LINK_LIBRARIES})

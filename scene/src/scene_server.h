@@ -46,7 +46,7 @@ namespace wukong {
         void run();
 
     private:
-        static void lobbyThread(InnerRpcServer *server, ServerId sid);
+        static void sceneThread(InnerRpcServer *server, ServerId sid);
 
     private:
         SceneServer() = default;                                // ctor hidden

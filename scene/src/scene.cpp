@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 
+#include "corpc_routine_env.h"
+#include "scene.h"
+#include "scene_config.h"
+#include "scene_manager.h"
+#include "redis_pool.h"
+#include "redis_utils.h"
+
+using namespace corpc;
+using namespace wukong;
+
 void Scene::start() {
     _running = true;
 
@@ -34,7 +44,6 @@ void Scene::start() {
 
 void Scene::stop() {
     if (_running) {
-        DEBUG_LOG("Scene::stop sceneId[%s] defId[%d]\n", _sceneId.c_str(), _defId);
         _running = false;
 
         // 若不清emiter，会导致shared_ptr循环引用问题
@@ -74,7 +83,8 @@ bool Scene::enter(std::shared_ptr<GameObject> role) {
         return false;
     }
 
-    _roles.insert(std::make_pair(role->getRoleId(), obj));
+    _roles.insert(std::make_pair(role->getRoleId(), role));
+    role->setSceneId(_sceneId);
 
     onEnter(role->getRoleId());
     return true;
@@ -136,15 +146,18 @@ void *Scene::heartbeatRoutine(void *arg) {
                     g_RedisPoolManager.getCoreCache()->put(cache, true);
                     ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] check token failed for db error\n", obj->_sceneId.c_str(), obj->_defId);
                     failTimes++;
+                    break;
                 }
                 case REDIS_FAIL: {
                     g_RedisPoolManager.getCoreCache()->put(cache, false);
-                    ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] check session failed\n", obj->_sceneId.c_str(), obj->_defId);
+                    ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] token[%s] check session failed\n", obj->_sceneId.c_str(), obj->_defId, obj->_sToken.c_str());
                     failTimes += 3; // 直接失败
+                    break;
                 }
                 case REDIS_SUCCESS: {
                     g_RedisPoolManager.getCoreCache()->put(cache, false);
                     failTimes = 0;
+                    break;
                 }
             }
         }
@@ -154,9 +167,11 @@ void *Scene::heartbeatRoutine(void *arg) {
             if (obj->_running) {
                 ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] heartbeat failed and destroyed\n", obj->_sceneId.c_str(), obj->_defId);
                 obj->_manager->removeScene(obj->_sceneId);
-                assert(obj->_running = false);
+                assert(obj->_running == false);
             }
         }
+
+        // TODO: 无人副本场景销毁
     }
 
     return nullptr;

@@ -59,6 +59,7 @@ namespace wukong {
         static RedisAccessResult AddSaveRoleId(redisContext *redis, uint32_t wheelPos, RoleId roleId);
         static RedisAccessResult RemoveSaveRoleId(redisContext *redis, uint32_t wheelPos, RoleId roleId);
 
+        static RedisAccessResult GetSceneAddress(redisContext *redis, const std::string &sceneId, ServerId &sceneServerId);
         static RedisAccessResult SetSceneAddress(redisContext *redis, const std::string &sceneId, const std::string &sToken, ServerId sceneServerId);
         static RedisAccessResult RemoveSceneAddress(redisContext *redis, const std::string &sceneId, const std::string &sToken);
         static RedisAccessResult SetSceneAddressTTL(redisContext *redis, const std::string &sceneId, const std::string &sToken);

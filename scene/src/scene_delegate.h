@@ -25,7 +25,7 @@ using namespace corpc;
 
 namespace wukong {
     class SceneDelegate {
-    	typedef std::function<std::shared_ptr<Scene> (uint32_t, SceneType, const std::string&)> CreateSceneHandle; // 参数1.场景配置ID，参数2.场景实例ID（为0表示需要产生实例ID），返回.场景实例shared_ptr对象
+    	typedef std::function<std::shared_ptr<Scene> (uint32_t defId, SceneType sType, const std::string& sceneId, const std::string &stoken, SceneManager *manager)> CreateSceneHandle; // 参数1.场景配置ID，参数2.场景实例ID（为0表示需要产生实例ID），返回.场景实例shared_ptr对象
         typedef std::function<std::list<RoleId> (const std::string&)> GetMembersHandle; // 参数为队伍ID，返回队伍成员ID列表（乌拉拉类型游戏）
         typedef std::function<SceneType (uint32_t)> GetSceneTypeHandle; // 参数为场景配置ID
 

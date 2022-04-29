@@ -30,9 +30,10 @@ message ForwardOutRequest {
 message SetGameObjectPosRequest {
     uint32 serverId = 1;
     uint64 userId = 2;
-    string lToken = 3;
-    uint32 gsType = 4;
-    uint32 gsId = 5;
+    uint64 roleId = 3;
+    string lToken = 4;
+    uint32 gsType = 5;
+    uint32 gsId = 6;
 }
 
 message GSHeartbeatRequest {

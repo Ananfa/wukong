@@ -17,6 +17,8 @@
 #include "corpc_routine_env.h"
 #include "scene_manager.h"
 #include "scene_delegate.h"
+#include "redis_pool.h"
+#include "redis_utils.h"
 #include "share/const.h"
 
 #include <sys/time.h>
@@ -29,6 +31,9 @@ void SceneManager::shutdown() {
     }
 
     _shutdown = true;
+
+    // 若不清emiter，会导致shared_ptr循环引用问题
+    _emiter.clear();
 
     for (auto &scene : _sceneId2SceneMap) {
         scene.second->stop();
@@ -60,8 +65,8 @@ std::shared_ptr<Scene> SceneManager::getScene(const std::string &sceneId) {
     return it->second;
 }
 
-std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, RoleId roleid, const std::string &teamid) {
-    if (!sceneId.empty() && _sceneManager->exist(sceneId)) {
+std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, RoleId roleId, const std::string &teamId) {
+    if (!sceneId.empty() && existScene(sceneId)) {
         ERROR_LOG("SceneManager::loadScene -- scene %s already exist\n", sceneId.c_str());
         return "";
     }
@@ -71,13 +76,13 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
     assert(g_SceneDelegate.getGetSceneTypeHandle());
     SceneType sType = g_SceneDelegate.getGetSceneTypeHandle()(defId);
 
-    if (sType == SCENE_TYPE_SINGLE_PLAYER && roleid == 0) {
-        ERROR_LOG("SceneManager::loadScene -- single player scene should have owner roleid\n");
+    if (sType == SCENE_TYPE_SINGLE_PLAYER && roleId == 0) {
+        ERROR_LOG("SceneManager::loadScene -- single player scene should have owner roleId\n");
         return "";
     }
 
-    if (sType == SCENE_TYPE_TEAM && teamid.empty()) {
-        ERROR_LOG("SceneManager::loadScene -- team scene should have teamid\n");
+    if (sType == SCENE_TYPE_TEAM && teamId.empty()) {
+        ERROR_LOG("SceneManager::loadScene -- team scene should have teamId\n");
         return "";
     }
 
@@ -91,7 +96,7 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
     if (sceneId.empty()) {
         switch (sType) {
             case SCENE_TYPE_SINGLE_PLAYER: {
-                realSceneId = "PS_" + std::to_string(members.front());
+                realSceneId = "PS_" + std::to_string(roleId);
                 break;
             }
             case SCENE_TYPE_MULTI_PLAYER: {
@@ -99,15 +104,20 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
                 break;
             }
             case SCENE_TYPE_TEAM: {
-                realSceneId = "TS_" + teamid;
+                realSceneId = "TS_" + teamId;
             }
             case SCENE_TYPE_GLOBAL: {
                 realSceneId = "GS_" + std::to_string(defId);
                 break;
             }
         }
+    } else {
+        realSceneId = sceneId;
+
+        // TODO: 校验场景号
     }
 
+    std::string sToken;
     // 如果不是个人场景，需要向redis进行注册新场景地址
     if (sType != SCENE_TYPE_SINGLE_PLAYER) {
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
@@ -116,10 +126,10 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
             return "";
         }
 
-        // 生成lToken（直接用当前时间来生成）
+        // 生成sToken（直接用当前时间来生成）
         struct timeval t;
         gettimeofday(&t, NULL);
-        std::string sToken = std::to_string((t.tv_sec % 1000) * 1000000 + t.tv_usec);
+        sToken = std::to_string((t.tv_sec % 1000) * 1000000 + t.tv_usec);
 
         switch (RedisUtils::SetSceneAddress(cache, realSceneId, sToken, _id)) {
             case REDIS_DB_ERROR: {
@@ -128,7 +138,6 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
                 return "";
             }
             case REDIS_FAIL: {
-                freeReplyObject(reply);
                 g_RedisPoolManager.getCoreCache()->put(cache, false);
                 ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed for already set\n", realSceneId.c_str());
                 return "";
@@ -142,17 +151,17 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
     // 获取场景需预载入的玩家ID列表（对于单人场景就算场景拥有者玩家ID，对于W3L类型队伍场景就是队伍成员列表）
     //       对于个人场景（预加载玩家ID为request参数中的roleid）
     //       对于非个人场景（通过delegate中的GetMembers接口获得预加载列表）
-    std::list<uint32_t> members;
-    if (roleid != 0) {
-        members.push_back(roleid);
-    } else if (!teamid.empty()) {
-        assert(g_SceneDelegate.setGetMembersHandle());
-        members = g_SceneDelegate.setGetMembersHandle()(teamid); // 这里会产生协程切换，若操作太慢会导致锁被释放
+    std::list<RoleId> members;
+    if (roleId != 0) {
+        members.push_back(roleId);
+    } else if (!teamId.empty()) {
+        assert(g_SceneDelegate.getGetMembersHandle());
+        members = g_SceneDelegate.getGetMembersHandle()(teamId); // 这里会产生协程切换，若操作太慢会导致锁被释放
     }
 
     // 创建场景对象
     assert(g_SceneDelegate.getCreateSceneHandle());
-    auto scene = g_SceneDelegate.getCreateSceneHandle()(defId, sType, realSceneId);
+    auto scene = g_SceneDelegate.getCreateSceneHandle()(defId, sType, realSceneId, sToken, this);
 
     if (!scene) {
         ERROR_LOG("SceneManager::loadScene -- load scene failed\n");
@@ -164,11 +173,11 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
     scene->start();
 
     // 成员预加载，若其中有玩家gameObj预加载失败，将所有已预加载的对象销毁并且销毁场景对象，返回加载失败
-    for (auto roleId : members) {
-        if (_gameObjectManager->loadRole(roleId, 0)) {
-            scene->enter(_roleId2GameObjectMap[roleId]);
+    for (auto id : members) {
+        if (loadRole(id, 0)) {
+            scene->enter(_roleId2GameObjectMap[id]);
         } else {
-            ERROR_LOG("SceneManager::loadScene -- load scene defId[%d] sceneId[%s] failed for load role[%llu] failed\n", defId, realSceneId.c_str(), roleId);
+            ERROR_LOG("SceneManager::loadScene -- load scene defId[%d] sceneId[%s] failed for load role[%llu] failed\n", defId, realSceneId.c_str(), id);
             
             removeScene(realSceneId);
             return "";
@@ -183,11 +192,11 @@ void SceneManager::removeScene(const std::string &sceneId) {
     assert(it != _sceneId2SceneMap.end());
 
     // 踢出场景中所有玩家(强制离线)，正常的离线不是由场景销毁导致的
-    for (auto it1 : it->second->_roles) {
-        DEBUG_LOG("SceneManager::removeScene -- remove role %d\n", it1->first);
+    for (auto pair : it->second->_roles) {
+        DEBUG_LOG("SceneManager::removeScene -- remove role %d\n", pair.first);
         // 删除游戏对象
-        it1->second->stop();
-        _roleId2GameObjectMap.erase(it1->first);
+        pair.second->stop();
+        _roleId2GameObjectMap.erase(pair.first);
     }
 
     it->second->stop();
@@ -232,6 +241,4 @@ void SceneManager::leaveScene(RoleId roleId) {
     assert(it1 != _sceneId2SceneMap.end());  // 不应该找不到场景
 
     it1->second->leave(roleId);
-
-    return true;
 }

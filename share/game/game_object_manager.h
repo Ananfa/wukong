@@ -37,7 +37,7 @@ namespace wukong {
 
         ServerId getId() { return _id; }
 
-        void shutdown();
+        virtual void shutdown();
         bool isShutdown() { return _shutdown; }
 
         size_t roleCount(); // 获取当前游戏对象数
@@ -45,7 +45,8 @@ namespace wukong {
         bool existRole(RoleId roleId); 
         std::shared_ptr<GameObject> getGameObject(RoleId roleId);
         bool loadRole(RoleId roleId, ServerId gatewayId);
-        void leaveGame(RoleId roleId); // 离开游戏--删除玩家游戏对象（只在心跳失败时调用，离开场景（离队）不调用此方法）
+        virtual void leaveGame(RoleId roleId); // 离开游戏--删除玩家游戏对象（只在心跳失败时调用，离开场景（离队）不调用此方法）
+        //virtual void offline(RoleId roleId); // 玩家离线
 
         // 全服事件相关接口
         uint32_t regGlobalEventHandle(const std::string &name, EventHandle handle);
@@ -58,7 +59,7 @@ namespace wukong {
     private:
         static void *globalEventHandleRoutine(void * arg);
 
-    private:
+    protected:
         GameServerType _type; // 游戏服务器类型（大厅、场景...）
         ServerId _id;         // 游戏服务器号（大厅服号、场景服号...）
         bool _shutdown;

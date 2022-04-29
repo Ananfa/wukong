@@ -84,6 +84,9 @@ void GameObjectManager::shutdown() {
     }
 
     _shutdown = true;
+    
+    // 若不清emiter，会导致shared_ptr循环引用问题
+    _emiter.clear();
 
     for (auto &gameObj : _roleId2GameObjectMap) {
         gameObj.second->stop();
@@ -215,12 +218,47 @@ bool GameObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
     }
 
     // 设置gateway和record stub
+    if (gatewayId == 0) {
+        // 先尝试查找玩家的gatewayId
+        redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
+        if (!cache) {
+            ERROR_LOG("GameObjectManager::loadRole -- role[%llu] connect to cache failed when get session\n", roleId);
+            return false;
+        }
+
+        ServerId gwid = 0;
+        std::string gToken;
+        RoleId rid = 0;
+        switch (RedisUtils::GetSession(cache, userId, gwid, gToken, rid)) {
+            case REDIS_DB_ERROR: {
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
+                ERROR_LOG("GameObjectManager::loadRole -- role[%llu] get session failed\n", roleId);
+                return false;
+            }
+            case REDIS_FAIL: {
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
+                ERROR_LOG("GameObjectManager::loadRole -- role[%llu] get session failed for return type invalid\n", roleId);
+                return false;
+            }
+            default: { // REDIS_SUCCESS
+                g_RedisPoolManager.getCoreCache()->put(cache, false);
+                if (rid == roleId) {
+                    gatewayId = gwid;
+                }
+                break;
+            }
+        }
+    }
+
+    // 当gatewayId为0时可以不用设置gateway stub（允许离线加载角色）
     if (gatewayId != 0) {
-        // 这里可以不用设置gateway stub
         if (!obj->setGatewayServerStub(gatewayId)) {
             ERROR_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] can't set gateway stub\n", userId, roleId);
             return false;
         }
+
+        // 通知gateway更新gameobj地址
+        obj->reportGameObjectPos();
     }
 
     if (!obj->setRecordServerStub(recordId)) {
@@ -241,6 +279,13 @@ void GameObjectManager::leaveGame(RoleId roleId) {
     it->second->stop();
     _roleId2GameObjectMap.erase(it);
 }
+
+//void GameObjectManager::offline(RoleId roleId) {
+//    auto it = _roleId2GameObjectMap.find(roleId);
+//    assert(it != _roleId2GameObjectMap.end());
+//
+//    it->second->onOffline();
+//}
 
 uint32_t GameObjectManager::regGlobalEventHandle(const std::string &name, EventHandle handle) {
     return _emiter.addEventHandle(name, handle);

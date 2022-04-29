@@ -111,9 +111,9 @@ void InnerLobbyServiceImpl::loadRole(::google::protobuf::RpcController* controll
         return;
     }
 
-    uint32_t targetSceneId = g_LobbyDelegate.getGetTargetSceneIdHandle()(roleId);
+    std::string targetSceneId = g_LobbyDelegate.getGetTargetSceneIdHandle()(roleId);
 
-    if (targetSceneId == 0) {
+    if (targetSceneId.empty()) {
         if (!_manager->loadRole(roleId, gwId)) {
             ERROR_LOG("InnerLobbyServiceImpl::loadRole -- role %d load failed\n", roleId);
             return;

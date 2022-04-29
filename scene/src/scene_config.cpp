@@ -183,7 +183,7 @@ bool SceneConfig::parse(const char *path) {
     }
     
     _zooPath = ZK_SCENE_SERVER + "/" + _ip + ":" + std::to_string(_port) + ":" + std::to_string(_type);
-    for (const LobbyConfig::ServerInfo &info : _serverInfos) {
+    for (const SceneConfig::ServerInfo &info : _serverInfos) {
         _zooPath += "|" + std::to_string(info.id);
     }
     

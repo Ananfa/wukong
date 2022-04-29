@@ -53,6 +53,11 @@ namespace wukong {
         bool setGatewayServerStub(ServerId sid);
         bool setRecordServerStub(ServerId sid);
 
+        ServerId getGatewayServerId() { return _gatewayId; }
+        ServerId getRecordServerId() { return _recordId; }
+
+        GameObjectManager *getManager() { return _manager; }
+
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
 

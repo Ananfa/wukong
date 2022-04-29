@@ -25,24 +25,24 @@ namespace wukong {
 
     class SceneServiceImpl : public pb::SceneService {
     public:
-        virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void shutdown(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
-        virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
                              ::wukong::pb::OnlineCounts* response,
                              ::google::protobuf::Closure* done);
-        virtual void loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void loadScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::LoadSceneRequest* request,
                              ::wukong::pb::LoadSceneResponse* response,
                              ::google::protobuf::Closure* done);
-        virtual void enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void enterScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::EnterSceneRequest* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
 
-        void addInnerStub(ServerId sid, pb::InnerRecordService_Stub* stub);
+        void addInnerStub(ServerId sid, pb::InnerSceneService_Stub* stub);
 
     private:
         pb::InnerSceneService_Stub *getInnerStub(ServerId sid);
@@ -54,27 +54,27 @@ namespace wukong {
     
     class InnerSceneServiceImpl : public pb::InnerSceneService {
     public:
-        InnerSceneServiceImpl(SceneManager *sceneManager): _sceneManager(sceneManager) {}
+        InnerSceneServiceImpl(SceneManager *manager): _manager(manager) {}
 
-        virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void shutdown(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
-        virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
                              ::wukong::pb::Uint32Value* response,
                              ::google::protobuf::Closure* done);
-        virtual void loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void loadScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::LoadSceneRequest* request,
                              ::wukong::pb::LoadSceneResponse* response,
                              ::google::protobuf::Closure* done);
-        virtual void enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+        virtual void enterScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::EnterSceneRequest* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
 
     private:
-        SceneManager *_sceneManager;
+        SceneManager *_manager;
     };
     
 }

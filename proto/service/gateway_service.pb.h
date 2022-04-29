@@ -721,13 +721,14 @@ class SetGameObjectPosRequest final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kLTokenFieldNumber = 3,
+    kLTokenFieldNumber = 4,
     kUserIdFieldNumber = 2,
+    kRoleIdFieldNumber = 3,
     kServerIdFieldNumber = 1,
-    kGsTypeFieldNumber = 4,
-    kGsIdFieldNumber = 5,
+    kGsTypeFieldNumber = 5,
+    kGsIdFieldNumber = 6,
   };
-  // string lToken = 3;
+  // string lToken = 4;
   void clear_ltoken();
   const std::string& ltoken() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -750,6 +751,15 @@ class SetGameObjectPosRequest final :
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
+  // uint64 roleId = 3;
+  void clear_roleid();
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid() const;
+  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_roleid() const;
+  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // uint32 serverId = 1;
   void clear_serverid();
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
@@ -759,7 +769,7 @@ class SetGameObjectPosRequest final :
   void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 gsType = 4;
+  // uint32 gsType = 5;
   void clear_gstype();
   ::PROTOBUF_NAMESPACE_ID::uint32 gstype() const;
   void set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -768,7 +778,7 @@ class SetGameObjectPosRequest final :
   void _internal_set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
-  // uint32 gsId = 5;
+  // uint32 gsId = 6;
   void clear_gsid();
   ::PROTOBUF_NAMESPACE_ID::uint32 gsid() const;
   void set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value);
@@ -786,6 +796,7 @@ class SetGameObjectPosRequest final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint64 userid_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 roleid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gstype_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gsid_;
@@ -1517,7 +1528,27 @@ inline void SetGameObjectPosRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint64 
   // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.userId)
 }
 
-// string lToken = 3;
+// uint64 roleId = 3;
+inline void SetGameObjectPosRequest::clear_roleid() {
+  roleid_ = uint64_t{0u};
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::_internal_roleid() const {
+  return roleid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::roleid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.roleId)
+  return _internal_roleid();
+}
+inline void SetGameObjectPosRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  
+  roleid_ = value;
+}
+inline void SetGameObjectPosRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_roleid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.roleId)
+}
+
+// string lToken = 4;
 inline void SetGameObjectPosRequest::clear_ltoken() {
   ltoken_.ClearToEmpty();
 }
@@ -1563,7 +1594,7 @@ inline void SetGameObjectPosRequest::set_allocated_ltoken(std::string* ltoken) {
   // @@protoc_insertion_point(field_set_allocated:wukong.pb.SetGameObjectPosRequest.lToken)
 }
 
-// uint32 gsType = 4;
+// uint32 gsType = 5;
 inline void SetGameObjectPosRequest::clear_gstype() {
   gstype_ = 0u;
 }
@@ -1583,7 +1614,7 @@ inline void SetGameObjectPosRequest::set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 
   // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.gsType)
 }
 
-// uint32 gsId = 5;
+// uint32 gsId = 6;
 inline void SetGameObjectPosRequest::clear_gsid() {
   gsid_ = 0u;
 }

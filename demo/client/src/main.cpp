@@ -3,6 +3,7 @@
 #include "http_client.h"
 #include "uuid_utils.h"
 #include "share/const.h"
+#include "demo_const.h"
 #include "rapidjson/document.h"
 #include "game.pb.h"
 #include "common.pb.h"
@@ -12,6 +13,7 @@
 
 #define TEST_RECONNECT
 
+using namespace demo;
 using namespace corpc;
 using namespace wukong;
 using namespace rapidjson;
@@ -257,7 +259,7 @@ static void *test_login(void *arg) {
                 DEBUG_LOG("reconnect game\n");
                 break;
             }
-            case 1000: {
+            case S2C_MESSAGE_ID_ECHO: {
                 std::shared_ptr<pb::StringValue> resp = std::static_pointer_cast<pb::StringValue>(rMsg);
                 DEBUG_LOG("echo: %s\n", resp->value().c_str());
 
@@ -292,7 +294,7 @@ static void *test_login(void *arg) {
             std::shared_ptr<pb::StringValue> echoReq(new pb::StringValue);
             echoReq->set_value("hello world");
 
-            client->send(1000, ++sendTag, true, std::static_pointer_cast<google::protobuf::Message>(echoReq));
+            client->send(C2S_MESSAGE_ID_ECHO, ++sendTag, true, std::static_pointer_cast<google::protobuf::Message>(echoReq));
             struct timeval t;
             gettimeofday(&t, NULL);
             sendHelloAt = t.tv_sec;

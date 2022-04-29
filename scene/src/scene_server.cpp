@@ -21,9 +21,12 @@
 #include "scene_config.h"
 #include "scene_service.h"
 #include "game_service.h"
+#include "game_center.h"
+#include "client_center.h"
 #include "gateway_client.h"
 #include "record_client.h"
 #include "scene_client.h"
+#include "redis_pool.h"
 
 #include "zk_client.h"
 #include "utility.h"
@@ -35,7 +38,7 @@
 using namespace corpc;
 using namespace wukong;
 
-void SceneServer::lobbyThread(InnerRpcServer *server, ServerId sid) {
+void SceneServer::sceneThread(InnerRpcServer *server, ServerId sid) {
     // 启动RPC服务
     server->start(false);
     
@@ -114,7 +117,7 @@ bool SceneServer::init(int argc, char * argv[]) {
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_SceneConfig.getRedisInfos();
     for (auto &info : redisInfos) {
-        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnectNum);
+        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnect);
         if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
             ERROR_LOG("SceneServer::init -- addPool[%s] failed\n", info.dbName.c_str());
             return false;
@@ -128,7 +131,7 @@ bool SceneServer::init(int argc, char * argv[]) {
 
 void SceneServer::run() {
     // 注意：GameCenter要在game object manager之前init，因为跨服事件队列处理协程需要先启动
-    g_GameCenter.init(GAME_SERVER_TYPE_SCENE, 0, g_SceneConfig.getCache().host.c_str(), g_SceneConfig.getCache().port, g_SceneConfig.getCache().dbIndex, g_SceneConfig.getCache().maxConnect);
+    g_GameCenter.init(GAME_SERVER_TYPE_SCENE, g_SceneConfig.getUpdatePeriod());
 
     SceneServiceImpl *sceneServiceImpl = new SceneServiceImpl();
     GameServiceImpl *gameServiceImpl = new GameServiceImpl();
@@ -142,7 +145,7 @@ void SceneServer::run() {
         sceneServiceImpl->addInnerStub(info.id, new pb::InnerSceneService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
         gameServiceImpl->addInnerStub(info.id, new pb::InnerGameService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
 
-        _threads.push_back(std::thread(lobbyThread, innerServer, info.id));
+        _threads.push_back(std::thread(sceneThread, innerServer, info.id));
     }
 
     // 启动对外的RPC服务

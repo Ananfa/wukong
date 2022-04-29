@@ -17,11 +17,18 @@
 #ifndef scene_h
 #define scene_h
 
+#include "corpc_cond.h"
+#include "share/define.h"
+#include "game_object.h"
+#include "event.h"
 #include <map>
 
 using namespace corpc;
 
 namespace wukong {
+    class Scene;
+    class SceneManager;
+
     struct SceneRoutineArg {
         std::shared_ptr<Scene> obj;
     };
@@ -29,11 +36,11 @@ namespace wukong {
     class Scene: public std::enable_shared_from_this<Scene> {
     public:
         Scene(uint32_t defId, SceneType type, const std::string &sceneId, const std::string &sToken, SceneManager *manager): _defId(defId), _type(type), _sceneId(sceneId), _sToken(sToken), _manager(manager) {}
-        virtual ~Scene() = 0;
+        virtual ~Scene() {};
 
         uint32_t getDefId() { return _defId; }
         const std::string &getSceneId() { return _sceneId; }
-        uint32_t getSToken() { return _sToken; }
+        const std::string &getSToken() { return _sToken; }
 
         SceneType getType() { return _type; }
 
@@ -69,11 +76,6 @@ namespace wukong {
 
         Cond _cond;
 
-    	SceneManager *_manager; // 关联的场景manager
-
-    	// 场景中的游戏对象列表（注意：不要产生shared_ptr循环引用）
-    	std::map<RoleId, std::shared_ptr<GameObject>> _roles;
-
         EventEmitter _emiter;
         std::vector<uint32_t> _globalEventHandleRefs; // 用于gameobject销毁时注销注册的全局事件处理
 
@@ -81,9 +83,15 @@ namespace wukong {
         uint32_t _defId;
         std::string _sceneId;
 
+        SceneManager *_manager; // 关联的场景manager
+
+        // 场景中的游戏对象列表（注意：不要产生shared_ptr循环引用）
+        std::map<RoleId, std::shared_ptr<GameObject>> _roles;
+
     public:
         friend class SceneManager;
-	};
+        friend class InnerSceneServiceImpl;
+    };
 }
 
 #endif /* scene_h */

@@ -1,0 +1,33 @@
+{
+    "ip": "127.0.0.1",
+    "port": 12001,
+    "type": 1,
+    "servers": [
+        {
+            "id": 10001
+        },
+        {
+            "id": 10002
+        },
+        {
+            "id": 10003
+        }
+    ],
+    "zookeeper": "127.0.0.1:2181",
+    "ioRecvThreadNum": 2,
+    "ioSendThreadNum": 2,
+    "redis": [
+        {
+            "dbName": "cache",
+            "host": "192.168.0.189",
+            "port": 6379,
+            "pwd": "",
+            "maxConnect": 8,
+            "dbIndex": 6
+        }
+    ],
+    "coreCache": "cache",
+    "updatePeriod": 0,
+    "enableLobbyClient": true,
+    "enableSceneClient": true
+}

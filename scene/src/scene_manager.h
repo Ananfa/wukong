@@ -23,6 +23,7 @@
 
 #include "game_object_manager.h"
 #include "scene.h"
+#include "share/const.h"
 
 using namespace corpc;
 
@@ -32,15 +33,15 @@ namespace wukong {
         SceneManager(ServerId id): GameObjectManager(GAME_SERVER_TYPE_SCENE, id) {}
         virtual ~SceneManager() {}
 
-        void shutdown();
+        virtual void shutdown(); // 关闭（重载）
 
         size_t sceneCount(); // 获取当前场景对象数
 
         bool existScene(const std::string &sceneId); 
         std::shared_ptr<Scene> getScene(const std::string &sceneId);
-        std::string loadScene(uint32_t defId, const std::string &sceneId, RoleId roleid, const std::string &teamid); // 失败时返回""
+        std::string loadScene(uint32_t defId, const std::string &sceneId, RoleId roleId, const std::string &teamId); // 失败时返回""
         void removeScene(const std::string &sceneId); // 删除场景对象
-        void leaveGame(RoleId roleId); // 角色离开游戏（重载）
+        virtual void leaveGame(RoleId roleId); // 角色离开游戏（重载）
         void leaveScene(RoleId roleId); // 角色离开场景（切换场景和离队时也调用此方法）
 
     private:

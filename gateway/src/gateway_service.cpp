@@ -203,14 +203,24 @@ void InnerGatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController
                                           ::google::protobuf::Closure* done) {
     std::shared_ptr<GatewayObject> obj = _manager->getGatewayObject(request->userid());
     if (!obj) {
-        ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] gateway object not found\n", request->userid());
+        // 注意：正常情况下这里是会进入的，玩家刚进入游戏时的流程里面会进到这里
+        //ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] gateway object not found\n", request->userid());
         return;
     }
 
-    if (obj->getLToken() != request->ltoken()) {
-        ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] ltoken not match\n", request->userid());
+    // 场景切换时重建gameobj对象时，ltoken会重新生成，此时会与session中记录的值不一致，这里不应判断ltoken值
+    //if (obj->getLToken() != request->ltoken()) {
+    //    ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] ltoken not match\n", request->userid());
+    //    return;
+    //}
+
+    if (obj->getRoleId() != request->roleid()) {
+        ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] roleid not match\n", request->userid());
         return;
     }
+
+    // 重置ltoken
+    obj->setLToken(request->ltoken());
 
     struct timeval t;
     gettimeofday(&t, NULL);

@@ -54,7 +54,7 @@ void SceneServiceImpl::getOnlineCount(::google::protobuf::RpcController* control
     });
 }
 
-void SceneServiceImpl::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+void SceneServiceImpl::loadScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::LoadSceneRequest* request,
                              ::wukong::pb::LoadSceneResponse* response,
                              ::google::protobuf::Closure* done) {
@@ -62,7 +62,7 @@ void SceneServiceImpl::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* control
     stub->loadScene(controller, request, response, done);
 }
 
-void SceneServiceImpl::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+void SceneServiceImpl::enterScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::EnterSceneRequest* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done) {
@@ -97,48 +97,76 @@ void InnerSceneServiceImpl::shutdown(::google::protobuf::RpcController* controll
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-    _sceneManager->shutdown();
-    _gameObjectManager->shutdown();
+    _manager->shutdown();
 }
 
 void InnerSceneServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                       const ::corpc::Void* request,
                                       ::wukong::pb::Uint32Value* response,
                                       ::google::protobuf::Closure* done) {
-    response->set_value(_gameObjectManager->size());
+    response->set_value(_manager->roleCount());
 }
 
-void InnerSceneServiceImpl::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+void InnerSceneServiceImpl::loadScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::LoadSceneRequest* request,
                              ::wukong::pb::LoadSceneResponse* response,
                              ::google::protobuf::Closure* done) {
     // 判断manager中场景是否已经存在
-    if (!request->sceneid().empty() && _sceneManager->exist(request->sceneid())) {
+    if (!request->sceneid().empty() && _manager->existScene(request->sceneid())) {
         response->set_errcode(SCENE_ALREADY_EXIST);
         return;
     }
     
-    std::string sceneId = _sceneManager->loadScene(request-defid(), request->sceneid(), request->roleid(), request->teamid());
+    std::string sceneId = _manager->loadScene(request->defid(), request->sceneid(), request->roleid(), request->teamid());
     if (sceneId.empty()) {
         response->set_errcode(LOAD_SCENE_FAILED);
         return;
     }
     
-    response->set_sceneid(sceneid);
+    response->set_sceneid(sceneId);
 }
 
-void InnerSceneServiceImpl::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+void InnerSceneServiceImpl::enterScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::EnterSceneRequest* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done) {
-    // TODO: 在sceneManager中查询场景
+    auto scene = _manager->getScene(request->sceneid());
 
-    // TOTO: 如果是单人场景，记录警告日志后退出。 单人场景中的角色是场景创建时一并加载的，不需要通过enterScene接口
+    if (!scene) {
+        ERROR_LOG("InnerSceneServiceImpl::enterScene -- scene[%s] not found\n", request->sceneid().c_str());
+        return;
+    }
 
-    // TODO: 在gameObjectManager中查询游戏对象，如果存在写错误日志并退出
+    // 如果是单人场景或队伍场景，记录警告日志后退出。 单人场景和队伍场景中的角色是场景创建时一并加载的，不需要通过enterScene接口
+    // 注意：队伍场景中人员变化时相当于解散旧队伍创建新队伍
+    if (scene->getType() == SCENE_TYPE_SINGLE_PLAYER || scene->getType() == SCENE_TYPE_TEAM) {
+        ERROR_LOG("InnerSceneServiceImpl::enterScene -- scene[%s] type invalid\n", request->sceneid().c_str());
+        return;
+    }
 
-    // TODO: 创建游戏对象，如果创建游戏对象失败，写错误日志并退出
+    RoleId roleId = request->roleid();
+    // 在gameObjectManager中查询游戏对象，如果存在写错误日志并退出
+    auto gameObj = _manager->getGameObject(roleId);
+    if (gameObj) {
+        ERROR_LOG("InnerSceneServiceImpl::enterScene -- gameObj[%d] already exist\n", roleId);
+        return;
+    }
+
+    // 创建游戏对象，如果创建游戏对象失败，写错误日志并退出
+    if (!_manager->loadRole(roleId, request->gatewayid())) {
+        ERROR_LOG("InnerSceneServiceImpl::enterScene -- load role[%d] failed\n", roleId);
+        return;
+    }
 
     // 问题：游戏对象加载后到进入场景过程中是否会进入场景失败导致游戏对象悬空？加载角色对象完成时发现场景销毁了？遇到这种情况直接销毁游戏对象
+    if (!scene->_running) {
+        ERROR_LOG("InnerSceneServiceImpl::enterScene -- after loaded role[%d] scene stoped\n", roleId);
+        gameObj->leaveGame();
+        return;
+    }
 
+    gameObj = _manager->getGameObject(roleId);
+    assert(gameObj);
+
+    scene->enter(gameObj);
 }

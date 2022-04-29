@@ -9,7 +9,7 @@ using namespace demo;
 
 int main(int argc, char * argv[]) {
     if (!g_RecordServer.init(argc, argv)) {
-        ERROR_LOG("Can't init login server\n");
+        ERROR_LOG("Can't init record server\n");
         return -1;
     }
 

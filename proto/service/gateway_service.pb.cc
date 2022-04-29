@@ -65,6 +65,7 @@ constexpr SetGameObjectPosRequest::SetGameObjectPosRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : ltoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , userid_(uint64_t{0u})
+  , roleid_(uint64_t{0u})
   , serverid_(0u)
   , gstype_(0u)
   , gsid_(0u){}
@@ -130,6 +131,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_gateway_5fservice_2eproto::off
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SetGameObjectPosRequest, serverid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SetGameObjectPosRequest, userid_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::SetGameObjectPosRequest, roleid_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SetGameObjectPosRequest, ltoken_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SetGameObjectPosRequest, gstype_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::SetGameObjectPosRequest, gsid_),
@@ -147,7 +149,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 8, -1, sizeof(::wukong::pb::ForwardOutTarget)},
   { 15, -1, sizeof(::wukong::pb::ForwardOutRequest)},
   { 25, -1, sizeof(::wukong::pb::SetGameObjectPosRequest)},
-  { 35, -1, sizeof(::wukong::pb::GSHeartbeatRequest)},
+  { 36, -1, sizeof(::wukong::pb::GSHeartbeatRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -167,32 +169,33 @@ const char descriptor_table_protodef_gateway_5fservice_2eproto[] PROTOBUF_SECTIO
   "\002 \001(\t\"~\n\021ForwardOutRequest\022\020\n\010serverId\030\001"
   " \001(\r\022\014\n\004type\030\002 \001(\005\022\013\n\003tag\030\003 \001(\r\022,\n\007targe"
   "ts\030\004 \003(\0132\033.wukong.pb.ForwardOutTarget\022\016\n"
-  "\006rawMsg\030\005 \001(\014\"i\n\027SetGameObjectPosRequest"
-  "\022\020\n\010serverId\030\001 \001(\r\022\016\n\006userId\030\002 \001(\004\022\016\n\006lT"
-  "oken\030\003 \001(\t\022\016\n\006gsType\030\004 \001(\r\022\014\n\004gsId\030\005 \001(\r"
-  "\"F\n\022GSHeartbeatRequest\022\020\n\010serverId\030\001 \001(\r"
-  "\022\016\n\006userId\030\002 \001(\004\022\016\n\006lToken\030\003 \001(\t2\245\003\n\016Gat"
-  "ewayService\022*\n\010shutdown\022\013.corpc.Void\032\013.c"
-  "orpc.Void\"\004\230\361\004\001\022:\n\004kick\022\026.wukong.pb.Kick"
-  "Request\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\022A\n\016g"
-  "etOnlineCount\022\013.corpc.Void\032\027.wukong.pb.O"
-  "nlineCounts\"\t\220\361\004\001\240\361\004\320\017\022A\n\nforwardOut\022\034.w"
+  "\006rawMsg\030\005 \001(\014\"y\n\027SetGameObjectPosRequest"
+  "\022\020\n\010serverId\030\001 \001(\r\022\016\n\006userId\030\002 \001(\004\022\016\n\006ro"
+  "leId\030\003 \001(\004\022\016\n\006lToken\030\004 \001(\t\022\016\n\006gsType\030\005 \001"
+  "(\r\022\014\n\004gsId\030\006 \001(\r\"F\n\022GSHeartbeatRequest\022\020"
+  "\n\010serverId\030\001 \001(\r\022\016\n\006userId\030\002 \001(\004\022\016\n\006lTok"
+  "en\030\003 \001(\t2\245\003\n\016GatewayService\022*\n\010shutdown\022"
+  "\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022:\n\004kick\022"
+  "\026.wukong.pb.KickRequest\032\024.wukong.pb.Bool"
+  "Value\"\004\220\361\004\001\022A\n\016getOnlineCount\022\013.corpc.Vo"
+  "id\032\027.wukong.pb.OnlineCounts\"\t\220\361\004\001\240\361\004\320\017\022A"
+  "\n\nforwardOut\022\034.wukong.pb.ForwardOutReque"
+  "st\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\022R\n\020setGameObje"
+  "ctPos\022\".wukong.pb.SetGameObjectPosReques"
+  "t\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\022K\n\theartbe"
+  "at\022\035.wukong.pb.GSHeartbeatRequest\032\024.wuko"
+  "ng.pb.BoolValue\"\t\220\361\004\001\240\361\004\320\017\032\004\200\361\004\0012\227\003\n\023Inn"
+  "erGatewayService\022*\n\010shutdown\022\013.corpc.Voi"
+  "d\032\013.corpc.Void\"\004\230\361\004\001\022:\n\004kick\022\026.wukong.pb"
+  ".KickRequest\032\024.wukong.pb.BoolValue\"\004\220\361\004\001"
+  "\022<\n\016getOnlineCount\022\013.corpc.Void\032\026.wukong"
+  ".pb.Uint32Value\"\005\240\361\004\364\003\022=\n\nforwardOut\022\034.w"
   "ukong.pb.ForwardOutRequest\032\013.corpc.Void\""
-  "\010\230\361\004\001\250\361\004\001\022R\n\020setGameObjectPos\022\".wukong.p"
-  "b.SetGameObjectPosRequest\032\024.wukong.pb.Bo"
-  "olValue\"\004\220\361\004\001\022K\n\theartbeat\022\035.wukong.pb.G"
-  "SHeartbeatRequest\032\024.wukong.pb.BoolValue\""
-  "\t\220\361\004\001\240\361\004\320\017\032\004\200\361\004\0012\227\003\n\023InnerGatewayService"
-  "\022*\n\010shutdown\022\013.corpc.Void\032\013.corpc.Void\"\004"
-  "\230\361\004\001\022:\n\004kick\022\026.wukong.pb.KickRequest\032\024.w"
-  "ukong.pb.BoolValue\"\004\220\361\004\001\022<\n\016getOnlineCou"
-  "nt\022\013.corpc.Void\032\026.wukong.pb.Uint32Value\""
-  "\005\240\361\004\364\003\022=\n\nforwardOut\022\034.wukong.pb.Forward"
-  "OutRequest\032\013.corpc.Void\"\004\230\361\004\001\022L\n\020setGame"
-  "ObjectPos\022\".wukong.pb.SetGameObjectPosRe"
-  "quest\032\024.wukong.pb.BoolValue\022G\n\theartbeat"
-  "\022\035.wukong.pb.GSHeartbeatRequest\032\024.wukong"
-  ".pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361\004\001B\003\200\001\001b\006proto3"
+  "\004\230\361\004\001\022L\n\020setGameObjectPos\022\".wukong.pb.Se"
+  "tGameObjectPosRequest\032\024.wukong.pb.BoolVa"
+  "lue\022G\n\theartbeat\022\035.wukong.pb.GSHeartbeat"
+  "Request\032\024.wukong.pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361"
+  "\004\001B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_gateway_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -201,7 +204,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_gateway_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_gateway_5fservice_2eproto = {
-  false, false, 1359, descriptor_table_protodef_gateway_5fservice_2eproto, "gateway_service.proto", 
+  false, false, 1375, descriptor_table_protodef_gateway_5fservice_2eproto, "gateway_service.proto", 
   &descriptor_table_gateway_5fservice_2eproto_once, descriptor_table_gateway_5fservice_2eproto_deps, 3, 5,
   schemas, file_default_instances, TableStruct_gateway_5fservice_2eproto::offsets,
   file_level_metadata_gateway_5fservice_2eproto, file_level_enum_descriptors_gateway_5fservice_2eproto, file_level_service_descriptors_gateway_5fservice_2eproto,
@@ -1108,25 +1111,32 @@ const char* SetGameObjectPosRequest::_InternalParse(const char* ptr, ::PROTOBUF_
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // string lToken = 3;
+      // uint64 roleId = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          roleid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string lToken = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_ltoken();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "wukong.pb.SetGameObjectPosRequest.lToken"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 gsType = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+      // uint32 gsType = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
           gstype_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // uint32 gsId = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+      // uint32 gsId = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
           gsid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
@@ -1172,26 +1182,32 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_userid(), target);
   }
 
-  // string lToken = 3;
+  // uint64 roleId = 3;
+  if (this->_internal_roleid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(3, this->_internal_roleid(), target);
+  }
+
+  // string lToken = 4;
   if (!this->_internal_ltoken().empty()) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_ltoken().data(), static_cast<int>(this->_internal_ltoken().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
       "wukong.pb.SetGameObjectPosRequest.lToken");
     target = stream->WriteStringMaybeAliased(
-        3, this->_internal_ltoken(), target);
+        4, this->_internal_ltoken(), target);
   }
 
-  // uint32 gsType = 4;
+  // uint32 gsType = 5;
   if (this->_internal_gstype() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_gstype(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(5, this->_internal_gstype(), target);
   }
 
-  // uint32 gsId = 5;
+  // uint32 gsId = 6;
   if (this->_internal_gsid() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(5, this->_internal_gsid(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(6, this->_internal_gsid(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1210,7 +1226,7 @@ size_t SetGameObjectPosRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string lToken = 3;
+  // string lToken = 4;
   if (!this->_internal_ltoken().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
@@ -1224,6 +1240,13 @@ size_t SetGameObjectPosRequest::ByteSizeLong() const {
         this->_internal_userid());
   }
 
+  // uint64 roleId = 3;
+  if (this->_internal_roleid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_roleid());
+  }
+
   // uint32 serverId = 1;
   if (this->_internal_serverid() != 0) {
     total_size += 1 +
@@ -1231,14 +1254,14 @@ size_t SetGameObjectPosRequest::ByteSizeLong() const {
         this->_internal_serverid());
   }
 
-  // uint32 gsType = 4;
+  // uint32 gsType = 5;
   if (this->_internal_gstype() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_gstype());
   }
 
-  // uint32 gsId = 5;
+  // uint32 gsId = 6;
   if (this->_internal_gsid() != 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
@@ -1278,6 +1301,9 @@ void SetGameObjectPosRequest::MergeFrom(const SetGameObjectPosRequest& from) {
   }
   if (from._internal_userid() != 0) {
     _internal_set_userid(from._internal_userid());
+  }
+  if (from._internal_roleid() != 0) {
+    _internal_set_roleid(from._internal_roleid());
   }
   if (from._internal_serverid() != 0) {
     _internal_set_serverid(from._internal_serverid());

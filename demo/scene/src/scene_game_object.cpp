@@ -1,4 +1,6 @@
 #include "scene_game_object.h"
+#include "scene_manager.h"
+#include "demo_const.h"
 
 using namespace demo;
 using namespace corpc;
@@ -60,6 +62,13 @@ void SceneGameObject::onEnterGame() { // 重登了
     }
 
     // TODO: 其他进入游戏逻辑
+
+    // 发送进入场景消息给客户端
+    SceneManager *manager = (SceneManager *)getManager();
+    auto scene = manager->getScene(getSceneId());
+    wukong::pb::Int32Value resp;
+    resp.set_value(scene->getDefId());
+    send(S2C_MESSAGE_ID_ENTERSCENE, 0, resp);
 }
 
 void SceneGameObject::onOffline() { // 断线了

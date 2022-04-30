@@ -33,8 +33,6 @@ void MessageHandler::EnterSceneHandle(std::shared_ptr<GameObject> obj, uint16_t 
     // 加1点经验值
     realObj->setExp(realObj->getExp()+1);
 
-    std::string sceneId = realObj->getSceneId();
-    DEBUG_LOG("MessageHandler::EnterSceneHandle -- sceneId: %s\n", sceneId.c_str());
     SceneManager *manager = (SceneManager *)realObj->getManager();
     auto scene = manager->getScene(realObj->getSceneId());
 

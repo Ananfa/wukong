@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef scene_delegate_h
-#define scene_delegate_h
+#ifndef wukong_scene_delegate_h
+#define wukong_scene_delegate_h
 
 #include <functional>
 #include "scene.h"
@@ -53,4 +53,4 @@ namespace wukong {
 
 #define g_SceneDelegate SceneDelegate::Instance()
 
-#endif /* scene_delegate_h */
+#endif /* wukong_scene_delegate_h */

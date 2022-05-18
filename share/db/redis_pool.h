@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef redis_pool_h
-#define redis_pool_h
+#ifndef wukong_redis_pool_h
+#define wukong_redis_pool_h
 
 #include "corpc_redis.h"
 
@@ -92,4 +92,4 @@ namespace wukong {
 
 #define g_RedisPoolManager RedisPoolManager::Instance()
 
-#endif /* redis_pool_h */
+#endif /* wukong_redis_pool_h */

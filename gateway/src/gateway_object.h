@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef gateway_object_h
-#define gateway_object_h
+#ifndef wukong_gateway_object_h
+#define wukong_gateway_object_h
 
 #include "corpc_message_server.h"
 #include "corpc_cond.h"
@@ -79,4 +79,4 @@ namespace wukong {
     };
 }
 
-#endif /* gateway_object_h */
+#endif /* wukong_gateway_object_h */

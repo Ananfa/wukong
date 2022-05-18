@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef gateway_handler_h
-#define gateway_handler_h
+#ifndef wukong_gateway_handler_h
+#define wukong_gateway_handler_h
 
 #include "gateway_object_manager.h"
 #include "corpc_message_server.h"
@@ -40,4 +40,4 @@ namespace wukong {
     };
 }
 
-#endif /* gateway_handler_h */
+#endif /* wukong_gateway_handler_h */

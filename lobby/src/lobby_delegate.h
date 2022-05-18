@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef lobby_delegate_h
-#define lobby_delegate_h
+#ifndef wukong_lobby_delegate_h
+#define wukong_lobby_delegate_h
 
 #include <functional>
 #include "share/define.h"
@@ -53,4 +53,4 @@ namespace wukong {
 
 #define g_LobbyDelegate LobbyDelegate::Instance()
 
-#endif /* lobby_delegate_h */
+#endif /* wukong_lobby_delegate_h */

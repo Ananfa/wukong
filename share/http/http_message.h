@@ -1,5 +1,5 @@
-#ifndef http_message_h
-#define http_message_h
+#ifndef wukong_http_message_h
+#define wukong_http_message_h
 
 #include <map>
 #include <string>

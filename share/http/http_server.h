@@ -1,5 +1,5 @@
-#ifndef http_server_h
-#define http_server_h
+#ifndef wukong_http_server_h
+#define wukong_http_server_h
 
 #include "corpc_io.h"
 #include "http_parser.h"
@@ -136,4 +136,4 @@ namespace wukong {
     };
 }
 
-#endif /* http_server_h */
+#endif /* wukong_http_server_h */

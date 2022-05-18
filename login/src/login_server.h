@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef login_server_h
-#define login_server_h
+#ifndef wukong_login_server_h
+#define wukong_login_server_h
 
 #include "corpc_rpc_client.h"
 #include "http_server.h"
@@ -52,4 +52,4 @@ namespace wukong {
 
 }
 
-#endif /* login_server_h */
+#endif /* wukong_login_server_h */

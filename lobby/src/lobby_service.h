@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef lobby_service_h
-#define lobby_service_h
+#ifndef wukong_lobby_service_h
+#define wukong_lobby_service_h
 
 #include "corpc_controller.h"
 #include "lobby_service.pb.h"
@@ -76,4 +76,4 @@ namespace wukong {
     
 }
 
-#endif /* lobby_service_h */
+#endif /* wukong_lobby_service_h */

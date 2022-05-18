@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef distribute_lock_h
-#define distribute_lock_h
+#ifndef wukong_distribute_lock_h
+#define wukong_distribute_lock_h
 
 #include "corpc_redis.h"
 #include "const.h"
@@ -62,4 +62,4 @@ namespace wukong {
     }
 }
 
-#endif /* distribute_lock_h */
+#endif /* wukong_distribute_lock_h */

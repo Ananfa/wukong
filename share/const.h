@@ -1,5 +1,5 @@
-#ifndef const_h
-#define const_h
+#ifndef wukong_const_h
+#define wukong_const_h
 
 #include "define.h"
 #include <string>
@@ -299,4 +299,4 @@ namespace wukong {
 
 }
 
-#endif /* const_h */
+#endif /* wukong_const_h */

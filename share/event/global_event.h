@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef global_event_h
-#define global_event_h
+#ifndef wukong_global_event_h
+#define wukong_global_event_h
 
 #include "share/define.h"
 #include "event.h"
@@ -85,4 +85,4 @@ namespace wukong {
     };
 }
 
-#endif /* global_event_h */
+#endif /* wukong_global_event_h */

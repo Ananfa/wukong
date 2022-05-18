@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef game_service_h
-#define game_service_h
+#ifndef wukong_game_service_h
+#define wukong_game_service_h
 
 #include "corpc_controller.h"
 #include "game_service.pb.h"
@@ -65,4 +65,4 @@ namespace wukong {
 
 }
 
-#endif /* game_service_h */
+#endif /* wukong_game_service_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef lobby_client_h
-#define lobby_client_h
+#ifndef wukong_lobby_client_h
+#define wukong_lobby_client_h
 
 #include <map>
 #include <vector>
@@ -82,4 +82,4 @@ namespace wukong {
     
 #define g_LobbyClient wukong::LobbyClient::Instance()
 
-#endif /* lobby_client_h */
+#endif /* wukong_lobby_client_h */

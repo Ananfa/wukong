@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef gateway_server_h
-#define gateway_server_h
+#ifndef wukong_gateway_server_h
+#define wukong_gateway_server_h
 
 #include "corpc_rpc_client.h"
 #include "corpc_inner_rpc.h"
@@ -70,4 +70,4 @@ namespace wukong {
     #define g_GatewayServer GatewayServer::Instance()
 }
 
-#endif /* gateway_server_h */
+#endif /* wukong_gateway_server_h */

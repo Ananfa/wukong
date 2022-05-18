@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef login_config_h
-#define login_config_h
+#ifndef wukong_login_config_h
+#define wukong_login_config_h
 
 #include <string>
 #include <vector>
@@ -92,4 +92,4 @@ namespace wukong {
 
 }
 
-#endif /* login_config_h */
+#endif /* wukong_login_config_h */

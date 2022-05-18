@@ -1,5 +1,5 @@
-#ifndef event_h
-#define event_h
+#ifndef wukong_event_h
+#define wukong_event_h
 
 #include <map>
 #include <list>
@@ -114,4 +114,4 @@ private:
     std::map<std::string, std::map<uint32_t, EventHandle>> _m2; // 事件名称到事件处理表的表，其中事件处理表是事件处理号到事件处理的表
 };
 
-#endif /* event_h */
+#endif /* wukong_event_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef gateway_client_h
-#define gateway_client_h
+#ifndef wukong_gateway_client_h
+#define wukong_gateway_client_h
 
 #include <map>
 #include <vector>
@@ -100,4 +100,4 @@ namespace wukong {
     
 #define g_GatewayClient wukong::GatewayClient::Instance()
 
-#endif /* gateway_client_h */
+#endif /* wukong_gateway_client_h */

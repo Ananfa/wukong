@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_object_h
-#define record_object_h
+#ifndef wukong_record_object_h
+#define wukong_record_object_h
 
 #include "corpc_cond.h"
 #include "record_service.pb.h"
@@ -87,4 +87,4 @@ namespace wukong {
     };
 }
 
-#endif /* record_object_h */
+#endif /* wukong_record_object_h */

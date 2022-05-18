@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef scene_config_h
-#define scene_config_h
+#ifndef wukong_scene_config_h
+#define wukong_scene_config_h
 
 #include <stdio.h>
 #include <string>
@@ -96,4 +96,4 @@ namespace wukong {
 
 }
 
-#endif /* scene_config_h */
+#endif /* wukong_scene_config_h */

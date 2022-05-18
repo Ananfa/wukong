@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_object_manager_h
-#define record_object_manager_h
+#ifndef wukong_record_object_manager_h
+#define wukong_record_object_manager_h
 
 #include "corpc_message_server.h"
 #include "timelink.h"
@@ -55,4 +55,4 @@ namespace wukong {
 
 }
 
-#endif /* record_object_manager_h */
+#endif /* wukong_record_object_manager_h */

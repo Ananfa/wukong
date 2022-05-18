@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_client_h
-#define record_client_h
+#ifndef wukong_record_client_h
+#define wukong_record_client_h
 
 #include <map>
 #include <vector>
@@ -94,4 +94,4 @@ namespace wukong {
     
 #define g_RecordClient wukong::RecordClient::Instance()
 
-#endif /* record_client_h */
+#endif /* wukong_record_client_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef game_center_h
-#define game_center_h
+#ifndef wukong_game_center_h
+#define wukong_game_center_h
 
 #include "corpc_redis.h"
 #include "game_object.h"
@@ -93,4 +93,4 @@ namespace wukong {
 
 #define g_GameCenter GameCenter::Instance()
 
-#endif /* game_center_h */
+#endif /* wukong_game_center_h */

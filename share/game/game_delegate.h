@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef game_delegate_h
-#define game_delegate_h
+#ifndef wukong_game_delegate_h
+#define wukong_game_delegate_h
 
 #include <functional>
 #include "game_object_manager.h"
@@ -52,4 +52,4 @@ namespace wukong {
 
 #define g_GameDelegate GameDelegate::Instance()
 
-#endif /* game_delegate_h */
+#endif /* wukong_game_delegate_h */

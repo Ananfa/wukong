@@ -1,5 +1,5 @@
-#ifndef http_parser_h
-#define http_parser_h
+#ifndef wukong_http_parser_h
+#define wukong_http_parser_h
 
 #include <string>
 #include <stdint.h>

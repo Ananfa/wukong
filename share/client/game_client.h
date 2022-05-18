@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef game_client_h
-#define game_client_h
+#ifndef wukong_game_client_h
+#define wukong_game_client_h
 
 #include <map>
 #include <vector>
@@ -64,4 +64,4 @@ namespace wukong {
     };
 }
     
-#endif /* game_client_h */
+#endif /* wukong_game_client_h */

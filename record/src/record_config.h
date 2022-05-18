@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_config_h
-#define record_config_h
+#ifndef wukong_record_config_h
+#define wukong_record_config_h
 
 #include <stdio.h>
 #include <string>
@@ -89,4 +89,4 @@ namespace wukong {
 
 }
 
-#endif /* record_config_h */
+#endif /* wukong_record_config_h */

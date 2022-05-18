@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef lobby_config_h
-#define lobby_config_h
+#ifndef wukong_lobby_config_h
+#define wukong_lobby_config_h
 
 #include <stdio.h>
 #include <string>
@@ -92,4 +92,4 @@ namespace wukong {
 
 }
 
-#endif /* lobby_config_h */
+#endif /* wukong_lobby_config_h */

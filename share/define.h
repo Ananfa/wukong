@@ -1,5 +1,5 @@
-#ifndef define_h
-#define define_h
+#ifndef wukong_define_h
+#define wukong_define_h
 
 #include "corpc_define.h"
 #include "inner_common.pb.h"
@@ -80,4 +80,4 @@ namespace wukong {
 #endif
 }
 
-#endif /* define_h */
+#endif /* wukong_define_h */

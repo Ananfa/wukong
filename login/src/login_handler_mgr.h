@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef login_handler_mgr_h
-#define login_handler_mgr_h
+#ifndef wukong_login_handler_mgr_h
+#define wukong_login_handler_mgr_h
 
 #include "login_delegate.h"
 #include "http_server.h"
@@ -113,4 +113,4 @@ namespace wukong {
 
 #define g_LoginHandlerMgr wukong::LoginHandlerMgr::Instance()
 
-#endif /* login_handler_mgr_h */
+#endif /* wukong_login_handler_mgr_h */

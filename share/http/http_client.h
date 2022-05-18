@@ -1,5 +1,5 @@
-#ifndef http_client_h
-#define http_client_h
+#ifndef wukong_http_client_h
+#define wukong_http_client_h
 
 #include <functional>
 #include <curl/curl.h>
@@ -118,4 +118,4 @@ namespace wukong {
 
 #define g_HttpClient HttpClient::Instance()
 
-#endif /* http_client_h */
+#endif /* wukong_http_client_h */

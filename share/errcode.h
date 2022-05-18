@@ -1,5 +1,5 @@
-#ifndef errcode_h
-#define errcode_h
+#ifndef wukong_errcode_h
+#define wukong_errcode_h
 
 #include "define.h"
 #include <string>
@@ -12,4 +12,4 @@ namespace wukong {
 }
 
 
-#endif /* errcode_h */
+#endif /* wukong_errcode_h */

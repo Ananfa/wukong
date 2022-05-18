@@ -6,8 +6,8 @@
 //  Copyright © 2018年 Shizan Lou. All rights reserved.
 //
 
-#ifndef zk_client_h
-#define zk_client_h
+#ifndef wukong_zk_client_h
+#define wukong_zk_client_h
 
 #include <string>
 #include <functional>
@@ -188,4 +188,4 @@ namespace wukong {
 
 #define g_ZkClient ZkClient::Instance()
 
-#endif /* zookeeper_client_h */
+#endif /* wukong_zk_client_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef mysql_pool_h
-#define mysql_pool_h
+#ifndef wukong_mysql_pool_h
+#define wukong_mysql_pool_h
 
 #include "corpc_mysql.h"
 
@@ -76,4 +76,4 @@ namespace wukong {
 
 #define g_MysqlPoolManager MysqlPoolManager::Instance()
 
-#endif /* mysql_pool_h */
+#endif /* wukong_mysql_pool_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef client_center_h
-#define client_center_h
+#ifndef wukong_client_center_h
+#define wukong_client_center_h
 
 #include "corpc_redis.h"
 #include "gateway_client.h"
@@ -116,4 +116,4 @@ namespace wukong {
 
 #define g_ClientCenter ClientCenter::Instance()
 
-#endif /* client_center_h */
+#endif /* wukong_client_center_h */

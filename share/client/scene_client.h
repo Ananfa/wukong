@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef scene_client_h
-#define scene_client_h
+#ifndef wukong_scene_client_h
+#define wukong_scene_client_h
 
 #include <map>
 #include <vector>
@@ -85,4 +85,4 @@ namespace wukong {
     
 #define g_SceneClient wukong::SceneClient::Instance()
 
-#endif /* scene_client_h */
+#endif /* wukong_scene_client_h */

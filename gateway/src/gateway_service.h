@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef gateway_service_h
-#define gateway_service_h
+#ifndef wukong_gateway_service_h
+#define wukong_gateway_service_h
 
 #include "corpc_controller.h"
 #include "gateway_service.pb.h"
@@ -99,4 +99,4 @@ namespace wukong {
 
 }
 
-#endif /* gateway_service_h */
+#endif /* wukong_gateway_service_h */

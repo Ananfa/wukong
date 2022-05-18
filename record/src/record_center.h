@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_center_h
-#define record_center_h
+#ifndef wukong_record_center_h
+#define wukong_record_center_h
 
 #include "corpc_semaphore.h"
 #include "share/define.h"
@@ -65,4 +65,4 @@ namespace wukong {
 
 #define g_RecordCenter RecordCenter::Instance()
 
-#endif /* record_center_h */
+#endif /* wukong_record_center_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef login_delegate_h
-#define login_delegate_h
+#ifndef wukong_login_delegate_h
+#define wukong_login_delegate_h
 
 #include <list>
 #include <functional>
@@ -41,4 +41,4 @@ namespace wukong {
 
 }
 
-#endif /* login_delegate_h */
+#endif /* wukong_login_delegate_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef gateway_config_h
-#define gateway_config_h
+#ifndef wukong_gateway_config_h
+#define wukong_gateway_config_h
 
 #include <stdio.h>
 #include <string>
@@ -98,4 +98,4 @@ namespace wukong {
 
 }
 
-#endif /* gateway_config_h */
+#endif /* wukong_gateway_config_h */

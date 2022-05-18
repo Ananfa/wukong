@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef game_object_h
-#define game_object_h
+#ifndef wukong_game_object_h
+#define wukong_game_object_h
 
 #include "corpc_cond.h"
 #include "share/define.h"
@@ -130,4 +130,4 @@ namespace wukong {
     };
 }
 
-#endif /* game_object_h */
+#endif /* wukong_game_object_h */

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_delegate_h
-#define record_delegate_h
+#ifndef wukong_record_delegate_h
+#define wukong_record_delegate_h
 
 #include <functional>
 #include "record_object_manager.h"
@@ -55,4 +55,4 @@ namespace wukong {
 
 #define g_RecordDelegate RecordDelegate::Instance()
 
-#endif /* record_delegate_h */
+#endif /* wukong_record_delegate_h */

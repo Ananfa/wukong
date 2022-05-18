@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef game_object_manager_h
-#define game_object_manager_h
+#ifndef wukong_game_object_manager_h
+#define wukong_game_object_manager_h
 
 #include "corpc_message_server.h"
 #include "game_object.h"
@@ -67,4 +67,4 @@ namespace wukong {
 
 }
 
-#endif /* game_object_manager_h */
+#endif /* wukong_game_object_manager_h */

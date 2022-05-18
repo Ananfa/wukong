@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef scene_service_h
-#define scene_service_h
+#ifndef wukong_scene_service_h
+#define wukong_scene_service_h
 
 #include "corpc_controller.h"
 #include "scene_service.pb.h"
@@ -79,4 +79,4 @@ namespace wukong {
     
 }
 
-#endif /* scene_service_h */
+#endif /* wukong_scene_service_h */

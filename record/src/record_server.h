@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef record_server_h
-#define record_server_h
+#ifndef wukong_record_server_h
+#define wukong_record_server_h
 
 #include "corpc_rpc_client.h"
 #include "corpc_inner_rpc.h"
@@ -59,4 +59,4 @@ namespace wukong {
     #define g_RecordServer RecordServer::Instance()
 }
 
-#endif /* record_server_h */
+#endif /* wukong_record_server_h */

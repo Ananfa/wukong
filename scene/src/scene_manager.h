@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef scene_manager_h
-#define scene_manager_h
+#ifndef wukong_scene_manager_h
+#define wukong_scene_manager_h
 
 #include <list>
 #include <map>
@@ -53,4 +53,4 @@ namespace wukong {
 
 }
 
-#endif /* scene_manager_h */
+#endif /* wukong_scene_manager_h */

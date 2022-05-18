@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef scene_h
-#define scene_h
+#ifndef wukong_scene_h
+#define wukong_scene_h
 
 #include "corpc_cond.h"
 #include "share/define.h"
@@ -94,4 +94,4 @@ namespace wukong {
     };
 }
 
-#endif /* scene_h */
+#endif /* wukong_scene_h */

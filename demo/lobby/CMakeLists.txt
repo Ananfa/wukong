@@ -46,7 +46,6 @@ set(SOURCE_FILES
     ../../utils/string_utils.cpp
     ../../utils/proto_utils.cpp
     ../../utils/redis_utils.cpp
-    ../../utils/event.cpp
     ../proto/demo.pb.cc
     ../generate/demo_game_object.cpp
     ../generate/demo_utils.cpp)
@@ -57,6 +56,7 @@ aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../proto/game SOURCE_FILES)
 aux_source_directory(../../share/client SOURCE_FILES)
 aux_source_directory(../../share/game SOURCE_FILES)
+aux_source_directory(../../share/event SOURCE_FILES)
 aux_source_directory(../../lobby/src SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
@@ -87,6 +87,7 @@ include_directories(../../share/game)
 include_directories(../../share/client)
 include_directories(../../share/db)
 include_directories(../../share/http)
+include_directories(../../share/event)
 include_directories(../../utils)
 include_directories(../../proto)
 include_directories(../../proto/game)

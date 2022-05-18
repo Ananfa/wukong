@@ -26,6 +26,8 @@
 #include "gateway_handler.h"
 #include "client_center.h"
 #include "redis_pool.h"
+#include "redis_utils.h"
+#include "rapidjson/document.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -33,6 +35,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 
+using namespace rapidjson;
 using namespace corpc;
 using namespace wukong;
 
@@ -52,6 +55,17 @@ void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId g
     
     GatewayHandler *handler = new GatewayHandler(mgr);
     handler->registerMessages(msgServer);
+
+    // 从Redis中获取初始的消息屏蔽信息
+    RoutineEnvironment::startCoroutine(banMsgEventRoutine, msgServer);
+
+    // 消息屏蔽相关，通过全服事件处理接受通知并修改屏蔽信息
+    GlobalEventDispatcher *geventDispatcher = new GlobalEventDispatcher();
+    geventDispatcher->init(g_GatewayServer._geventListener);
+
+    geventDispatcher->regGlobalEventHandle("BanMsg", [msgServer](const Event &e) {
+        RoutineEnvironment::startCoroutine(banMsgEventRoutine, msgServer);
+    });
 
     RoutineEnvironment::runEventLoop();
 }
@@ -129,6 +143,9 @@ bool GatewayServer::init(int argc, char * argv[]) {
 
     g_RedisPoolManager.setCoreCache(g_GatewayConfig.getCoreCache());
 
+    // 为了能接受全局事件
+    _geventListener.init();
+
     return true;
 }
 
@@ -152,4 +169,56 @@ void GatewayServer::run() {
 
     g_ClientCenter.init(_rpcClient, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
+}
+
+void *GatewayServer::banMsgEventRoutine(void * arg) {
+    corpc::TcpMessageServer *msgServer = (corpc::TcpMessageServer *)arg;
+
+    // 从Redis中查出最新的封禁消息列表，并更新消息服务的封禁列表
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
+    if (!cache) {
+        ERROR_LOG("GatewayServer::banMsgEventRoutine -- connect to cache failed\n");
+        return NULL;
+    }
+
+    std::string banMsgData;
+    switch (RedisUtils::GetBanMsgData(cache, banMsgData)) {
+        case REDIS_DB_ERROR: {
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
+            ERROR_LOG("GatewayServer::banMsgEventRoutine -- get ban msg data failed for db error");
+            return NULL;
+        }
+        case REDIS_FAIL: {
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
+            ERROR_LOG("GatewayServer::banMsgEventRoutine -- get ban msg data failed for invalid data type\n");
+            return NULL;
+        }
+    }
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
+
+    Document doc;
+    if (doc.Parse(banMsgData.c_str()).HasParseError()) {
+        ERROR_LOG("GatewayServer::banMsgEventRoutine -- parse ban msg data failed\n");
+        return NULL;
+    }
+
+    if (!doc.IsArray()) {
+        ERROR_LOG("GatewayServer::banMsgEventRoutine -- parse ban msg data failed for invalid type\n");
+        return NULL;
+    }
+
+    std::map<int, bool> banMsgMap;
+    std::list<int> banMsgList;
+    for (SizeType i = 0; i < doc.Size(); i++) {
+        int msgType = doc[i].GetInt();
+        if (banMsgMap.find(msgType) == banMsgMap.end()) { // 防重
+            banMsgList.push_back(msgType);
+            banMsgMap.insert(std::make_pair(msgType, true));
+        }
+    }
+    if (banMsgList.size() > 0) {
+        msgServer->setBanMessages(banMsgList);
+    }
+
+    return NULL;
 }

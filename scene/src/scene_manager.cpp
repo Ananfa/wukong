@@ -32,8 +32,8 @@ void SceneManager::shutdown() {
 
     _shutdown = true;
 
-    // 若不清emiter，会导致shared_ptr循环引用问题
-    _emiter.clear();
+    // 若不清dispatcher，会导致shared_ptr循环引用问题
+    _geventDispatcher.clear();
 
     for (auto &scene : _sceneId2SceneMap) {
         scene.second->stop();

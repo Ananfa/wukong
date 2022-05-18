@@ -227,6 +227,22 @@ RedisAccessResult RedisUtils::GetServerGroupsData(redisContext *redis, std::stri
     return REDIS_SUCCESS;
 }
 
+RedisAccessResult RedisUtils::GetBanMsgData(redisContext *redis, std::string &data) {
+    redisReply *reply = (redisReply *)redisCommand(redis, "GET BanMsgs");
+    if (!reply) {
+        return REDIS_DB_ERROR;
+    }
+
+    if (reply->type != REDIS_REPLY_STRING) {
+        freeReplyObject(reply);
+        return REDIS_FAIL;
+    }
+
+    data = reply->str;
+    freeReplyObject(reply);
+    return REDIS_SUCCESS;
+}
+
 RedisAccessResult RedisUtils::BindRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
     const char *cmdSha1 = g_RedisPoolManager.getCorePersist()->getSha1(BIND_ROLE_CMD_NAME);
     redisReply *reply;

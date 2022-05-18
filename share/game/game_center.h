@@ -20,6 +20,7 @@
 #include "corpc_redis.h"
 #include "game_object.h"
 #include "share/define.h"
+#include "global_event.h"
 
 #include <google/protobuf/message.h>
 
@@ -67,14 +68,10 @@ namespace wukong {
 
         void handleMessage(std::shared_ptr<GameObject>, int msgType, uint16_t tag, const std::string &rawMsg);
 
-        void registerEventQueue(std::shared_ptr<GlobalEventQueue> queue);
+        GlobalEventListener& getGlobalEventListener() { return _geventListener; }
 
     private:
         static void *handleMessageRoutine(void * arg);
-
-        static void *registerEventQueueRoutine(void * arg);
-
-        void handleGlobalEvent(const std::string& topic, const std::string& msg);
 
     private:
         GameServerType _type;
@@ -82,9 +79,7 @@ namespace wukong {
 
         std::map<int, RegisterMessageInfo> _registerMessageMap;
 
-        std::list<std::shared_ptr<GlobalEventQueue>> _eventQueues; // 全服事件通知队列列表
-
-        GlobalEventRegisterQueue _eventRegisterQueue; // 用于多线程同步注册事件队列时
+        GlobalEventListener _geventListener; // 全服事件监听器（通过pubsub服务向redis订阅GEvent主题）
 
     private:
         GameCenter(): _gameObjectUpdatePeriod(0) {}                  // ctor hidden

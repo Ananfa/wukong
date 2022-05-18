@@ -113,7 +113,7 @@ namespace wukong {
 
         Cond _cond;
 
-        EventEmitter _emiter;
+        EventEmitter _emiter; // 本地事件分派器
         std::vector<uint32_t> _globalEventHandleRefs; // 用于gameobject销毁时注销注册的全局事件处理
 
     protected:

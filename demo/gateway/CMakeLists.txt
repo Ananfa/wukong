@@ -22,6 +22,11 @@ if(NOT CORPC_REDIS_LIB)
     message(FATAL_ERROR "corpc_redis library not found")
 endif()
 
+find_library(CORPC_PUBSUB_LIB corpc_pubsub)
+if(NOT CORPC_PUBSUB_LIB)
+    message(FATAL_ERROR "corpc_pubsub library not found")
+endif()
+
 find_library(HIREDIS_LIB hiredis)
 if(NOT HIREDIS_LIB)
     message(FATAL_ERROR "hiredis library not found")
@@ -43,6 +48,7 @@ set(SOURCE_FILES
 
 # Add source files
 aux_source_directory(../../share/client SOURCE_FILES)
+aux_source_directory(../../share/event SOURCE_FILES)
 aux_source_directory(../../proto SOURCE_FILES)
 aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../proto/game SOURCE_FILES)
@@ -72,6 +78,7 @@ include_directories(../../share)
 include_directories(../../share/client)
 include_directories(../../share/db)
 include_directories(../../share/http)
+include_directories(../../share/event)
 include_directories(../../utils)
 include_directories(../../proto)
 include_directories(../../proto/game)
@@ -81,5 +88,5 @@ include_directories(../../deps/rapidjson/include)
 # Add target
 add_executable(gatewayd ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lzookeeper_st -lprotobuf -lcorpc_redis -lcorpc -lco -ldl)
+set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lzookeeper_st -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
 target_link_libraries(gatewayd ${MY_LINK_LIBRARIES})

@@ -1,4 +1,5 @@
 #include "lobby_game_object.h"
+#include "demo_const.h"
 
 using namespace demo;
 using namespace corpc;
@@ -60,6 +61,11 @@ void LobbyGameObject::onEnterGame() { // 重登了
     }
 
     // TODO: 其他进入游戏逻辑
+
+    // 发送进入大厅消息给客户端
+    wukong::pb::Int32Value resp;
+    resp.set_value(1);
+    send(S2C_MESSAGE_ID_ENTERLOBBY, 0, resp);
 }
 
 void LobbyGameObject::onOffline() { // 断线了
@@ -76,15 +82,19 @@ void LobbyGameObject::onOffline() { // 断线了
 void LobbyGameObject::onTestLocalEvent(const Event &e) {
     uint32_t testValue;
     e.getParam("testValue", testValue);
-    ERROR_LOG("LobbyGameObject::onTestLocalEvent, value:%d\n", testValue);
+    DEBUG_LOG("LobbyGameObject::onTestLocalEvent, value:%d\n", testValue);
+
+    wukong::pb::StringValue resp;
+    resp.set_value("hello");
+    send(S2C_MESSAGE_ID_ECHO, 0, resp);
 }
 
 void LobbyGameObject::onTestLocalEvent1(uint32_t testValue) {
-    ERROR_LOG("LobbyGameObject::onTestLocalEvent1, value:%d\n", testValue);
+    DEBUG_LOG("LobbyGameObject::onTestLocalEvent1, value:%d\n", testValue);
 }
 
 void LobbyGameObject::onTestGlobalEvent(const Event &e) {
     std::string data;
     e.getParam("data", data);
-    ERROR_LOG("LobbyGameObject::onTestGlobalEvent, data:%s\n", data.c_str());
+    DEBUG_LOG("LobbyGameObject::onTestGlobalEvent, data:%s\n", data.c_str());
 }

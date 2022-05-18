@@ -19,18 +19,16 @@
 
 #include "corpc_message_server.h"
 #include "game_object.h"
-#include "event.h"
+#include "global_event.h"
 #include "share/define.h"
 #include <functional>
 
 using namespace corpc;
 
 namespace wukong {
-    typedef std::function<void (const std::string &topic, const std::string &data)> GlobalEventHandle;
-
     class GameObjectManager {
     public:
-        GameObjectManager(GameServerType type, ServerId id):_type(type), _id(id), _shutdown(false) { _eventQueue = std::make_shared<GlobalEventQueue>(); }
+        GameObjectManager(GameServerType type, ServerId id):_type(type), _id(id), _shutdown(false) {}
         virtual ~GameObjectManager() {}
 
         void init();
@@ -52,12 +50,8 @@ namespace wukong {
         uint32_t regGlobalEventHandle(const std::string &name, EventHandle handle);
         void unregGlobalEventHandle(uint32_t refId);
         void fireGlobalEvent(const Event &event); // 注意：全局事件中只能放一个叫"data"的std::string类型数据
-        void fireGlobalEvent(const std::string &topic, const std::string &data);
 
         // TODO: 实现广播和多播接口
-
-    private:
-        static void *globalEventHandleRoutine(void * arg);
 
     protected:
         GameServerType _type; // 游戏服务器类型（大厅、场景...）
@@ -68,8 +62,7 @@ namespace wukong {
         std::map<RoleId, std::shared_ptr<GameObject>> _roleId2GameObjectMap;
 
         // 全服事件相关
-        std::shared_ptr<GlobalEventQueue> _eventQueue;
-        EventEmitter _emiter;
+        GlobalEventDispatcher _geventDispatcher;
     };
 
 }

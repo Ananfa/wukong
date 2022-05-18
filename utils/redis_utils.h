@@ -27,6 +27,7 @@ namespace wukong {
         static RedisAccessResult RemoveLoginToken(redisContext *redis, UserId userId);
         static RedisAccessResult CreateRoleLock(redisContext *redis, UserId userId);
         static RedisAccessResult GetServerGroupsData(redisContext *redis, std::string &data);
+        static RedisAccessResult GetBanMsgData(redisContext *redis, std::string &data);
 
         static RedisAccessResult BindRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum);
         static RedisAccessResult LoadProfile(redisContext *redis, RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas);

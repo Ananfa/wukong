@@ -29,53 +29,7 @@
 using namespace wukong;
 
 void GameObjectManager::init() {
-    // 启动全服事件处理协程
-    RoutineEnvironment::startCoroutine(globalEventHandleRoutine, this);
-
-    g_GameCenter.registerEventQueue(_eventQueue);
-}
-
-void *GameObjectManager::globalEventHandleRoutine(void * arg) {
-    // 注意：GameObjectManager对象是在服务器启动时一遍启动，并随着服务器进程关闭时销毁，因此不考虑GameObjectManager本身的delete处理
-    GameObjectManager *self = (GameObjectManager *)arg;
-
-    // 初始化pipe readfd
-    int readFd = self->_eventQueue->getReadFd();
-    co_register_fd(readFd);
-    co_set_timeout(readFd, -1, 1000);
-    
-    int ret;
-    std::vector<char> buf(1024);
-    while (true) {
-        // 等待处理信号
-        ret = (int)read(readFd, &buf[0], 1024);
-        assert(ret != 0);
-        if (ret < 0) {
-            if (errno == EAGAIN) {
-                continue;
-            } else {
-                // 管道出错
-                ERROR_LOG("GameObjectManager::globalEventHandleRoutine -- read from pipe fd %d ret %d errno %d (%s)\n",
-                       readFd, ret, errno, strerror(errno));
-                
-                // TODO: 如何处理？退出协程？
-                // sleep 10 milisecond
-                msleep(10);
-            }
-        }
-        
-        // 分派事件处理
-        std::shared_ptr<wukong::pb::GlobalEventMessage> message = self->_eventQueue->pop();
-        while (message) {
-            Event e(message->topic().c_str());
-            e.setParam("data", message->data());
-            self->_emiter.fireEvent(e);
-            
-            message = self->_eventQueue->pop();
-        }
-    }
-    
-    return NULL;
+    _geventDispatcher.init(g_GameCenter.getGlobalEventListener());
 }
 
 void GameObjectManager::shutdown() {
@@ -85,8 +39,8 @@ void GameObjectManager::shutdown() {
 
     _shutdown = true;
     
-    // 若不清emiter，会导致shared_ptr循环引用问题
-    _emiter.clear();
+    // 若不清dispatcher，会导致shared_ptr循环引用问题
+    _geventDispatcher.clear();
 
     for (auto &gameObj : _roleId2GameObjectMap) {
         gameObj.second->stop();
@@ -288,29 +242,13 @@ void GameObjectManager::leaveGame(RoleId roleId) {
 //}
 
 uint32_t GameObjectManager::regGlobalEventHandle(const std::string &name, EventHandle handle) {
-    return _emiter.addEventHandle(name, handle);
+    return _geventDispatcher.regGlobalEventHandle(name, handle);
 }
 
 void GameObjectManager::unregGlobalEventHandle(uint32_t refId) {
-    _emiter.removeEventHandle(refId);
+    _geventDispatcher.unregGlobalEventHandle(refId);
 }
 
 void GameObjectManager::fireGlobalEvent(const Event &event) {
-    std::string data;
-    if (!event.getParam("data", data)) {
-        ERROR_LOG("GameObjectManager::fireGlobalEvent -- event hasn't data param\n");
-    }
-
-    fireGlobalEvent(event.getName(), data);
-}
-
-void GameObjectManager::fireGlobalEvent(const std::string &topic, const std::string &data) {
-    wukong::pb::GlobalEventMessage message;
-    message.set_topic(topic);
-    message.set_data(data);
-
-    std::string pData;
-    message.SerializeToString(&pData);
-
-    PubsubService::Publish("GEvent", pData);
+    _geventDispatcher.fireGlobalEvent(event);
 }

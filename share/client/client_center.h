@@ -18,6 +18,7 @@
 #define wukong_client_center_h
 
 #include "corpc_redis.h"
+#include "corpc_mutex.h"
 #include "gateway_client.h"
 #include "record_client.h"
 #include "lobby_client.h"
@@ -25,14 +26,13 @@
 #include "share/define.h"
 
 #include <vector>
-#include <mutex>
+//#include <mutex>
 #include <atomic>
 
 using namespace corpc;
 
 namespace wukong {
-    class ClientCenter
-    {
+    class ClientCenter {
     public:
         static ClientCenter& Instance() {
             static ClientCenter instance;
@@ -69,7 +69,7 @@ namespace wukong {
     private:
         // gateway服信息
         static std::vector<GatewayClient::ServerInfo> _gatewayInfos;
-        static std::mutex _gatewayInfosLock;
+        static Mutex _gatewayInfosLock;
         static std::atomic<uint32_t> _gatewayInfosVersion;
 
         static thread_local std::vector<ServerWeightInfo> _t_gatewayInfos;
@@ -79,7 +79,7 @@ namespace wukong {
 
         // record服信息
         static std::vector<RecordClient::ServerInfo> _recordInfos;
-        static std::mutex _recordInfosLock;
+        static Mutex _recordInfosLock;
         static std::atomic<uint32_t> _recordInfosVersion;
 
         static thread_local std::vector<ServerWeightInfo> _t_recordInfos;
@@ -88,7 +88,7 @@ namespace wukong {
 
         // lobby服信息
         static std::vector<LobbyClient::ServerInfo> _lobbyInfos;
-        static std::mutex _lobbyInfosLock;
+        static Mutex _lobbyInfosLock;
         static std::atomic<uint32_t> _lobbyInfosVersion;
 
         static thread_local std::vector<ServerWeightInfo> _t_lobbyInfos;
@@ -97,7 +97,7 @@ namespace wukong {
 
         // scene服信息
         static std::vector<SceneClient::ServerInfo> _sceneInfos; // TODO: 场景服应该根据类型来分类
-        static std::mutex _sceneInfosLock;
+        static Mutex _sceneInfosLock;
         static std::atomic<uint32_t> _sceneInfosVersion;
 
         static thread_local std::map<uint32_t, std::vector<ServerWeightInfo>> _t_sceneInfos;

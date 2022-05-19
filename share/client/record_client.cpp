@@ -18,11 +18,12 @@
 #include "corpc_controller.h"
 #include "string_utils.h"
 
+using namespace corpc;
 using namespace wukong;
 
 std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> RecordClient::_addr2stubs;
 std::map<ServerId, RecordClient::StubInfo> RecordClient::_stubs;
-std::mutex RecordClient::_stubsLock;
+Mutex RecordClient::_stubsLock;
 std::atomic<uint32_t> RecordClient::_stubChangeNum(0);
 thread_local uint32_t RecordClient::_t_stubChangeNum = 0;
 thread_local std::map<ServerId, RecordClient::StubInfo> RecordClient::_t_stubs;
@@ -154,7 +155,7 @@ bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
     _addr2stubs = addr2stubs;
     
     {
-        std::unique_lock<std::mutex> lock(_stubsLock);
+        LockGuard lock(_stubsLock);
         _stubs = stubs;
         _stubChangeNum++;
     }
@@ -174,9 +175,14 @@ std::shared_ptr<pb::RecordService_Stub> RecordClient::getStub(ServerId sid) {
 
 void RecordClient::refreshStubs() {
     if (_t_stubChangeNum != _stubChangeNum) {
-        _t_stubs.clear();
         {
-            std::unique_lock<std::mutex> lock(_stubsLock);
+            LockGuard lock(_stubsLock);
+
+            if (_t_stubChangeNum == _stubChangeNum) {
+                return;
+            }
+
+            _t_stubs.clear();
             _t_stubs = _stubs;
             _t_stubChangeNum = _stubChangeNum;
         }

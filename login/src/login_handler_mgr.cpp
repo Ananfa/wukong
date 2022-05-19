@@ -36,6 +36,7 @@
 #include <random>
 
 using namespace rapidjson;
+using namespace corpc;
 using namespace wukong;
 
 // 注意：这里是g++编译器的一个bug导致需要用namespace大括号括住模板特化
@@ -53,7 +54,7 @@ namespace wukong {
 }
 
 std::string LoginHandlerMgr::_serverGroupData;
-std::mutex LoginHandlerMgr::_serverGroupDataLock;
+Mutex LoginHandlerMgr::_serverGroupDataLock;
 std::atomic<uint32_t> LoginHandlerMgr::_serverGroupDataVersion(0);
 thread_local std::string LoginHandlerMgr::_t_serverGroupData("[]");
 thread_local uint32_t LoginHandlerMgr::_t_serverGroupDataVersion(0);
@@ -678,7 +679,7 @@ void LoginHandlerMgr::_updateServerGroupData() {
     g_RedisPoolManager.getCorePersist()->put(redis, false);
 
     {
-        std::unique_lock<std::mutex> lock(_serverGroupDataLock);
+        LockGuard lock(_serverGroupDataLock);
         _serverGroupData = std::move(serverGroupData);
         g_LoginHandlerMgr.updateServerGroupDataVersion();
     }
@@ -689,84 +690,90 @@ void LoginHandlerMgr::refreshServerGroupData() {
         std::string serverGroupData;
         uint32_t version;
         {
-            std::unique_lock<std::mutex> lock(_serverGroupDataLock);
+            LockGuard lock(_serverGroupDataLock);
+
+            if (_t_serverGroupDataVersion == _serverGroupDataVersion) {
+                return;
+            }
+
             serverGroupData = _serverGroupData;
             version = _serverGroupDataVersion;
-        }
 
-        Document doc;
-        if (doc.Parse(serverGroupData.c_str()).HasParseError()) {
-            ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed\n");
-            return;
-        }
-
-        if (!doc.IsArray()) {
-            ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for invalid type\n");
-            return;
-        }
-
-        std::map<GroupId, uint32_t> groupStatusMap;
-        std::map<ServerId, GroupId> serverId2groupIdMap;
-        for (SizeType i = 0; i < doc.Size(); i++) {
-            const Value& group = doc[i];
-
-            if (!group.HasMember("id")) {
-                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for lack of group id\n");
+            Document doc;
+            if (doc.Parse(serverGroupData.c_str()).HasParseError()) {
+                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed\n");
                 return;
             }
 
-            GroupId groupId = group["id"].GetInt();
-            if (groupStatusMap.find(groupId) != groupStatusMap.end()) {
-                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group id %d duplicate\n", groupId);
-                return;
-            }
-            if (!group.HasMember("status")) {
-                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d status not define\n", groupId);
+            if (!doc.IsArray()) {
+                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for invalid type\n");
                 return;
             }
 
-            uint32_t status = group["status"].GetInt();
+            std::map<GroupId, uint32_t> groupStatusMap;
+            std::map<ServerId, GroupId> serverId2groupIdMap;
+            for (SizeType i = 0; i < doc.Size(); i++) {
+                const Value& group = doc[i];
 
-            groupStatusMap.insert(std::make_pair(groupId, status));
-
-            if (!group.HasMember("servers")) {
-                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not define\n", groupId);
-                return;
-            }
-
-            const Value& servers = group["servers"];
-            if (!servers.IsArray()) {
-                ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not array\n", groupId);
-                return;
-            }
-
-            for (SizeType i = 0; i < servers.Size(); i++) {
-                const Value& server = servers[i];
-
-                if (!server.IsObject()) {
-                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers[%d] not object\n", groupId, i);
+                if (!group.HasMember("id")) {
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for lack of group id\n");
                     return;
                 }
 
-                if (!server.HasMember("id")) {
-                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers[%d] id not define\n", i);
+                GroupId groupId = group["id"].GetInt();
+                if (groupStatusMap.find(groupId) != groupStatusMap.end()) {
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group id %d duplicate\n", groupId);
+                    return;
+                }
+                if (!group.HasMember("status")) {
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d status not define\n", groupId);
                     return;
                 }
 
-                ServerId serverId = server["id"].GetInt();
-                if (serverId2groupIdMap.find(serverId) != serverId2groupIdMap.end()) {
-                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server id %d duplicate\n", serverId);
+                uint32_t status = group["status"].GetInt();
+
+                groupStatusMap.insert(std::make_pair(groupId, status));
+
+                if (!group.HasMember("servers")) {
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not define\n", groupId);
                     return;
                 }
 
-                serverId2groupIdMap.insert(std::make_pair(serverId, groupId));
+                const Value& servers = group["servers"];
+                if (!servers.IsArray()) {
+                    ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers not array\n", groupId);
+                    return;
+                }
+
+                for (SizeType i = 0; i < servers.Size(); i++) {
+                    const Value& server = servers[i];
+
+                    if (!server.IsObject()) {
+                        ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers[%d] not object\n", groupId, i);
+                        return;
+                    }
+
+                    if (!server.HasMember("id")) {
+                        ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server group data failed for group %d servers[%d] id not define\n", i);
+                        return;
+                    }
+
+                    ServerId serverId = server["id"].GetInt();
+                    if (serverId2groupIdMap.find(serverId) != serverId2groupIdMap.end()) {
+                        ERROR_LOG("LoginHandlerMgr::refreshServerGroupData -- parse server id %d duplicate\n", serverId);
+                        return;
+                    }
+
+                    serverId2groupIdMap.insert(std::make_pair(serverId, groupId));
+                }
             }
+
+            _t_serverGroupData = std::move(serverGroupData);
+            _t_groupStatusMap = std::move(groupStatusMap);
+            _t_serverId2groupIdMap = std::move(serverId2groupIdMap);
+            _t_serverGroupDataVersion = version;
         }
 
-        _t_serverGroupData = std::move(serverGroupData);
-        _t_groupStatusMap = std::move(groupStatusMap);
-        _t_serverId2groupIdMap = std::move(serverId2groupIdMap);
-        _t_serverGroupDataVersion = version;
     }
 }
 

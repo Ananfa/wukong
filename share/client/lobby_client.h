@@ -20,6 +20,7 @@
 #include <map>
 #include <vector>
 #include "corpc_rpc_client.h"
+#include "corpc_mutex.h"
 #include "game_service.pb.h"
 #include "lobby_service.pb.h"
 #include "game_client.h"
@@ -63,7 +64,7 @@ namespace wukong {
         /* 所有LobbyServer的Stub */
         static std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
         static std::map<ServerId, StubInfo> _stubs;
-        static std::mutex _stubsLock;
+        static Mutex _stubsLock;
         static std::atomic<uint32_t> _stubChangeNum;
         
         /* 当前可用的 */

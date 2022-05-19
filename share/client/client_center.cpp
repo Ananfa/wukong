@@ -19,10 +19,11 @@
 
 #include "zk_client.h"
 
+using namespace corpc;
 using namespace wukong;
 
 std::vector<GatewayClient::ServerInfo> ClientCenter::_gatewayInfos;
-std::mutex ClientCenter::_gatewayInfosLock;
+Mutex ClientCenter::_gatewayInfosLock;
 std::atomic<uint32_t> ClientCenter::_gatewayInfosVersion(0);
 thread_local std::vector<ServerWeightInfo> ClientCenter::_t_gatewayInfos;
 thread_local std::map<ServerId, Address> ClientCenter::_t_gatewayAddrMap;
@@ -30,21 +31,21 @@ thread_local uint32_t ClientCenter::_t_gatewayInfosVersion(0);
 thread_local uint32_t ClientCenter::_t_gatewayTotalWeight(0);
 
 std::vector<RecordClient::ServerInfo> ClientCenter::_recordInfos;
-std::mutex ClientCenter::_recordInfosLock;
+Mutex ClientCenter::_recordInfosLock;
 std::atomic<uint32_t> ClientCenter::_recordInfosVersion(0);
 thread_local std::vector<ServerWeightInfo> ClientCenter::_t_recordInfos;
 thread_local uint32_t ClientCenter::_t_recordInfosVersion(0);
 thread_local uint32_t ClientCenter::_t_recordTotalWeight(0);
 
 std::vector<LobbyClient::ServerInfo> ClientCenter::_lobbyInfos;
-std::mutex ClientCenter::_lobbyInfosLock;
+Mutex ClientCenter::_lobbyInfosLock;
 std::atomic<uint32_t> ClientCenter::_lobbyInfosVersion(0);
 thread_local std::vector<ServerWeightInfo> ClientCenter::_t_lobbyInfos;
 thread_local uint32_t ClientCenter::_t_lobbyInfosVersion(0);
 thread_local uint32_t ClientCenter::_t_lobbyTotalWeight(0);
 
 std::vector<SceneClient::ServerInfo> ClientCenter::_sceneInfos;
-std::mutex ClientCenter::_sceneInfosLock;
+Mutex ClientCenter::_sceneInfosLock;
 std::atomic<uint32_t> ClientCenter::_sceneInfosVersion(0);
 thread_local std::map<uint32_t, std::vector<ServerWeightInfo>> ClientCenter::_t_sceneInfos;
 thread_local uint32_t ClientCenter::_t_sceneInfosVersion(0);
@@ -190,7 +191,7 @@ void *ClientCenter::updateRoutine(void *arg) {
 void ClientCenter::updateGatewayInfos() {
     std::vector<GatewayClient::ServerInfo> infos = g_GatewayClient.getServerInfos();
     {
-        std::unique_lock<std::mutex> lock(_gatewayInfosLock);
+        LockGuard lock(_gatewayInfosLock);
         _gatewayInfos = std::move(infos);
         updateGatewayInfosVersion();
     }
@@ -200,7 +201,7 @@ void ClientCenter::updateGatewayInfos() {
 void ClientCenter::updateRecordInfos() {
     std::vector<RecordClient::ServerInfo> infos = g_RecordClient.getServerInfos();
     {
-        std::unique_lock<std::mutex> lock(_recordInfosLock);
+        LockGuard lock(_recordInfosLock);
         _recordInfos = std::move(infos);
         updateRecordInfosVersion();
     }
@@ -210,7 +211,7 @@ void ClientCenter::updateRecordInfos() {
 void ClientCenter::updateLobbyInfos() {
     std::vector<LobbyClient::ServerInfo> infos = g_LobbyClient.getServerInfos();
     {
-        std::unique_lock<std::mutex> lock(_lobbyInfosLock);
+        LockGuard lock(_lobbyInfosLock);
         _lobbyInfos = std::move(infos);
         updateLobbyInfosVersion();
     }
@@ -220,7 +221,7 @@ void ClientCenter::updateLobbyInfos() {
 void ClientCenter::updateSceneInfos() {
     std::vector<SceneClient::ServerInfo> infos = g_SceneClient.getServerInfos();
     {
-        std::unique_lock<std::mutex> lock(_sceneInfosLock);
+        LockGuard lock(_sceneInfosLock);
         _sceneInfos = std::move(infos);
         updateSceneInfosVersion();
     }
@@ -375,101 +376,113 @@ bool ClientCenter::randomSceneServer(uint32_t type, ServerId &serverId) {
 void ClientCenter::refreshGatewayInfos() {
     if (_t_gatewayInfosVersion != _gatewayInfosVersion) {
         LOG("refresh gateway info\n");
-        _t_gatewayInfos.clear();
-        _t_gatewayAddrMap.clear();
-
-        std::vector<GatewayClient::ServerInfo> gatewayInfos;
-
+        //std::vector<GatewayClient::ServerInfo> gatewayInfos;
         {
-            std::unique_lock<std::mutex> lock(_gatewayInfosLock);
-            gatewayInfos = _gatewayInfos;
+            LockGuard lock(_gatewayInfosLock);
+
+            if (_t_gatewayInfosVersion == _gatewayInfosVersion) {
+                return;
+            }
+
+            //gatewayInfos = _gatewayInfos;
             _t_gatewayInfosVersion = _gatewayInfosVersion;
+
+            _t_gatewayInfos.clear();
+            _t_gatewayAddrMap.clear();
+            _t_gatewayInfos.reserve(_gatewayInfos.size());
+            uint32_t totalWeight = 0;
+            for (auto &info : _gatewayInfos) {
+                //DEBUG_LOG("gateway id:%d\n", info.id);
+                totalWeight += info.weight;
+
+                _t_gatewayInfos.push_back({info.id, info.weight});
+
+                Address gatewayAddr = {info.outerAddr, info.outerPort};
+                _t_gatewayAddrMap.insert(std::make_pair(info.id, std::move(gatewayAddr)));
+            }
+            
+            _t_gatewayTotalWeight = totalWeight;
         }
-
-        _t_gatewayInfos.reserve(gatewayInfos.size());
-        uint32_t totalWeight = 0;
-        for (auto &info : gatewayInfos) {
-            DEBUG_LOG("gateway id:%d\n", info.id);
-            totalWeight += info.weight;
-
-            _t_gatewayInfos.push_back({info.id, info.weight});
-
-            Address gatewayAddr = {info.outerAddr, info.outerPort};
-            _t_gatewayAddrMap.insert(std::make_pair(info.id, std::move(gatewayAddr)));
-        }
-        
-        _t_gatewayTotalWeight = totalWeight;
     }
 }
 
 void ClientCenter::refreshRecordInfos() {
     if (_t_recordInfosVersion != _recordInfosVersion) {
-        _t_recordInfos.clear();
-
-        std::vector<RecordClient::ServerInfo> recordInfos;
-
+        //std::vector<RecordClient::ServerInfo> recordInfos;
         {
-            std::unique_lock<std::mutex> lock(_recordInfosLock);
-            recordInfos = _recordInfos;
+            LockGuard lock(_recordInfosLock);
+
+            if (_t_recordInfosVersion == _recordInfosVersion) {
+                return;
+            }
+
+            //recordInfos = _recordInfos;
             _t_recordInfosVersion = _recordInfosVersion;
-        }
 
-        _t_recordInfos.reserve(recordInfos.size());
-        uint32_t totalWeight = 0;
-        for (auto &info : recordInfos) {
-            totalWeight += info.weight;
+            _t_recordInfos.clear();
+            _t_recordInfos.reserve(_recordInfos.size());
+            uint32_t totalWeight = 0;
+            for (auto &info : _recordInfos) {
+                totalWeight += info.weight;
 
-            _t_recordInfos.push_back({info.id, info.weight});
+                _t_recordInfos.push_back({info.id, info.weight});
+            }
+            
+            _t_recordTotalWeight = totalWeight;
         }
-        
-        _t_recordTotalWeight = totalWeight;
     }
 }
 
 void ClientCenter::refreshLobbyInfos() {
     if (_t_lobbyInfosVersion != _lobbyInfosVersion) {
-        _t_lobbyInfos.clear();
-
-        std::vector<GameClient::ServerInfo> lobbyInfos;
-
+        //std::vector<GameClient::ServerInfo> lobbyInfos;
         {
-            std::unique_lock<std::mutex> lock(_lobbyInfosLock);
-            lobbyInfos = _lobbyInfos;
+            LockGuard lock(_lobbyInfosLock);
+
+            if (_t_lobbyInfosVersion == _lobbyInfosVersion) {
+                return;
+            }
+
+            //lobbyInfos = _lobbyInfos;
             _t_lobbyInfosVersion = _lobbyInfosVersion;
-        }
 
-        _t_lobbyInfos.reserve(lobbyInfos.size());
-        uint32_t totalWeight = 0;
-        for (auto &info : lobbyInfos) {
-            totalWeight += info.weight;
+            _t_lobbyInfos.clear();
+            _t_lobbyInfos.reserve(_lobbyInfos.size());
+            uint32_t totalWeight = 0;
+            for (auto &info : _lobbyInfos) {
+                totalWeight += info.weight;
 
-            _t_lobbyInfos.push_back({info.id, info.weight});
+                _t_lobbyInfos.push_back({info.id, info.weight});
+            }
+            
+            _t_lobbyTotalWeight = totalWeight;
         }
-        
-        _t_lobbyTotalWeight = totalWeight;
     }
 }
 
 void ClientCenter::refreshSceneInfos() {
     if (_t_sceneInfosVersion != _sceneInfosVersion) {
-        _t_sceneInfos.clear();
-
-        std::vector<GameClient::ServerInfo> sceneInfos;
-
+        //std::vector<GameClient::ServerInfo> sceneInfos;
         {
-            std::unique_lock<std::mutex> lock(_sceneInfosLock);
-            sceneInfos = _sceneInfos;
+            LockGuard lock(_sceneInfosLock);
+
+            if (_t_sceneInfosVersion == _sceneInfosVersion) {
+                return;
+            }
+
+            //sceneInfos = _sceneInfos;
             _t_sceneInfosVersion = _sceneInfosVersion;
+
+            _t_sceneInfos.clear();
+            std::map<uint32_t, uint32_t> totalWeights;
+            for (auto &info : _sceneInfos) {
+                totalWeights[info.type] += info.weight;
+
+                _t_sceneInfos[info.type].push_back({info.id, info.weight});
+            }
+
+            _t_sceneTotalWeights = std::move(totalWeights);
         }
-
-        std::map<uint32_t, uint32_t> totalWeights;
-        for (auto &info : sceneInfos) {
-            totalWeights[info.type] += info.weight;
-
-            _t_sceneInfos[info.type].push_back({info.id, info.weight});
-        }
-
-        _t_sceneTotalWeights = std::move(totalWeights);
     }
 }
 

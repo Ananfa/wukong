@@ -20,9 +20,10 @@
 #include "login_delegate.h"
 #include "http_server.h"
 #include "gateway_client.h"
+#include "corpc_mutex.h"
 
 #include <map>
-#include <mutex>
+//#include <mutex>
 #include <atomic>
 
 using namespace corpc;
@@ -89,7 +90,7 @@ namespace wukong {
 
     private:
         static std::string _serverGroupData;
-        static std::mutex _serverGroupDataLock;
+        static Mutex _serverGroupDataLock;
         static std::atomic<uint32_t> _serverGroupDataVersion;
 
         static thread_local std::string _t_serverGroupData;

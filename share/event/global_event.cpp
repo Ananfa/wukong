@@ -23,12 +23,20 @@ using namespace wukong;
 void GlobalEventListener::init() {
     RoutineEnvironment::startCoroutine(registerEventQueueRoutine, this); // 注册事件通知队列
 
-    // 初始化全服事件发布订阅服务
-    // 获取并订阅服务器组列表信息
-    std::list<std::string> topics;
-    topics.push_back("GEvent");
-    PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool(), topics);
-    PubsubService::Subscribe("GEvent", false, std::bind(&GlobalEventListener::handleGlobalEvent, this, std::placeholders::_1, std::placeholders::_2));
+    // 订阅主题“全服事件”
+    //PubsubService::Subscribe("WK_GEvent", false, std::bind(&GlobalEventListener::handleGlobalEvent, this, std::placeholders::_1, std::placeholders::_2));
+    PubsubService::Subscribe("WK_GEvent", false, [this](const std::string& topic, const std::string& msg) {
+        // 解析消息
+        std::shared_ptr<wukong::pb::GlobalEventMessage> eventMsg = std::make_shared<wukong::pb::GlobalEventMessage>();
+        if (!eventMsg->ParseFromString(msg)) {
+            ERROR_LOG("GEvent message handle -- parse event data failed\n");
+            return;
+        }
+
+        for (auto queue : _eventQueues) {
+            queue->push(eventMsg);
+        }
+    });
 }
 
 void GlobalEventListener::registerEventQueue(std::shared_ptr<GlobalEventQueue> queue) {
@@ -77,19 +85,6 @@ void *GlobalEventListener::registerEventQueueRoutine(void * arg) {
     return NULL;
 }
 
-void GlobalEventListener::handleGlobalEvent(const std::string& topic, const std::string& msg) {
-    // 解析消息
-    std::shared_ptr<wukong::pb::GlobalEventMessage> eventMsg = std::make_shared<wukong::pb::GlobalEventMessage>();
-    if (!eventMsg->ParseFromString(msg)) {
-        ERROR_LOG("GlobalEventListener::handleGlobalEvent -- parse event data failed\n");
-        return;
-    }
-
-    for (auto queue : _eventQueues) {
-        queue->push(eventMsg);
-    }
-}
-
 void GlobalEventDispatcher::init(GlobalEventListener &listener) {
     _eventQueue = std::make_shared<GlobalEventQueue>();
 
@@ -119,7 +114,7 @@ void GlobalEventDispatcher::fireGlobalEvent(const Event &event) {
     std::string pData;
     message.SerializeToString(&pData);
 
-    PubsubService::Publish("GEvent", pData);
+    PubsubService::Publish("WK_GEvent", pData);
 }
 
 void *GlobalEventDispatcher::globalEventHandleRoutine(void * arg) {

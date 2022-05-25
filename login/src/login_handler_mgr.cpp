@@ -61,14 +61,6 @@ thread_local uint32_t LoginHandlerMgr::_t_serverGroupDataVersion(0);
 thread_local std::map<GroupId, uint32_t> LoginHandlerMgr::_t_groupStatusMap;
 thread_local std::map<ServerId, GroupId> LoginHandlerMgr::_t_serverId2groupIdMap;
 
-void *LoginHandlerMgr::initRoutine(void *arg) {
-    LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
-
-    self->_updateServerGroupData();
-
-    return nullptr;
-}
-
 void *LoginHandlerMgr::saveUserRoutine(void *arg) {
     LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
 
@@ -129,17 +121,21 @@ void *LoginHandlerMgr::saveUserRoutine(void *arg) {
 }
 
 void LoginHandlerMgr::init(HttpServer *server) {
-    // 初始化redis lua脚本sha1值
-    RoutineEnvironment::startCoroutine(initRoutine, this);
-
     RoutineEnvironment::startCoroutine(saveUserRoutine, this);
 
     // 获取并订阅服务器组列表信息
-    std::list<std::string> topics;
-    topics.push_back("ServerGroups");
-    PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool(), topics);
-    PubsubService::Subscribe("ServerGroups", false, std::bind(&LoginHandlerMgr::updateServerGroupData, this, std::placeholders::_1, std::placeholders::_2));
-    
+    RoutineEnvironment::startCoroutine([](void * arg) -> void* {
+        LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
+        self->updateServerGroupData();
+        return NULL;
+    }, this);
+
+    //PubsubService::Subscribe("ServerGroups", true, std::bind(&LoginHandlerMgr::updateServerGroupData, this, std::placeholders::_1, std::placeholders::_2));
+    PubsubService::Subscribe("WK_ServerGroups", true, [this](const std::string& topic, const std::string& msg) {
+        updateServerGroupData();
+    });
+
+
     // 注册filter
     // 验证request是否合法
     server->registerFilter([](std::shared_ptr<RequestMessage>& request, std::shared_ptr<ResponseMessage>& response) -> bool {
@@ -652,11 +648,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
 /******************** http api end ********************/
 
-void LoginHandlerMgr::updateServerGroupData(const std::string& topic, const std::string& msg) {
-    _updateServerGroupData();
-}
-
-void LoginHandlerMgr::_updateServerGroupData() {
+void LoginHandlerMgr::updateServerGroupData() {
     redisContext *redis = g_RedisPoolManager.getCorePersist()->take();
     if (!redis) {
         ERROR_LOG("LoginHandlerMgr::_updateServerGroupData -- update server group data failed for cant connect db\n");

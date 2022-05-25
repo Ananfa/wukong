@@ -17,6 +17,7 @@
 #include "lobby_server.h"
 #include "corpc_routine_env.h"
 #include "corpc_rpc_server.h"
+#include "corpc_pubsub.h"
 
 #include "lobby_config.h"
 #include "lobby_service.h"
@@ -122,12 +123,17 @@ bool LobbyServer::init(int argc, char * argv[]) {
 
     g_RedisPoolManager.setCoreCache(g_LobbyConfig.getCoreCache());
 
+    // 初始化发布订阅服务
+    PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool());
+
     return true;
 }
 
 void LobbyServer::run() {
     // 注意：GameCenter要在game object manager之前init，因为跨服事件队列处理协程需要先启动
     g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod());
+
+    // TODO: 初始化lua环境，监听消息的lua绑定信息
 
     LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl();
     GameServiceImpl *gameServiceImpl = new GameServiceImpl();

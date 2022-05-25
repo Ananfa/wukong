@@ -48,7 +48,6 @@ set(SOURCE_FILES
 
 # Add source files
 aux_source_directory(../../share/client SOURCE_FILES)
-aux_source_directory(../../share/event SOURCE_FILES)
 aux_source_directory(../../proto SOURCE_FILES)
 aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../proto/game SOURCE_FILES)
@@ -78,7 +77,6 @@ include_directories(../../share)
 include_directories(../../share/client)
 include_directories(../../share/db)
 include_directories(../../share/http)
-include_directories(../../share/event)
 include_directories(../../utils)
 include_directories(../../proto)
 include_directories(../../proto/game)

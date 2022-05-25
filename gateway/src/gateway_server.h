@@ -19,8 +19,8 @@
 
 #include "corpc_rpc_client.h"
 #include "corpc_inner_rpc.h"
+#include "corpc_message_server.h"
 #include "game_client.h"
-#include "global_event.h"
 #include "share/define.h"
 #include "gateway_service.pb.h"
 #include <map>
@@ -40,8 +40,6 @@ namespace wukong {
 
         std::vector<std::thread> _threads;
 
-        GlobalEventListener _geventListener; // 全服事件监听器（通过pubsub服务向redis订阅GEvent主题）
-
     public:
         static GatewayServer& Instance() {
             static GatewayServer theSingleton;
@@ -56,7 +54,7 @@ namespace wukong {
 
         static void gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort);
 
-        static void *banMsgEventRoutine(void * arg);
+        static void banMsgHandle(corpc::TcpMessageServer *msgServer);
 
     private:
         GatewayServer() = default;                                  // ctor hidden

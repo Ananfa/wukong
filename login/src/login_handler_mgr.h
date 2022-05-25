@@ -77,14 +77,10 @@ namespace wukong {
         void setErrorResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         
         void updateServerGroupDataVersion() { _serverGroupDataVersion++; }
-
-        void updateServerGroupData(const std::string& topic, const std::string& msg);
-        void _updateServerGroupData();
+        void updateServerGroupData();
         void refreshServerGroupData();
 
         bool checkToken(UserId userId, const std::string& token);
-
-        static void *initRoutine(void *arg);
 
         static void *saveUserRoutine(void *arg); // 将account-userid对应关系信息存盘的协程
 

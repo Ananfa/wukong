@@ -16,6 +16,7 @@
 
 #include "login_server.h"
 #include "corpc_routine_env.h"
+#include "corpc_pubsub.h"
 
 #include "login_config.h"
 #include "const.h"
@@ -119,6 +120,9 @@ bool LoginServer::init(int argc, char * argv[]) {
     g_RedisPoolManager.setCoreCache(g_LoginConfig.getCoreCache());
     g_RedisPoolManager.setCorePersist(g_LoginConfig.getCoreCache());
     g_MysqlPoolManager.setCoreRecord(g_LoginConfig.getCoreRecord());
+
+    // 初始化发布订阅服务
+    PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool());
 
     return true;
 }

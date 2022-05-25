@@ -39,8 +39,6 @@ namespace wukong {
     private:
         void registerEventQueue(std::shared_ptr<GlobalEventQueue> queue);
         static void *registerEventQueueRoutine(void * arg);
-
-        void handleGlobalEvent(const std::string& topic, const std::string& msg);
     public:
         friend class GlobalEventDispatcher;
 

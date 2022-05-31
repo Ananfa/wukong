@@ -29,6 +29,9 @@ void MessageHandler::EnterSceneHandle(std::shared_ptr<GameObject> obj, uint16_t 
     DEBUG_LOG("MessageHandler::EnterSceneHandle\n");
 
     std::shared_ptr<SceneGameObject> realObj = std::dynamic_pointer_cast<SceneGameObject>(obj);
+    std::shared_ptr<wukong::pb::Int32Value> realMsg = std::dynamic_pointer_cast<wukong::pb::Int32Value>(msg);
+
+    // 若已经在场景中
 
     // 加1点经验值
     realObj->setExp(realObj->getExp()+1);

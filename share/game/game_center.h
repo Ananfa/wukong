@@ -41,6 +41,7 @@ namespace wukong {
             google::protobuf::Message *proto;
             MessageHandle handle;
             bool needCoroutine;
+            bool needHotfix;
         };
 
         struct HandleMessageInfo {
@@ -48,6 +49,13 @@ namespace wukong {
             std::shared_ptr<google::protobuf::Message> msg;
             uint16_t tag;
             MessageHandle handle;
+        };
+
+        struct HotfixMessageInfo {
+            int msgType;
+            std::shared_ptr<GameObject> obj;
+            std::shared_ptr<google::protobuf::Message> msg;
+            uint16_t tag;
         };
 
     public:
@@ -73,6 +81,10 @@ namespace wukong {
     private:
         static void *handleMessageRoutine(void * arg);
 
+        static void *hotfixMessageRoutine(void * arg);
+
+        void resetHotfix();
+        static void callHotfix(std::shared_ptr<GameObject> obj, int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
     private:
         GameServerType _type;
         uint32_t _gameObjectUpdatePeriod; // 游戏对象update执行周期，单位毫秒，为0时表示不进行update

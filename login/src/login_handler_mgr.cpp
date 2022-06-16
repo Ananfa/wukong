@@ -414,7 +414,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     }
 
     uint32_t count = 0;
-    if (RedisUtils::GetRoleCount(cache, userId, serverId, count) == REDIS_DB_ERROR) {
+    if (RedisUtils::GetRoleCount(redis, userId, serverId, count) == REDIS_DB_ERROR) {
         g_RedisPoolManager.getCorePersist()->put(redis, true);
         return setErrorResponse(response, "get role count failed");
     }

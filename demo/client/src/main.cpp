@@ -208,7 +208,9 @@ static void *test_login(void *arg) {
     std::shared_ptr<TcpClient> client(new TcpClient(accountInfo->gatewayHost, accountInfo->gatewayPort, true, true, true, true, crypter, accountInfo->lastRecvSerial));
     client->registerMessage(S2C_MESSAGE_ID_ENTERGAME, std::shared_ptr<google::protobuf::Message>(new pb::DataFragments));
     client->registerMessage(S2C_MESSAGE_ID_RECONNECTED, nullptr);
-    client->registerMessage(1000, std::shared_ptr<google::protobuf::Message>(new pb::StringValue));
+    client->registerMessage(S2C_MESSAGE_ID_ECHO, std::shared_ptr<google::protobuf::Message>(new pb::StringValue));
+    client->registerMessage(S2C_MESSAGE_ID_ENTERLOBBY, std::shared_ptr<google::protobuf::Message>(new pb::Int32Value));
+
 
     client->start();
 
@@ -257,6 +259,11 @@ static void *test_login(void *arg) {
             case S2C_MESSAGE_ID_RECONNECTED: {
                 enterGame = true;
                 DEBUG_LOG("reconnect game\n");
+                break;
+            }
+            case S2C_MESSAGE_ID_ENTERLOBBY: {
+                //enterGame = true;
+                DEBUG_LOG("enter lobby\n");
                 break;
             }
             case S2C_MESSAGE_ID_ECHO: {

@@ -63,7 +63,7 @@ void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId g
         return NULL;
     }, msgServer);
 
-    // TODO: 用订阅主题“屏蔽”，不需要用全服事件
+    // 用订阅主题“屏蔽”，不需要用全服事件
     //PubsubService::Subscribe("WK_BanMsg", true, std::bind(&GatewayServer::banMsgHandle, this, std::placeholders::_1, std::placeholders::_2));
     PubsubService::Subscribe("WK_BanMsg", true, [msgServer](const std::string& topic, const std::string& msg) {
         banMsgHandle(msgServer);
@@ -177,7 +177,7 @@ void GatewayServer::banMsgHandle(corpc::TcpMessageServer *msgServer) {
     // 从Redis中查出最新的封禁消息列表，并更新消息服务的封禁列表
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
-        ERROR_LOG("GatewayServer::_banMsgHandle -- connect to cache failed\n");
+        ERROR_LOG("GatewayServer::banMsgHandle -- connect to cache failed\n");
         return;
     }
 
@@ -185,12 +185,12 @@ void GatewayServer::banMsgHandle(corpc::TcpMessageServer *msgServer) {
     switch (RedisUtils::GetBanMsgData(cache, banMsgData)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("GatewayServer::_banMsgHandle -- get ban msg data failed for db error");
+            ERROR_LOG("GatewayServer::banMsgHandle -- get ban msg data failed for db error");
             return;
         }
         case REDIS_FAIL: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("GatewayServer::_banMsgHandle -- get ban msg data failed for invalid data type\n");
+            ERROR_LOG("GatewayServer::banMsgHandle -- get ban msg data failed for invalid data type\n");
             return;
         }
     }
@@ -198,12 +198,12 @@ void GatewayServer::banMsgHandle(corpc::TcpMessageServer *msgServer) {
 
     Document doc;
     if (doc.Parse(banMsgData.c_str()).HasParseError()) {
-        ERROR_LOG("GatewayServer::_banMsgHandle -- parse ban msg data failed\n");
+        ERROR_LOG("GatewayServer::banMsgHandle -- parse ban msg data failed\n");
         return;
     }
 
     if (!doc.IsArray()) {
-        ERROR_LOG("GatewayServer::_banMsgHandle -- parse ban msg data failed for invalid type\n");
+        ERROR_LOG("GatewayServer::banMsgHandle -- parse ban msg data failed for invalid type\n");
         return;
     }
 

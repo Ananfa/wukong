@@ -97,5 +97,5 @@ include_directories(../../deps/rapidjson/include)
 # Add target
 add_executable(lobbyd ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lzookeeper_st -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
+set(MY_LINK_LIBRARIES -L/usr/local/lib -llua -lhiredis -lzookeeper_st -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
 target_link_libraries(lobbyd ${MY_LINK_LIBRARIES})

@@ -243,8 +243,8 @@ RedisAccessResult RedisUtils::GetBanMsgData(redisContext *redis, std::string &da
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::GetLuaMsgData(redisContext *redis, std::string &data) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "GET LuaMsgs");
+RedisAccessResult RedisUtils::GetHotfixData(redisContext *redis, std::string &data) {
+    redisReply *reply = (redisReply *)redisCommand(redis, "GET HotfixMsgs");
     if (!reply) {
         return REDIS_DB_ERROR;
     }

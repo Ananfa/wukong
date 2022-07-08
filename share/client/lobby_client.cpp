@@ -34,7 +34,7 @@ void LobbyClient::shutdown() {
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
         
-        kv.second.lobbyServiceStub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
+        kv.second.lobbyServiceStub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request));
     }
 }
 
@@ -141,7 +141,7 @@ void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId rol
         request->set_rawmsg(msg);
     }
     
-    stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
 }
 
 bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {

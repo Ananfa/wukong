@@ -175,7 +175,7 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
     // 成员预加载，若其中有玩家gameObj预加载失败，将所有已预加载的对象销毁并且销毁场景对象，返回加载失败
     for (auto id : members) {
         if (loadRole(id, 0)) {
-            scene->enter(_roleId2GameObjectMap[id]);
+            scene->enter(getGameObject(id));
         } else {
             ERROR_LOG("SceneManager::loadScene -- load scene defId[%d] sceneId[%s] failed for load role[%llu] failed\n", defId, realSceneId.c_str(), id);
             

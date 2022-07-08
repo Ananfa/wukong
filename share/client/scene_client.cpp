@@ -34,7 +34,7 @@ void SceneClient::shutdown() {
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
         
-        kv.second.sceneServiceStub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
+        kv.second.sceneServiceStub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request));
     }
 }
 
@@ -138,7 +138,7 @@ void SceneClient::enterScene(ServerId sid, const std::string &sceneId, RoleId ro
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
     request->set_sceneid(sceneId);
-    stub->enterScene(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
+    stub->enterScene(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request));
 }
 
 void SceneClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &msg) {
@@ -164,7 +164,7 @@ void SceneClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId rol
         request->set_rawmsg(msg);
     }
     
-    stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
 }
 
 bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {

@@ -35,7 +35,7 @@ void GatewayClient::shutdown() {
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
         
-        kv.second.stub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));
+        kv.second.stub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request));
     }
 }
 
@@ -150,7 +150,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
                 request->set_rawmsg(msg);
             }
 
-            std::shared_ptr<::google::protobuf::Closure> donePtr(google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request), [](::google::protobuf::Closure *done) {
+            std::shared_ptr<::google::protobuf::Closure> donePtr(google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request), [](::google::protobuf::Closure *done) {
                 done->Run();
             });
 
@@ -163,7 +163,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
 
                 handledAddrs.insert(std::make_pair(kv.second.rpcAddr, true));
 
-                kv.second.stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback(&callDoneHandle, donePtr));
+                kv.second.stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback(callDoneHandle, donePtr));
             }
         }
     } else { // 单服广播或多播
@@ -189,7 +189,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
             request->set_rawmsg(msg);
         }
         
-        stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request));  
+        stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request));  
     }
 }
 

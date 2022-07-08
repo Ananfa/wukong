@@ -169,7 +169,7 @@ void GameObject::send(int32_t type, uint16_t tag, const std::string &msg) {
         request->set_rawmsg(msg);
     }
     
-    _gatewayServerStub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&corpc::callDoneHandle, request));
+    _gatewayServerStub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request));
 }
 
 void GameObject::send(int32_t type, uint16_t tag, google::protobuf::Message &msg) {
@@ -411,7 +411,7 @@ void *GameObject::heartbeatRoutine( void *arg ) {
         if (!success) {
             if (obj->_running) {
                 obj->leaveGame();
-                assert(obj->_running = false);
+                assert(obj->_running == false);
             }
         }
     }

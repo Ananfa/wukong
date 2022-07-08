@@ -80,7 +80,7 @@ void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controlle
 
         traverseInnerStubs([request, donePtr](ServerId sid, pb::InnerGatewayService_Stub* stub) -> bool {
             // 因为forwardOut调用不会等返回，因此需要再用NewCallback保持住donePtr，等到处理完成后才释放
-            stub->forwardOut(NULL, request, NULL, google::protobuf::NewCallback(&callDoneHandle, donePtr));
+            stub->forwardOut(NULL, request, NULL, google::protobuf::NewCallback(callDoneHandle, donePtr));
             return true;
         });
     } else {

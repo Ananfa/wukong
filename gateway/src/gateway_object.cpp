@@ -184,7 +184,7 @@ void GatewayObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::s
         request->set_rawmsg(rawMsg->c_str());
     }
     
-    _gameServerStub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    _gameServerStub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
 }
 
 void GatewayObject::enterGame() {
@@ -201,5 +201,5 @@ void GatewayObject::enterGame() {
     request->set_ltoken(_lToken);
     request->set_gatewayid(_manager->getId());
 
-    _gameServerStub->enterGame(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(&callDoneHandle, request, controller));
+    _gameServerStub->enterGame(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
 }

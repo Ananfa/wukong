@@ -284,7 +284,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
 
             // 查询轮廓数据
             for (RoleProfile &info : roles){
-                UserId uid;
+                UserId uid = 0;
                 std::list<std::pair<std::string, std::string>> pDatas;
                 if (!_delegate.loadProfile(info.roleId, uid, info.serverId, pDatas)) {
                     ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed\n", info.roleId);

@@ -53,6 +53,7 @@ bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, UserId &userId, ServerId 
     my_bool    is_null[3];
     memset(rs_bind, 0, sizeof(rs_bind));
 
+    userId = 0;
     /* set up and bind result set output buffers */
     rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
     rs_bind[0].is_null = &is_null[0];
@@ -60,6 +61,7 @@ bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, UserId &userId, ServerId 
     rs_bind[0].buffer_length = sizeof(userId);
     rs_bind[0].is_unsigned = true;
 
+    serverId = 0;
     rs_bind[1].buffer_type = MYSQL_TYPE_LONG;
     rs_bind[1].is_null = &is_null[1];
     rs_bind[1].buffer = (void *)&serverId;

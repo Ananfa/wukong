@@ -297,7 +297,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
     std::shared_ptr<GatewayObject> obj = _manager->getConnectedGatewayObject(conn);
     if (!obj) {
-        ERROR_LOG("GatewayHandler::bypassHandle -- gateway object not found\n");
+        ERROR_LOG("GatewayHandler::bypassHandle -- gateway object not found, msg:%d\n", type);
         return;
     }
 

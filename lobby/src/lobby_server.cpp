@@ -37,7 +37,7 @@ using namespace wukong;
 
 void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
     // 启动RPC服务
-    server->start(false);
+    server->start(0);
     
     GameObjectManager *mgr = new GameObjectManager(GAME_SERVER_TYPE_LOBBY, lbid);
     mgr->init();

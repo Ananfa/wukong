@@ -26,11 +26,6 @@
 
 using namespace wukong;
 
-static void callDoneHandle(::google::protobuf::Message *request, Controller *controller) {
-    delete controller;
-    delete request;
-}
-
 GameObject::~GameObject() {}
 
 bool GameObject::setGatewayServerStub(ServerId sid) {

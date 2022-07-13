@@ -41,7 +41,7 @@ using namespace wukong;
 
 void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort) {
     // 启动RPC服务
-    server->start(false);
+    server->start(0);
     
     GatewayObjectManager *mgr = new GatewayObjectManager(gwid);
     mgr->init();

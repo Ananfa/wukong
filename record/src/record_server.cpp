@@ -36,7 +36,7 @@ using namespace wukong;
 
 void RecordServer::recordThread(InnerRpcServer *server, ServerId rcid) {
     // 启动RPC服务
-    server->start(false);
+    server->start(0);
     
     RecordObjectManager *mgr = new RecordObjectManager(rcid);
     mgr->init();

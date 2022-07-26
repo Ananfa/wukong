@@ -279,6 +279,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     obj->setLToken(request->ltoken());
 
     // 返回角色数据
+    response->set_userid(userId);
     response->set_serverid(serverId);
     response->set_data(ProtoUtils::marshalDataFragments(datas));
 }

@@ -11,7 +11,13 @@
 #include <ctime>
 #include <thread>
 
-#define TEST_RECONNECT
+//#define TEST_RECONNECT
+
+uint32_t numPerThread = 1;
+bool reloginWithSameAccount = false;
+
+uint32_t maxNum = 1000;
+std::atomic<int> g_count(0);
 
 using namespace demo;
 using namespace corpc;
@@ -21,7 +27,7 @@ using namespace rapidjson;
 static std::atomic<int> g_cnt(0);
 
 struct AccountInfo {
-    std::string account;
+    uint32_t account;
     std::string cipher;
     uint32_t userId = 0;
     uint32_t roleId = 0;
@@ -43,7 +49,8 @@ static void *log_routine( void *arg )
     while (true) {
         sleep(1);
         
-        total += g_cnt;
+        int cnt = g_cnt.load();
+        total += cnt;
         
         if (total == 0) {
             startAt = time(NULL);
@@ -59,9 +66,9 @@ static void *log_routine( void *arg )
             average = total;
         }
         
-        LOG("time %ld seconds, cnt: %d, average: %d, total: %d\n", difTime, int(g_cnt), average, total);
+        LOG("time %ld seconds, cnt: %d, average: %d, total: %d\n", difTime, cnt, average, total);
         
-        g_cnt = 0;
+        g_cnt -= cnt;
     }
     
     return NULL;
@@ -69,19 +76,20 @@ static void *log_routine( void *arg )
 
 static void *test_login(void *arg) {
     AccountInfo *accountInfo = (AccountInfo *)arg;
-    DEBUG_LOG("account: %s\n", accountInfo->account.c_str());
+    DEBUG_LOG("account: %d\n", accountInfo->account);
+    std::string account = std::to_string(accountInfo->account);
 
     if (accountInfo->userId == 0) {
         std::string token;
 
         // ====== 登录 ===== //
         {
-            DEBUG_LOG("start login account: %s\n", accountInfo->account.c_str());
+            DEBUG_LOG("start login account: %s\n", account.c_str());
             HttpRequest request;
             request.setTimeout(5000);
             request.setUrl("http://127.0.0.1:11000/login");
             request.setQueryHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.addQueryParam("openid", accountInfo->account.c_str());
+            request.addQueryParam("openid", account.c_str());
             g_HttpClient.doPost(&request, [&](const HttpResponse &response) {
                 //DEBUG_LOG("login response: %s\n", response.body().c_str());
                 Document doc;
@@ -115,13 +123,13 @@ static void *test_login(void *arg) {
 
         DEBUG_LOG("userId: %d, roleId: %d, token: %s\n", accountInfo->userId, accountInfo->roleId, token.c_str());
         if (accountInfo->userId == 0) {
-            ERROR_LOG("login failed, account: %s\n", accountInfo->account.c_str());
+            ERROR_LOG("login failed, account: %s\n", account.c_str());
             return nullptr;
         }
 
         // ====== 创角 ====== //
         if (accountInfo->roleId == 0) {
-            DEBUG_LOG("start create role for account: %s, userId: %d\n", accountInfo->account.c_str(), accountInfo->userId);
+            DEBUG_LOG("start create role for account: %s, userId: %d\n", account.c_str(), accountInfo->userId);
             HttpRequest request;
             request.setTimeout(5000);
             request.setUrl("http://127.0.0.1:11000/createRole");
@@ -155,13 +163,13 @@ static void *test_login(void *arg) {
         }
 
         if (accountInfo->roleId == 0) {
-            ERROR_LOG("create role failed, account: %s, userId: %d\n", accountInfo->account.c_str(), accountInfo->userId);
+            ERROR_LOG("create role failed, account: %s, userId: %d\n", account.c_str(), accountInfo->userId);
             return nullptr;
         }
 
         // ====== 选择角色进游戏 ====== //
         {
-            DEBUG_LOG("start enter game for account: %s, userId: %d, roleId: %d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId);
+            DEBUG_LOG("start enter game for account: %s, userId: %d, roleId: %d\n", account.c_str(), accountInfo->userId, accountInfo->roleId);
             HttpRequest request;
             request.setTimeout(5000);
             request.setUrl("http://127.0.0.1:11000/enterGame");
@@ -196,7 +204,7 @@ static void *test_login(void *arg) {
         }
 
         if (accountInfo->gToken.empty()) {
-            ERROR_LOG("enter game failed, account: %s, userId: %d, roleId: %d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId);
+            ERROR_LOG("enter game failed, account: %s, userId: %d, roleId: %d\n", account.c_str(), accountInfo->userId, accountInfo->roleId);
             return nullptr;
         }
 
@@ -220,7 +228,7 @@ static void *test_login(void *arg) {
     authreq->set_token(accountInfo->gToken.c_str());
     authreq->set_cipher(accountInfo->cipher.c_str());
     authreq->set_recvserial(accountInfo->lastRecvSerial);
-    DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d, recvSerial: %d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->lastRecvSerial);
+    DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d, recvSerial: %d\n", account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->lastRecvSerial);
     client->send(C2S_MESSAGE_ID_AUTH, 0, false, authreq);
 
     // 接收处理从服务器发来
@@ -237,7 +245,7 @@ static void *test_login(void *arg) {
             client->recv(rType, recvTag, rMsg);
             if (!rType) {
                 if (!client->isRunning()) {
-                    ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d, sendHelloAt:%d\n", accountInfo->account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->gToken.c_str(), enterGame, sendHelloAt);
+                    ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d, sendHelloAt:%d\n", account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->gToken.c_str(), enterGame, sendHelloAt);
 
                     exit(0);
                     // 断线处理，由于服务器在处理connect消息和auth消息时有概率顺序反了导致断线，这里直接进行重登
@@ -264,37 +272,50 @@ static void *test_login(void *arg) {
             case S2C_MESSAGE_ID_ENTERLOBBY: {
                 //enterGame = true;
                 DEBUG_LOG("enter lobby\n");
-                break;
+                continue;
             }
             case S2C_MESSAGE_ID_ECHO: {
                 std::shared_ptr<pb::StringValue> resp = std::static_pointer_cast<pb::StringValue>(rMsg);
                 DEBUG_LOG("echo: %s\n", resp->value().c_str());
 
+                int count = g_count.fetch_add(1);
+                if (count > maxNum) {
+                    ERROR_LOG("finished\n");
+                    client->stop();
+                } else {
+                    //ERROR_LOG("count:%d\n", count);
 #ifdef TEST_RECONNECT
-                // BUG: 下面这句打开后会引发奇怪问题--连接建立中途卡住poll没连接事件。原因是老client协程中操作的fd可能与当前fd相同，导致数据被老client协程接收了
-                // 需要确保老client不会截取新client的数据
-                //client->close();
-                client->stop();
-                accountInfo->lastRecvSerial = client->getLastRecvSerial();
-                RoutineEnvironment::startCoroutine(test_login, (void*)accountInfo);
-                
+                    // BUG: 下面这句打开后会引发奇怪问题--连接建立中途卡住poll没连接事件。原因是老client协程中操作的fd可能与当前fd相同，导致数据被老client协程接收了
+                    // 需要确保老client不会截取新client的数据
+                    //client->close();
+                    client->stop();
+                    accountInfo->lastRecvSerial = client->getLastRecvSerial();
+                    RoutineEnvironment::startCoroutine(test_login, (void*)accountInfo);
 #else
-                // 这里有个问题：重登时正好gameobj向gatewayobj心跳，在gatewayobj的旧对象销毁新对象重建过程中刚好心跳请求到达，因此返回心跳失败--找不到gatewayobj，
-                // 在心跳RPC结果返回过程中，新gatewayobj创建完成并且通知gameobj连接建立，gameobj通知客户端进入游戏完成，（此处进行心跳失败处理将gateway对象stub清除了），
-                // 客户端发1000消息给服务器，gateway将消息转给lobby中的游戏对象，游戏对象返回1000消息发现gateway对象stub为空
+                    // 这里有个问题：重登时正好gameobj向gatewayobj心跳，在gatewayobj的旧对象销毁新对象重建过程中刚好心跳请求到达，因此返回心跳失败--找不到gatewayobj，
+                    // 在心跳RPC结果返回过程中，新gatewayobj创建完成并且通知gameobj连接建立，gameobj通知客户端进入游戏完成，（此处进行心跳失败处理将gateway对象stub清除了），
+                    // 客户端发1000消息给服务器，gateway将消息转给lobby中的游戏对象，游戏对象返回1000消息发现gateway对象stub为空
+                    
+                    AccountInfo *newAccountInfo = new AccountInfo;
+                    if (reloginWithSameAccount) {
+                        newAccountInfo->account = accountInfo->account;
+                    } else {
+                        client->stop();
+                        newAccountInfo->account = accountInfo->account + numPerThread;
+                    }
+                    delete accountInfo;
 
-                AccountInfo *newAccountInfo = new AccountInfo;
-                newAccountInfo->account = accountInfo->account;
-                delete accountInfo;
-
-                RoutineEnvironment::startCoroutine(test_login, (void*)newAccountInfo);
+                    RoutineEnvironment::startCoroutine(test_login, (void*)newAccountInfo);
 #endif
+                }
+
                 
                 return nullptr;
             }
         }
 
         if (enterGame) {
+            //ERROR_LOG("rType:%d\n", rType);
             g_cnt++;
             DEBUG_LOG("start send \"hello world\"\n");
             // 发Echo消息
@@ -316,9 +337,10 @@ void clientThread(int base, int num) {
     for (int i = 0; i < num; i++) {
         AccountInfo *accountInfo = new AccountInfo;
 
-        char *account = new char[10];
-        sprintf(account, "%d", base + i);
-        accountInfo->account = account;
+        //char *account = new char[10];
+        //sprintf(account, "%d", base + i);
+        //accountInfo->account = account;
+        accountInfo->account = base + i;
         RoutineEnvironment::startCoroutine(test_login, (void*)accountInfo);
     }
 
@@ -331,11 +353,11 @@ int main(int argc, const char *argv[]) {
     RoutineEnvironment::init();
     LOG("start...\n");
 
-    std::thread t1 = std::thread(clientThread, 20000000, 20);
-    std::thread t2 = std::thread(clientThread, 30000000, 20);
-    std::thread t3 = std::thread(clientThread, 40000000, 20);
-    std::thread t4 = std::thread(clientThread, 50000000, 20);
-    std::thread t5 = std::thread(clientThread, 60000000, 20);
+    std::thread t1 = std::thread(clientThread, 20000000, numPerThread);
+    //std::thread t2 = std::thread(clientThread, 30000000, numPerThread);
+    //std::thread t3 = std::thread(clientThread, 40000000, numPerThread);
+    //std::thread t4 = std::thread(clientThread, 50000000, numPerThread);
+    //std::thread t5 = std::thread(clientThread, 60000000, numPerThread);
 
     RoutineEnvironment::startCoroutine(log_routine, NULL);
 

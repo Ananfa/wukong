@@ -77,11 +77,17 @@ bool LoginConfig::parse(const char *path) {
     }
     _ioSendThreadNum = doc["ioSendThreadNum"].GetUint();
 
-    if (!doc.HasMember("roleNumForPlayer")) {
-        ERROR_LOG("config error -- roleNumForPlayer not define\n");
+    if (!doc.HasMember("playerRoleNumInOneServer")) {
+        ERROR_LOG("config error -- playerRoleNumInOneServer not define\n");
         return false;
     }
-    _roleNumForPlayer = doc["roleNumForPlayer"].GetUint();
+    _playerRoleNumInOneServer = doc["playerRoleNumInOneServer"].GetUint();
+
+    if (!doc.HasMember("playerRoleNumInAllServer")) {
+        ERROR_LOG("config error -- playerRoleNumInAllServer not define\n");
+        return false;
+    }
+    _playerRoleNumInAllServer = doc["playerRoleNumInAllServer"].GetUint();
 
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {

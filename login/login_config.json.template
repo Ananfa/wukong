@@ -6,7 +6,8 @@
     "workerThreadNum": 4,                       // http处理线程数（为0时表示在主线程进行http处理）
     "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
     "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
-    "roleNumForPlayer": 1,                      // 每个玩家在一个区服中可创建的角色数量
+    "playerRoleNumInOneServer": 1,              // 每个玩家在一个区服中可创建的角色数量
+    "playerRoleNumInAllServer": 10,             // 每个玩家在全区全服中可创建的角色数量
     "redis": [
         {                                       // 缓存Redis库（不落地，可集群部署，支持发布订阅）
             "dbName": "cache",

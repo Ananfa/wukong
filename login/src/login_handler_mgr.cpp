@@ -41,14 +41,25 @@ using namespace wukong;
 
 // 注意：这里是g++编译器的一个bug导致需要用namespace大括号括住模板特化
 namespace wukong {
+    template<> void JsonWriter::put(const RoleServerInfo &value) {
+        _writer.StartObject();
+        _writer.Key("s");
+        put(value.serverId);
+        _writer.Key("r");
+        put(value.roleId);
+        _writer.EndObject();
+    }
+
     template<> void JsonWriter::put(const RoleProfile &value) {
         _writer.StartObject();
         _writer.Key("serverId");
         put(value.serverId);
         _writer.Key("roleId");
         put(value.roleId);
-        _writer.Key("pData");
-        put(value.pData);
+        if (!value.pData.empty()) {
+            _writer.Key("pData");
+            put(value.pData);
+        }
         _writer.EndObject();
     }
 }
@@ -61,68 +72,7 @@ thread_local uint32_t LoginHandlerMgr::_t_serverGroupDataVersion(0);
 thread_local std::map<GroupId, uint32_t> LoginHandlerMgr::_t_groupStatusMap;
 thread_local std::map<ServerId, GroupId> LoginHandlerMgr::_t_serverId2groupIdMap;
 
-void *LoginHandlerMgr::saveUserRoutine(void *arg) {
-    LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
-
-    AccountUserIdInfoQueue& queue = self->_queue;
-
-    int readFd = queue.getReadFd();
-    co_register_fd(readFd);
-    co_set_timeout(readFd, -1, 1000);
-    int ret;
-    std::vector<char> buf(1024);
-    while (true) {
-        // 等待处理信号
-        ret = (int)read(readFd, &buf[0], 1024);
-        assert(ret != 0);
-        if (ret < 0) {
-            if (errno == EAGAIN) {
-                continue;
-            } else {
-                // 管道出错
-                ERROR_LOG("LoginHandlerMgr::saveUserRoutine -- read from pipe fd %d ret %d errno %d (%s)\n",
-                       readFd, ret, errno, strerror(errno));
-                
-                // TODO: 如何处理？退出协程？
-                // sleep 10 milisecond
-                msleep(10);
-            }
-        }
-
-        MYSQL* mysql = nullptr;
-        AccountUserIdInfo *msg = queue.pop();
-        while (msg) {
-            if (!mysql) {
-                mysql = g_MysqlPoolManager.getCoreRecord()->take();
-            }
-
-            bool saved = false;
-            if (mysql) {
-                saved = MysqlUtils::SaveUser(mysql, msg->account, msg->userId);
-            }
-
-            if (!saved) {
-                if (mysql) {
-                    g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
-                    mysql = nullptr;
-                }
-
-                ERROR_LOG("LoginHandlerMgr::saveUserRoutine -- save account:[%s], userid:[%d] to mysql failed\n", msg->account.c_str(), msg->userId);
-            }
-
-            delete msg;
-            msg = queue.pop();
-        }
-
-        if (mysql) {
-            g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
-        }
-    }
-}
-
 void LoginHandlerMgr::init(HttpServer *server) {
-    RoutineEnvironment::startCoroutine(saveUserRoutine, this);
-
     // 获取并订阅服务器组列表信息
     RoutineEnvironment::startCoroutine([](void * arg) -> void* {
         LoginHandlerMgr *self = (LoginHandlerMgr *)arg;
@@ -146,14 +96,12 @@ void LoginHandlerMgr::init(HttpServer *server) {
     });
     
     // 注册handler
-    // req: no parameters
-    // res: e.g. {"msg": "request sent."}
     server->registerHandler(POST, "/login", std::bind(&LoginHandlerMgr::login, this, std::placeholders::_1, std::placeholders::_2));
-    // req: no parameters
-    // res: e.g. {"ip": "127.0.0.1", "port": 8080}
+
+    server->registerHandler(POST, "/getProfile", std::bind(&LoginHandlerMgr::getProfile, this, std::placeholders::_1, std::placeholders::_2));
+
     server->registerHandler(POST, "/createRole", std::bind(&LoginHandlerMgr::createRole, this, std::placeholders::_1, std::placeholders::_2));
-    // req: roleid=73912798174
-    // res: e.g. {"roleData": "xxx"}
+
     server->registerHandler(POST, "/enterGame", std::bind(&LoginHandlerMgr::enterGame, this, std::placeholders::_1, std::placeholders::_2));
 
 }
@@ -199,102 +147,37 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
         return setErrorResponse(response, "login check failed");
     }
 
-    // 查询openid对应的userId（采用redis数据库）
-    redis = g_RedisPoolManager.getCorePersist()->take();
-    if (!redis) {
+    UserId userId;
+    std::string roleListStr;
+    std::vector<RoleProfile> roles;
+    // 直接在mysql中为玩家创建userId
+    MYSQL* mysql = g_MysqlPoolManager.getCoreRecord()->take();
+    if (!mysql) {
         return setErrorResponse(response, "connect to db failed");
     }
 
-    UserId userId;
-    std::vector<RoleProfile> roles;
-    switch (RedisUtils::GetUserID(redis, openid, userId)) {
-        case REDIS_DB_ERROR: {
-            g_RedisPoolManager.getCorePersist()->put(redis, true);
-            return setErrorResponse(response, "get user id from db failed");
+    if (!MysqlUtils::LoadOrCreateUser(mysql, openid, userId, roleListStr)) {
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
+        return setErrorResponse(response, "load or create user from db failed");
+    }
+
+    g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
+
+    if (roleListStr.length() > 0) {
+        Document doc;
+        doc.Parse(roleListStr.c_str());
+
+        if (!doc.IsArray()) {
+            return setErrorResponse(response, "parse role list failed");
         }
-        case REDIS_FAIL: {
-            // 若userId不存在，为玩家生成userId并记录openid与userId的关联关系（setnx）
 
-            // 问题: 是否需要将openid与userid的关系存到mysql中？若存mysql，是否需要通过分库分表来提高负载能力？云数据库（分布式数据库）应该有这个能力
-            // 答：redis数据库主从备份设计以及数据库日志能保证数据安全性，只需要进行tlog日志记录就可以（tlog日志会进行入库处理），另外，也可以存到mysql中防止redis库损坏
+        for (SizeType i = 0; i < doc.Size(); i++) {
+            const Value& v = doc[i];
+            RoleProfile info;
+            info.serverId = v["s"].GetInt();
+            info.roleId = v["r"].GetInt();
 
-            // 这里是否增加一步从mysql数据库查userid？查到就写入redis？由于角色列表也是存在redis中，只查userid不够，因此不用从mysql查了
-
-            userId = RedisUtils::CreateUserID(redis);
-            if (userId == 0) {
-                g_RedisPoolManager.getCorePersist()->put(redis, true);
-                return setErrorResponse(response, "create user id failed");
-            }
-
-            switch (RedisUtils::SetUserID(redis, openid, userId)) {
-                case REDIS_DB_ERROR: {
-                    g_RedisPoolManager.getCorePersist()->put(redis, true);
-                    return setErrorResponse(response, "set user id for openid failed");
-                }
-                case REDIS_FAIL: {
-                    g_RedisPoolManager.getCorePersist()->put(redis, false); // 归还连接
-                    return setErrorResponse(response, "set userid for openid failed for already exist");
-                }
-            }
-
-            g_RedisPoolManager.getCorePersist()->put(redis, false);
-
-            // TODO: tlog记录openid与userid的关系
-
-            // 是同步记录还是异步记录好？异步记录会有丢失风险
-            // 这里通过协程异步将信息存到mysql中，有可能存储失败，若存储失败查记录日志
-            AccountUserIdInfo *a2uInfo = new AccountUserIdInfo();
-            a2uInfo->account = openid;
-            a2uInfo->userId = userId;
-            _queue.push(a2uInfo);
-
-            break;
-        }
-        case REDIS_SUCCESS: {
-            // 若userId存在，查询玩家所拥有的所有角色基本信息（从哪里查？在redis中记录userId关联的角色id列表，redis中还记录了每个角色的轮廓数据）
-            if (userId == 0) {
-                g_RedisPoolManager.getCorePersist()->put(redis, false);
-                return setErrorResponse(response, "invalid userid");
-            }
-
-            std::vector<RoleId> roleIds;
-            switch (RedisUtils::GetUserRoleIdList(redis, userId, roleIds)) {
-                case REDIS_DB_ERROR: {
-                    g_RedisPoolManager.getCorePersist()->put(redis, true);
-                    return setErrorResponse(response, "get role id list failed");
-                }
-                case REDIS_FAIL: {
-                    g_RedisPoolManager.getCorePersist()->put(redis, true);
-                    return setErrorResponse(response, "get role id list failed for return type invalid");
-                }
-            }
-            g_RedisPoolManager.getCorePersist()->put(redis, false);
-
-            roles.reserve(roleIds.size());
-            for (RoleId roleId : roleIds) {
-                if (roleId == 0) {
-                    return setErrorResponse(response, "invalid roleid");
-                }
-
-                RoleProfile info;
-                info.serverId = 0;
-                info.roleId = roleId;
-                roles.push_back(std::move(info));
-            }
-
-            // 查询轮廓数据
-            for (RoleProfile &info : roles){
-                UserId uid = 0;
-                std::list<std::pair<std::string, std::string>> pDatas;
-                if (!_delegate.loadProfile(info.roleId, uid, info.serverId, pDatas)) {
-                    ERROR_LOG("LoginHandlerMgr::login -- load role %d profile failed\n", info.roleId);
-                    continue;
-                }
-                assert(uid == userId);
-                info.pData = ProtoUtils::marshalDataFragments(pDatas);
-            }
-
-            break;
+            roles.push_back(std::move(info));
         }
     }
 
@@ -331,6 +214,50 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     json.put("token", token);
     json.putRawArray("servers", _t_serverGroupData);
     json.put("roles", roles);
+    json.end();
+    
+    setResponse(response, std::string(json.content(), json.length()));
+}
+
+void LoginHandlerMgr::getProfile(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response) {
+    if (!request->has("userId")) {
+        return setErrorResponse(response, "missing parameter userId");
+    }
+
+    UserId userId = std::stoi((*request)["userId"]);
+
+    if (!request->has("token")) {
+        return setErrorResponse(response, "missing parameter token");
+    }
+
+    std::string token = (*request)["token"];
+
+    if (!request->has("roleId")) {
+        return setErrorResponse(response, "missing parameter roleId");
+    }
+
+    RoleId roleId = std::stoi((*request)["roleId"]);
+
+    RoleProfile info;
+    info.roleId = roleId;
+
+    UserId uid = 0;
+    ServerId sid = 0;
+    std::list<std::pair<std::string, std::string>> pDatas;
+    if (!_delegate.loadProfile(info.roleId, uid, info.serverId, pDatas)) {
+        return setErrorResponse(response, "load role profile failed");
+    }
+
+    if (uid != userId) {
+        return setErrorResponse(response, "not user's role");
+    }
+
+    info.pData = ProtoUtils::marshalDataFragments(pDatas);
+
+    JsonWriter json;
+    json.start();
+    json.put("retCode", 0);
+    json.put("profile", info);
     json.end();
     
     setResponse(response, std::string(json.content(), json.length()));
@@ -407,69 +334,80 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     }
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
-    // 判断同服角色数量限制
-    redisContext *redis = g_RedisPoolManager.getCorePersist()->take();
-    if (!redis) {
-        return setErrorResponse(response, "connect to redis failed");
+    // 从mysql中获取玩家角色id列表
+    std::string roleListStr;
+    std::vector<RoleServerInfo> roles;
+    // 直接在mysql中为玩家创建userId
+    MYSQL* mysql = g_MysqlPoolManager.getCoreRecord()->take();
+    if (!mysql) {
+        return setErrorResponse(response, "connect to db failed");
     }
 
-    uint32_t count = 0;
-    if (RedisUtils::GetRoleCount(redis, userId, serverId, count) == REDIS_DB_ERROR) {
-        g_RedisPoolManager.getCorePersist()->put(redis, true);
-        return setErrorResponse(response, "get role count failed");
+    if (!MysqlUtils::LoadRoleIds(mysql, userId, roleListStr)) {
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
+        return setErrorResponse(response, "load or create user from db failed");
     }
 
-    if (count >= g_LoginConfig.getRoleNumForPlayer()) {
-        g_RedisPoolManager.getCorePersist()->put(redis, false);
+    if (roleListStr.length() > 0) {
+        Document doc;
+        doc.Parse(roleListStr.c_str());
+
+        if (!doc.IsArray()) {
+            g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
+            return setErrorResponse(response, "parse role list failed");
+        }
+
+        for (SizeType i = 0; i < doc.Size(); i++) {
+            const Value& v = doc[i];
+            RoleServerInfo info;
+            info.serverId = v["s"].GetInt();
+            info.roleId = v["r"].GetInt();
+
+            roles.push_back(std::move(info));
+        }
+    }
+
+    if (roles.size() >= g_LoginConfig.getPlayerRoleNumInAllServer()) {
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
         return setErrorResponse(response, "reach the limit of the number of roles");
     }
 
-    // 生成roleId
-    RoleId roleId = RedisUtils::CreateRoleID(redis);
-    if (roleId == 0) {
-        g_RedisPoolManager.getCorePersist()->put(redis, true);
-        return setErrorResponse(response, "create role id failed");
-    }
-    
-    // 完成以下事情，其中1和2可以通过redis lua脚本一起完成。有可能出现1和2操作完成但3或4或5没有操作，此时只能玩家找客服后通过工具修复玩家的RoleIds数据了。
-    //       1. 将roleId加入RoleIds:<serverid>:{<userid>}中，保证玩家角色数量不超过区服角色数量限制
-    //       2. 将roleId加入RoleIds:{<userid>}
-    //       3. 将角色数据存盘mysql（若存盘失败，将上面1、2步骤回退）
-    //       4. 将角色数据记录到Role:{<roleid>}中，并加入相应的存盘列表
-    //       5. 记录角色轮廓数据Profile:{<roleid>}（注意：记得加serverId）
-    
-    // 绑定role，即上述第1和第2步
-    switch (RedisUtils::BindRole(redis, roleId, userId, serverId, g_LoginConfig.getRoleNumForPlayer())) {
-        case REDIS_DB_ERROR: {
-            g_RedisPoolManager.getCorePersist()->put(redis, true);
-            ERROR_LOG("LoginHandlerMgr::createRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed for db error\n", roleId, userId, serverId);
-            return setErrorResponse(response, "bind role failed for db error");
-        }
-        case REDIS_FAIL: {
-            g_RedisPoolManager.getCorePersist()->put(redis, false);
-            ERROR_LOG("LoginHandlerMgr::createRole -- bind roleId:[%d] userId:[%d] serverId:[%d] failed\n", roleId, userId, serverId);
-            return setErrorResponse(response, "bind role failed");
+    int roleNumInServer = 0;
+    for (auto r : roles) {
+        if (r.serverId == serverId) {
+            roleNumInServer++;
         }
     }
 
-    g_RedisPoolManager.getCorePersist()->put(redis, false);
+    if (roleNumInServer >= g_LoginConfig.getPlayerRoleNumInOneServer()) {
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
+        return setErrorResponse(response, "reach the limit of the number of roles");
+    }
 
     std::string rData = ProtoUtils::marshalDataFragments(roleDatas);
     
-    MYSQL *mysql = g_MysqlPoolManager.getCoreRecord()->take();
-    if (!mysql) {
-        return setErrorResponse(response, "connect to mysql failed");
-    }
-    
+    RoleId roleId = 0;
     // 保存role，即上述第3步
     if (!MysqlUtils::CreateRole(mysql, roleId, userId, serverId, rData)) {
         g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
         return setErrorResponse(response, "save role to mysql failed");
     }
 
+    assert(roleId != 0);
+    // 更新user的role列表信息
+    roles.push_back({serverId, roleId});
+    JsonWriter jw;
+    jw.put(roles);
+    roleListStr.assign(jw.content(), jw.length());
+
+    if (!MysqlUtils::UpdateRoleIds(mysql, userId, roleListStr, roles.size())) {
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
+        return setErrorResponse(response, "update role list failed");
+    }
+
     g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
 
-    // 缓存role，即上述第4步
+    // 缓存role
     cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         return setErrorResponse(response, "connect to cache failed");
@@ -486,7 +424,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
         }
     }
 
-    // 缓存profile，即上述第5步
+    // 缓存profile
     std::list<std::pair<std::string, std::string>> profileDatas;
     _delegate.makeProfile(roleDatas, profileDatas);
     switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, profileDatas)) {
@@ -550,26 +488,21 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         return setErrorResponse(response, "check token failed");
     }
 
-    redisContext *redis = g_RedisPoolManager.getCorePersist()->take();
-    if (!redis) {
+    MYSQL* mysql = g_MysqlPoolManager.getCoreRecord()->take();
+    if (!mysql) {
         return setErrorResponse(response, "connect to db failed");
     }
 
     bool valid = false;
-    switch (RedisUtils::CheckRole(redis, userId, serverId, roleId, valid)) {
-        case REDIS_DB_ERROR: {
-            g_RedisPoolManager.getCorePersist()->put(redis, true);
-            return setErrorResponse(response, "check role failed");
-        }
-        case REDIS_FAIL: {
-            g_RedisPoolManager.getCorePersist()->put(redis, true);
-            return setErrorResponse(response, "check role failed for return type invalid");
-        }
+    if (!MysqlUtils::CheckRole(mysql, roleId, userId, serverId, valid)) {
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
+        return setErrorResponse(response, "check role failed for db error");
     }
-    g_RedisPoolManager.getCorePersist()->put(redis, false);
+
+    g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
 
     if (!valid) {
-        return setErrorResponse(response, "role check failed");
+        return setErrorResponse(response, "check role failed");
     }
 
     // 查询玩家Session（Session中记录了会话token，Gateway地址，角色id）
@@ -616,6 +549,7 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
 
     Address gatewayAddr = g_ClientCenter.getGatewayAddress(gatewayId);
 
+    // TODO: 在passport信息中加入加密密钥
     // 客户端连接gateway后将passport转成session
     switch (RedisUtils::SetPassport(cache, userId, gatewayId, gToken, roleId)) {
         case REDIS_DB_ERROR: {

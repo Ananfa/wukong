@@ -8,40 +8,6 @@
 
 using namespace wukong;
 
-uint64_t RedisUtils::CreateUserID(redisContext *redis) {
-    int r = rand() % 100;
-    redisReply *reply = (redisReply *)redisCommand(redis, "INCR UIDGEN:USER:%d", r);
-    if (!reply) {
-        return 0;
-    }
-
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        freeReplyObject(reply);
-        return 0;
-    }
-
-    uint64_t ret = reply->integer * 100 + r;
-    freeReplyObject(reply);
-    return ret;
-}
-
-uint64_t RedisUtils::CreateRoleID(redisContext *redis) {
-    int r = rand() % 100;
-    redisReply *reply = (redisReply *)redisCommand(redis, "INCR UIDGEN:ROLE:%d", r);
-    if (!reply) {
-        return 0;
-    }
-
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        freeReplyObject(reply);
-        return 0;
-    }
-
-    uint64_t ret = reply->integer * 100 + r;
-    freeReplyObject(reply);
-    return ret;
-}
-
 RedisAccessResult RedisUtils::LoadSha1(redisContext *redis, const std::string &script, std::string &sha1) {
     redisReply *reply = (redisReply *)redisCommand(redis, "SCRIPT LOAD %s", script.c_str());
     if (!reply) {
@@ -69,86 +35,6 @@ RedisAccessResult RedisUtils::LoginLock(redisContext *redis, const std::string &
         return REDIS_FAIL;
     }
 
-    freeReplyObject(reply);
-    return REDIS_SUCCESS;
-}
-
-RedisAccessResult RedisUtils::GetUserID(redisContext *redis, const std::string &account, UserId &userId) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "GET O2U:{%s}", account.c_str());
-    if (!reply) {
-        return REDIS_DB_ERROR;
-    }
-
-    if (reply->type == REDIS_REPLY_STRING) {
-        userId = atoi(reply->str);
-        freeReplyObject(reply);
-        return REDIS_SUCCESS;
-    }
-
-    freeReplyObject(reply);
-    return REDIS_FAIL;
-}
-
-RedisAccessResult RedisUtils::SetUserID(redisContext *redis, const std::string &account, UserId userId) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "SET O2U:{%s} %llu NX", account.c_str(), userId);
-    if (!reply) {
-        return REDIS_DB_ERROR;
-    } 
-
-    if (reply->str == nullptr || strcmp(reply->str, "OK")) {
-        freeReplyObject(reply);
-        return REDIS_FAIL;
-    }
-
-    freeReplyObject(reply);
-    return REDIS_SUCCESS;
-}
-
-RedisAccessResult RedisUtils::GetUserRoleIdList(redisContext *redis, UserId userId, std::vector<RoleId> &roleIds) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "SMEMBERS RoleIds:{%llu}", userId);
-    if (!reply) {
-        return REDIS_DB_ERROR;
-    }
-
-    if (reply->type != REDIS_REPLY_ARRAY) {
-        freeReplyObject(reply);
-        return REDIS_FAIL;
-    }
-
-    if (reply->elements > 0) {
-        roleIds.reserve(reply->elements);
-        for (int i = 0; i < reply->elements; i++) {
-            RoleId roleId = atoi(reply->element[i]->str);
-            roleIds.push_back(roleId);
-        }
-    }
-    freeReplyObject(reply);
-    return REDIS_SUCCESS;
-}
-
-RedisAccessResult RedisUtils::GetRoleCount(redisContext *redis, UserId userId, ServerId serverId, uint32_t &count) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "SCARD RoleIds:%d:{%llu}", serverId, userId);
-    if (!reply) {
-        return REDIS_DB_ERROR;
-    }
-
-    count = reply->integer;
-    freeReplyObject(reply);
-    return REDIS_SUCCESS;
-}
-
-RedisAccessResult RedisUtils::CheckRole(redisContext *redis, UserId userId, ServerId serverId, RoleId roleId, bool &valid) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "SISMEMBER RoleIds:%d:{%llu} %llu", serverId, userId, roleId);
-    if (!reply) {
-        return REDIS_DB_ERROR;
-    }
-
-    if (reply->type != REDIS_REPLY_INTEGER) {
-        freeReplyObject(reply);
-        return REDIS_FAIL;
-    }
-
-    valid = reply->integer == 1;
     freeReplyObject(reply);
     return REDIS_SUCCESS;
 }
@@ -256,30 +142,6 @@ RedisAccessResult RedisUtils::GetHotfixData(redisContext *redis, std::string &da
 
     data = reply->str;
     freeReplyObject(reply);
-    return REDIS_SUCCESS;
-}
-
-RedisAccessResult RedisUtils::BindRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum) {
-    const char *cmdSha1 = g_RedisPoolManager.getCorePersist()->getSha1(BIND_ROLE_CMD_NAME);
-    redisReply *reply;
-    if (!cmdSha1) {
-        reply = (redisReply *)redisCommand(redis, "EVAL %s 2 RoleIds:%d:{%llu} RoleIds:{%llu} %llu %d", BIND_ROLE_CMD, serverId, userId, userId, roleId, maxRoleNum);
-    } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 2 RoleIds:%d:{%llu} RoleIds:{%llu} %llu %d", cmdSha1, serverId, userId, userId, roleId, maxRoleNum);
-    }
-    
-    if (!reply) {
-        return REDIS_DB_ERROR;
-    }
-
-    if (reply->integer == 0) {
-        // 设置失败
-        freeReplyObject(reply);
-        return REDIS_FAIL;
-    }
-
-    freeReplyObject(reply);
-
     return REDIS_SUCCESS;
 }
 
@@ -825,6 +687,7 @@ RedisAccessResult RedisUtils::GetRecordAddress(redisContext *redis, RoleId roleI
 }
 
 RedisAccessResult RedisUtils::SetRecordAddress(redisContext *redis, RoleId roleId, ServerId recordId, const std::string &rToken) {
+    //ERROR_LOG("===RedisUtils::SetRecordAddress===%d\n", roleId);
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_RECORD_CMD_NAME);
     redisReply *reply;
     // 尝试设置record

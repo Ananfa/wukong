@@ -11,17 +11,9 @@ namespace wukong {
     
     class RedisUtils {
     public:
-        static uint64_t CreateUserID(redisContext *redis);
-        static uint64_t CreateRoleID(redisContext *redis);
-
         static RedisAccessResult LoadSha1(redisContext *redis, const std::string &script, std::string &sha1);
 
         static RedisAccessResult LoginLock(redisContext *redis, const std::string &account);
-        static RedisAccessResult GetUserID(redisContext *redis, const std::string &account, UserId &userId);
-        static RedisAccessResult SetUserID(redisContext *redis, const std::string &account, UserId userId);
-        static RedisAccessResult GetUserRoleIdList(redisContext *redis, UserId userId, std::vector<RoleId> &roleIds);
-        static RedisAccessResult GetRoleCount(redisContext *redis, UserId userId, ServerId serverId, uint32_t &count); // 这里的serverId是逻辑区服号
-        static RedisAccessResult CheckRole(redisContext *redis, UserId userId, ServerId serverId, RoleId roleId, bool &valid);
         static RedisAccessResult SetLoginToken(redisContext *redis, UserId userId, const std::string &token);
         static RedisAccessResult GetLoginToken(redisContext *redis, UserId userId, std::string &token);
         static RedisAccessResult RemoveLoginToken(redisContext *redis, UserId userId);
@@ -30,7 +22,6 @@ namespace wukong {
         static RedisAccessResult GetBanMsgData(redisContext *redis, std::string &data);
         static RedisAccessResult GetHotfixData(redisContext *redis, std::string &data);
 
-        static RedisAccessResult BindRole(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, uint32_t maxRoleNum);
         static RedisAccessResult LoadProfile(redisContext *redis, RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &datas);
         static RedisAccessResult SaveProfile(redisContext *redis, RoleId roleId, UserId userId, ServerId serverId, const std::list<std::pair<std::string, std::string>> &datas);
         static RedisAccessResult UpdateProfile(redisContext *redis, RoleId roleId, const std::list<std::pair<std::string, std::string>> &datas);

@@ -6,7 +6,8 @@
     "workerThreadNum": 4,
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
-    "roleNumForPlayer": 1,
+    "playerRoleNumInOneServer": 1,
+    "playerRoleNumInAllServer": 10,
     "redis": [
         {
             "dbName": "cache",

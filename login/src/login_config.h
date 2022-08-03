@@ -44,7 +44,8 @@ namespace wukong {
         uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
         uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
 
-        uint32_t getRoleNumForPlayer() const { return _roleNumForPlayer; }
+        uint32_t getPlayerRoleNumInOneServer() const { return _playerRoleNumInOneServer; }
+        uint32_t getPlayerRoleNumInAllServer() const { return _playerRoleNumInAllServer; }
 
         const std::vector<RedisInfo>& getRedisInfos() const { return _redisInfos; }
         const std::vector<MysqlInfo>& getMysqlInfos() const { return _mysqlInfos; }
@@ -66,7 +67,8 @@ namespace wukong {
         uint32_t _ioRecvThreadNum;  // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t _ioSendThreadNum;  // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
 
-        uint32_t _roleNumForPlayer; // 每个玩家在一个区服中可创建的角色数量
+        uint32_t _playerRoleNumInOneServer; // 每个玩家在一个区服中可创建的角色数量
+        uint32_t _playerRoleNumInAllServer; // 每个玩家在全区全服中可创建的角色数量
         
         // 缓存路由对象、游戏对象和存储对象对应的存在锁，玩家的session，缓存角色数据，角色轮廓数据，发布订阅等
         // 存储玩家的openid对应userid关系，userid对应roleid列表关系，逻辑服与服务器组对应关系等

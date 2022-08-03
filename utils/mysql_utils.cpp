@@ -2,13 +2,228 @@
 
 using namespace wukong;
 
-bool MysqlUtils::SaveUser(MYSQL *mysql, const std::string &account, UserId userId) {
-    char tmpStr[120];
-    sprintf(tmpStr,"INSERT INTO user (account, userid) values (\"%s\", %d)", account.c_str(), userId);
-    if (mysql_query(mysql, tmpStr)) {
-        ERROR_LOG("MysqlUtils::SaveUser -- account:[%s], userid:[%d]\n", account.c_str(), userId);
+bool MysqlUtils::LoadOrCreateUser(MYSQL *mysql, const std::string &account, UserId &userId, std::string &roleListStr) {
+    MYSQL_STMT *stmt = mysql_stmt_init(mysql);
+    if (!stmt) {
+        ERROR_LOG("MysqlUtils::LoadOrCreateUser -- init mysql stmt failed\n");
         return false;
     }
+
+    if (mysql_stmt_prepare(stmt, "CALL loadOrCreateUser(?)", 24)) {
+        ERROR_LOG("MysqlUtils::LoadOrCreateUser -- prepare mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    MYSQL_BIND ps_params[1];
+
+    ps_params[0].buffer_type = MYSQL_TYPE_STRING;
+    ps_params[0].buffer = (void *)account.c_str();
+    ps_params[0].buffer_length = account.length();
+    ps_params[0].length = 0;
+    ps_params[0].is_null = 0;
+    
+    if (mysql_stmt_bind_param(stmt, ps_params)) {
+        ERROR_LOG("MysqlUtils::LoadOrCreateUser -- bind param for mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        ERROR_LOG("MysqlUtils::LoadOrCreateUser -- execute mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    userId = 0;
+    std::string rolesStr(1023, char(0));
+    uint64_t rolesStrLen = 0;
+    
+    MYSQL_BIND rs_bind[2];
+    my_bool    is_null[2];
+    memset(rs_bind, 0, sizeof(rs_bind));
+
+    rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
+    rs_bind[0].is_null = &is_null[0];
+    rs_bind[0].buffer = (void *)&userId;
+    rs_bind[0].buffer_length = sizeof(userId);
+    rs_bind[0].is_unsigned = true;
+
+    rs_bind[1].buffer_type = MYSQL_TYPE_STRING;
+    rs_bind[1].is_null = &is_null[1];
+    rs_bind[1].buffer = (void *)rolesStr.c_str();
+    rs_bind[1].buffer_length = rolesStr.length();
+    rs_bind[1].length = &rolesStrLen;
+    rs_bind[1].is_unsigned = true;
+
+    if (mysql_stmt_bind_result(stmt, rs_bind)) {
+        ERROR_LOG("DataManager::LoadOrCreateUser -- %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+    
+    if (mysql_stmt_fetch(stmt)) {
+        ERROR_LOG("DataManager::LoadOrCreateUser -- %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+    
+    mysql_stmt_close(stmt);
+
+    if (rolesStrLen > 0) {
+        roleListStr = std::move(rolesStr);
+    } else {
+        roleListStr.clear();
+    }
+
+    return true;
+}
+
+bool MysqlUtils::LoadRoleIds(MYSQL *mysql, UserId userId, std::string &roleListStr) {
+    MYSQL_STMT *stmt = mysql_stmt_init(mysql);
+    if (!stmt) {
+        ERROR_LOG("MysqlUtils::LoadRoleIds -- init mysql stmt failed\n");
+        return false;
+    }
+
+    if (mysql_stmt_prepare(stmt, "SELECT roles FROM user WHERE userid=?", 37)) {
+        ERROR_LOG("MysqlUtils::LoadRoleIds -- prepare mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    MYSQL_BIND ps_params[1];
+
+    ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+    ps_params[0].buffer = (void *)&userId;
+    ps_params[0].length = 0;
+    ps_params[0].is_null = 0;
+    ps_params[0].is_unsigned = true;
+
+    if (mysql_stmt_bind_param(stmt, ps_params)) {
+        ERROR_LOG("MysqlUtils::LoadRoleIds -- bind param for mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        ERROR_LOG("MysqlUtils::LoadRoleIds -- execute mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    std::string rolesStr(1023, char(0));
+    uint64_t rolesStrLen = 0;
+
+    MYSQL_BIND rs_bind[1];
+    my_bool    is_null[1];
+    memset(rs_bind, 0, sizeof(rs_bind));
+
+    rs_bind[0].buffer_type = MYSQL_TYPE_STRING;
+    rs_bind[0].is_null = &is_null[0];
+    rs_bind[0].buffer = (void *)rolesStr.c_str();
+    rs_bind[0].buffer_length = rolesStr.length();
+    rs_bind[0].length = &rolesStrLen;
+    rs_bind[0].is_unsigned = true;
+
+    if (mysql_stmt_bind_result(stmt, rs_bind)) {
+        ERROR_LOG("DataManager::LoadRoleIds -- %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+    
+    if (mysql_stmt_fetch(stmt)) {
+        ERROR_LOG("DataManager::LoadRoleIds -- %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+    
+    mysql_stmt_close(stmt);
+
+    if (rolesStrLen > 0) {
+        roleListStr = std::move(rolesStr);
+    } else {
+        roleListStr.clear();
+    }
+
+    return true;
+}
+
+bool MysqlUtils::UpdateRoleIds(MYSQL *mysql, UserId userId, const std::string &roleListStr, uint32_t roleNum) {
+    MYSQL_STMT *stmt = mysql_stmt_init(mysql);
+    if (!stmt) {
+        ERROR_LOG("MysqlUtils::UpdateRoleIds -- init mysql stmt failed\n");
+        return false;
+    }
+
+    if (mysql_stmt_prepare(stmt, "UPDATE user SET roles=?, rolenum=? WHERE userid=? AND rolenum=?", 63)) {
+        ERROR_LOG("MysqlUtils::UpdateRoleIds -- prepare mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    uint32_t lastNum = roleNum - 1;
+
+    MYSQL_BIND ps_params[4];
+    
+    ps_params[0].buffer_type = MYSQL_TYPE_STRING;
+    ps_params[0].buffer = (void *)roleListStr.c_str();
+    ps_params[0].buffer_length = roleListStr.length();
+    ps_params[0].length = 0;
+    ps_params[0].is_null = 0;
+    
+    ps_params[1].buffer_type = MYSQL_TYPE_LONG;
+    ps_params[1].buffer = (void *)&roleNum;
+    ps_params[1].length = 0;
+    ps_params[1].is_null = 0;
+    ps_params[1].is_unsigned = true;
+
+    ps_params[2].buffer_type = MYSQL_TYPE_LONG;
+    ps_params[2].buffer = (void *)&userId;
+    ps_params[2].length = 0;
+    ps_params[2].is_null = 0;
+    ps_params[2].is_unsigned = true;
+
+    ps_params[3].buffer_type = MYSQL_TYPE_LONG;
+    ps_params[3].buffer = (void *)&lastNum;
+    ps_params[3].length = 0;
+    ps_params[3].is_null = 0;
+    ps_params[3].is_unsigned = true;
+
+    if (mysql_stmt_bind_param(stmt, ps_params)) {
+        ERROR_LOG("MysqlUtils::UpdateRoleIds -- bind param for mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        ERROR_LOG("MysqlUtils::UpdateRoleIds -- execute mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    my_ulonglong res = mysql_affected_rows(mysql);
+    if (res == (my_ulonglong)-1) {
+        ERROR_LOG("MysqlUtils::UpdateRoleIds -- mysql error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    mysql_stmt_close(stmt);
 
     return true;
 }
@@ -109,45 +324,39 @@ bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, UserId &userId, ServerId 
     return true;
 }
 
-bool MysqlUtils::CreateRole(MYSQL *mysql, RoleId roleId, UserId userId, ServerId serverId, const std::string &data) {
+bool MysqlUtils::CreateRole(MYSQL *mysql, RoleId &roleId, UserId userId, ServerId serverId, const std::string &data) {
     MYSQL_STMT *stmt = mysql_stmt_init(mysql);
     if (!stmt) {
         ERROR_LOG("MysqlUtils::CreateRole -- init mysql stmt failed\n");
         return false;
     }
 
-    if (mysql_stmt_prepare(stmt, "INSERT INTO role (roleid,userid,serverid,data) values (?,?,?,?)", 63)) {
+    if (mysql_stmt_prepare(stmt, "CALL createRole(?, ?, ?)", 24)) {
         ERROR_LOG("MysqlUtils::CreateRole -- prepare mysql stmt error: %s (errno: %d)\n",
                   mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
         mysql_stmt_close(stmt);
         return false;
     }
 
-    MYSQL_BIND ps_params[4];
+    MYSQL_BIND ps_params[3];
 
     ps_params[0].buffer_type = MYSQL_TYPE_LONG;
-    ps_params[0].buffer = (void *)&roleId;
+    ps_params[0].buffer = (void *)&userId;
     ps_params[0].length = 0;
     ps_params[0].is_null = 0;
     ps_params[0].is_unsigned = true;
-    
-    ps_params[1].buffer_type = MYSQL_TYPE_LONG;
-    ps_params[1].buffer = (void *)&userId;
+
+    ps_params[1].buffer_type = MYSQL_TYPE_SHORT;
+    ps_params[1].buffer = (void *)&serverId;
     ps_params[1].length = 0;
     ps_params[1].is_null = 0;
     ps_params[1].is_unsigned = true;
-    
-    ps_params[2].buffer_type = MYSQL_TYPE_SHORT;
-    ps_params[2].buffer = (void *)&serverId;
+
+    ps_params[2].buffer_type = MYSQL_TYPE_MEDIUM_BLOB;
+    ps_params[2].buffer = (void *)data.c_str();
+    ps_params[2].buffer_length = data.length();
     ps_params[2].length = 0;
     ps_params[2].is_null = 0;
-    ps_params[2].is_unsigned = true;
-    
-    ps_params[3].buffer_type = MYSQL_TYPE_MEDIUM_BLOB;
-    ps_params[3].buffer = (void *)data.c_str();
-    ps_params[3].buffer_length = data.length();
-    ps_params[3].length = 0;
-    ps_params[3].is_null = 0;
 
     if (mysql_stmt_bind_param(stmt, ps_params)) {
         ERROR_LOG("MysqlUtils::CreateRole -- bind param for mysql stmt error: %s (errno: %d)\n",
@@ -163,14 +372,31 @@ bool MysqlUtils::CreateRole(MYSQL *mysql, RoleId roleId, UserId userId, ServerId
         return false;
     }
 
-    my_ulonglong res = mysql_affected_rows(mysql);
-    if (res == (my_ulonglong)-1) {
-        ERROR_LOG("MysqlUtils::CreateRole -- mysql error: %s (errno: %d)\n",
+    roleId = 0;
+    MYSQL_BIND rs_bind[1];
+    my_bool    is_null[1];
+    memset(rs_bind, 0, sizeof(rs_bind));
+
+    rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
+    rs_bind[0].is_null = &is_null[0];
+    rs_bind[0].buffer = (void *)&roleId;
+    rs_bind[0].buffer_length = sizeof(roleId);
+    rs_bind[0].is_unsigned = true;
+
+    if (mysql_stmt_bind_result(stmt, rs_bind)) {
+        ERROR_LOG("DataManager::LoadRoleIds -- %s (errno: %d)\n",
                   mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
         mysql_stmt_close(stmt);
         return false;
     }
-
+    
+    if (mysql_stmt_fetch(stmt)) {
+        ERROR_LOG("DataManager::LoadRoleIds -- %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+    
     mysql_stmt_close(stmt);
 
     return true;
@@ -249,5 +475,84 @@ bool MysqlUtils::UpdateRole(MYSQL *mysql, RoleId roleId, const std::string &data
 
     mysql_stmt_close(stmt);
 
+    return true;
+}
+
+bool MysqlUtils::CheckRole(MYSQL *mysql, RoleId roleId, UserId userId, ServerId serverId, bool &result) {
+    MYSQL_STMT *stmt = mysql_stmt_init(mysql);
+    if (!stmt) {
+        ERROR_LOG("MysqlUtils::CheckRole -- init mysql stmt failed\n");
+        return false;
+    }
+
+    if (mysql_stmt_prepare(stmt, "SELECT COUNT(*) FROM role WHERE roleid=? AND userid=? AND serverid=?", 68)) {
+        ERROR_LOG("MysqlUtils::CheckRole -- prepare mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    MYSQL_BIND ps_params[3];
+
+    ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+    ps_params[0].buffer = (void *)&roleId;
+    ps_params[0].length = 0;
+    ps_params[0].is_null = 0;
+    ps_params[0].is_unsigned = true;
+
+    ps_params[1].buffer_type = MYSQL_TYPE_LONG;
+    ps_params[1].buffer = (void *)&userId;
+    ps_params[1].length = 0;
+    ps_params[1].is_null = 0;
+    ps_params[1].is_unsigned = true;
+
+    ps_params[2].buffer_type = MYSQL_TYPE_SHORT;
+    ps_params[2].buffer = (void *)&serverId;
+    ps_params[2].length = 0;
+    ps_params[2].is_null = 0;
+    ps_params[2].is_unsigned = true;
+
+    if (mysql_stmt_bind_param(stmt, ps_params)) {
+        ERROR_LOG("MysqlUtils::CheckRole -- bind param for mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        ERROR_LOG("MysqlUtils::CheckRole -- execute mysql stmt error: %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+
+    uint32_t count = 0;
+    MYSQL_BIND rs_bind[1];
+    my_bool    is_null[1];
+    memset(rs_bind, 0, sizeof(rs_bind));
+
+    rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
+    rs_bind[0].is_null = &is_null[0];
+    rs_bind[0].buffer = (void *)&count;
+    rs_bind[0].buffer_length = sizeof(count);
+    rs_bind[0].is_unsigned = true;
+
+    if (mysql_stmt_bind_result(stmt, rs_bind)) {
+        ERROR_LOG("DataManager::CheckRole -- %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+    
+    if (mysql_stmt_fetch(stmt)) {
+        ERROR_LOG("DataManager::CheckRole -- %s (errno: %d)\n",
+                  mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+        mysql_stmt_close(stmt);
+        return false;
+    }
+    
+    mysql_stmt_close(stmt);
+
+    result = count > 0;
     return true;
 }

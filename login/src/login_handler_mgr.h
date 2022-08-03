@@ -23,7 +23,6 @@
 #include "corpc_mutex.h"
 
 #include <map>
-//#include <mutex>
 #include <atomic>
 
 using namespace corpc;
@@ -35,22 +34,16 @@ namespace wukong {
         std::string name; // 逻辑服名
     };
 
+    struct RoleServerInfo {
+        ServerId serverId;
+        RoleId roleId;
+    };
+
     struct RoleProfile {
         ServerId serverId; // 所在服id
         RoleId roleId; // 角色id
         std::string pData; // 角色画像数据
     };
-
-    struct AccountUserIdInfo {
-        std::string account;
-        UserId userId;
-    };
-
-#ifdef USE_NO_LOCK_QUEUE
-    typedef Co_MPSC_NoLockQueue<AccountUserIdInfo*> AccountUserIdInfoQueue;
-#else
-    typedef CoSyncQueue<AccountUserIdInfo*> AccountUserIdInfoQueue;
-#endif
 
     class LoginHandlerMgr {
     public:
@@ -67,6 +60,8 @@ namespace wukong {
     private:
         // login接口：校验玩家身份，生成临时身份token，获取玩家在各逻辑服中的角色基本信息（角色列表），获取服务器列表，并将以上信息返回给客户端
         void login(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response);
+        // getProfile接口：获取角色侧面信息
+        void getProfile(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response);
         // createRole接口：创角处理
         void createRole(std::shared_ptr<RequestMessage> &request, std::shared_ptr<ResponseMessage> &response);
         // enterGame接口：进入游戏处理
@@ -95,8 +90,6 @@ namespace wukong {
         static thread_local std::map<ServerId, GroupId> _t_serverId2groupIdMap;
 
         LoginDelegate _delegate;
-
-        AccountUserIdInfoQueue _queue;
 
     private:
         LoginHandlerMgr() = default;                                     // ctor hidden

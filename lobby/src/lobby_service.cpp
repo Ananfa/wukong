@@ -63,13 +63,13 @@ void LobbyServiceImpl::loadRole(::google::protobuf::RpcController* controller,
 }
 
 void LobbyServiceImpl::addInnerStub(ServerId sid, pb::InnerLobbyService_Stub* stub) {
-    _innerStubs.insert(std::make_pair(sid, stub));
+    innerStubs_.insert(std::make_pair(sid, stub));
 }
 
 pb::InnerLobbyService_Stub *LobbyServiceImpl::getInnerStub(ServerId sid) {
-    auto it = _innerStubs.find(sid);
+    auto it = innerStubs_.find(sid);
 
-    if (it == _innerStubs.end()) {
+    if (it == innerStubs_.end()) {
         return nullptr;
     }
 
@@ -77,7 +77,7 @@ pb::InnerLobbyService_Stub *LobbyServiceImpl::getInnerStub(ServerId sid) {
 }
 
 void LobbyServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerLobbyService_Stub*)> handle) {
-    for (auto &pair : _innerStubs) {
+    for (auto &pair : innerStubs_) {
         if (!handle(pair.first, pair.second)) {
             return;
         }
@@ -88,14 +88,14 @@ void InnerLobbyServiceImpl::shutdown(::google::protobuf::RpcController* controll
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-    _manager->shutdown();
+    manager_->shutdown();
 }
 
 void InnerLobbyServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                       const ::corpc::Void* request,
                                       ::wukong::pb::Uint32Value* response,
                                       ::google::protobuf::Closure* done) {
-    response->set_value(_manager->roleCount());
+    response->set_value(manager_->roleCount());
 }
 
 void InnerLobbyServiceImpl::loadRole(::google::protobuf::RpcController* controller,
@@ -114,7 +114,7 @@ void InnerLobbyServiceImpl::loadRole(::google::protobuf::RpcController* controll
     std::string targetSceneId = g_LobbyDelegate.getGetTargetSceneIdHandle()(roleId);
 
     if (targetSceneId.empty()) {
-        if (!_manager->loadRole(roleId, gwId)) {
+        if (!manager_->loadRole(roleId, gwId)) {
             ERROR_LOG("InnerLobbyServiceImpl::loadRole -- role %d load failed\n", roleId);
             return;
         }

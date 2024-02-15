@@ -21,16 +21,16 @@
 using namespace corpc;
 using namespace wukong;
 
-std::map<std::string, std::shared_ptr<pb::GatewayService_Stub>> GatewayClient::_addr2stubs;
-std::map<ServerId, GatewayClient::StubInfo> GatewayClient::_stubs;
-Mutex GatewayClient::_stubsLock;
-std::atomic<uint32_t> GatewayClient::_stubChangeNum(0);
-thread_local uint32_t GatewayClient::_t_stubChangeNum = 0;
-thread_local std::map<ServerId, GatewayClient::StubInfo> GatewayClient::_t_stubs;
+std::map<std::string, std::shared_ptr<pb::GatewayService_Stub>> GatewayClient::addr2stubs_;
+std::map<ServerId, GatewayClient::StubInfo> GatewayClient::stubs_;
+Mutex GatewayClient::stubsLock_;
+std::atomic<uint32_t> GatewayClient::stubChangeNum_(0);
+thread_local uint32_t GatewayClient::t_stubChangeNum_ = 0;
+thread_local std::map<ServerId, GatewayClient::StubInfo> GatewayClient::t_stubs_;
 
 void GatewayClient::shutdown() {
     refreshStubs();
-    std::map<ServerId, GatewayClient::StubInfo> stubs = _t_stubs;
+    std::map<ServerId, GatewayClient::StubInfo> stubs = t_stubs_;
     
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
@@ -76,7 +76,7 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
     std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
 
     refreshStubs();
-    std::map<uint16_t, StubInfo> localStubs = _t_stubs;
+    std::map<uint16_t, StubInfo> localStubs = t_stubs_;
 
     // 清除原来的信息
     infos.reserve(localStubs.size());
@@ -132,7 +132,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
 
         // 全服广播
         refreshStubs();
-        std::map<uint16_t, StubInfo> localStubs = _t_stubs;
+        std::map<uint16_t, StubInfo> localStubs = t_stubs_;
 
         if (localStubs.size() > 0) {
             pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
@@ -194,7 +194,7 @@ void GatewayClient::broadcast(ServerId sid, int32_t type, uint16_t tag, const st
 }
 
 bool GatewayClient::setServers(const std::vector<AddressInfo>& addresses) {
-    if (!_client) {
+    if (!client_) {
         FATAL_LOG("GatewayClient::setServers -- not init\n");
         return false;
     }
@@ -210,17 +210,17 @@ bool GatewayClient::setServers(const std::vector<AddressInfo>& addresses) {
             continue;
         }
 
-        iter = _addr2stubs.find(addr);
-        if (iter != _addr2stubs.end()) {
+        iter = addr2stubs_.find(addr);
+        if (iter != addr2stubs_.end()) {
             stub = iter->second;
         } else {
-            stub = std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::GatewayService::STUB_OWNS_CHANNEL);
+            stub = std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(client_, address.ip, address.port, 1), pb::GatewayService::STUB_OWNS_CHANNEL);
         }
         addr2stubs.insert(std::make_pair(addr, stub));
 
         for (const auto& pair : address.serverPorts) {
-            auto iter1 = _stubs.find(pair.first);
-            if (iter1 != _stubs.end()) {
+            auto iter1 = stubs_.find(pair.first);
+            if (iter1 != stubs_.end()) {
                 if (iter1->second.rpcAddr == addr) {
                     stubs.insert(std::make_pair(pair.first, iter1->second));
                     continue;
@@ -237,12 +237,12 @@ bool GatewayClient::setServers(const std::vector<AddressInfo>& addresses) {
         }
     }
 
-    _addr2stubs = addr2stubs;
+    addr2stubs_ = addr2stubs;
 
     {
-        LockGuard lock(_stubsLock);
-        _stubs = stubs;
-        _stubChangeNum++;
+        LockGuard lock(stubsLock_);
+        stubs_ = stubs;
+        stubChangeNum_++;
     }
     
     return true;
@@ -250,8 +250,8 @@ bool GatewayClient::setServers(const std::vector<AddressInfo>& addresses) {
 
 std::shared_ptr<pb::GatewayService_Stub> GatewayClient::getStub(ServerId sid) {
     refreshStubs();
-    auto iter = _t_stubs.find(sid);
-    if (iter == _t_stubs.end()) {
+    auto iter = t_stubs_.find(sid);
+    if (iter == t_stubs_.end()) {
         return nullptr;
     }
     
@@ -259,17 +259,17 @@ std::shared_ptr<pb::GatewayService_Stub> GatewayClient::getStub(ServerId sid) {
 }
 
 void GatewayClient::refreshStubs() {
-    if (_t_stubChangeNum != _stubChangeNum) {
+    if (t_stubChangeNum_ != stubChangeNum_) {
         {
-            LockGuard lock(_stubsLock);
+            LockGuard lock(stubsLock_);
 
-            if (_t_stubChangeNum == _stubChangeNum) {
+            if (t_stubChangeNum_ == stubChangeNum_) {
                 return;
             }
 
-            _t_stubs.clear();
-            _t_stubs = _stubs;
-            _t_stubChangeNum = _stubChangeNum;
+            t_stubs_.clear();
+            t_stubs_ = stubs_;
+            t_stubChangeNum_ = stubChangeNum_;
         }
     }
 }

@@ -3,29 +3,29 @@
 
 using namespace wukong;
 
-HttpPipeline::HttpPipeline(std::shared_ptr<corpc::Connection> &connection, Worker *worker): Pipeline(connection, worker), _parser(new HttpParser), _nparsed(0) {
+HttpPipeline::HttpPipeline(std::shared_ptr<corpc::Connection> &connection, Worker *worker): Pipeline(connection, worker), parser_(new HttpParser), nparsed_(0) {
     
 }
 
 bool HttpPipeline::upflow(uint8_t *buf, int size) {
-    std::shared_ptr<HttpConnection> connection = std::static_pointer_cast<HttpConnection>(_connection.lock());
+    std::shared_ptr<HttpConnection> connection = std::static_pointer_cast<HttpConnection>(connection_.lock());
     assert(connection);
     
     // 将数据存入缓存
-    _buf.append((char*)buf, size);
+    buf_.append((char*)buf, size);
     
-    uint32_t tmp = _nparsed;
+    uint32_t tmp = nparsed_;
     
-    while ( _nparsed - tmp < size) {
+    while ( nparsed_ - tmp < size) {
         // 解析数据
-        _nparsed += _parser->append(_buf.c_str()+_nparsed, _buf.length()-_nparsed);
+        nparsed_ += parser_->append(buf_.c_str()+nparsed_, buf_.length()-nparsed_);
         
-        if (!_parser->isCompleted()) {
+        if (!parser_->isCompleted()) {
             break;
         }
         
         // 获得完整的HTTP请求
-        RequestMessage * request = _parser->getRequest();
+        RequestMessage * request = parser_->getRequest();
         if ( request != NULL )
         {
             // 交由worker处理请求
@@ -34,49 +34,49 @@ bool HttpPipeline::upflow(uint8_t *buf, int size) {
             task->request = std::shared_ptr<RequestMessage>(request);
             task->response = std::shared_ptr<ResponseMessage>(new ResponseMessage);
             
-            _worker->addMessage(task);
+            worker_->addMessage(task);
         }
         
-        _parser->reset();
+        parser_->reset();
     }
     
-    if (_nparsed > HTTP_PIPELINE_CLEAN_BUF_THRESHOLD) {
-        _buf = _buf.substr(_nparsed);
-        _nparsed = 0;
+    if (nparsed_ > HTTP_PIPELINE_CLEAN_BUF_THRESHOLD) {
+        buf_ = buf_.substr(nparsed_);
+        nparsed_ = 0;
     }
     
     return true;
 }
 
 bool HttpPipeline::downflow(uint8_t *buf, int space, int &size) {
-    std::shared_ptr<HttpConnection> connection = std::static_pointer_cast<HttpConnection>(_connection.lock());
+    std::shared_ptr<HttpConnection> connection = std::static_pointer_cast<HttpConnection>(connection_.lock());
     assert(connection);
     
     size = 0;
     while (connection->getDataSize() > 0 && space - size > 0) {
         std::shared_ptr<ResponseMessage> response = std::static_pointer_cast<ResponseMessage>(connection->getFrontData());
         
-        if (connection->_responseBuf.empty()) {
-            response->serialize(connection->_responseBuf);
-            assert(!connection->_responseBuf.empty());
+        if (connection->responseBuf_.empty()) {
+            response->serialize(connection->responseBuf_);
+            assert(!connection->responseBuf_.empty());
         }
         
-        size_t bufLen = connection->_responseBuf.length();
+        size_t bufLen = connection->responseBuf_.length();
         
-        assert(connection->_responseBufSentNum < bufLen);
-        uint8_t *resBuf = (uint8_t *)connection->_responseBuf.data();
-        if (space - size < bufLen - connection->_responseBufSentNum) {
-            memcpy(buf + size, resBuf + connection->_responseBufSentNum, space - size);
-            connection->_responseBufSentNum += space - size;
+        assert(connection->responseBufSentNum_ < bufLen);
+        uint8_t *resBuf = (uint8_t *)connection->responseBuf_.data();
+        if (space - size < bufLen - connection->responseBufSentNum_) {
+            memcpy(buf + size, resBuf + connection->responseBufSentNum_, space - size);
+            connection->responseBufSentNum_ += space - size;
             size = space;
             
             return true;
         } else {
-            memcpy(buf + size, resBuf + connection->_responseBufSentNum, bufLen - connection->_responseBufSentNum);
-            size += bufLen - connection->_responseBufSentNum;
+            memcpy(buf + size, resBuf + connection->responseBufSentNum_, bufLen - connection->responseBufSentNum_);
+            size += bufLen - connection->responseBufSentNum_;
             
-            connection->_responseBuf.clear();
-            connection->_responseBufSentNum = 0;
+            connection->responseBuf_.clear();
+            connection->responseBufSentNum_ = 0;
         }
         
         connection->popFrontData();
@@ -86,10 +86,10 @@ bool HttpPipeline::downflow(uint8_t *buf, int space, int &size) {
 }
 
 std::shared_ptr<Pipeline> HttpPipelineFactory::buildPipeline(std::shared_ptr<corpc::Connection> &connection) {
-    return std::shared_ptr<Pipeline>( new HttpPipeline(connection, _worker) );
+    return std::shared_ptr<Pipeline>( new HttpPipeline(connection, worker_) );
 }
 
-HttpConnection::HttpConnection(int fd, HttpServer* server): corpc::Connection(fd, server->_io, false), _server(server), _responseBufSentNum(0) {
+HttpConnection::HttpConnection(int fd, HttpServer* server): corpc::Connection(fd, server->io_, false), server_(server), responseBufSentNum_(0) {
 }
 
 HttpConnection::~HttpConnection() {
@@ -98,7 +98,7 @@ HttpConnection::~HttpConnection() {
 
 void HttpConnection::onClose() {
     std::shared_ptr<corpc::Connection> self = corpc::Connection::shared_from_this();
-    _server->onClose(self);
+    server_->onClose(self);
 }
 
 void *HttpServer::MultiThreadWorker::taskCallRoutine( void * arg ) {
@@ -131,16 +131,16 @@ void HttpServer::CoroutineWorker::handleMessage(void *msg) {
 
 
 HttpServer::HttpServer(IO *io, uint16_t workThreadNum, const std::string& ip, uint16_t port): corpc::Server(io) {
-    _acceptor = new TcpAcceptor(this, ip, port);
+    acceptor_ = new TcpAcceptor(this, ip, port);
     
     // 根据需要创建多线程worker或协程worker
     if (workThreadNum > 0) {
-        _worker = new MultiThreadWorker(this, workThreadNum);
+        worker_ = new MultiThreadWorker(this, workThreadNum);
     } else {
-        _worker = new CoroutineWorker(this);
+        worker_ = new CoroutineWorker(this);
     }
     
-    _pipelineFactory = new HttpPipelineFactory(_worker);
+    pipelineFactory_ = new HttpPipelineFactory(worker_);
 }
 
 HttpServer::~HttpServer() {}
@@ -164,17 +164,17 @@ void HttpServer::onClose(std::shared_ptr<corpc::Connection>& connection) {
 }
 
 void HttpServer::registerFilter(HttpFilter filter) {
-    _filterVec.push_back(filter);
+    filterVec_.push_back(filter);
 }
 
 void HttpServer::registerHandler(HttpMethod method, const std::string& uri, HttpHandler handler) {
     switch (method) {
         case GET: {
-            _getterMap.insert(std::make_pair(uri, handler));
+            getterMap_.insert(std::make_pair(uri, handler));
             break;
         }
         case POST: {
-            _posterMap.insert(std::make_pair(uri, handler));
+            posterMap_.insert(std::make_pair(uri, handler));
             break;
         }
         default: {
@@ -195,16 +195,16 @@ void HttpServer::send(std::shared_ptr<HttpConnection>& connection, std::shared_p
 void HttpServer::handle(std::shared_ptr<HttpConnection>& connection, std::shared_ptr<RequestMessage>& request, std::shared_ptr<ResponseMessage>& response) {
     std::map<std::string, HttpHandler>::iterator handlerIt;
     if (strcmp(request->getMethod().c_str(), "GET") == 0) {
-        handlerIt = _getterMap.find(request->getURI());
+        handlerIt = getterMap_.find(request->getURI());
 
-        if (handlerIt == _getterMap.end()) {
+        if (handlerIt == getterMap_.end()) {
             response->setResult(HttpStatusCode::NotFound);
             return send(connection, request, response);
         }
     } else if (strcmp(request->getMethod().c_str(), "POST") == 0) {
-        handlerIt = _posterMap.find(request->getURI());
+        handlerIt = posterMap_.find(request->getURI());
 
-        if (handlerIt == _posterMap.end()) {
+        if (handlerIt == posterMap_.end()) {
             response->setResult(HttpStatusCode::NotFound);
             return send(connection, request, response);
         }
@@ -214,8 +214,8 @@ void HttpServer::handle(std::shared_ptr<HttpConnection>& connection, std::shared
     }
 
     // 先执行filter, 再执行handler
-    if (!_filterVec.empty()) {
-        for (auto &filter : _filterVec) {
+    if (!filterVec_.empty()) {
+        for (auto &filter : filterVec_) {
             if (!filter(request, response)) {
                 // 如果filter没有设置HttpStatusCode, 默认HttpStatusCode::BadRequest
                 if (!response->getStatusCode()) response->setResult(HttpStatusCode::BadRequest);

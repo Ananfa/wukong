@@ -1,8 +1,131 @@
 // TODO：此文件通过工具生成
 
 #include "demo_utils.h"
+#include "redis_utils.h"
+#include "mysql_utils.h"
+#include "redis_pool.h"
+#include "mysql_pool.h"
+#include "common.pb.h"
 
 using namespace demo;
+using namespace wukong;
+
+bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas) {
+    serverId = 0;
+    pDatas.clear();
+    // 先从cache中加载profile数据
+    redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
+    if (!cache) {
+        ERROR_LOG("DemoUtils::LoadProfile -- connect to cache failed\n");
+        return false;
+    }
+
+    switch (RedisUtils::LoadProfile(cache, roleId, userId, serverId, pDatas)) {
+        case REDIS_SUCCESS: {
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
+            return true;
+        }
+        case REDIS_DB_ERROR: {
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
+            ERROR_LOG("DemoUtils::LoadProfile -- load role profile failed for db error\n");
+            return false;
+        }
+    }
+
+    assert(pDatas.size() == 0);
+
+    std::list<std::pair<std::string, std::string>> rDatas;
+
+    // cache中找不到profile数据，先从cache中尝试加载角色数据并存入cache中
+    if (RedisUtils::LoadRole(cache, roleId, userId, serverId, rDatas, false) == REDIS_DB_ERROR) {
+        g_RedisPoolManager.getCoreCache()->put(cache, true);
+        ERROR_LOG("DemoUtils::LoadProfile -- load role data failed for db error\n");
+        return false;
+    }
+    
+    if (rDatas.size() > 0) {
+        MakeProfile(rDatas, pDatas);
+
+        switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, pDatas)) {
+            case REDIS_DB_ERROR: {
+                g_RedisPoolManager.getCoreCache()->put(cache, true);
+                ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed for db error\n");
+                return false;
+            }
+            case REDIS_FAIL: {
+                g_RedisPoolManager.getCoreCache()->put(cache, false);
+                ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed\n");
+                return false;
+            }
+        }
+
+        g_RedisPoolManager.getCoreCache()->put(cache, false);
+        return true;
+    }
+    
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
+
+    // cache中没有数据，需要从mysql中加载数据并存入cache中
+    MYSQL *mysql = g_MysqlPoolManager.getCoreRecord()->take();
+    if (!mysql) {
+        ERROR_LOG("DemoUtils::LoadProfile -- connect to mysql failed\n");
+        return false;
+    }
+
+    std::string data;
+    if (!MysqlUtils::LoadRole(mysql, roleId, userId, serverId, data)) {
+        g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
+        return false;
+    }
+    DEBUG_LOG("loadRole -- roleId:%d userId:%d\n", roleId, userId);
+
+    g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
+
+    if (data.empty()) {
+        ERROR_LOG("DemoUtils::LoadProfile -- no role data\n");
+        return false;
+    }
+
+    wukong::pb::DataFragments fragments;
+    if (!fragments.ParseFromString(data)) {
+        ERROR_LOG("DemoUtils::LoadProfile -- parse role:%d data failed\n", roleId);
+        return false;
+    }
+
+    int fragNum = fragments.fragments_size();
+    for (int i = 0; i < fragNum; i++) {
+        auto &fragment = fragments.fragments(i);
+        pDatas.push_back(std::make_pair(fragment.fragname(), fragment.fragdata()));
+    }
+
+    if (pDatas.size() == 0) {
+        return false;
+    }
+
+    MakeProfile(rDatas, pDatas);
+
+    cache = g_RedisPoolManager.getCoreCache()->take();
+    if (!cache) {
+        ERROR_LOG("DemoUtils::LoadProfile -- connect to cache failed\n");
+        return false;
+    }
+
+    switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, pDatas)) {
+        case REDIS_DB_ERROR: {
+            g_RedisPoolManager.getCoreCache()->put(cache, true);
+            ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed for db error\n");
+            return false;
+        }
+        case REDIS_FAIL: {
+            g_RedisPoolManager.getCoreCache()->put(cache, false);
+            ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed\n");
+            return false;
+        }
+    }
+
+    g_RedisPoolManager.getCoreCache()->put(cache, false);
+    return true;
+}
 
 void DemoUtils::MakeProfile(const std::list<std::pair<std::string, std::string>> &datas, std::list<std::pair<std::string, std::string>> &pDatas) {
     // 注意：下面这段循环在不同生成代码中会不一样

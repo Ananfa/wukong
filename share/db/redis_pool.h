@@ -37,7 +37,7 @@ namespace wukong {
         static RedisPool* create(const char *host, const char *pwd, uint16_t port, uint16_t dbIndex, uint32_t maxConnectNum);
 
     public:
-        RedisConnectPool *getPool() { return _redis; }
+        RedisConnectPool *getPool() { return redis_; }
         const char *getSha1(const char *sha1Name);
 
         redisContext *take();
@@ -54,9 +54,9 @@ namespace wukong {
         static void *initScriptsRoutine(void *arg);
 
     private:
-        RedisConnectPool *_redis;
+        RedisConnectPool *redis_;
 
-        std::map<std::string, std::string> _sha1Map; // 记录所有sha1值
+        std::map<std::string, std::string> sha1Map_; // 记录所有sha1值
     };
 
     class RedisPoolManager {
@@ -70,15 +70,15 @@ namespace wukong {
         RedisPool *getPool(const std::string &poolName);
 
         bool setCoreCache(const std::string &poolName);
-        RedisPool *getCoreCache() { return _coreCache; }
+        RedisPool *getCoreCache() { return coreCache_; }
         bool setCorePersist(const std::string &poolName);
-        RedisPool *getCorePersist() { return _corePersist; }
+        RedisPool *getCorePersist() { return corePersist_; }
 
     private:
-        std::map<std::string, RedisPool*> _poolMap;
+        std::map<std::string, RedisPool*> poolMap_;
 
-        RedisPool *_coreCache = nullptr;
-        RedisPool *_corePersist = nullptr;
+        RedisPool *coreCache_ = nullptr;
+        RedisPool *corePersist_ = nullptr;
 
     private:
         RedisPoolManager() = default;                                       // ctor hidden
@@ -90,6 +90,6 @@ namespace wukong {
     };
 }
 
-#define g_RedisPoolManager RedisPoolManager::Instance()
+#define g_RedisPoolManager wukong::RedisPoolManager::Instance()
 
 #endif /* wukong_redis_pool_h */

@@ -35,18 +35,18 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _rToken(rToken), _manager(manager), _running(false), _saveTM(0), _cacheFailNum(0) {}
+        RecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): userId_(userId), roleId_(roleId), serverId_(serverId), rToken_(rToken), manager_(manager), running_(false), saveTM_(0), cacheFailNum_(0) {}
         virtual ~RecordObject() = 0;
 
         virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas) = 0;
 
         virtual void syncIn(const ::wukong::pb::SyncRequest* request) = 0;
 
-        UserId getUserId() { return _userId; }
-        RoleId getRoleId() { return _roleId; }
-        void setLToken(const std::string &lToken) { _lToken = lToken; }
-        const std::string& getLToken() { return _lToken; }
-        ServerId getServerId() { return _serverId; }
+        UserId getUserId() { return userId_; }
+        RoleId getRoleId() { return roleId_; }
+        void setLToken(const std::string &lToken) { lToken_ = lToken; }
+        const std::string& getLToken() { return lToken_; }
+        ServerId getServerId() { return serverId_; }
 
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
@@ -64,23 +64,23 @@ namespace wukong {
         bool cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas);
 
     protected:
-        UserId _userId;
-        RoleId _roleId;
-        ServerId _serverId; // 角色所属区服ID
-        std::map<std::string, bool> _dirty_map;
+        UserId userId_;
+        RoleId roleId_;
+        ServerId serverId_; // 角色所属区服ID
+        std::map<std::string, bool> dirty_map_;
 
     private:
-        std::string _lToken; // 游戏对象唯一标识
-        std::string _rToken; // 记录对象唯一标识
-        bool _running;
+        std::string lToken_; // 游戏对象唯一标识
+        std::string rToken_; // 记录对象唯一标识
+        bool running_;
 
-        uint64_t _gameObjectHeartbeatExpire; // 游戏对象心跳超时时间
-        uint64_t _saveTM; // 落地时间戳
-        int _cacheFailNum; // 累计cache失败计数
+        uint64_t gameObjectHeartbeatExpire_; // 游戏对象心跳超时时间
+        uint64_t saveTM_; // 落地时间戳
+        int cacheFailNum_; // 累计cache失败计数
         
-        Cond _cond;
+        Cond cond_;
 
-        RecordObjectManager *_manager; // 关联的manager
+        RecordObjectManager *manager_; // 关联的manager
 
     public:
         friend class InnerRecordServiceImpl;

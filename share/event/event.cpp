@@ -2,35 +2,35 @@
 #include "corpc_utils.h"
 
 uint32_t EventEmitter::addEventHandle(const std::string &name, EventHandle handle) {
-    uint32_t handleId = ++_idGen;
+    uint32_t handleId = ++idGen_;
 
-    _m1[handleId] = name;
-    _m2[name][handleId] = handle;
+    m1_[handleId] = name;
+    m2_[name][handleId] = handle;
 
     return handleId;
 }
 
 void EventEmitter::removeEventHandle(uint32_t handleId) {
-    auto it = _m1.find(handleId);
-    if (it == _m1.end()) {
+    auto it = m1_.find(handleId);
+    if (it == m1_.end()) {
         WARN_LOG("EventEmitter::removeEventHandle -- handle[%d] not found\n", handleId);
         return;
     }
 
-    auto it1 = _m2.find(it->second);
-    assert(it1 != _m2.end());
+    auto it1 = m2_.find(it->second);
+    assert(it1 != m2_.end());
 
     it1->second.erase(handleId);
     if (it1->second.empty()) {
-        _m2.erase(it1);
+        m2_.erase(it1);
     }
 
-    _m1.erase(it);
+    m1_.erase(it);
 }
 
 void EventEmitter::fireEvent(const Event &event) {
-    auto it = _m2.find(event.getName());
-    if (it != _m2.end()) {
+    auto it = m2_.find(event.getName());
+    if (it != m2_.end()) {
         for (auto it1 : it->second) {
             it1.second(event);
         }
@@ -38,6 +38,6 @@ void EventEmitter::fireEvent(const Event &event) {
 }
 
 void EventEmitter::clear() {
-    _m1.clear();
-    _m2.clear();
+    m1_.clear();
+    m2_.clear();
 }

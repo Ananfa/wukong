@@ -28,14 +28,14 @@ namespace wukong {
 
     class RecordObjectManager {
     public:
-        RecordObjectManager(ServerId id):_id(id), _shutdown(false) {}
+        RecordObjectManager(ServerId id):id_(id), shutdown_(false) {}
 
         void init();
 
-        ServerId getId() { return _id; }
+        ServerId getId() { return id_; }
 
         void shutdown();
-        bool isShutdown() { return _shutdown; }
+        bool isShutdown() { return shutdown_; }
 
         size_t size(); // 获取当前游戏对象数
 
@@ -43,14 +43,13 @@ namespace wukong {
 
         std::shared_ptr<RecordObject> getRecordObject(RoleId roleId); // 获取玩家存储对象
         std::shared_ptr<RecordObject> create(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, std::list<std::pair<std::string, std::string>> &datas);
-        bool remove(RoleId roleId); // 删除玩家游戏对象
+        bool remove(RoleId roleId); // 删除玩家记录对象
 
     private:
-        ServerId _id;       // gateway服务号
-        bool _shutdown;
+        ServerId id_;
+        bool shutdown_;
 
-        // 正常网关对象列表
-        std::map<RoleId, std::shared_ptr<RecordObject>> _roleId2RecordObjectMap;
+        std::map<RoleId, std::shared_ptr<RecordObject>> roleId2RecordObjectMap_;
     };
 
 }

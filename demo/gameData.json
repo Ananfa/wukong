@@ -1,0 +1,41 @@
+{
+    "pkg_name": "demo",
+    "member": [
+        {
+            "attr": "name",
+            "type": "string",
+            "need_profile": true
+        },
+        {
+            "attr": "exp",
+            "type": "uint32"
+        },
+        {
+            "attr": "lv",
+            "type": "uint32",
+            "need_profile": true
+        },
+        {
+            "attr": "currency",
+            "type": "demo::pb::Currency"
+        },
+        {
+            "attr": "card",
+            "type": "demo::pb::Cards",
+            "inner_list": "cards",
+            "inner_list_item_type": "demo::pb::Card",
+            "inner_list_item_id_key": "cardid"
+        },
+        {
+            "attr": "pet",
+            "type": "demo::pb::Pets",
+            "inner_list": "pets",
+            "inner_list_item_type": "demo::pb::Pet",
+            "inner_list_item_id_key": "petid"
+        },
+        {
+            "attr": "signinactivity",
+            "type": "demo::pb::SignInActivity"
+        }
+    ]
+}

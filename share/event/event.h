@@ -17,69 +17,69 @@ template<class T>
 class EventDataImpl : public EventData
 {
 public:
-    EventDataImpl(const T &v) : _v(v) {}
-    T _v;
+    EventDataImpl(const T &v) : v_(v) {}
+    T v_;
 };
 
 class EventParam
 {
 public:
     ~EventParam() {
-        delete _data;
+        delete data_;
     }
 
     EventParam(EventParam &&ep)
     {
-        _data = ep._data;
-        ep._data = nullptr;
+        data_ = ep.data_;
+        ep.data_ = nullptr;
     }
 
     template<class T >
     EventParam(const T &v)
     {
-        _data = new EventDataImpl<T>(v);
+        data_ = new EventDataImpl<T>(v);
     }
 
     template<class T>
     void getData(T &v) const
     {
-        if (_data) {
-            v = static_cast<EventDataImpl<T>*>(_data)->_v;
+        if (data_) {
+            v = static_cast<EventDataImpl<T>*>(data_)->v_;
         }
     }
 
 public:
-    EventData *_data = nullptr;
+    EventData *data_ = nullptr;
 };
 
 class Event
 {
 public:
-    Event(const char* name): _name(name) {}
+    Event(const char* name): name_(name) {}
 
     template<class T>
     void setParam(const std::string &k, const T &v)
     {
         EventParam param(v);
-        _dataMap.insert(std::make_pair(k, std::move(param)));
+        dataMap_.insert(std::make_pair(k, std::move(param)));
     }
 
     template<class T>
     bool getParam(const std::string &k, T &v) const
     {
-        auto it = _dataMap.find(k);
-        if (it != _dataMap.end()) {
+        auto it = dataMap_.find(k);
+        if (it != dataMap_.end()) {
             it->second.getData(v);
             return true;
         }
         return false;
     }
 
-    const std::string &getName() const { return _name; }
+    const std::string &getName() const { return name_; }
 
 private:
-    std::string _name;
-    std::map<std::string, EventParam> _dataMap;
+    std::string name_;
+    std::map<std::string, EventParam> dataMap_;
 
 private:
     Event() = default;                          // ctor hidden
@@ -109,9 +109,9 @@ public:
     void fireEvent(const Event &event);
 
 private:
-    uint32_t _idGen = 0; // 事件处理号生成器
-    std::map<uint32_t, std::string> _m1; // 事件处理号到事件名称的表
-    std::map<std::string, std::map<uint32_t, EventHandle>> _m2; // 事件名称到事件处理表的表，其中事件处理表是事件处理号到事件处理的表
+    uint32_t idGen_ = 0; // 事件处理号生成器
+    std::map<uint32_t, std::string> m1_; // 事件处理号到事件名称的表
+    std::map<std::string, std::map<uint32_t, EventHandle>> m2_; // 事件名称到事件处理表的表，其中事件处理表是事件处理号到事件处理的表
 };
 
 #endif /* wukong_event_h */

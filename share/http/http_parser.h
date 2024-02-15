@@ -29,7 +29,7 @@ namespace wukong {
         // 获取消息(解释器中的消息被置空)
         RequestMessage* getRequest();
         ResponseMessage* getResponse();
-        HttpMessage* getMessage() const { return m_HttpMessage; }
+        HttpMessage* getMessage() const { return httpMessage_; }
 
         // 添加数据
         int32_t append(const char *buffer, uint32_t length);
@@ -58,8 +58,8 @@ namespace wukong {
         static char* strsep(char **s, const char *del);
         static char* toupper(char *s);
     private :
-        int8_t          m_Status;
-        HttpMessage*    m_HttpMessage;      // HTTP消息
+        int8_t          status_;
+        HttpMessage*    httpMessage_;      // HTTP消息
     };
 
 }

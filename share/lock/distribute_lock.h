@@ -34,10 +34,10 @@ namespace wukong {
         bool lock();
         bool unlock();
     private:
-        RedisConnectPool *_pool;
-        std::string _key;
-        uint64_t _identifier;
-        bool _locked = false;
+        RedisConnectPool *pool_;
+        std::string key_;
+        uint64_t identifier_;
+        bool locked_ = false;
     };
 
     class LockStrategy {
@@ -51,14 +51,14 @@ namespace wukong {
     // 简单分布式锁策略（SimpleLockStrategy）：上锁失败时间隔interval毫秒后重新尝试上锁，最多尝试retryTimes次
     class SimpleLockStrategy: public LockStrategy {
     public:
-        SimpleLockStrategy(uint32_t retryTimes, uint32_t interval): LockStrategy(), _retryTimes(retryTimes), _interval(interval) {}
+        SimpleLockStrategy(uint32_t retryTimes, uint32_t interval): LockStrategy(), retryTimes_(retryTimes), interval_(interval) {}
         virtual ~SimpleLockStrategy() {}
 
         virtual bool tryLock(DistributeLock &lock);
 
     private:
-        uint32_t _retryTimes;
-        uint32_t _interval;
+        uint32_t retryTimes_;
+        uint32_t interval_;
     }
 }
 

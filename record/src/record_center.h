@@ -51,10 +51,10 @@ namespace wukong {
         static void *saveWorkerRoutine(void *arg);
 
     private:
-        Semaphore _saveSema;
+        Semaphore saveSema_;
 
     private:
-        RecordCenter(): _saveSema(MAX_SAVE_WORKER_NUM) {}              // ctor hidden
+        RecordCenter(): saveSema_(MAX_SAVE_WORKER_NUM) {}              // ctor hidden
         ~RecordCenter() = default;                                     // destruct hidden
         RecordCenter(RecordCenter const&) = delete;                    // copy ctor delete
         RecordCenter(RecordCenter &&) = delete;                        // move ctor delete
@@ -63,6 +63,6 @@ namespace wukong {
     };
 }
 
-#define g_RecordCenter RecordCenter::Instance()
+#define g_RecordCenter wukong::RecordCenter::Instance()
 
 #endif /* wukong_record_center_h */

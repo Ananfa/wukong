@@ -29,28 +29,28 @@
 using namespace wukong;
 
 bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
-    if (!_gameServerStub || _gameServerType != gsType || _gameServerId != sid) {
-        _gameServerType = gsType;
-        _gameServerId = sid;
+    if (!gameServerStub_ || gameServerType_ != gsType || gameServerId_ != sid) {
+        gameServerType_ = gsType;
+        gameServerId_ = sid;
 
         switch (gsType) {
             case GAME_SERVER_TYPE_LOBBY: {
-                _gameServerStub = g_LobbyClient.getGameServiceStub(sid);
+                gameServerStub_ = g_LobbyClient.getGameServiceStub(sid);
                 break;
             }
             case GAME_SERVER_TYPE_SCENE: {
-                _gameServerStub = g_SceneClient.getGameServiceStub(sid);
+                gameServerStub_ = g_SceneClient.getGameServiceStub(sid);
                 break;
             }
             default: {
-                ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] unknown game server[gsType:%d sid: %d]\n", _userId, _roleId, gsType, sid);
+                ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] unknown game server[gsType:%d sid: %d]\n", userId_, roleId_, gsType, sid);
                 break;
             }
         }
     }
 
-    if (!_gameServerStub) {
-        ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] game server[gsType:%d sid: %d] not found\n", _userId, _roleId, gsType, sid);
+    if (!gameServerStub_) {
+        ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] game server[gsType:%d sid: %d] not found\n", userId_, roleId_, gsType, sid);
         return false;
     }
 
@@ -58,7 +58,7 @@ bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
 }
 
 void GatewayObject::start() {
-    _running = true;
+    running_ = true;
 
     GatewayObjectRoutineArg *arg = new GatewayObjectRoutineArg();
     arg->obj = shared_from_this();
@@ -67,23 +67,23 @@ void GatewayObject::start() {
 }
 
 void GatewayObject::stop() {
-    if (_running) {
-        DEBUG_LOG("GatewayObject::stop -- user[%llu] role[%llu] token:%s\n", _userId, _roleId, _gToken.c_str());
-        _running = false;
+    if (running_) {
+        DEBUG_LOG("GatewayObject::stop -- user[%llu] role[%llu] token:%s\n", userId_, roleId_, gToken_.c_str());
+        running_ = false;
 
-        _cond.broadcast();
+        cond_.broadcast();
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要重新考虑redis操作的地方
         // 清除session
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
-            ERROR_LOG("GatewayObject::stop -- user[%llu] role[%llu] connect to cache failed\n", _userId, _roleId);
+            ERROR_LOG("GatewayObject::stop -- user[%llu] role[%llu] connect to cache failed\n", userId_, roleId_);
             return;
         }
 
-        if (RedisUtils::RemoveSession(cache, _userId, _gToken) == REDIS_DB_ERROR) {
+        if (RedisUtils::RemoveSession(cache, userId_, gToken_) == REDIS_DB_ERROR) {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("GatewayObject::stop -- user[%llu] role[%llu] remove session failed", _userId, _roleId);
+            ERROR_LOG("GatewayObject::stop -- user[%llu] role[%llu] remove session failed", userId_, roleId_);
             return;
         }
 
@@ -99,13 +99,13 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
     struct timeval t;
     gettimeofday(&t, NULL);
 
-    obj->_gameObjectHeartbeatExpire = t.tv_sec + TOKEN_TIMEOUT;
+    obj->gameObjectHeartbeatExpire_ = t.tv_sec + TOKEN_TIMEOUT;
 
-    while (obj->_running) {
+    while (obj->running_) {
         // 被踢出时触发，如果不是被踢出的情况则需要等到心跳周期
-        obj->_cond.wait(TOKEN_HEARTBEAT_PERIOD);
+        obj->cond_.wait(TOKEN_HEARTBEAT_PERIOD);
 
-        if (!obj->_running) {
+        if (!obj->running_) {
             // 网关对象已被销毁
             return nullptr;
         }
@@ -114,21 +114,21 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
         bool success = true;
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
-            ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] connect to cache failed\n", obj->_userId, obj->_roleId);
+            ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] connect to cache failed\n", obj->userId_, obj->roleId_);
 
             success = false;
         } else {
-            switch (RedisUtils::SetSessionTTL(cache, obj->_userId, obj->_gToken)) {
+            switch (RedisUtils::SetSessionTTL(cache, obj->userId_, obj->gToken_)) {
                 case REDIS_DB_ERROR: {
                     g_RedisPoolManager.getCoreCache()->put(cache, true);
-                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] check session failed for db error\n", obj->_userId, obj->_roleId);
+                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] check session failed for db error\n", obj->userId_, obj->roleId_);
 
                     success = false;
                     break;
                 }
                 case REDIS_FAIL: {
                     g_RedisPoolManager.getCoreCache()->put(cache, false);
-                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] check session failed\n", obj->_userId, obj->_roleId);
+                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] check session failed\n", obj->userId_, obj->roleId_);
                     break;
                 }
                 default: {
@@ -141,21 +141,21 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
         if (success) {
             // 判断游戏对象心跳是否过期
             gettimeofday(&t, NULL);
-            success = t.tv_sec < obj->_gameObjectHeartbeatExpire;
+            success = t.tv_sec < obj->gameObjectHeartbeatExpire_;
             if (!success) {
-                ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat expired, expired time:%d\n", obj->_userId, obj->_roleId, obj->_gameObjectHeartbeatExpire);
+                ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] heartbeat expired, expired time:%d\n", obj->userId_, obj->roleId_, obj->gameObjectHeartbeatExpire_);
             }
         }
 
         // 若设置超时不成功，销毁网关对象
         if (!success) {
-            if (obj->_running) {
-                if (!obj->_manager->removeGatewayObject(obj->_userId)) {
+            if (obj->running_) {
+                if (!obj->manager_->removeGatewayObject(obj->userId_)) {
                     assert(false);
-                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] remove route object failed\n", obj->_userId, obj->_roleId);
+                    ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] remove route object failed\n", obj->userId_, obj->roleId_);
                 }
 
-                obj->_running = false;
+                obj->running_ = false;
             }
         }
     }
@@ -164,42 +164,42 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
 }
 
 void GatewayObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::string> &rawMsg) {
-    if (!_gameServerStub) {
-        ERROR_LOG("GatewayObject::forwardIn -- user[%llu] role[%llu] game server stub not set\n", _userId, _roleId);
+    if (!gameServerStub_) {
+        ERROR_LOG("GatewayObject::forwardIn -- user[%llu] role[%llu] game server stub not set\n", userId_, roleId_);
         return;
     }
     
     pb::ForwardInRequest *request = new pb::ForwardInRequest();
     Controller *controller = new Controller();
-    request->set_serverid(_gameServerId);
+    request->set_serverid(gameServerId_);
     request->set_type(type);
 
     if (tag != 0) {
         request->set_tag(tag);
     }
 
-    request->set_roleid(_roleId);
+    request->set_roleid(roleId_);
     
     if (rawMsg && !rawMsg->empty()) {
         request->set_rawmsg(rawMsg->c_str());
     }
     
-    _gameServerStub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
+    gameServerStub_->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
 }
 
 void GatewayObject::enterGame() {
-    DEBUG_LOG("GatewayObject::enterGame -- user: \n");
-    if (!_gameServerStub) {
-        ERROR_LOG("GatewayObject::enterGame -- user[%llu] role[%llu] game server stub not set\n", _userId, _roleId);
+    DEBUG_LOG("GatewayObject::enterGame -- user: %d\n", userId_);
+    if (!gameServerStub_) {
+        ERROR_LOG("GatewayObject::enterGame -- user[%llu] role[%llu] game server stub not set\n", userId_, roleId_);
         return;
     }
     
     pb::EnterGameRequest *request = new pb::EnterGameRequest();
     Controller *controller = new Controller();
-    request->set_serverid(_gameServerId);
-    request->set_roleid(_roleId);
-    request->set_ltoken(_lToken);
-    request->set_gatewayid(_manager->getId());
+    request->set_serverid(gameServerId_);
+    request->set_roleid(roleId_);
+    request->set_ltoken(lToken_);
+    request->set_gatewayid(manager_->getId());
 
-    _gameServerStub->enterGame(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
+    gameServerStub_->enterGame(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
 }

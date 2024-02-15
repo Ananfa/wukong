@@ -25,10 +25,10 @@ using namespace corpc;
 using namespace wukong;
 
 void Scene::start() {
-    _running = true;
+    running_ = true;
 
     // 启动心跳协程
-    if (_type != SCENE_TYPE_SINGLE_PLAYER) {
+    if (type_ != SCENE_TYPE_SINGLE_PLAYER) {
         SceneRoutineArg *arg = new SceneRoutineArg();
         arg->obj = shared_from_this();
         RoutineEnvironment::startCoroutine(heartbeatRoutine, arg);
@@ -43,34 +43,34 @@ void Scene::start() {
 }
 
 void Scene::stop() {
-    if (_running) {
-        _running = false;
+    if (running_) {
+        running_ = false;
 
         // 若不清emiter，会导致shared_ptr循环引用问题
-        _emiter.clear();
+        emiter_.clear();
 
-        for (auto ref : _globalEventHandleRefs) {
-            _manager->unregGlobalEventHandle(ref);
+        for (auto ref : globalEventHandleRefs_) {
+            manager_->unregGlobalEventHandle(ref);
         }
-        _globalEventHandleRefs.clear();
+        globalEventHandleRefs_.clear();
 
-        _roles.clear();
+        roles_.clear();
 
         onDestory();
 
-        _cond.broadcast();
+        cond_.broadcast();
 
         // 非个人场景删除scene location key
-        if (_type != SCENE_TYPE_SINGLE_PLAYER) {
+        if (type_ != SCENE_TYPE_SINGLE_PLAYER) {
             redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
             if (!cache) {
                 ERROR_LOG("Scene::stop -- connect to cache failed when remove scene address\n");
                 return;
             }
             // 释放SceneLocation
-            if (RedisUtils::RemoveSceneAddress(cache, _sceneId, _sToken) == REDIS_DB_ERROR) {
+            if (RedisUtils::RemoveSceneAddress(cache, sceneId_, sToken_) == REDIS_DB_ERROR) {
                 g_RedisPoolManager.getCoreCache()->put(cache, true);
-                ERROR_LOG("Scene::stop -- remove scene:%s location failed\n", _sceneId.c_str());
+                ERROR_LOG("Scene::stop -- remove scene:%s location failed\n", sceneId_.c_str());
             } else {
                 g_RedisPoolManager.getCoreCache()->put(cache, false);
             }
@@ -79,45 +79,45 @@ void Scene::stop() {
 }
 
 bool Scene::enter(std::shared_ptr<GameObject> role) {
-    if (!_running) {
+    if (!running_) {
         return false;
     }
 
-    _roles.insert(std::make_pair(role->getRoleId(), role));
-    role->setSceneId(_sceneId);
+    roles_.insert(std::make_pair(role->getRoleId(), role));
+    role->setSceneId(sceneId_);
 
     onEnter(role->getRoleId());
     return true;
 }
 
 bool Scene::leave(RoleId roleId) {
-    auto it = _roles.find(roleId);
-    if (it == _roles.end()) {
+    auto it = roles_.find(roleId);
+    if (it == roles_.end()) {
         return false;
     }
 
     onLeave(roleId);
 
     // 注意：如果onLeave中会进行协程切换，这里可能会已经被删除了（比如：场景进入了销毁流程），因此这里不用erase(it)而是用erase(roleId)
-    _roles.erase(roleId);
+    roles_.erase(roleId);
     return true;
 }
 
 void Scene::regLocalEventHandle(const std::string &name, EventHandle handle) {
-    _emiter.addEventHandle(name, handle);
+    emiter_.addEventHandle(name, handle);
 }
 
 void Scene::regGlobalEventHandle(const std::string &name, EventHandle handle) {
-    uint32_t ref = _manager->regGlobalEventHandle(name, handle);
-    _globalEventHandleRefs.push_back(ref);
+    uint32_t ref = manager_->regGlobalEventHandle(name, handle);
+    globalEventHandleRefs_.push_back(ref);
 }
 
 void Scene::fireLocalEvent(const Event &event) {
-    _emiter.fireEvent(event);
+    emiter_.fireEvent(event);
 }
 
 void Scene::fireGlobalEvent(const Event &event) {
-    _manager->fireGlobalEvent(event);
+    manager_->fireGlobalEvent(event);
 }
 
 void *Scene::heartbeatRoutine(void *arg) {
@@ -126,31 +126,31 @@ void *Scene::heartbeatRoutine(void *arg) {
     delete routineArg;
 
     int failTimes = 0;
-    while (obj->_running) {
+    while (obj->running_) {
         // 目前只有心跳和停服会销毁游戏对象
-        obj->_cond.wait(TOKEN_HEARTBEAT_PERIOD);
+        obj->cond_.wait(TOKEN_HEARTBEAT_PERIOD);
 
-        if (!obj->_running) {
+        if (!obj->running_) {
             // 场景已被销毁
             break;
         }
 
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
-            ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] connect to cache failed\n", obj->_sceneId.c_str(), obj->_defId);
+            ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] connect to cache failed\n", obj->sceneId_.c_str(), obj->defId_);
 
             failTimes++;
         } else {
-            switch (RedisUtils::SetSceneAddressTTL(cache, obj->_sceneId, obj->_sToken)) {
+            switch (RedisUtils::SetSceneAddressTTL(cache, obj->sceneId_, obj->sToken_)) {
                 case REDIS_DB_ERROR: {
                     g_RedisPoolManager.getCoreCache()->put(cache, true);
-                    ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] check token failed for db error\n", obj->_sceneId.c_str(), obj->_defId);
+                    ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] check token failed for db error\n", obj->sceneId_.c_str(), obj->defId_);
                     failTimes++;
                     break;
                 }
                 case REDIS_FAIL: {
                     g_RedisPoolManager.getCoreCache()->put(cache, false);
-                    ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] token[%s] check session failed\n", obj->_sceneId.c_str(), obj->_defId, obj->_sToken.c_str());
+                    ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] token[%s] check session failed\n", obj->sceneId_.c_str(), obj->defId_, obj->sToken_.c_str());
                     failTimes += 3; // 直接失败
                     break;
                 }
@@ -164,10 +164,10 @@ void *Scene::heartbeatRoutine(void *arg) {
 
         // 若超过3次设置失败，销毁场景对象
         if (failTimes >= 3) {
-            if (obj->_running) {
-                ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] heartbeat failed and destroyed\n", obj->_sceneId.c_str(), obj->_defId);
-                obj->_manager->removeScene(obj->_sceneId);
-                assert(obj->_running == false);
+            if (obj->running_) {
+                ERROR_LOG("Scene::heartbeatRoutine -- sceneId[%s] defId[%d] heartbeat failed and destroyed\n", obj->sceneId_.c_str(), obj->defId_);
+                obj->manager_->removeScene(obj->sceneId_);
+                assert(obj->running_ == false);
             }
         }
 
@@ -184,10 +184,10 @@ void *Scene::updateRoutine(void *arg) {
 
     struct timeval t;
 
-    while (obj->_running) {
-        obj->_cond.wait(g_SceneConfig.getUpdatePeriod());
+    while (obj->running_) {
+        obj->cond_.wait(g_SceneConfig.getUpdatePeriod());
 
-        if (!obj->_running) {
+        if (!obj->running_) {
             // 场景已被销毁
             break;
         }

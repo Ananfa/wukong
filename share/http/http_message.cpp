@@ -18,9 +18,9 @@ const char * HttpMessage::HEADER_PROXY_CONNECTION   = "Proxy-Connection";
 const char * HttpMessage::HEADER_TRANSFER_ENCODING  = "Transfer-Encoding";
 
 HttpMessage::HttpMessage(int8_t type)
-    : m_Type(type)
-    , m_Version("HTTP/1.1")
-    , m_Capacity(0) {}
+    : type_(type)
+    , version_("HTTP/1.1")
+    , capacity_(0) {}
 
 HttpMessage::~HttpMessage() {}
 
@@ -28,28 +28,28 @@ void HttpMessage::printAll() const {
     LOG("HttpMessage {\n");
     LOG("\tVersion: %s\n", this->getVersion().c_str());
 
-    for (Headers::const_iterator it = m_Headers.begin(); it != m_Headers.end(); ++it) {
+    for (Headers::const_iterator it = headers_.begin(); it != headers_.end(); ++it) {
         LOG("\t%s: %s\n", it->first.c_str(), it->second.c_str());
     }
 
-    LOG("\tContent: %s\n", m_Content.c_str());
+    LOG("\tContent: %s\n", content_.c_str());
     LOG("}\n");
 }
 
 bool HttpMessage::isHaveHeader(const char * key) const {
-    return m_Headers.find(key) != m_Headers.end();
+    return headers_.find(key) != headers_.end();
 }
 
 void HttpMessage::addHeader(const char * key, const char *value) {
-    m_Headers.insert(std::make_pair(key, value));
+    headers_.insert(std::make_pair(key, value));
 }
 
 const std::string& HttpMessage::operator[] (const std::string &key) {
-    return m_Headers[key];
+    return headers_[key];
 }
 
 bool HttpMessage::isKeepalive() {
-    return (this->isHaveHeader(HEADER_CONNECTION) && strcasecmp(m_Headers[HEADER_CONNECTION].c_str(), "Keep-Alive") == 0) || (this->isHaveHeader(HEADER_PROXY_CONNECTION) && strcasecmp(m_Headers[HEADER_PROXY_CONNECTION].c_str(), "Keep-Alive") == 0);
+    return (this->isHaveHeader(HEADER_CONNECTION) && strcasecmp(headers_[HEADER_CONNECTION].c_str(), "Keep-Alive") == 0) || (this->isHaveHeader(HEADER_PROXY_CONNECTION) && strcasecmp(headers_[HEADER_PROXY_CONNECTION].c_str(), "Keep-Alive") == 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,26 +62,26 @@ void RequestMessage::printAll() const {
     HttpMessage::printAll();
 
     LOG("RequestMessage {\n");
-    LOG("\tMethod: %s\n", m_Method.c_str());
-    LOG("\tURL: %s, URI: %s\n", m_URL.c_str(), m_URI.c_str());
+    LOG("\tMethod: %s\n", method_.c_str());
+    LOG("\tURL: %s, URI: %s\n", url_.c_str(), uri_.c_str());
 
-    for (Params::const_iterator it = m_Params.begin(); it != m_Params.end(); ++it) {
+    for (Params::const_iterator it = params_.begin(); it != params_.end(); ++it) {
         LOG("\t%s: %s\n", it->first.c_str(), it->second.c_str());
     }
     LOG("}\n");
 }
 
 void RequestMessage::addParam(const char *key, const char *value) {
-    m_Params.insert(std::make_pair(key, value));
+    params_.insert(std::make_pair(key, value));
 }
 
 const std::string& RequestMessage::operator[] (const std::string &key) {
-    return m_Params[key];
+    return params_[key];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ResponseMessage::ResponseMessage()
-    : m_StatusCode(0), HttpMessage(HttpMessage::eResponse) {}
+    : statusCode_(0), HttpMessage(HttpMessage::eResponse) {}
 
 ResponseMessage::~ResponseMessage() {}
 
@@ -182,7 +182,7 @@ void ResponseMessage::addDefaultHeaders() {
     }
 
     // ContentType
-    if (!m_Content.empty() && !this->isHaveHeader(HEADER_CONTENT_TYPE)) {
+    if (!content_.empty() && !this->isHaveHeader(HEADER_CONTENT_TYPE)) {
         this->addHeader(HEADER_CONTENT_TYPE, "text/html; charset=UTF-8");
     }
 }
@@ -198,18 +198,18 @@ void ResponseMessage::serialize(std::string &buffer) {
     // 添加默认头参数
     this->addDefaultHeaders();
     // 序列化
-    for (Headers::const_iterator it = m_Headers.begin(); it != m_Headers.end(); ++it) {
+    for (Headers::const_iterator it = headers_.begin(); it != headers_.end(); ++it) {
         std::snprintf(buf, 1023, "%s: %s\r\n", it->first.c_str(), it->second.c_str());
         buffer += buf;
     }
     // 未添加ContentLength的HTTP头
-    if ( /*!m_Content.empty() && */!isHaveHeader(HEADER_CONTENT_LENGTH)) {
-        std::snprintf(buf, 1023, "%s: %lu\r\n", HEADER_CONTENT_LENGTH, m_Content.size());
+    if ( /*!content_.empty() && */!isHaveHeader(HEADER_CONTENT_LENGTH)) {
+        std::snprintf(buf, 1023, "%s: %lu\r\n", HEADER_CONTENT_LENGTH, content_.size());
         buffer += buf;
     }
     // HEAD结束符
     buffer += "\r\n";
 
     // CONTENT
-    buffer += m_Content;
+    buffer += content_;
 }

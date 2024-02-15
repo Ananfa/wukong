@@ -25,9 +25,9 @@ namespace wukong {
     // 单例模式实现
     class LoginServer {
     private:
-        bool _inited = false;
-        IO *_io = nullptr;
-        RpcClient *_rpcClient = nullptr;
+        bool inited_ = false;
+        IO *io_ = nullptr;
+        RpcClient *rpcClient_ = nullptr;
         HttpServer *_httpServer = nullptr;
 
     public:
@@ -48,8 +48,8 @@ namespace wukong {
         ~LoginServer() = default;                               // dtor hidden
     };
 
-    #define g_LoginServer LoginServer::Instance()
-
 }
+
+#define g_LoginServer wukong::LoginServer::Instance()
 
 #endif /* wukong_login_server_h */

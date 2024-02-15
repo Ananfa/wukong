@@ -35,22 +35,22 @@ namespace wukong {
             return instance;
         }
 
-        void setCreateSceneHandle(CreateSceneHandle handle) { _createScene = handle; }
-        CreateSceneHandle getCreateSceneHandle() { return _createScene; }
+        void setCreateSceneHandle(CreateSceneHandle handle) { createScene_ = handle; }
+        CreateSceneHandle getCreateSceneHandle() { return createScene_; }
 
-        void setGetMembersHandle(GetMembersHandle handle) { _getMembers = handle; }
-        GetMembersHandle getGetMembersHandle() { return _getMembers; }
+        void setGetMembersHandle(GetMembersHandle handle) { getMembers_ = handle; }
+        GetMembersHandle getGetMembersHandle() { return getMembers_; }
 
-        void setGetSceneTypeHandle(GetSceneTypeHandle handle) { _getSceneType = handle; }
-        GetSceneTypeHandle getGetSceneTypeHandle() { return _getSceneType; }
+        void setGetSceneTypeHandle(GetSceneTypeHandle handle) { getSceneType_ = handle; }
+        GetSceneTypeHandle getGetSceneTypeHandle() { return getSceneType_; }
 
     private:
-        CreateSceneHandle _createScene;
-        GetMembersHandle _getMembers;
-        GetSceneTypeHandle _getSceneType;
+        CreateSceneHandle createScene_;
+        GetMembersHandle getMembers_;
+        GetSceneTypeHandle getSceneType_;
     };
 }
 
-#define g_SceneDelegate SceneDelegate::Instance()
+#define g_SceneDelegate wukong::SceneDelegate::Instance()
 
 #endif /* wukong_scene_delegate_h */

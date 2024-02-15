@@ -28,7 +28,7 @@ RedisPool* RedisPool::create(const char *host, const char *pwd, uint16_t port, u
 }
 
 void RedisPool::init(const char *host, const char *pwd, uint16_t port, uint16_t dbIndex, uint32_t maxConnectNum) {
-    _redis = corpc::RedisConnectPool::create(host, pwd, port, dbIndex, maxConnectNum);
+    redis_ = corpc::RedisConnectPool::create(host, pwd, port, dbIndex, maxConnectNum);
 
 }
 
@@ -49,14 +49,14 @@ void *RedisPool::initScriptsRoutine(void *arg) {
 
     delete context;
 
-    redisContext *redis = self->_redis->proxy.take();
+    redisContext *redis = self->redis_->proxy.take();
     if (!redis) {
         ERROR_LOG("RedisPool::initScriptRoutine -- connect to redis failed\n");
         return nullptr;
     }
 
     for (auto &pair : scripts) {
-        if (self->_sha1Map.find(pair.first) != self->_sha1Map.end()) {
+        if (self->sha1Map_.find(pair.first) != self->sha1Map_.end()) {
             WARN_LOG("RedisPool::initScriptRoutine -- script[%s] multiple load\n", pair.first.c_str());
             continue;
         }
@@ -64,7 +64,7 @@ void *RedisPool::initScriptsRoutine(void *arg) {
         std::string sha1;
         switch (RedisUtils::LoadSha1(redis, pair.second, sha1)) {
             case REDIS_DB_ERROR: {
-                self->_redis->proxy.put(redis, true);
+                self->redis_->proxy.put(redis, true);
                 ERROR_LOG("RedisPool::initScriptRoutine -- script load failed for redis error\n");
                 return nullptr;
             }
@@ -74,20 +74,20 @@ void *RedisPool::initScriptsRoutine(void *arg) {
             }
             case REDIS_SUCCESS: {
                 DEBUG_LOG("RedisPool::initScriptRoutine -- load script[%s]\n", pair.first.c_str());
-                self->_sha1Map.insert(std::make_pair(pair.first, sha1));
+                self->sha1Map_.insert(std::make_pair(pair.first, sha1));
                 break;
             }
         }
     }
 
-    self->_redis->proxy.put(redis, false);
+    self->redis_->proxy.put(redis, false);
 
     return nullptr;
 }
 
 const char *RedisPool::getSha1(const char *sha1Name) {
-    auto it = _sha1Map.find(sha1Name);
-    if (it == _sha1Map.end()) {
+    auto it = sha1Map_.find(sha1Name);
+    if (it == sha1Map_.end()) {
         return nullptr;
     }
 
@@ -95,26 +95,26 @@ const char *RedisPool::getSha1(const char *sha1Name) {
 }
 
 redisContext *RedisPool::take() {
-    return _redis->proxy.take();
+    return redis_->proxy.take();
 }
 
 void RedisPool::put(redisContext* redis, bool error) {
-    _redis->proxy.put(redis, error);
+    redis_->proxy.put(redis, error);
 }
 
 bool RedisPoolManager::addPool(const std::string &poolName, RedisPool* pool) {
-    if (_poolMap.find(poolName) != _poolMap.end()) {
+    if (poolMap_.find(poolName) != poolMap_.end()) {
         ERROR_LOG("RedisPoolManager::addPool -- multiple set pool[%s]\n", poolName.c_str());
         return false;
     }
 
-    _poolMap.insert(std::make_pair(poolName, pool));
+    poolMap_.insert(std::make_pair(poolName, pool));
     return true;
 }
 
 RedisPool *RedisPoolManager::getPool(const std::string &poolName) {
-    auto it = _poolMap.find(poolName);
-    if (it == _poolMap.end()) {
+    auto it = poolMap_.find(poolName);
+    if (it == poolMap_.end()) {
         return nullptr;
     }
 
@@ -122,18 +122,18 @@ RedisPool *RedisPoolManager::getPool(const std::string &poolName) {
 }
 
 bool RedisPoolManager::setCoreCache(const std::string &poolName) {
-    if (_coreCache != nullptr) {
+    if (coreCache_ != nullptr) {
         ERROR_LOG("RedisPoolManager::setCoreCache -- multiple set core-cache pool[%s]\n", poolName.c_str());
         return false;
     }
 
-    auto it = _poolMap.find(poolName);
-    if (it == _poolMap.end()) {
+    auto it = poolMap_.find(poolName);
+    if (it == poolMap_.end()) {
         ERROR_LOG("RedisPoolManager::setCoreCache -- pool[%s] not exist\n", poolName.c_str());
         return false;
     }
 
-    _coreCache = it->second;
+    coreCache_ = it->second;
 
     std::map<std::string, std::string> scripts;
     scripts[SET_PASSPORT_CMD_NAME] = SET_PASSPORT_CMD;
@@ -162,18 +162,18 @@ bool RedisPoolManager::setCoreCache(const std::string &poolName) {
 }
 
 bool RedisPoolManager::setCorePersist(const std::string &poolName) {
-    if (_corePersist != nullptr) {
+    if (corePersist_ != nullptr) {
         ERROR_LOG("RedisPoolManager::setCorePersist -- multiple set core-persist pool[%s]\n", poolName.c_str());
         return false;
     }
 
-    auto it = _poolMap.find(poolName);
-    if (it == _poolMap.end()) {
+    auto it = poolMap_.find(poolName);
+    if (it == poolMap_.end()) {
         ERROR_LOG("RedisPoolManager::setCorePersist -- pool[%s] not exist\n", poolName.c_str());
         return false;
     }
 
-    _corePersist = it->second;
+    corePersist_ = it->second;
 
     std::map<std::string, std::string> scripts;
     scripts[BIND_ROLE_CMD_NAME] = BIND_ROLE_CMD;

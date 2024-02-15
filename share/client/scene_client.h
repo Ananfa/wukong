@@ -58,21 +58,21 @@ namespace wukong {
         
         void shutdown();
 
-        bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
+        bool stubChanged() { return stubChangeNum_ != t_stubChangeNum_; }
         
     private:
         void refreshStubs();
 
     private:
         /* 所有SceneServer的Stub */
-        static std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
-        static std::map<ServerId, StubInfo> _stubs;
-        static Mutex _stubsLock;
-        static std::atomic<uint32_t> _stubChangeNum;
+        static std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>>> addr2stubs_; // 用于保持被_stubs中的StubInfo引用（不直接访问）
+        static std::map<ServerId, StubInfo> stubs_;
+        static Mutex stubsLock_;
+        static std::atomic<uint32_t> stubChangeNum_;
         
         /* 当前可用的 */
-        static thread_local std::map<ServerId, StubInfo> _t_stubs;
-        static thread_local uint32_t _t_stubChangeNum;
+        static thread_local std::map<ServerId, StubInfo> t_stubs_;
+        static thread_local uint32_t t_stubChangeNum_;
 
     private:
         SceneClient(): GameClient(GAME_SERVER_TYPE_SCENE, ZK_SCENE_SERVER) {} // ctor hidden

@@ -30,12 +30,6 @@ namespace wukong {
 
     // 单例模式实现
     class LobbyServer {
-    private:
-        bool _inited = false;
-        IO *_io = nullptr;
-        RpcClient *_rpcClient = nullptr;
-
-        std::vector<std::thread> _threads;
     public:
         static LobbyServer& Instance() {
             static LobbyServer theSingleton;
@@ -49,6 +43,13 @@ namespace wukong {
         static void lobbyThread(InnerRpcServer *server, ServerId lbid);
 
     private:
+        bool inited_ = false;
+        IO *io_ = nullptr;
+        RpcClient *rpcClient_ = nullptr;
+
+        std::vector<std::thread> threads_;
+        
+    private:
         LobbyServer() = default;                                // ctor hidden
         LobbyServer(LobbyServer const&) = delete;               // copy ctor hidden
         LobbyServer(LobbyServer &&) = delete;                   // move ctor hidden
@@ -57,7 +58,8 @@ namespace wukong {
         ~LobbyServer() = default;                               // dtor hidden
     };
 
-    #define g_LobbyServer LobbyServer::Instance()
 }
+
+#define g_LobbyServer wukong::LobbyServer::Instance()
 
 #endif /* wukong_lobby_server_h */

@@ -45,10 +45,10 @@ namespace wukong {
         void leaveScene(RoleId roleId); // 角色离开场景（切换场景和离队时也调用此方法）
 
     private:
-        uint64_t _incSceneNo = 0; // 场景自增计数
+        uint64_t incSceneNo_ = 0; // 场景自增计数
 
         // 场景列表
-        std::map<std::string, std::shared_ptr<Scene>> _sceneId2SceneMap;
+        std::map<std::string, std::shared_ptr<Scene>> sceneId2SceneMap_;
     };
 
 }

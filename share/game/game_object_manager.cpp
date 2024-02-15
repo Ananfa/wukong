@@ -29,37 +29,37 @@
 using namespace wukong;
 
 void GameObjectManager::init() {
-    _geventDispatcher.init(g_GameCenter.getGlobalEventListener());
+    geventDispatcher_.init(g_GameCenter.getGlobalEventListener());
 }
 
 void GameObjectManager::shutdown() {
-    if (_shutdown) {
+    if (shutdown_) {
         return;
     }
 
-    _shutdown = true;
+    shutdown_ = true;
     
     // 若不清dispatcher，会导致shared_ptr循环引用问题
-    _geventDispatcher.clear();
+    geventDispatcher_.clear();
 
-    for (auto &gameObj : _roleId2GameObjectMap) {
+    for (auto &gameObj : roleId2GameObjectMap_) {
         gameObj.second->stop();
     }
 
-    _roleId2GameObjectMap.clear();
+    roleId2GameObjectMap_.clear();
 }
 
 size_t GameObjectManager::roleCount() {
-    return _roleId2GameObjectMap.size();
+    return roleId2GameObjectMap_.size();
 }
 
 bool GameObjectManager::existRole(RoleId roleId) {
-    return _roleId2GameObjectMap.find(roleId) != _roleId2GameObjectMap.end();
+    return roleId2GameObjectMap_.find(roleId) != roleId2GameObjectMap_.end();
 }
 
 std::shared_ptr<GameObject> GameObjectManager::getGameObject(RoleId roleId) {
-    auto it = _roleId2GameObjectMap.find(roleId);
-    if (it == _roleId2GameObjectMap.end()) {
+    auto it = roleId2GameObjectMap_.find(roleId);
+    if (it == roleId2GameObjectMap_.end()) {
         return nullptr;
     }
 
@@ -107,7 +107,7 @@ bool GameObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
     gettimeofday(&t, NULL);
     std::string lToken = std::to_string((t.tv_sec % 1000) * 1000000 + t.tv_usec);
 
-    res = RedisUtils::SetGameObjectAddress(cache, roleId, _type, _id, lToken);
+    res = RedisUtils::SetGameObjectAddress(cache, roleId, type_, id_, lToken);
     switch (res) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
@@ -131,6 +131,7 @@ bool GameObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
         ERROR_LOG("GameObjectManager::loadRole -- role[%llu] load role data failed\n", roleId);
         return false;
     }
+    DEBUG_LOG("GameObjectManager::loadRole -- load from record, userId:%d\n", userId);
 
     // 这里是否需要加一次对location超时设置，避免加载数据时location过期？
     // 如果这里不加检测，创建的GameObject会等到第一次心跳设置location时才销毁
@@ -148,12 +149,12 @@ bool GameObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
     // g_MysqlPoolManager.getCoreCache()->put(cache, false);
 
     // 创建GameObject
-    if (_shutdown) {
+    if (shutdown_) {
         WARN_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] already shutdown\n", userId, roleId);
         return false;
     }
 
-    if (_roleId2GameObjectMap.find(roleId) != _roleId2GameObjectMap.end()) {
+    if (roleId2GameObjectMap_.find(roleId) != roleId2GameObjectMap_.end()) {
         ERROR_LOG("GameObjectManager::loadRole -- user[%llu] role[%llu] game object already exist\n", userId, roleId);
         return false;
     }
@@ -220,35 +221,35 @@ bool GameObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
         return false;
     }
 
-    _roleId2GameObjectMap.insert(std::make_pair(roleId, obj));
+    roleId2GameObjectMap_.insert(std::make_pair(roleId, obj));
     obj->start();
 
     return true;
 }
 
 void GameObjectManager::leaveGame(RoleId roleId) {
-    auto it = _roleId2GameObjectMap.find(roleId);
-    assert(it != _roleId2GameObjectMap.end());
+    auto it = roleId2GameObjectMap_.find(roleId);
+    assert(it != roleId2GameObjectMap_.end());
 
     it->second->stop();
-    _roleId2GameObjectMap.erase(it);
+    roleId2GameObjectMap_.erase(it);
 }
 
 //void GameObjectManager::offline(RoleId roleId) {
-//    auto it = _roleId2GameObjectMap.find(roleId);
-//    assert(it != _roleId2GameObjectMap.end());
+//    auto it = roleId2GameObjectMap_.find(roleId);
+//    assert(it != roleId2GameObjectMap_.end());
 //
 //    it->second->onOffline();
 //}
 
 uint32_t GameObjectManager::regGlobalEventHandle(const std::string &name, EventHandle handle) {
-    return _geventDispatcher.regGlobalEventHandle(name, handle);
+    return geventDispatcher_.regGlobalEventHandle(name, handle);
 }
 
 void GameObjectManager::unregGlobalEventHandle(uint32_t refId) {
-    _geventDispatcher.unregGlobalEventHandle(refId);
+    geventDispatcher_.unregGlobalEventHandle(refId);
 }
 
 void GameObjectManager::fireGlobalEvent(const Event &event) {
-    _geventDispatcher.fireGlobalEvent(event);
+    geventDispatcher_.fireGlobalEvent(event);
 }

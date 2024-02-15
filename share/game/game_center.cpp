@@ -31,10 +31,10 @@ using namespace rapidjson;
 using namespace wukong;
 
 void GameCenter::init(GameServerType stype, uint32_t gameObjectUpdatePeriod) {
-    _type = stype;
-    _gameObjectUpdatePeriod = gameObjectUpdatePeriod;
+    type_ = stype;
+    gameObjectUpdatePeriod_ = gameObjectUpdatePeriod;
 
-    _geventListener.init();
+    geventListener_.init();
 
     // 从Redis中获取初始的hotfix消息信息
     RoutineEnvironment::startCoroutine([](void * arg) -> void* {
@@ -52,7 +52,7 @@ bool GameCenter::registerMessage(int msgType,
                                     google::protobuf::Message *proto,
                                     bool needCoroutine,
                                     MessageHandle handle) {
-    if (_registerMessageMap.find(msgType) != _registerMessageMap.end()) {
+    if (registerMessageMap_.find(msgType) != registerMessageMap_.end()) {
         return false;
     }
 
@@ -62,7 +62,7 @@ bool GameCenter::registerMessage(int msgType,
     info.handle = handle;
     info.needHotfix = false;
     
-    _registerMessageMap.insert(std::make_pair(msgType, info));
+    registerMessageMap_.insert(std::make_pair(msgType, info));
     
     return true;
 }
@@ -73,8 +73,8 @@ void GameCenter::handleMessage(std::shared_ptr<GameObject> obj, int msgType, uin
     // TODO: 如果有绑定的Lua消息处理，执行Lua消息处理（是否需要启动协程？既然无法判断要不要开协程就都开协程进行处理，反正与lua的性能相比协程切换那点损耗算不得什么）
 
     //DEBUG_LOG("GameCenter::handleMessage\n");
-    auto iter = _registerMessageMap.find(msgType);
-    if (iter == _registerMessageMap.end()) {
+    auto iter = registerMessageMap_.find(msgType);
+    if (iter == registerMessageMap_.end()) {
         ERROR_LOG("GameCenter::handleMessage -- unknown message type: %d\n", msgType);
         return;
     }
@@ -96,7 +96,7 @@ void GameCenter::handleMessage(std::shared_ptr<GameObject> obj, int msgType, uin
 
     // TODO: 判断是否需要用lua执行
     if (iter->second.needHotfix) {
-        if (iter->second.needCoroutine) {
+        //if (iter->second.needCoroutine) {
             HotfixMessageInfo *info = new HotfixMessageInfo();
             info->msgType = msgType;
             info->obj = obj;
@@ -105,9 +105,9 @@ void GameCenter::handleMessage(std::shared_ptr<GameObject> obj, int msgType, uin
 
             RoutineEnvironment::startCoroutine(hotfixMessageRoutine, info);
             return;
-        }
+        //}
 
-        callHotfix(obj, msgType, tag, targetMsg);
+        //callHotfix(obj, msgType, tag, targetMsg);
     } else {
         if (iter->second.needCoroutine) {
             HandleMessageInfo *info = new HandleMessageInfo();
@@ -184,7 +184,7 @@ void GameCenter::resetHotfix() {
         }
     }
 
-    for (auto &kv : _registerMessageMap) {
+    for (auto &kv : registerMessageMap_) {
         if (hotfixMap.find(kv.first) != hotfixMap.end()) {
             if (!kv.second.needHotfix) {
                 ERROR_LOG("GameCenter::resetHotfix -- msg:%d\n", kv.first);
@@ -199,6 +199,8 @@ void GameCenter::resetHotfix() {
 }
 
 void GameCenter::callHotfix(std::shared_ptr<GameObject> obj, int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
+    ERROR_LOG("GameCenter::callHotfix -- 1\n");
+
     lua_State *L = luaL_newstate();
     if (L == NULL)  
     {

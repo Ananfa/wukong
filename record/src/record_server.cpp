@@ -48,11 +48,11 @@ void RecordServer::recordThread(InnerRpcServer *server, ServerId rcid) {
 }
 
 bool RecordServer::init(int argc, char * argv[]) {
-    if (_inited) {
+    if (inited_) {
         return false;
     }
 
-    _inited = true;
+    inited_ = true;
 
     RoutineEnvironment::init();
 
@@ -103,7 +103,7 @@ bool RecordServer::init(int argc, char * argv[]) {
     }
     
     // create IO layer
-    _io = IO::create(g_RecordConfig.getIoRecvThreadNum(), g_RecordConfig.getIoSendThreadNum());
+    io_ = IO::create(g_RecordConfig.getIoRecvThreadNum(), g_RecordConfig.getIoSendThreadNum());
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_RecordConfig.getRedisInfos();
@@ -141,11 +141,11 @@ void RecordServer::run() {
 
         recordServiceImpl->addInnerStub(info.id, new pb::InnerRecordService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
 
-        _threads.push_back(std::thread(recordThread, innerServer, info.id));
+        threads_.push_back(std::thread(recordThread, innerServer, info.id));
     }
 
     // 启动对外的RPC服务
-    RpcServer *server = RpcServer::create(_io, 0, g_RecordConfig.getIp(), g_RecordConfig.getPort());
+    RpcServer *server = RpcServer::create(io_, 0, g_RecordConfig.getIp(), g_RecordConfig.getPort());
     server->registerService(recordServiceImpl);
 
     g_RecordCenter.init();

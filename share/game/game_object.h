@@ -38,25 +38,25 @@ namespace wukong {
 
     class GameObject: public std::enable_shared_from_this<GameObject> {
     public:
-        GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): _userId(userId), _roleId(roleId), _serverId(serverId), _lToken(lToken), _manager(manager) {}
+        GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): userId_(userId), roleId_(roleId), serverId_(serverId), lToken_(lToken), manager_(manager) {}
         virtual ~GameObject() = 0;
 
         virtual bool initData(const std::string &data) = 0;
 
-        UserId getUserId() { return _userId; }
-        RoleId getRoleId() { return _roleId; }
-        const std::string &getLToken() { return _lToken; }
+        UserId getUserId() { return userId_; }
+        RoleId getRoleId() { return roleId_; }
+        const std::string &getLToken() { return lToken_; }
 
-        void setSceneId(const std::string &sceneId) { _sceneId = sceneId; }
-        const std::string &getSceneId() { return _sceneId; }
+        void setSceneId(const std::string &sceneId) { sceneId_ = sceneId; }
+        const std::string &getSceneId() { return sceneId_; }
 
         bool setGatewayServerStub(ServerId sid);
         bool setRecordServerStub(ServerId sid);
 
-        ServerId getGatewayServerId() { return _gatewayId; }
-        ServerId getRecordServerId() { return _recordId; }
+        ServerId getGatewayServerId() { return gatewayId_; }
+        ServerId getRecordServerId() { return recordId_; }
 
-        GameObjectManager *getManager() { return _manager; }
+        GameObjectManager *getManager() { return manager_; }
 
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
@@ -67,7 +67,7 @@ namespace wukong {
         virtual void onEnterGame() = 0; // 客户端登录进入游戏（gateObj与gameObj建立连接）
         virtual void onOffline() = 0; // 客户端断线（gameObj失去gateObj关联）
 
-        bool isOnline() { return _gatewayServerStub != nullptr; }
+        bool isOnline() { return gatewayServerStub_ != nullptr; }
 
         void send(int32_t type, uint16_t tag, const std::string &rawMsg);
         void send(int32_t type, uint16_t tag, google::protobuf::Message &msg);
@@ -99,31 +99,31 @@ namespace wukong {
         static void *updateRoutine(void *arg); // 逻辑协程（周期逻辑更新）
 
     private:
-        std::shared_ptr<pb::GatewayService_Stub> _gatewayServerStub; // 网关对象所在服务器stub
-        ServerId _gatewayId; // 网关对象所在服务器id
-        std::shared_ptr<pb::RecordService_Stub> _recordServerStub; // 网关对象所在服务器stub
-        ServerId _recordId; // 记录对象所在服务器id
-        std::string _lToken;
+        std::shared_ptr<pb::GatewayService_Stub> gatewayServerStub_; // 网关对象所在服务器stub
+        ServerId gatewayId_; // 网关对象所在服务器id
+        std::shared_ptr<pb::RecordService_Stub> recordServerStub_; // 网关对象所在服务器stub
+        ServerId recordId_; // 记录对象所在服务器id
+        std::string lToken_;
 
-        std::string _sceneId; // 大厅服时才为""
+        std::string sceneId_; // 大厅服时才为""
 
-        bool _running = false;
-        int _gwHeartbeatFailCount = 0;
-        int _enterTimes = 0; // 重登次数
+        bool running_ = false;
+        int gwHeartbeatFailCount_ = 0;
+        int enterTimes_ = 0; // 重登次数
 
-        Cond _cond;
+        Cond cond_;
 
-        EventEmitter _emiter; // 本地事件分派器
-        std::vector<uint32_t> _globalEventHandleRefs; // 用于gameobject销毁时注销注册的全局事件处理
+        EventEmitter emiter_; // 本地事件分派器
+        std::vector<uint32_t> globalEventHandleRefs_; // 用于gameobject销毁时注销注册的全局事件处理
 
     protected:
-        UserId _userId;
-        RoleId _roleId;
-        ServerId _serverId;
+        UserId userId_;
+        RoleId roleId_;
+        ServerId serverId_;
         
-        std::map<std::string, bool> _dirty_map;
+        std::map<std::string, bool> dirty_map_;
 
-        GameObjectManager *_manager; // 关联的manager
+        GameObjectManager *manager_; // 关联的manager
 
     public:
         friend class GameObjectManager;

@@ -34,23 +34,23 @@ namespace wukong {
             return instance;
         }
 
-        void setGetTargetSceneIdHandle(GetTargetSceneIdHandle handle) { _getTargetSceneId = handle; }
-        GetTargetSceneIdHandle getGetTargetSceneIdHandle() { return _getTargetSceneId; }
+        void setGetTargetSceneIdHandle(GetTargetSceneIdHandle handle) { getTargetSceneId_ = handle; }
+        GetTargetSceneIdHandle getGetTargetSceneIdHandle() { return getTargetSceneId_; }
 
-        void setNeedLoadSceneHandle(NeedLoadSceneHandle handle) { _needLoadScene = handle; }
-        NeedLoadSceneHandle getNeedLoadSceneHandle() { return _needLoadScene; }
+        void setNeedLoadSceneHandle(NeedLoadSceneHandle handle) { needLoadScene_ = handle; }
+        NeedLoadSceneHandle getNeedLoadSceneHandle() { return needLoadScene_; }
 
-        void setIsSceneAutoLoadRoleHandle(IsSceneAutoLoadRoleHandle handle) { _isSceneAutoLoadRole = handle; }
-        IsSceneAutoLoadRoleHandle getIsSceneAutoLoadRoleHandle() { return _isSceneAutoLoadRole; }
+        void setIsSceneAutoLoadRoleHandle(IsSceneAutoLoadRoleHandle handle) { isSceneAutoLoadRole_ = handle; }
+        IsSceneAutoLoadRoleHandle getIsSceneAutoLoadRoleHandle() { return isSceneAutoLoadRole_; }
 
     private:
-        GetTargetSceneIdHandle _getTargetSceneId;
-        // 注意：_needLoadScene和_isSceneAutoLoadRole只有当会登录到场景中时才需要设置
-        NeedLoadSceneHandle _needLoadScene;
-        IsSceneAutoLoadRoleHandle _isSceneAutoLoadRole;
+        GetTargetSceneIdHandle getTargetSceneId_;
+        // 注意：needLoadScene_和isSceneAutoLoadRole_只有当会登录到场景中时才需要设置
+        NeedLoadSceneHandle needLoadScene_;
+        IsSceneAutoLoadRoleHandle isSceneAutoLoadRole_;
     };
 }
 
-#define g_LobbyDelegate LobbyDelegate::Instance()
+#define g_LobbyDelegate wukong::LobbyDelegate::Instance()
 
 #endif /* wukong_lobby_delegate_h */

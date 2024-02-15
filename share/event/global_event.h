@@ -32,9 +32,9 @@ namespace wukong {
 
         void init();
     private:
-        std::list<std::shared_ptr<GlobalEventQueue>> _eventQueues; // 全服事件通知队列列表
+        std::list<std::shared_ptr<GlobalEventQueue>> eventQueues_; // 全服事件通知队列列表
 
-        GlobalEventRegisterQueue _eventRegisterQueue; // 用于多线程同步注册事件队列时
+        GlobalEventRegisterQueue eventRegisterQueue_; // 用于多线程同步注册事件队列时
 
     private:
         void registerEventQueue(std::shared_ptr<GlobalEventQueue> queue);
@@ -75,8 +75,8 @@ namespace wukong {
         static void *globalEventHandleRoutine(void * arg);
 
     private:
-        EventEmitter _emiter;
-        std::shared_ptr<GlobalEventQueue> _eventQueue;
+        EventEmitter emiter_;
+        std::shared_ptr<GlobalEventQueue> eventQueue_;
 
     public:
         friend class GlobalEventListener;

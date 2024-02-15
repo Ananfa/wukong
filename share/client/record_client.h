@@ -52,14 +52,14 @@ namespace wukong {
             return instance;
         }
 
-        void init(RpcClient *client) { _client = client; }
+        void init(RpcClient *client) { client_ = client; }
 
         /* 业务逻辑 */
         void shutdown();
         std::vector<ServerInfo> getServerInfos(); // 注意：这里直接定义返回vector类型，通过编译器RVO优化
         bool loadRoleData(ServerId sid, RoleId roleId, UserId &userId, const std::string &lToken, ServerId &serverId, std::string &roleData); // 加载角色（游戏对象）
 
-        bool stubChanged() { return _stubChangeNum != _t_stubChangeNum; }
+        bool stubChanged() { return stubChangeNum_ != t_stubChangeNum_; }
         /* 加入Server */
         bool setServers(const std::vector<AddressInfo> &addresses);
         /* 根据逻辑区服id获得RecordServer的stub */
@@ -71,17 +71,17 @@ namespace wukong {
         void refreshStubs();
 
     private:
-        RpcClient *_client = nullptr;
+        RpcClient *client_ = nullptr;
 
         /* 所有RecordServer的Stub */
-        static std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> _addr2stubs; // 用于保持被_stubs中的StubInfo引用（不直接访问）
-        static std::map<ServerId, StubInfo> _stubs;
-        static Mutex _stubsLock;
-        static std::atomic<uint32_t> _stubChangeNum;
+        static std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> addr2stubs_; // 用于保持被_stubs中的StubInfo引用（不直接访问）
+        static std::map<ServerId, StubInfo> stubs_;
+        static Mutex stubsLock_;
+        static std::atomic<uint32_t> stubChangeNum_;
         
         /* 当前可用的 */
-        static thread_local std::map<ServerId, StubInfo> _t_stubs;
-        static thread_local uint32_t _t_stubChangeNum;
+        static thread_local std::map<ServerId, StubInfo> t_stubs_;
+        static thread_local uint32_t t_stubChangeNum_;
 
     private:
         RecordClient() = default;                                // ctor hidden

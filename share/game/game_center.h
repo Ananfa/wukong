@@ -66,8 +66,8 @@ namespace wukong {
 
         void init(GameServerType stype, uint32_t gameObjectUpdatePeriod);
         
-        GameServerType getType() { return _type; }
-        uint32_t getGameObjectUpdatePeriod() { return _gameObjectUpdatePeriod; }
+        GameServerType getType() { return type_; }
+        uint32_t getGameObjectUpdatePeriod() { return gameObjectUpdatePeriod_; }
 
         bool registerMessage(int msgType,
                              google::protobuf::Message *proto,
@@ -76,7 +76,7 @@ namespace wukong {
 
         void handleMessage(std::shared_ptr<GameObject>, int msgType, uint16_t tag, const std::string &rawMsg);
 
-        GlobalEventListener& getGlobalEventListener() { return _geventListener; }
+        GlobalEventListener& getGlobalEventListener() { return geventListener_; }
 
     private:
         static void *handleMessageRoutine(void * arg);
@@ -86,15 +86,15 @@ namespace wukong {
         void resetHotfix();
         static void callHotfix(std::shared_ptr<GameObject> obj, int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
     private:
-        GameServerType _type;
-        uint32_t _gameObjectUpdatePeriod; // 游戏对象update执行周期，单位毫秒，为0时表示不进行update
+        GameServerType type_;
+        uint32_t gameObjectUpdatePeriod_; // 游戏对象update执行周期，单位毫秒，为0时表示不进行update
 
-        std::map<int, RegisterMessageInfo> _registerMessageMap;
+        std::map<int, RegisterMessageInfo> registerMessageMap_;
 
-        GlobalEventListener _geventListener; // 全服事件监听器（通过pubsub服务向redis订阅GEvent主题）
+        GlobalEventListener geventListener_; // 全服事件监听器（通过pubsub服务向redis订阅GEvent主题）
 
     private:
-        GameCenter(): _gameObjectUpdatePeriod(0) {}                  // ctor hidden
+        GameCenter(): gameObjectUpdatePeriod_(0) {}                  // ctor hidden
         ~GameCenter() = default;                                   // destruct hidden
         GameCenter(GameCenter const&) = delete;                    // copy ctor delete
         GameCenter(GameCenter &&) = delete;                        // move ctor delete
@@ -103,6 +103,6 @@ namespace wukong {
     };
 }
 
-#define g_GameCenter GameCenter::Instance()
+#define g_GameCenter wukong::GameCenter::Instance()
 
 #endif /* wukong_game_center_h */

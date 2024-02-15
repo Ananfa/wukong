@@ -54,7 +54,7 @@ namespace wukong {
         
         void init(HttpServer *server);
         
-        void setDelegate(LoginDelegate delegate) { _delegate = delegate; }
+        void setDelegate(LoginDelegate delegate) { delegate_ = delegate; }
 
         bool randomGatewayServer(ServerId &serverId);
     private:
@@ -71,7 +71,7 @@ namespace wukong {
         void setResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         void setErrorResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         
-        void updateServerGroupDataVersion() { _serverGroupDataVersion++; }
+        void updateServerGroupDataVersion() { serverGroupDataVersion_++; }
         void updateServerGroupData();
         void refreshServerGroupData();
 
@@ -80,16 +80,17 @@ namespace wukong {
         static void *saveUserRoutine(void *arg); // 将account-userid对应关系信息存盘的协程
 
     private:
-        static std::string _serverGroupData;
-        static Mutex _serverGroupDataLock;
-        static std::atomic<uint32_t> _serverGroupDataVersion;
+        // TODO: 采用读写锁方式改造server group数据的访问逻辑
+        static std::string serverGroupData_;
+        static Mutex serverGroupDataLock_;
+        static std::atomic<uint32_t> serverGroupDataVersion_;
 
-        static thread_local std::string _t_serverGroupData;
-        static thread_local uint32_t _t_serverGroupDataVersion;
-        static thread_local std::map<GroupId, uint32_t> _t_groupStatusMap;
-        static thread_local std::map<ServerId, GroupId> _t_serverId2groupIdMap;
+        static thread_local std::string t_serverGroupData_;
+        static thread_local uint32_t t_serverGroupDataVersion_;
+        static thread_local std::map<GroupId, uint32_t> t_groupStatusMap_;
+        static thread_local std::map<ServerId, GroupId> t_serverId2groupIdMap_;
 
-        LoginDelegate _delegate;
+        LoginDelegate delegate_;
 
     private:
         LoginHandlerMgr() = default;                                     // ctor hidden

@@ -34,14 +34,14 @@ namespace wukong {
             return instance;
         }
 
-        void setCreateRecordObjectHandle(CreateRecordObjectHandle handle) { _createRecordObject = handle; }
-        CreateRecordObjectHandle getCreateRecordObjectHandle() { return _createRecordObject; }
-        void setMakeProfileHandle(MakeProfileHandle handle) { _makeProfile = handle; }
-        MakeProfileHandle getMakeProfileHandle() { return _makeProfile; }
+        void setCreateRecordObjectHandle(CreateRecordObjectHandle handle) { createRecordObject_ = handle; }
+        CreateRecordObjectHandle getCreateRecordObjectHandle() { return createRecordObject_; }
+        void setMakeProfileHandle(MakeProfileHandle handle) { makeProfile_ = handle; }
+        MakeProfileHandle getMakeProfileHandle() { return makeProfile_; }
 
     private:
-        CreateRecordObjectHandle _createRecordObject;
-        MakeProfileHandle _makeProfile;
+        CreateRecordObjectHandle createRecordObject_;
+        MakeProfileHandle makeProfile_;
 
     private:
         RecordDelegate() = default;                                   // ctor hidden
@@ -53,6 +53,6 @@ namespace wukong {
     };
 }
 
-#define g_RecordDelegate RecordDelegate::Instance()
+#define g_RecordDelegate wukong::RecordDelegate::Instance()
 
 #endif /* wukong_record_delegate_h */

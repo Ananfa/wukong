@@ -34,11 +34,11 @@ namespace wukong {
             return instance;
         }
 
-        void setCreateGameObjectHandle(CreateGameObjectHandle handle) { _createGameObject = handle; }
-        CreateGameObjectHandle getCreateGameObjectHandle() { return _createGameObject; }
+        void setCreateGameObjectHandle(CreateGameObjectHandle handle) { createGameObject_ = handle; }
+        CreateGameObjectHandle getCreateGameObjectHandle() { return createGameObject_; }
 
     private:
-        CreateGameObjectHandle _createGameObject;
+        CreateGameObjectHandle createGameObject_;
 
     private:
         GameDelegate() = default;                                 // ctor hidden

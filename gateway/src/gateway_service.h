@@ -56,12 +56,12 @@ namespace wukong {
         void traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle);
 
     private:
-        std::map<ServerId, pb::InnerGatewayService_Stub*> _innerStubs; // 注意：该map只在系统启动时初始化，启动后不再修改
+        std::map<ServerId, pb::InnerGatewayService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
 
     class InnerGatewayServiceImpl : public pb::InnerGatewayService {
     public:
-        InnerGatewayServiceImpl(GatewayObjectManager *manager): _manager(manager) {}
+        InnerGatewayServiceImpl(GatewayObjectManager *manager): manager_(manager) {}
         
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,
@@ -94,7 +94,7 @@ namespace wukong {
                                ::google::protobuf::Closure* done);
 
     private:
-        GatewayObjectManager *_manager;
+        GatewayObjectManager *manager_;
     };
 
 }

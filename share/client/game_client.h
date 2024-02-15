@@ -43,12 +43,12 @@ namespace wukong {
         };
 
     public:
-        GameClient(GameServerType gsType, const std::string &zkNodeName): _gsType(gsType), _zkNodeName(zkNodeName) {}
+        GameClient(GameServerType gsType, const std::string &zkNodeName): gsType_(gsType), zkNodeName_(zkNodeName) {}
         virtual ~GameClient() = default;
 
-        void init(RpcClient *client) { _client = client; }
-        GameServerType getGameServerType() const { return _gsType; }
-        const std::string &getZkNodeName() const { return _zkNodeName; }
+        void init(RpcClient *client) { client_ = client; }
+        GameServerType getGameServerType() const { return gsType_; }
+        const std::string &getZkNodeName() const { return zkNodeName_; }
 
         virtual std::vector<ServerInfo> getServerInfos() = 0; // 注意：这里直接定义返回vector类型，通过编译器RVO优化
         virtual bool setServers(const std::vector<AddressInfo> &addresses) = 0;
@@ -58,9 +58,9 @@ namespace wukong {
         static bool parseAddress(const std::string &input, AddressInfo &addressInfo);
 
     protected:
-        RpcClient *_client = nullptr;
-        GameServerType _gsType;
-        std::string _zkNodeName;
+        RpcClient *client_ = nullptr;
+        GameServerType gsType_;
+        std::string zkNodeName_;
     };
 }
     

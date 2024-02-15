@@ -3,7 +3,7 @@
 //#include "gateway_client.h"
 #include "login_handler_mgr.h"
 //#include "client_center.h"
-#include "demo_db_utils.h"
+//#include "demo_db_utils.h"
 #include "demo_utils.h"
 #include "demo_role_builder.h"
 
@@ -39,7 +39,7 @@ int main(int argc, char * argv[]) {
         return true;
     };
 
-    delegate.loadProfile = demo::DemoDBUtils::LoadProfile;
+    delegate.loadProfile = demo::DemoUtils::LoadProfile;
     
     delegate.makeProfile = demo::DemoUtils::MakeProfile;
 

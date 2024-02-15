@@ -48,12 +48,12 @@ namespace wukong {
         void traverseInnerStubs(std::function<bool(ServerId, pb::InnerLobbyService_Stub*)> handle);
 
     private:
-        std::map<ServerId, pb::InnerLobbyService_Stub*> _innerStubs; // 注意：该map只在系统启动时初始化，启动后不再修改
+        std::map<ServerId, pb::InnerLobbyService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
     
     class InnerLobbyServiceImpl : public pb::InnerLobbyService {
     public:
-        InnerLobbyServiceImpl(GameObjectManager *manager): _manager(manager) {}
+        InnerLobbyServiceImpl(GameObjectManager *manager): manager_(manager) {}
 
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,
@@ -71,7 +71,7 @@ namespace wukong {
                               ::google::protobuf::Closure* done);
 
     private:
-        GameObjectManager *_manager;
+        GameObjectManager *manager_;
     };
     
 }

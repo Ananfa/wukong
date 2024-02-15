@@ -26,7 +26,7 @@ namespace demo {
         void onTestGlobalEvent(const Event &e);
 
     private:
-        std::shared_ptr<Timer> _leaveGameTimer;
+        std::shared_ptr<Timer> leaveGameTimer_;
     };
 }
 

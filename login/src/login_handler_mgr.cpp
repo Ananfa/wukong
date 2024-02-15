@@ -42,35 +42,35 @@ using namespace wukong;
 // 注意：这里是g++编译器的一个bug导致需要用namespace大括号括住模板特化
 namespace wukong {
     template<> void JsonWriter::put(const RoleServerInfo &value) {
-        _writer.StartObject();
-        _writer.Key("s");
+        writer_.StartObject();
+        writer_.Key("s");
         put(value.serverId);
-        _writer.Key("r");
+        writer_.Key("r");
         put(value.roleId);
-        _writer.EndObject();
+        writer_.EndObject();
     }
 
     template<> void JsonWriter::put(const RoleProfile &value) {
-        _writer.StartObject();
-        _writer.Key("serverId");
+        writer_.StartObject();
+        writer_.Key("serverId");
         put(value.serverId);
-        _writer.Key("roleId");
+        writer_.Key("roleId");
         put(value.roleId);
         if (!value.pData.empty()) {
-            _writer.Key("pData");
+            writer_.Key("pData");
             put(value.pData);
         }
-        _writer.EndObject();
+        writer_.EndObject();
     }
 }
 
-std::string LoginHandlerMgr::_serverGroupData;
-Mutex LoginHandlerMgr::_serverGroupDataLock;
-std::atomic<uint32_t> LoginHandlerMgr::_serverGroupDataVersion(0);
-thread_local std::string LoginHandlerMgr::_t_serverGroupData("[]");
-thread_local uint32_t LoginHandlerMgr::_t_serverGroupDataVersion(0);
-thread_local std::map<GroupId, uint32_t> LoginHandlerMgr::_t_groupStatusMap;
-thread_local std::map<ServerId, GroupId> LoginHandlerMgr::_t_serverId2groupIdMap;
+std::string LoginHandlerMgr::serverGroupData_;
+Mutex LoginHandlerMgr::serverGroupDataLock_;
+std::atomic<uint32_t> LoginHandlerMgr::serverGroupDataVersion_(0);
+thread_local std::string LoginHandlerMgr::t_serverGroupData_("[]");
+thread_local uint32_t LoginHandlerMgr::t_serverGroupDataVersion_(0);
+thread_local std::map<GroupId, uint32_t> LoginHandlerMgr::t_groupStatusMap_;
+thread_local std::map<ServerId, GroupId> LoginHandlerMgr::t_serverId2groupIdMap_;
 
 void LoginHandlerMgr::init(HttpServer *server) {
     // 获取并订阅服务器组列表信息
@@ -143,7 +143,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     }
 
     // 校验玩家身份
-    if (!_delegate.loginCheck(request)) {
+    if (!delegate_.loginCheck(request)) {
         return setErrorResponse(response, "login check failed");
     }
 
@@ -212,7 +212,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     json.put("retCode", 0);
     json.put("userId", userId);
     json.put("token", token);
-    json.putRawArray("servers", _t_serverGroupData);
+    json.putRawArray("servers", t_serverGroupData_);
     json.put("roles", roles);
     json.end();
     
@@ -244,7 +244,7 @@ void LoginHandlerMgr::getProfile(std::shared_ptr<RequestMessage> &request, std::
     UserId uid = 0;
     ServerId sid = 0;
     std::list<std::pair<std::string, std::string>> pDatas;
-    if (!_delegate.loadProfile(info.roleId, uid, info.serverId, pDatas)) {
+    if (!delegate_.loadProfile(info.roleId, uid, info.serverId, pDatas)) {
         return setErrorResponse(response, "load role profile failed");
     }
 
@@ -289,12 +289,12 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
     refreshServerGroupData();
 
     // 判断服务器状态
-    auto iter = _t_serverId2groupIdMap.find(serverId);
-    if (iter == _t_serverId2groupIdMap.end()) {
+    auto iter = t_serverId2groupIdMap_.find(serverId);
+    if (iter == t_serverId2groupIdMap_.end()) {
         return setErrorResponse(response, "server not exist");
     }
 
-    switch (_t_groupStatusMap[iter->second]) {
+    switch (t_groupStatusMap_[iter->second]) {
         case SERVER_STATUS_NORMAL:
             break;
         case SERVER_STATUS_FULL:
@@ -312,7 +312,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
 
     // 创建角色数据
     std::list<std::pair<std::string, std::string>> roleDatas;
-    if (!_delegate.createRole(request, roleDatas)) {
+    if (!delegate_.createRole(request, roleDatas)) {
         return setErrorResponse(response, "create role failed");
     }
 
@@ -426,7 +426,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
 
     // 缓存profile
     std::list<std::pair<std::string, std::string>> profileDatas;
-    _delegate.makeProfile(roleDatas, profileDatas);
+    delegate_.makeProfile(roleDatas, profileDatas);
     switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, profileDatas)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
@@ -562,10 +562,11 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         }
     }
 
-    if (RedisUtils::RemoveLoginToken(cache, userId) == REDIS_DB_ERROR) {
-        g_RedisPoolManager.getCoreCache()->put(cache, true);
-        return setErrorResponse(response, "delete token failed");
-    }
+    // 注意: 这里删不删LoginToken都一样（当并发请求多次enterGame时，token无法保证同时只有一个请求逻辑在进行）
+    //if (RedisUtils::RemoveLoginToken(cache, userId) == REDIS_DB_ERROR) {
+    //    g_RedisPoolManager.getCoreCache()->put(cache, true);
+    //    return setErrorResponse(response, "delete token failed");
+    //}
 
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
@@ -605,25 +606,25 @@ void LoginHandlerMgr::updateServerGroupData() {
     g_RedisPoolManager.getCorePersist()->put(redis, false);
 
     {
-        LockGuard lock(_serverGroupDataLock);
-        _serverGroupData = std::move(serverGroupData);
+        LockGuard lock(serverGroupDataLock_);
+        serverGroupData_ = std::move(serverGroupData);
         g_LoginHandlerMgr.updateServerGroupDataVersion();
     }
 }
 
 void LoginHandlerMgr::refreshServerGroupData() {
-    if (_t_serverGroupDataVersion != _serverGroupDataVersion) {
+    if (t_serverGroupDataVersion_ != serverGroupDataVersion_) {
         std::string serverGroupData;
         uint32_t version;
         {
-            LockGuard lock(_serverGroupDataLock);
+            LockGuard lock(serverGroupDataLock_);
 
-            if (_t_serverGroupDataVersion == _serverGroupDataVersion) {
+            if (t_serverGroupDataVersion_ == serverGroupDataVersion_) {
                 return;
             }
 
-            serverGroupData = _serverGroupData;
-            version = _serverGroupDataVersion;
+            serverGroupData = serverGroupData_;
+            version = serverGroupDataVersion_;
 
             Document doc;
             if (doc.Parse(serverGroupData.c_str()).HasParseError()) {
@@ -694,10 +695,10 @@ void LoginHandlerMgr::refreshServerGroupData() {
                 }
             }
 
-            _t_serverGroupData = std::move(serverGroupData);
-            _t_groupStatusMap = std::move(groupStatusMap);
-            _t_serverId2groupIdMap = std::move(serverId2groupIdMap);
-            _t_serverGroupDataVersion = version;
+            t_serverGroupData_ = std::move(serverGroupData);
+            t_groupStatusMap_ = std::move(groupStatusMap);
+            t_serverId2groupIdMap_ = std::move(serverId2groupIdMap);
+            t_serverGroupDataVersion_ = version;
         }
 
     }

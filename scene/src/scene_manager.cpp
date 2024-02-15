@@ -26,39 +26,39 @@
 using namespace wukong;
 
 void SceneManager::shutdown() {
-    if (_shutdown) {
+    if (shutdown_) {
         return;
     }
 
-    _shutdown = true;
+    shutdown_ = true;
 
     // 若不清dispatcher，会导致shared_ptr循环引用问题
-    _geventDispatcher.clear();
+    geventDispatcher_.clear();
 
-    for (auto &scene : _sceneId2SceneMap) {
+    for (auto &scene : sceneId2SceneMap_) {
         scene.second->stop();
     }
 
-    _sceneId2SceneMap.clear();
+    sceneId2SceneMap_.clear();
 
-    for (auto &gameObj : _roleId2GameObjectMap) {
+    for (auto &gameObj : roleId2GameObjectMap_) {
         gameObj.second->stop();
     }
 
-    _roleId2GameObjectMap.clear();
+    roleId2GameObjectMap_.clear();
 }
 
 size_t SceneManager::sceneCount() {
-    return _sceneId2SceneMap.size();
+    return sceneId2SceneMap_.size();
 }
 
 bool SceneManager::existScene(const std::string &sceneId) {
-    return _sceneId2SceneMap.find(sceneId) != _sceneId2SceneMap.end();
+    return sceneId2SceneMap_.find(sceneId) != sceneId2SceneMap_.end();
 }
 
 std::shared_ptr<Scene> SceneManager::getScene(const std::string &sceneId) {
-    auto it = _sceneId2SceneMap.find(sceneId);
-    if (it == _sceneId2SceneMap.end()) {
+    auto it = sceneId2SceneMap_.find(sceneId);
+    if (it == sceneId2SceneMap_.end()) {
         return nullptr;
     }
 
@@ -100,7 +100,7 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
                 break;
             }
             case SCENE_TYPE_MULTI_PLAYER: {
-                realSceneId = "MS_" + std::to_string(_id) + "_" + std::to_string(_incSceneNo);
+                realSceneId = "MS_" + std::to_string(id_) + "_" + std::to_string(incSceneNo_);
                 break;
             }
             case SCENE_TYPE_TEAM: {
@@ -131,7 +131,7 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
         gettimeofday(&t, NULL);
         sToken = std::to_string((t.tv_sec % 1000) * 1000000 + t.tv_usec);
 
-        switch (RedisUtils::SetSceneAddress(cache, realSceneId, sToken, _id)) {
+        switch (RedisUtils::SetSceneAddress(cache, realSceneId, sToken, id_)) {
             case REDIS_DB_ERROR: {
                 g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("SceneManager::loadScene -- set scene:%s location failed\n", realSceneId.c_str());
@@ -169,7 +169,7 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
     }
 
     // 启动场景对象
-    _sceneId2SceneMap.insert(std::make_pair(realSceneId, scene));
+    sceneId2SceneMap_.insert(std::make_pair(realSceneId, scene));
     scene->start();
 
     // 成员预加载，若其中有玩家gameObj预加载失败，将所有已预加载的对象销毁并且销毁场景对象，返回加载失败
@@ -188,30 +188,30 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
 }
 
 void SceneManager::removeScene(const std::string &sceneId) {
-    auto it = _sceneId2SceneMap.find(sceneId);
-    assert(it != _sceneId2SceneMap.end());
+    auto it = sceneId2SceneMap_.find(sceneId);
+    assert(it != sceneId2SceneMap_.end());
 
     // 踢出场景中所有玩家(强制离线)，正常的离线不是由场景销毁导致的
-    for (auto pair : it->second->_roles) {
+    for (auto pair : it->second->roles_) {
         DEBUG_LOG("SceneManager::removeScene -- remove role %d\n", pair.first);
         // 删除游戏对象
         pair.second->stop();
-        _roleId2GameObjectMap.erase(pair.first);
+        roleId2GameObjectMap_.erase(pair.first);
     }
 
     it->second->stop();
-    _sceneId2SceneMap.erase(it);
+    sceneId2SceneMap_.erase(it);
 }
 
 void SceneManager::leaveGame(RoleId roleId) {
     // 如果角色与场景绑定，需要一并销毁场景（如：W3L队伍场景（离队不算），个人场景）
-    auto it = _roleId2GameObjectMap.find(roleId);
-    assert(it != _roleId2GameObjectMap.end());
+    auto it = roleId2GameObjectMap_.find(roleId);
+    assert(it != roleId2GameObjectMap_.end());
 
     const std::string &sceneId = it->second->getSceneId();
     if (!sceneId.empty()) {
-        auto it1 = _sceneId2SceneMap.find(sceneId);
-        assert(it1 != _sceneId2SceneMap.end());  // 不应该找不到场景
+        auto it1 = sceneId2SceneMap_.find(sceneId);
+        assert(it1 != sceneId2SceneMap_.end());  // 不应该找不到场景
 
         SceneType sType = it1->second->getType();
         if (sType == SCENE_TYPE_SINGLE_PLAYER || sType == SCENE_TYPE_TEAM) {
@@ -223,22 +223,22 @@ void SceneManager::leaveGame(RoleId roleId) {
 
             // 删除游戏对象
             it->second->stop();
-            _roleId2GameObjectMap.erase(it);
+            roleId2GameObjectMap_.erase(it);
         }
     } else {
         // 删除游戏对象
         it->second->stop();
-        _roleId2GameObjectMap.erase(it);
+        roleId2GameObjectMap_.erase(it);
     }
 }
 
 void SceneManager::leaveScene(RoleId roleId) {
-    auto it = _roleId2GameObjectMap.find(roleId);
-    assert(it != _roleId2GameObjectMap.end());
+    auto it = roleId2GameObjectMap_.find(roleId);
+    assert(it != roleId2GameObjectMap_.end());
 
     const std::string &sceneId = it->second->getSceneId();
-    auto it1 = _sceneId2SceneMap.find(sceneId);
-    assert(it1 != _sceneId2SceneMap.end());  // 不应该找不到场景
+    auto it1 = sceneId2SceneMap_.find(sceneId);
+    assert(it1 != sceneId2SceneMap_.end());  // 不应该找不到场景
 
     it1->second->leave(roleId);
 }

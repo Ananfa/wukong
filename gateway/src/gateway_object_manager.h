@@ -31,20 +31,20 @@ namespace wukong {
 
     class GatewayObjectManager {
     public:
-        GatewayObjectManager(ServerId id):_id(id), _shutdown(false) {}
+        GatewayObjectManager(ServerId id):id_(id), shutdown_(false) {}
 
         void init();
 
-        ServerId getId() { return _id; }
+        ServerId getId() { return id_; }
 
         void shutdown();
-        bool isShutdown() { return _shutdown; }
+        bool isShutdown() { return shutdown_; }
 
         void addUnauthConn(std::shared_ptr<MessageServer::Connection>& conn);
         void removeUnauthConn(std::shared_ptr<MessageServer::Connection>& conn);
         bool isUnauth(std::shared_ptr<MessageServer::Connection>& conn);
         void clearUnauth();
-        size_t unauthSize() const { return _unauthNodeMap.size(); }
+        size_t unauthSize() const { return unauthNodeMap_.size(); }
 
         bool hasGatewayObject(UserId userId); // 判断玩家网关对象是否存在（包括已连接及断线中）
         bool removeGatewayObject(UserId userId); // 删除玩家网关对象（包括已连接及断线中）
@@ -72,20 +72,20 @@ namespace wukong {
         static void *clearExpiredDisconnectedRoutine( void *arg ); // 清理过时断线网关对象
 
     private:
-        ServerId _id;       // gateway服务号
-        bool _shutdown;
+        ServerId id_;       // gateway服务号
+        bool shutdown_;
 
         // 未认证连接相关数据结构
-        MessageConnectionTimeLink _unauthLink;
-        std::map<MessageServer::Connection*, MessageConnectionTimeLink::Node*> _unauthNodeMap;
+        MessageConnectionTimeLink unauthLink_;
+        std::map<MessageServer::Connection*, MessageConnectionTimeLink::Node*> unauthNodeMap_;
     
         // 断线中的网关对象相关数据结构（等待过期清理或者断线重连）
-        GatewayObjectTimeLink _disconnectedLink;
-        std::map<UserId, GatewayObjectTimeLink::Node*> _disconnectedNodeMap;
+        GatewayObjectTimeLink disconnectedLink_;
+        std::map<UserId, GatewayObjectTimeLink::Node*> disconnectedNodeMap_;
 
         // 正常网关对象列表
-        std::map<UserId, std::shared_ptr<GatewayObject>> _userId2GatewayObjectMap;
-        std::map<MessageServer::Connection*, std::shared_ptr<GatewayObject>> _connection2GatewayObjectMap;
+        std::map<UserId, std::shared_ptr<GatewayObject>> userId2GatewayObjectMap_;
+        std::map<MessageServer::Connection*, std::shared_ptr<GatewayObject>> connection2GatewayObjectMap_;
     };
 
 }

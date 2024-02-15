@@ -23,7 +23,7 @@
 namespace wukong {
     class GatewayHandler {
     public:
-        GatewayHandler(GatewayObjectManager *manager): _manager(manager) {}
+        GatewayHandler(GatewayObjectManager *manager): manager_(manager) {}
         ~GatewayHandler() {}
 
         void registerMessages(corpc::TcpMessageServer *server);
@@ -36,7 +36,7 @@ namespace wukong {
 
         void bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn);
     private:
-        GatewayObjectManager *_manager;
+        GatewayObjectManager *manager_;
     };
 }
 

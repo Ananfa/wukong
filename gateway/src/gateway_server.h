@@ -30,16 +30,8 @@
 using namespace corpc;
 
 namespace wukong {
-
     // 单例模式实现
     class GatewayServer {
-    private:
-        bool _inited = false;
-        IO *_io = nullptr;
-        RpcClient *_rpcClient = nullptr;
-
-        std::vector<std::thread> _threads;
-
     public:
         static GatewayServer& Instance() {
             static GatewayServer theSingleton;
@@ -57,6 +49,13 @@ namespace wukong {
         static void banMsgHandle(corpc::TcpMessageServer *msgServer);
 
     private:
+        bool inited_ = false;
+        IO *io_ = nullptr;
+        RpcClient *rpcClient_ = nullptr;
+
+        std::vector<std::thread> threads_;
+
+    private:
         GatewayServer() = default;                                  // ctor hidden
         GatewayServer(GatewayServer const&) = delete;               // copy ctor hidden
         GatewayServer(GatewayServer &&) = delete;                   // move ctor hidden
@@ -65,7 +64,8 @@ namespace wukong {
         ~GatewayServer() = default;                                 // dtor hidden
     };
 
-    #define g_GatewayServer GatewayServer::Instance()
 }
+
+#define g_GatewayServer wukong::GatewayServer::Instance()
 
 #endif /* wukong_gateway_server_h */

@@ -27,5 +27,6 @@
     ],
     "coreCache": "cache",                       // 用作游戏服务器核心缓存redis库(redis中的一个)
     "updatePeriod": 0,                          // 游戏对象update方法调用周期，单位毫秒，0表示不进行update
-    "enableSceneClient": true                   // 是否需要连接Scene服
+    "enableSceneClient": true,                  // 是否需要连接Scene服
+    "logConfigFile": "log_config.json"
 }

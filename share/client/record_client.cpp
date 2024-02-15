@@ -21,12 +21,12 @@
 using namespace corpc;
 using namespace wukong;
 
-std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> RecordClient::_addr2stubs;
-std::map<ServerId, RecordClient::StubInfo> RecordClient::_stubs;
-Mutex RecordClient::_stubsLock;
-std::atomic<uint32_t> RecordClient::_stubChangeNum(0);
-thread_local uint32_t RecordClient::_t_stubChangeNum = 0;
-thread_local std::map<ServerId, RecordClient::StubInfo> RecordClient::_t_stubs;
+std::map<std::string, std::shared_ptr<pb::RecordService_Stub>> RecordClient::addr2stubs_;
+std::map<ServerId, RecordClient::StubInfo> RecordClient::stubs_;
+Mutex RecordClient::stubsLock_;
+std::atomic<uint32_t> RecordClient::stubChangeNum_(0);
+thread_local uint32_t RecordClient::t_stubChangeNum_ = 0;
+thread_local std::map<ServerId, RecordClient::StubInfo> RecordClient::t_stubs_;
 
 std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
     std::vector<ServerInfo> infos;
@@ -35,7 +35,7 @@ std::vector<RecordClient::ServerInfo> RecordClient::getServerInfos() {
     std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
 
     refreshStubs();
-    std::map<ServerId, StubInfo> localStubs = _t_stubs;
+    std::map<ServerId, StubInfo> localStubs = t_stubs_;
     
     // 清除原来的信息
     infos.reserve(localStubs.size());
@@ -111,7 +111,7 @@ bool RecordClient::loadRoleData(ServerId sid, RoleId roleId, UserId &userId, con
 }
 
 bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
-    if (!_client) {
+    if (!client_) {
         ERROR_LOG("RecordClient::setServers -- not init\n");
         return false;
     }
@@ -127,17 +127,17 @@ bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
             continue;
         }
 
-        iter = _addr2stubs.find(addr);
-        if (iter != _addr2stubs.end()) {
+        iter = addr2stubs_.find(addr);
+        if (iter != addr2stubs_.end()) {
             stub = iter->second;
         } else {
-            stub = std::make_shared<pb::RecordService_Stub>(new RpcClient::Channel(_client, address.ip, address.port, 1), pb::RecordService::STUB_OWNS_CHANNEL);
+            stub = std::make_shared<pb::RecordService_Stub>(new RpcClient::Channel(client_, address.ip, address.port, 1), pb::RecordService::STUB_OWNS_CHANNEL);
         }
         addr2stubs.insert(std::make_pair(addr, stub));
 
         for (uint16_t serverId : address.serverIds) {
-            auto iter1 = _stubs.find(serverId);
-            if (iter1 != _stubs.end()) {
+            auto iter1 = stubs_.find(serverId);
+            if (iter1 != stubs_.end()) {
                 if (iter1->second.rpcAddr == addr) {
                     stubs.insert(std::make_pair(serverId, iter1->second));
                     continue;
@@ -152,12 +152,12 @@ bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
         }
     }
 
-    _addr2stubs = addr2stubs;
+    addr2stubs_ = addr2stubs;
     
     {
-        LockGuard lock(_stubsLock);
-        _stubs = stubs;
-        _stubChangeNum++;
+        LockGuard lock(stubsLock_);
+        stubs_ = stubs;
+        stubChangeNum_++;
     }
     
     return true;
@@ -165,8 +165,8 @@ bool RecordClient::setServers(const std::vector<AddressInfo>& addresses) {
 
 std::shared_ptr<pb::RecordService_Stub> RecordClient::getStub(ServerId sid) {
     refreshStubs();
-    auto iter = _t_stubs.find(sid);
-    if (iter == _t_stubs.end()) {
+    auto iter = t_stubs_.find(sid);
+    if (iter == t_stubs_.end()) {
         return nullptr;
     }
 
@@ -174,17 +174,17 @@ std::shared_ptr<pb::RecordService_Stub> RecordClient::getStub(ServerId sid) {
 }
 
 void RecordClient::refreshStubs() {
-    if (_t_stubChangeNum != _stubChangeNum) {
+    if (t_stubChangeNum_ != stubChangeNum_) {
         {
-            LockGuard lock(_stubsLock);
+            LockGuard lock(stubsLock_);
 
-            if (_t_stubChangeNum == _stubChangeNum) {
+            if (t_stubChangeNum_ == stubChangeNum_) {
                 return;
             }
 
-            _t_stubs.clear();
-            _t_stubs = _stubs;
-            _t_stubChangeNum = _stubChangeNum;
+            t_stubs_.clear();
+            t_stubs_ = stubs_;
+            t_stubChangeNum_ = stubChangeNum_;
         }
     }
 }

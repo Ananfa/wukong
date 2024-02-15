@@ -35,14 +35,14 @@ namespace wukong {
 
     class Scene: public std::enable_shared_from_this<Scene> {
     public:
-        Scene(uint32_t defId, SceneType type, const std::string &sceneId, const std::string &sToken, SceneManager *manager): _defId(defId), _type(type), _sceneId(sceneId), _sToken(sToken), _manager(manager) {}
+        Scene(uint32_t defId, SceneType type, const std::string &sceneId, const std::string &sToken, SceneManager *manager): defId_(defId), type_(type), sceneId_(sceneId), sToken_(sToken), manager_(manager) {}
         virtual ~Scene() {};
 
-        uint32_t getDefId() { return _defId; }
-        const std::string &getSceneId() { return _sceneId; }
-        const std::string &getSToken() { return _sToken; }
+        uint32_t getDefId() { return defId_; }
+        const std::string &getSceneId() { return sceneId_; }
+        const std::string &getSToken() { return sToken_; }
 
-        SceneType getType() { return _type; }
+        SceneType getType() { return type_; }
 
         void start(); // 开始心跳，启动心跳协程（个人场景不需要redis心跳，gameobj有心跳就够了，gameobj销毁时scene也要销毁，由scene的update进行判断--场景没人时自毁处理）
         void stop(); // 停止心跳，清除游戏对象列表（调用游戏对象stop）
@@ -68,25 +68,25 @@ namespace wukong {
         static void *updateRoutine(void *arg); // 逻辑协程（周期逻辑更新）
 
     private:
-        std::string _sToken;
+        std::string sToken_;
 
-        SceneType _type;
+        SceneType type_;
 
-        bool _running = false;
+        bool running_ = false;
 
-        Cond _cond;
+        Cond cond_;
 
-        EventEmitter _emiter;
-        std::vector<uint32_t> _globalEventHandleRefs; // 用于gameobject销毁时注销注册的全局事件处理
+        EventEmitter emiter_;
+        std::vector<uint32_t> globalEventHandleRefs_; // 用于gameobject销毁时注销注册的全局事件处理
 
     protected:
-        uint32_t _defId;
-        std::string _sceneId;
+        uint32_t defId_;
+        std::string sceneId_;
 
-        SceneManager *_manager; // 关联的场景manager
+        SceneManager *manager_; // 关联的场景manager
 
         // 场景中的游戏对象列表（注意：不要产生shared_ptr循环引用）
-        std::map<RoleId, std::shared_ptr<GameObject>> _roles;
+        std::map<RoleId, std::shared_ptr<GameObject>> roles_;
 
     public:
         friend class SceneManager;

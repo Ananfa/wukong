@@ -17,8 +17,8 @@ void DemoScene::update(timeval now) {
 }
 
 void DemoScene::onEnter(RoleId roleId) {
-    auto it = _roles.find(roleId);
-    assert(it != _roles.end());
+    auto it = roles_.find(roleId);
+    assert(it != roles_.end());
 
     std::shared_ptr<SceneGameObject> realObj = std::dynamic_pointer_cast<SceneGameObject>(it->second);
 
@@ -26,7 +26,7 @@ void DemoScene::onEnter(RoleId roleId) {
     realObj->setExp(realObj->getExp()+1);
 
     wukong::pb::Int32Value resp;
-    resp.set_value(_defId);
+    resp.set_value(defId_);
 
     realObj->send(S2C_MESSAGE_ID_ENTERSCENE, 0, resp);
 }

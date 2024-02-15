@@ -40,41 +40,41 @@ namespace wukong {
         
         bool parse(const char *path);
         
-        const std::string& getIp() const { return _ip; }
-        uint16_t getPort() const { return _port; }
-        const std::vector<ServerInfo>& getServerInfos() const { return _serverInfos; }
+        const std::string& getIp() const { return ip_; }
+        uint16_t getPort() const { return port_; }
+        const std::vector<ServerInfo>& getServerInfos() const { return serverInfos_; }
         
-        const std::string& getZookeeper() const { return _zookeeper; }
+        const std::string& getZookeeper() const { return zookeeper_; }
         
-        uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
-        uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
+        uint32_t getIoRecvThreadNum() const { return ioRecvThreadNum_; }
+        uint32_t getIoSendThreadNum() const { return ioSendThreadNum_; }
 
-        const std::vector<RedisInfo>& getRedisInfos() const { return _redisInfos; }
-        const std::vector<MysqlInfo>& getMysqlInfos() const { return _mysqlInfos; }
+        const std::vector<RedisInfo>& getRedisInfos() const { return redisInfos_; }
+        const std::vector<MysqlInfo>& getMysqlInfos() const { return mysqlInfos_; }
 
-        const std::string& getCoreCache() const { return _coreCache; }
-        const std::string& getCoreRecord() const { return _coreRecord; }
+        const std::string& getCoreCache() const { return coreCache_; }
+        const std::string& getCoreRecord() const { return coreRecord_; }
         
-        const std::string& getZooPath() const { return _zooPath; }
+        const std::string& getZooPath() const { return zooPath_; }
 
     private:
-        std::string _ip;    // 提供rpc服务的ip
-        uint16_t _port;     // rpc服务端口
+        std::string ip_;    // 提供rpc服务的ip
+        uint16_t port_;     // rpc服务端口
 
-        std::vector<ServerInfo> _serverInfos; // 对外服务的信息列表
+        std::vector<ServerInfo> serverInfos_; // 对外服务的信息列表
         
-        std::string _zookeeper;
+        std::string zookeeper_;
         
-        uint32_t _ioRecvThreadNum;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
-        uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+        uint32_t ioRecvThreadNum_;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
+        uint32_t ioSendThreadNum_;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
-        std::vector<RedisInfo> _redisInfos; // Redis库配置
-        std::vector<MysqlInfo> _mysqlInfos;
+        std::vector<RedisInfo> redisInfos_; // Redis库配置
+        std::vector<MysqlInfo> mysqlInfos_;
 
-        std::string _coreCache;  // 用作游戏服务器核心缓存redis库(redis中的一个)
-        std::string _coreRecord;  // 用作游戏服务器核心落地mysql库(mysql中的一个)
+        std::string coreCache_;  // 用作游戏服务器核心缓存redis库(redis中的一个)
+        std::string coreRecord_;  // 用作游戏服务器核心落地mysql库(mysql中的一个)
 
-        std::string _zooPath;
+        std::string zooPath_;
 
     private:
         RecordConfig() = default;                                 // ctor hidden
@@ -85,8 +85,8 @@ namespace wukong {
         ~RecordConfig() = default;                                // dtor hidden
     };
 
-    #define g_RecordConfig RecordConfig::Instance()
-
 }
+
+#define g_RecordConfig wukong::RecordConfig::Instance()
 
 #endif /* wukong_record_config_h */

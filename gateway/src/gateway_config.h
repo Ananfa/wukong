@@ -41,49 +41,49 @@ namespace wukong {
         
         bool parse(const char *path);
         
-        const std::string& getInternalIp() const { return _internalIp; }
-        const std::string& getExternalIp() const { return _externalIp; }
-        const std::string& getOuterAddr() const { return _outerAddr; }
-        uint16_t getRpcPort() const { return _rpcPort; }
-        const std::vector<ServerInfo>& getServerInfos() const { return _serverInfos; }
+        const std::string& getInternalIp() const { return internalIp_; }
+        const std::string& getExternalIp() const { return externalIp_; }
+        const std::string& getOuterAddr() const { return outerAddr_; }
+        uint16_t getRpcPort() const { return rpcPort_; }
+        const std::vector<ServerInfo>& getServerInfos() const { return serverInfos_; }
         
-        const std::string& getZookeeper() const { return _zookeeper; }
+        const std::string& getZookeeper() const { return zookeeper_; }
         
-        uint32_t getVerifyTimeout() const { return _verifyTimeout; }
-        uint32_t getDisconnectTimeout() const { return _disconnectTimeout; }
-        uint32_t getIoRecvThreadNum() const { return _ioRecvThreadNum; }
-        uint32_t getIoSendThreadNum() const { return _ioSendThreadNum; }
+        uint32_t getVerifyTimeout() const { return verifyTimeout_; }
+        uint32_t getDisconnectTimeout() const { return disconnectTimeout_; }
+        uint32_t getIoRecvThreadNum() const { return ioRecvThreadNum_; }
+        uint32_t getIoSendThreadNum() const { return ioSendThreadNum_; }
 
-        const std::vector<RedisInfo>& getRedisInfos() const { return _redisInfos; }
+        const std::vector<RedisInfo>& getRedisInfos() const { return redisInfos_; }
 
-        const std::string& getCoreCache() const { return _coreCache; }
+        const std::string& getCoreCache() const { return coreCache_; }
         
-        bool enableSceneClient() const { return _enableSceneClient; }
+        bool enableSceneClient() const { return enableSceneClient_; }
 
-        const std::string& getZooPath() const { return _zooPath; }
+        const std::string& getZooPath() const { return zooPath_; }
 
     private:
-        std::string _internalIp;    // 提供rpc服务的ip
-        std::string _externalIp;    // 对客户端提供服务的ip
-        std::string _outerAddr;     // 【通过NAT端口转发的服务器部署方式】提供给客户端的连接地址，不配置或为空时复用externalIp
-        uint16_t _rpcPort;          // rpc服务端口
+        std::string internalIp_;    // 提供rpc服务的ip
+        std::string externalIp_;    // 对客户端提供服务的ip
+        std::string outerAddr_;     // 【通过NAT端口转发的服务器部署方式】提供给客户端的连接地址，不配置或为空时复用externalIp
+        uint16_t rpcPort_;          // rpc服务端口
 
-        std::vector<ServerInfo> _serverInfos; // 对外服务的信息列表
+        std::vector<ServerInfo> serverInfos_; // 对外服务的信息列表
         
-        std::string _zookeeper;
+        std::string zookeeper_;
         
-        uint32_t _verifyTimeout;        // 身份校验超时（秒）
-        uint32_t _disconnectTimeout;    // 断线保护时长（秒）
-        uint32_t _ioRecvThreadNum;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
-        uint32_t _ioSendThreadNum;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+        uint32_t verifyTimeout_;        // 身份校验超时（秒）
+        uint32_t disconnectTimeout_;    // 断线保护时长（秒）
+        uint32_t ioRecvThreadNum_;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
+        uint32_t ioSendThreadNum_;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
-        std::vector<RedisInfo> _redisInfos; // Redis库配置
+        std::vector<RedisInfo> redisInfos_; // Redis库配置
 
-        std::string _coreCache;  // 用作游戏服务器核心缓存redis库(redis中的一个)
+        std::string coreCache_;  // 用作游戏服务器核心缓存redis库(redis中的一个)
 
-        bool _enableSceneClient; // 是否需要连接Scene服
+        bool enableSceneClient_; // 是否需要连接Scene服
 
-        std::string _zooPath;
+        std::string zooPath_;
 
     private:
         GatewayConfig() = default;                            // ctor hidden
@@ -94,8 +94,8 @@ namespace wukong {
         ~GatewayConfig() = default;                           // dtor hidden
     };
 
-    #define g_GatewayConfig GatewayConfig::Instance()
-
 }
+
+#define g_GatewayConfig wukong::GatewayConfig::Instance()
 
 #endif /* wukong_gateway_config_h */

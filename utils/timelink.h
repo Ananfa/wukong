@@ -24,7 +24,7 @@ public:
     };
     
 public:
-    TimeLink(): _head(nullptr), _tail(nullptr) {}
+    TimeLink(): head_(nullptr), tail_(nullptr) {}
     
     void push(Node *node);
     Node* pop();
@@ -32,46 +32,46 @@ public:
     void moveToTail(Node *node);
     void clear();
     
-    Node* getHead() { return _head; }
-    Node* getTail() { return _tail; }
+    Node* getHead() { return head_; }
+    Node* getTail() { return tail_; }
     
 private:
-    Node *_head;
-    Node *_tail;
+    Node *head_;
+    Node *tail_;
 };
 
 template <typename T>
 void TimeLink<T>::push(Node *node) {
     node->time = time(nullptr);
     
-    if (_head) {
-        assert(_tail && !_tail->next);
+    if (head_) {
+        assert(tail_ && !tail_->next);
         node->next = nullptr;
-        node->prev = _tail;
-        _tail->next = node;
-        _tail = node;
+        node->prev = tail_;
+        tail_->next = node;
+        tail_ = node;
     } else {
-        assert(!_tail);
+        assert(!tail_);
         node->next = nullptr;
         node->prev = nullptr;
-        _head = node;
-        _tail = node;
+        head_ = node;
+        tail_ = node;
     }
 }
 
 template <typename T>
 typename TimeLink<T>::Node* TimeLink<T>::pop() {
-    if (!_head) {
+    if (!head_) {
         return nullptr;
     }
     
-    Node *node = _head;
-    _head = _head->next;
-    if (_head) {
-        _head->prev = nullptr;
+    Node *node = head_;
+    head_ = head_->next;
+    if (head_) {
+        head_->prev = nullptr;
     } else {
-        assert(_tail == node);
-        _tail = nullptr;
+        assert(tail_ == node);
+        tail_ = nullptr;
     }
     
     node->next = nullptr;
@@ -93,12 +93,12 @@ void TimeLink<T>::erase(Node *node) {
         next->prev = prev;
     }
     
-    if (_head == node) {
-        _head = next;
+    if (head_ == node) {
+        head_ = next;
     }
     
-    if (_tail == node) {
-        _tail = prev;
+    if (tail_ == node) {
+        tail_ = prev;
     }
     
     delete node;
@@ -110,7 +110,7 @@ void TimeLink<T>::moveToTail(Node *node) {
     
     node->time = time(nullptr);
     
-    assert(next || _tail == node);
+    assert(next || tail_ == node);
     
     if (next) {
         Node *prev = node->prev;
@@ -120,28 +120,28 @@ void TimeLink<T>::moveToTail(Node *node) {
             prev->next = next;
         }
         
-        if (_head == node) {
-            _head = next;
+        if (head_ == node) {
+            head_ = next;
         }
         
         node->next = nullptr;
-        node->prev = _tail;
-        _tail->next = node;
-        _tail = node;
+        node->prev = tail_;
+        tail_->next = node;
+        tail_ = node;
     }
 }
 
 template <typename T>
 void TimeLink<T>::clear() {
-    Node *node = _head;
+    Node *node = head_;
     while (node) {
         Node *next = node->next;
         delete node;
         node = next;
     }
 
-    _head = nullptr;
-    _tail = nullptr;
+    head_ = nullptr;
+    tail_ = nullptr;
 }
 
 #endif /* timelink_h */

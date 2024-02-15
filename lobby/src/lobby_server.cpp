@@ -25,6 +25,7 @@
 #include "game_center.h"
 #include "client_center.h"
 #include "redis_pool.h"
+#include "logger.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -51,11 +52,11 @@ void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
 }
 
 bool LobbyServer::init(int argc, char * argv[]) {
-    if (_inited) {
+    if (inited_) {
         return false;
     }
 
-    _inited = true;
+    inited_ = true;
 
     RoutineEnvironment::init();
 
@@ -104,12 +105,18 @@ bool LobbyServer::init(int argc, char * argv[]) {
         ERROR_LOG("Parse config error\n");
         return false;
     }
-    
+
+    if (!g_Logger.init(g_LobbyConfig.getLogConfigFile())) {
+        ERROR_LOG("Init logger failed\n");
+        return false;
+    }
+    g_Logger.start();
+
     // create IO layer
-    _io = IO::create(g_LobbyConfig.getIoRecvThreadNum(), g_LobbyConfig.getIoSendThreadNum());
+    io_ = IO::create(g_LobbyConfig.getIoRecvThreadNum(), g_LobbyConfig.getIoSendThreadNum());
 
     // 初始化rpc clients
-    _rpcClient = RpcClient::create(_io);
+    rpcClient_ = RpcClient::create(io_);
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_LobbyConfig.getRedisInfos();
@@ -147,15 +154,15 @@ void LobbyServer::run() {
         lobbyServiceImpl->addInnerStub(info.id, new pb::InnerLobbyService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
         gameServiceImpl->addInnerStub(info.id, new pb::InnerGameService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
 
-        _threads.push_back(std::thread(lobbyThread, innerServer, info.id));
+        threads_.push_back(std::thread(lobbyThread, innerServer, info.id));
     }
 
     // 启动对外的RPC服务
-    RpcServer *server = RpcServer::create(_io, 0, g_LobbyConfig.getIp(), g_LobbyConfig.getPort());
+    RpcServer *server = RpcServer::create(io_, 0, g_LobbyConfig.getIp(), g_LobbyConfig.getPort());
     server->registerService(lobbyServiceImpl);
     server->registerService(gameServiceImpl);
 
     // 注意：ClientCenter在最后才init，因为服务器准备好才向zookeeper注册
-    g_ClientCenter.init(_rpcClient, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());
+    g_ClientCenter.init(rpcClient_, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

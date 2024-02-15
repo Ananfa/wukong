@@ -46,13 +46,13 @@ namespace wukong {
         bool randomLobbyServer(ServerId &serverId);
         bool randomSceneServer(uint32_t type, ServerId &serverId);
 
-        Address getGatewayAddress(ServerId gatewayId) { return _t_gatewayAddrMap[gatewayId]; }
+        Address getGatewayAddress(ServerId gatewayId) { return t_gatewayAddrMap_[gatewayId]; }
 
     private:
-        void updateGatewayInfosVersion() { _gatewayInfosVersion++; };
-        void updateRecordInfosVersion() { _recordInfosVersion++; };
-        void updateLobbyInfosVersion() { _lobbyInfosVersion++; };
-        void updateSceneInfosVersion() { _sceneInfosVersion++; };
+        void updateGatewayInfosVersion() { gatewayInfosVersion_++; };
+        void updateRecordInfosVersion() { recordInfosVersion_++; };
+        void updateLobbyInfosVersion() { lobbyInfosVersion_++; };
+        void updateSceneInfosVersion() { sceneInfosVersion_++; };
 
         // 利用"所有服务器的总在线人数 - 在线人数"做为分配权重
         void refreshGatewayInfos();
@@ -68,41 +68,41 @@ namespace wukong {
 
     private:
         // gateway服信息
-        static std::vector<GatewayClient::ServerInfo> _gatewayInfos;
-        static Mutex _gatewayInfosLock;
-        static std::atomic<uint32_t> _gatewayInfosVersion;
+        static std::vector<GatewayClient::ServerInfo> gatewayInfos_;
+        static Mutex gatewayInfosLock_;
+        static std::atomic<uint32_t> gatewayInfosVersion_;
 
-        static thread_local std::vector<ServerWeightInfo> _t_gatewayInfos;
-        static thread_local std::map<ServerId, Address> _t_gatewayAddrMap;
-        static thread_local uint32_t _t_gatewayInfosVersion;
-        static thread_local uint32_t _t_gatewayTotalWeight;
+        static thread_local std::vector<ServerWeightInfo> t_gatewayInfos_;
+        static thread_local std::map<ServerId, Address> t_gatewayAddrMap_;
+        static thread_local uint32_t t_gatewayInfosVersion_;
+        static thread_local uint32_t t_gatewayTotalWeight_;
 
         // record服信息
-        static std::vector<RecordClient::ServerInfo> _recordInfos;
-        static Mutex _recordInfosLock;
-        static std::atomic<uint32_t> _recordInfosVersion;
+        static std::vector<RecordClient::ServerInfo> recordInfos_;
+        static Mutex recordInfosLock_;
+        static std::atomic<uint32_t> recordInfosVersion_;
 
-        static thread_local std::vector<ServerWeightInfo> _t_recordInfos;
-        static thread_local uint32_t _t_recordInfosVersion;
-        static thread_local uint32_t _t_recordTotalWeight;
+        static thread_local std::vector<ServerWeightInfo> t_recordInfos_;
+        static thread_local uint32_t t_recordInfosVersion_;
+        static thread_local uint32_t t_recordTotalWeight_;
 
         // lobby服信息
-        static std::vector<LobbyClient::ServerInfo> _lobbyInfos;
-        static Mutex _lobbyInfosLock;
-        static std::atomic<uint32_t> _lobbyInfosVersion;
+        static std::vector<LobbyClient::ServerInfo> lobbyInfos_;
+        static Mutex lobbyInfosLock_;
+        static std::atomic<uint32_t> lobbyInfosVersion_;
 
-        static thread_local std::vector<ServerWeightInfo> _t_lobbyInfos;
-        static thread_local uint32_t _t_lobbyInfosVersion;
-        static thread_local uint32_t _t_lobbyTotalWeight;
+        static thread_local std::vector<ServerWeightInfo> t_lobbyInfos_;
+        static thread_local uint32_t t_lobbyInfosVersion_;
+        static thread_local uint32_t t_lobbyTotalWeight_;
 
         // scene服信息
-        static std::vector<SceneClient::ServerInfo> _sceneInfos; // TODO: 场景服应该根据类型来分类
-        static Mutex _sceneInfosLock;
-        static std::atomic<uint32_t> _sceneInfosVersion;
+        static std::vector<SceneClient::ServerInfo> sceneInfos_; // TODO: 场景服应该根据类型来分类
+        static Mutex sceneInfosLock_;
+        static std::atomic<uint32_t> sceneInfosVersion_;
 
-        static thread_local std::map<uint32_t, std::vector<ServerWeightInfo>> _t_sceneInfos;
-        static thread_local uint32_t _t_sceneInfosVersion;
-        static thread_local std::map<uint32_t, uint32_t> _t_sceneTotalWeights;
+        static thread_local std::map<uint32_t, std::vector<ServerWeightInfo>> t_sceneInfos_;
+        static thread_local uint32_t t_sceneInfosVersion_;
+        static thread_local std::map<uint32_t, uint32_t> t_sceneTotalWeights_;
 
     private:
         ClientCenter() = default;                                      // ctor hidden
@@ -114,6 +114,6 @@ namespace wukong {
     };
 }
 
-#define g_ClientCenter ClientCenter::Instance()
+#define g_ClientCenter wukong::ClientCenter::Instance()
 
 #endif /* wukong_client_center_h */

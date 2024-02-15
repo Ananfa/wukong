@@ -90,7 +90,7 @@ void *RecordCenter::saveRoutine(void *arg) {
         
         for (RoleId roleId : roleIds){
             // 开工作协程并发存盘
-            self->_saveSema.wait();
+            self->saveSema_.wait();
 
             WorkerTask *task = new WorkerTask;
             task->center = self;
@@ -112,7 +112,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
         ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed\n");
-        self->_saveSema.post();
+        self->saveSema_.post();
         return nullptr;
     }
 
@@ -122,7 +122,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
     if (RedisUtils::LoadRole(cache, roleId, userId, serverId, datas, false) == REDIS_DB_ERROR) {
         g_RedisPoolManager.getCoreCache()->put(cache, true);
         ERROR_LOG("DemoUtils::SaveRole -- load role data failed\n");
-        self->_saveSema.post();
+        self->saveSema_.post();
         return nullptr;
     }
 
@@ -135,7 +135,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         if (!mysql) {
             ERROR_LOG("DemoUtils::SaveRole -- connect to mysql failed\n");
             
-            self->_saveSema.post();
+            self->saveSema_.post();
             return nullptr;
         }
 
@@ -144,7 +144,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
             ERROR_LOG("DemoUtils::SaveRole -- save to mysql failed\n");
             g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
             
-            self->_saveSema.post();
+            self->saveSema_.post();
             return nullptr;
         }
 
@@ -155,7 +155,7 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         if (!cache) {
             ERROR_LOG("DemoUtils::SaveRole -- connect to cache failed when remove id from set\n");
             
-            self->_saveSema.post();
+            self->saveSema_.post();
             return nullptr;
         }
     } else {
@@ -168,12 +168,12 @@ void *RecordCenter::saveWorkerRoutine(void *arg) {
         g_RedisPoolManager.getCoreCache()->put(cache, true);
         ERROR_LOG("RecordCenter::saveRoutine -- redis reply null when remove id from set\n");
         
-        self->_saveSema.post();
+        self->saveSema_.post();
         return nullptr;
     }
 
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
-    self->_saveSema.post();
+    self->saveSema_.post();
     return nullptr;
 }

@@ -20,16 +20,16 @@
 using namespace corpc;
 using namespace wukong;
 
-std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>>> SceneClient::_addr2stubs;
-std::map<ServerId, SceneClient::StubInfo> SceneClient::_stubs;
-Mutex SceneClient::_stubsLock;
-std::atomic<uint32_t> SceneClient::_stubChangeNum(0);
-thread_local uint32_t SceneClient::_t_stubChangeNum = 0;
-thread_local std::map<ServerId, SceneClient::StubInfo> SceneClient::_t_stubs;
+std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::SceneService_Stub>>> SceneClient::addr2stubs_;
+std::map<ServerId, SceneClient::StubInfo> SceneClient::stubs_;
+Mutex SceneClient::stubsLock_;
+std::atomic<uint32_t> SceneClient::stubChangeNum_(0);
+thread_local uint32_t SceneClient::t_stubChangeNum_ = 0;
+thread_local std::map<ServerId, SceneClient::StubInfo> SceneClient::t_stubs_;
 
 void SceneClient::shutdown() {
     refreshStubs();
-    std::map<ServerId, SceneClient::StubInfo> stubs = _t_stubs;
+    std::map<ServerId, SceneClient::StubInfo> stubs = t_stubs_;
     
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
@@ -45,7 +45,7 @@ std::vector<GameClient::ServerInfo> SceneClient::getServerInfos() {
     std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
 
     refreshStubs();
-    std::map<ServerId, StubInfo> localStubs = _t_stubs;
+    std::map<ServerId, StubInfo> localStubs = t_stubs_;
     
     // 清除原来的信息
     infos.reserve(localStubs.size());
@@ -168,7 +168,7 @@ void SceneClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId rol
 }
 
 bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {
-    if (!_client) {
+    if (!client_) {
         ERROR_LOG("SceneClient::setServers -- not init\n");
         return false;
     }
@@ -184,11 +184,11 @@ bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {
             continue;
         }
 
-        iter = _addr2stubs.find(addr);
-        if (iter != _addr2stubs.end()) {
+        iter = addr2stubs_.find(addr);
+        if (iter != addr2stubs_.end()) {
             stubPair = iter->second;
         } else {
-            RpcClient::Channel *channel = new RpcClient::Channel(_client, address.ip, address.port, 1);
+            RpcClient::Channel *channel = new RpcClient::Channel(client_, address.ip, address.port, 1);
 
             stubPair = std::make_pair(
                 std::make_shared<pb::GameService_Stub>(channel, pb::GameService::STUB_OWNS_CHANNEL),
@@ -197,8 +197,8 @@ bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {
         addr2stubs.insert(std::make_pair(addr, stubPair));
 
         for (uint16_t serverId : address.serverIds) {
-            auto iter1 = _stubs.find(serverId);
-            if (iter1 != _stubs.end()) {
+            auto iter1 = stubs_.find(serverId);
+            if (iter1 != stubs_.end()) {
                 if (iter1->second.rpcAddr == addr) {
                     stubs.insert(std::make_pair(serverId, iter1->second));
                     continue;
@@ -215,12 +215,12 @@ bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {
         }
     }
     
-    _addr2stubs = addr2stubs;
+    addr2stubs_ = addr2stubs;
 
     {
-        LockGuard lock(_stubsLock);
-        _stubs = stubs;
-        _stubChangeNum++;
+        LockGuard lock(stubsLock_);
+        stubs_ = stubs;
+        stubChangeNum_++;
     }
     
     return true;
@@ -228,8 +228,8 @@ bool SceneClient::setServers(const std::vector<AddressInfo> &addresses) {
 
 std::shared_ptr<pb::GameService_Stub> SceneClient::getGameServiceStub(ServerId sid) {
     refreshStubs();
-    auto iter = _t_stubs.find(sid);
-    if (iter == _t_stubs.end()) {
+    auto iter = t_stubs_.find(sid);
+    if (iter == t_stubs_.end()) {
         return nullptr;
     }
 
@@ -238,8 +238,8 @@ std::shared_ptr<pb::GameService_Stub> SceneClient::getGameServiceStub(ServerId s
 
 std::shared_ptr<pb::SceneService_Stub> SceneClient::getSceneServiceStub(ServerId sid) {
     refreshStubs();
-    auto iter = _t_stubs.find(sid);
-    if (iter == _t_stubs.end()) {
+    auto iter = t_stubs_.find(sid);
+    if (iter == t_stubs_.end()) {
         return nullptr;
     }
 
@@ -247,17 +247,17 @@ std::shared_ptr<pb::SceneService_Stub> SceneClient::getSceneServiceStub(ServerId
 }
 
 void SceneClient::refreshStubs() {
-    if (_t_stubChangeNum != _stubChangeNum) {
+    if (t_stubChangeNum_ != stubChangeNum_) {
         {
-            LockGuard lock(_stubsLock);
+            LockGuard lock(stubsLock_);
 
-            if (_t_stubChangeNum == _stubChangeNum) {
+            if (t_stubChangeNum_ == stubChangeNum_) {
                 return;
             }
 
-            _t_stubs.clear();
-            _t_stubs = _stubs;
-            _t_stubChangeNum = _stubChangeNum;
+            t_stubs_.clear();
+            t_stubs_ = stubs_;
+            t_stubChangeNum_ = stubChangeNum_;
         }
     }
 }

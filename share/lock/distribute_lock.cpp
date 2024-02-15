@@ -21,61 +21,61 @@
 using namespace corpc;
 using namespace wukong;
 
-DistributeLock::DistributeLock(RedisConnectPool *pool, std::string &lockKey): _pool(pool), _key(lockKey) {
-    _identifier = randInt();
+DistributeLock::DistributeLock(RedisConnectPool *pool, std::string &lockKey): pool_(pool), key_(lockKey) {
+    identifier_ = randInt();
 }
 
 bool DistributeLock::lock() {
-    if (_locked) {
+    if (locked_) {
         ERROR_LOG("DistributeLock::tryLock -- cant duplicate lock\n");
         return false;
     }
 
-    redisContext *redis = _pool->proxy.take();
+    redisContext *redis = pool_->proxy.take();
     if (!redis) {
         ERROR_LOG("DistributeLock::tryLock -- connect to redis failed\n");
         return false;
     }
 
-    redisReply *reply = (redisReply *)redisCommand(redis, "SET Lock:%s %llu NX EX %d", _key.c_str(), _identifier, DISTRIBUTE_LOCK_EXPIRE);
+    redisReply *reply = (redisReply *)redisCommand(redis, "SET Lock:%s %llu NX EX %d", key_.c_str(), identifier_, DISTRIBUTE_LOCK_EXPIRE);
     if (!reply) {
-        _pool->proxy.put(redis, true);
+        pool_->proxy.put(redis, true);
         ERROR_LOG("DistributeLock::tryLock -- set lock failed for redis error\n");
         return false;
     } else if (reply->str == nullptr || strcmp(reply->str, "OK")) {
         freeReplyObject(reply);
-        _pool->proxy.put(redis, false);
+        pool_->proxy.put(redis, false);
         return false;
     }
 
     freeReplyObject(reply);
-    _pool->proxy.put(redis, false);
-    _locked = true;
+    pool_->proxy.put(redis, false);
+    locked_ = true;
     return true;
 }
 
 bool DistributeLock::unlock() {
-    if (!_locked) {
+    if (!locked_) {
         return false;
     }
 
-    redisContext *redis = _pool->proxy.take();
+    redisContext *redis = pool_->proxy.take();
     if (!redis) {
         ERROR_LOG("DistributeLock::unlock -- connect to redis failed\n");
         return false;
     }
 
-    redisReply *reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Lock:%s %llu", UNLOCK_CMD, _key.c_str(), _identifier);
+    redisReply *reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Lock:%s %llu", UNLOCK_CMD, key_.c_str(), identifier_);
 
     if (!reply) {
-        _pool->proxy.put(redis, true);
+        pool_->proxy.put(redis, true);
         ERROR_LOG("DistributeLock::unlock -- remove lock from redis failed\n");
         return false;
     }
 
     if (reply->type != REDIS_REPLY_INTEGER) {
         freeReplyObject(reply);
-        _pool->proxy.put(redis, true);
+        pool_->proxy.put(redis, true);
         ERROR_LOG("DistributeLock::unlock -- remove lock from redis failed for return type invalid\n");
         return false;
     }
@@ -83,12 +83,12 @@ bool DistributeLock::unlock() {
     if (reply->integer == 0) {
         // 设置失败
         freeReplyObject(reply);
-        _pool->proxy.put(redis, false);
+        pool_->proxy.put(redis, false);
         return false;
     }
 
     freeReplyObject(reply);
-    _pool->proxy.put(redis, false);
+    pool_->proxy.put(redis, false);
     return true;
 }
 
@@ -97,8 +97,8 @@ bool SimpleLockStrategy::tryLock(DistributeLock &lock) {
         return true;
     }
 
-    for (int i = 1; i < _retryTimes; i++) {
-        msleep(_interval);
+    for (int i = 1; i < retryTimes_; i++) {
+        msleep(interval_);
 
         if (lock.lock()) {
             return true;

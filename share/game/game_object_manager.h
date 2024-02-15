@@ -28,15 +28,15 @@ using namespace corpc;
 namespace wukong {
     class GameObjectManager {
     public:
-        GameObjectManager(GameServerType type, ServerId id):_type(type), _id(id), _shutdown(false) {}
+        GameObjectManager(GameServerType type, ServerId id):type_(type), id_(id), shutdown_(false) {}
         virtual ~GameObjectManager() {}
 
         void init();
 
-        ServerId getId() { return _id; }
+        ServerId getId() { return id_; }
 
         virtual void shutdown();
-        bool isShutdown() { return _shutdown; }
+        bool isShutdown() { return shutdown_; }
 
         size_t roleCount(); // 获取当前游戏对象数
 
@@ -54,15 +54,15 @@ namespace wukong {
         // TODO: 实现广播和多播接口
 
     protected:
-        GameServerType _type; // 游戏服务器类型（大厅、场景...）
-        ServerId _id;         // 游戏服务器号（大厅服号、场景服号...）
-        bool _shutdown;
+        GameServerType type_; // 游戏服务器类型（大厅、场景...）
+        ServerId id_;         // 游戏服务器号（大厅服号、场景服号...）
+        bool shutdown_;
 
         // 游戏对象列表
-        std::map<RoleId, std::shared_ptr<GameObject>> _roleId2GameObjectMap;
+        std::map<RoleId, std::shared_ptr<GameObject>> roleId2GameObjectMap_;
 
         // 全服事件相关
-        GlobalEventDispatcher _geventDispatcher;
+        GlobalEventDispatcher geventDispatcher_;
     };
 
 }

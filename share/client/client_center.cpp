@@ -22,34 +22,34 @@
 using namespace corpc;
 using namespace wukong;
 
-std::vector<GatewayClient::ServerInfo> ClientCenter::_gatewayInfos;
-Mutex ClientCenter::_gatewayInfosLock;
-std::atomic<uint32_t> ClientCenter::_gatewayInfosVersion(0);
-thread_local std::vector<ServerWeightInfo> ClientCenter::_t_gatewayInfos;
-thread_local std::map<ServerId, Address> ClientCenter::_t_gatewayAddrMap;
-thread_local uint32_t ClientCenter::_t_gatewayInfosVersion(0);
-thread_local uint32_t ClientCenter::_t_gatewayTotalWeight(0);
+std::vector<GatewayClient::ServerInfo> ClientCenter::gatewayInfos_;
+Mutex ClientCenter::gatewayInfosLock_;
+std::atomic<uint32_t> ClientCenter::gatewayInfosVersion_(0);
+thread_local std::vector<ServerWeightInfo> ClientCenter::t_gatewayInfos_;
+thread_local std::map<ServerId, Address> ClientCenter::t_gatewayAddrMap_;
+thread_local uint32_t ClientCenter::t_gatewayInfosVersion_(0);
+thread_local uint32_t ClientCenter::t_gatewayTotalWeight_(0);
 
-std::vector<RecordClient::ServerInfo> ClientCenter::_recordInfos;
-Mutex ClientCenter::_recordInfosLock;
-std::atomic<uint32_t> ClientCenter::_recordInfosVersion(0);
-thread_local std::vector<ServerWeightInfo> ClientCenter::_t_recordInfos;
-thread_local uint32_t ClientCenter::_t_recordInfosVersion(0);
-thread_local uint32_t ClientCenter::_t_recordTotalWeight(0);
+std::vector<RecordClient::ServerInfo> ClientCenter::recordInfos_;
+Mutex ClientCenter::recordInfosLock_;
+std::atomic<uint32_t> ClientCenter::recordInfosVersion_(0);
+thread_local std::vector<ServerWeightInfo> ClientCenter::t_recordInfos_;
+thread_local uint32_t ClientCenter::t_recordInfosVersion_(0);
+thread_local uint32_t ClientCenter::t_recordTotalWeight_(0);
 
-std::vector<LobbyClient::ServerInfo> ClientCenter::_lobbyInfos;
-Mutex ClientCenter::_lobbyInfosLock;
-std::atomic<uint32_t> ClientCenter::_lobbyInfosVersion(0);
-thread_local std::vector<ServerWeightInfo> ClientCenter::_t_lobbyInfos;
-thread_local uint32_t ClientCenter::_t_lobbyInfosVersion(0);
-thread_local uint32_t ClientCenter::_t_lobbyTotalWeight(0);
+std::vector<LobbyClient::ServerInfo> ClientCenter::lobbyInfos_;
+Mutex ClientCenter::lobbyInfosLock_;
+std::atomic<uint32_t> ClientCenter::lobbyInfosVersion_(0);
+thread_local std::vector<ServerWeightInfo> ClientCenter::t_lobbyInfos_;
+thread_local uint32_t ClientCenter::t_lobbyInfosVersion_(0);
+thread_local uint32_t ClientCenter::t_lobbyTotalWeight_(0);
 
-std::vector<SceneClient::ServerInfo> ClientCenter::_sceneInfos;
-Mutex ClientCenter::_sceneInfosLock;
-std::atomic<uint32_t> ClientCenter::_sceneInfosVersion(0);
-thread_local std::map<uint32_t, std::vector<ServerWeightInfo>> ClientCenter::_t_sceneInfos;
-thread_local uint32_t ClientCenter::_t_sceneInfosVersion(0);
-thread_local std::map<uint32_t, uint32_t> ClientCenter::_t_sceneTotalWeights;
+std::vector<SceneClient::ServerInfo> ClientCenter::sceneInfos_;
+Mutex ClientCenter::sceneInfosLock_;
+std::atomic<uint32_t> ClientCenter::sceneInfosVersion_(0);
+thread_local std::map<uint32_t, std::vector<ServerWeightInfo>> ClientCenter::t_sceneInfos_;
+thread_local uint32_t ClientCenter::t_sceneInfosVersion_(0);
+thread_local std::map<uint32_t, uint32_t> ClientCenter::t_sceneTotalWeights_;
 
 void ClientCenter::init(RpcClient *rpcc, const std::string& zooAddr, const std::string& zooPath, bool connectGateway, bool connectRecord, bool connectLobby, bool connectScene) {
     if (connectGateway) {
@@ -154,7 +154,7 @@ void ClientCenter::init(RpcClient *rpcc, const std::string& zooAddr, const std::
 void *ClientCenter::updateRoutine(void *arg) {
     ClientCenter *self = (ClientCenter *)arg;
 
-    // 每秒检查是否有record的增加或减少，如果有马上刷新，否则每分钟刷新一次record的负载信息
+    // 每秒检查是否有服务的增加或减少，如果有马上刷新，否则每分钟刷新一次服务的负载信息
     int i = 0;
     while (true) {
         i++;
@@ -191,8 +191,8 @@ void *ClientCenter::updateRoutine(void *arg) {
 void ClientCenter::updateGatewayInfos() {
     std::vector<GatewayClient::ServerInfo> infos = g_GatewayClient.getServerInfos();
     {
-        LockGuard lock(_gatewayInfosLock);
-        _gatewayInfos = std::move(infos);
+        LockGuard lock(gatewayInfosLock_);
+        gatewayInfos_ = std::move(infos);
         updateGatewayInfosVersion();
     }
     DEBUG_LOG("update gateway server info\n");
@@ -201,8 +201,8 @@ void ClientCenter::updateGatewayInfos() {
 void ClientCenter::updateRecordInfos() {
     std::vector<RecordClient::ServerInfo> infos = g_RecordClient.getServerInfos();
     {
-        LockGuard lock(_recordInfosLock);
-        _recordInfos = std::move(infos);
+        LockGuard lock(recordInfosLock_);
+        recordInfos_ = std::move(infos);
         updateRecordInfosVersion();
     }
     DEBUG_LOG("update record server info\n");
@@ -211,8 +211,8 @@ void ClientCenter::updateRecordInfos() {
 void ClientCenter::updateLobbyInfos() {
     std::vector<LobbyClient::ServerInfo> infos = g_LobbyClient.getServerInfos();
     {
-        LockGuard lock(_lobbyInfosLock);
-        _lobbyInfos = std::move(infos);
+        LockGuard lock(lobbyInfosLock_);
+        lobbyInfos_ = std::move(infos);
         updateLobbyInfosVersion();
     }
     DEBUG_LOG("update lobby server info\n");
@@ -221,8 +221,8 @@ void ClientCenter::updateLobbyInfos() {
 void ClientCenter::updateSceneInfos() {
     std::vector<SceneClient::ServerInfo> infos = g_SceneClient.getServerInfos();
     {
-        LockGuard lock(_sceneInfosLock);
-        _sceneInfos = std::move(infos);
+        LockGuard lock(sceneInfosLock_);
+        sceneInfos_ = std::move(infos);
         updateSceneInfosVersion();
     }
     DEBUG_LOG("update scene server info\n");
@@ -230,10 +230,10 @@ void ClientCenter::updateSceneInfos() {
 
 bool ClientCenter::randomGatewayServer(ServerId &serverId) {
     refreshGatewayInfos();
-    size_t serverNum = _t_gatewayInfos.size();
+    size_t serverNum = t_gatewayInfos_.size();
     if (!serverNum) return false;
     
-    uint32_t totalWeight = _t_gatewayTotalWeight;
+    uint32_t totalWeight = t_gatewayTotalWeight_;
 
     uint32_t i = 0;
     // 特殊处理, 前1000无视权重
@@ -245,7 +245,7 @@ bool ClientCenter::randomGatewayServer(ServerId &serverId) {
         uint32_t until = 0;
         
         for (int j = 0; j < serverNum; j++) {
-            until += _t_gatewayInfos[j].weight;
+            until += t_gatewayInfos_[j].weight;
             if (rate <= until) {
                 i = j;
                 break;
@@ -253,23 +253,23 @@ bool ClientCenter::randomGatewayServer(ServerId &serverId) {
         }
     }
 
-    serverId = _t_gatewayInfos[i].id;
+    serverId = t_gatewayInfos_[i].id;
 
     // 调整权重
-    _t_gatewayTotalWeight += serverNum - 1;
+    t_gatewayTotalWeight_ += serverNum - 1;
     for (int j = 0; j < serverNum; j++) {
-        _t_gatewayInfos[j].weight++;
+        t_gatewayInfos_[j].weight++;
     }
-    _t_gatewayInfos[i].weight--;
+    t_gatewayInfos_[i].weight--;
     return true;
 }
 
 bool ClientCenter::randomRecordServer(ServerId &serverId) {
     refreshRecordInfos();
-    size_t serverNum = _t_recordInfos.size();
+    size_t serverNum = t_recordInfos_.size();
     if (!serverNum) return false;
     
-    uint32_t totalWeight = _t_recordTotalWeight;
+    uint32_t totalWeight = t_recordTotalWeight_;
 
     uint32_t i = 0;
     // 特殊处理, 前1000无视权重
@@ -281,7 +281,7 @@ bool ClientCenter::randomRecordServer(ServerId &serverId) {
         uint32_t until = 0;
         
         for (int j = 0; j < serverNum; j++) {
-            until += _t_recordInfos[j].weight;
+            until += t_recordInfos_[j].weight;
             if (rate <= until) {
                 i = j;
                 break;
@@ -289,23 +289,23 @@ bool ClientCenter::randomRecordServer(ServerId &serverId) {
         }
     }
 
-    serverId = _t_recordInfos[i].id;
+    serverId = t_recordInfos_[i].id;
 
     // 调整权重
-    _t_recordTotalWeight += serverNum - 1;
+    t_recordTotalWeight_ += serverNum - 1;
     for (int j = 0; j < serverNum; j++) {
-        _t_recordInfos[j].weight++;
+        t_recordInfos_[j].weight++;
     }
-    _t_recordInfos[i].weight--;
+    t_recordInfos_[i].weight--;
     return true;
 }
 
 bool ClientCenter::randomLobbyServer(ServerId &serverId) {
     refreshLobbyInfos();
-    size_t serverNum = _t_lobbyInfos.size();
+    size_t serverNum = t_lobbyInfos_.size();
     if (!serverNum) return false;
     
-    uint32_t totalWeight = _t_lobbyTotalWeight;
+    uint32_t totalWeight = t_lobbyTotalWeight_;
 
     uint32_t i = 0;
     // 特殊处理, 前1000无视权重
@@ -317,7 +317,7 @@ bool ClientCenter::randomLobbyServer(ServerId &serverId) {
         uint32_t until = 0;
         
         for (int j = 0; j < serverNum; j++) {
-            until += _t_lobbyInfos[j].weight;
+            until += t_lobbyInfos_[j].weight;
             if (rate <= until) {
                 i = j;
                 break;
@@ -325,24 +325,24 @@ bool ClientCenter::randomLobbyServer(ServerId &serverId) {
         }
     }
 
-    serverId = _t_lobbyInfos[i].id;
+    serverId = t_lobbyInfos_[i].id;
 
     // 调整权重
-    _t_lobbyTotalWeight += serverNum - 1;
+    t_lobbyTotalWeight_ += serverNum - 1;
     for (int j = 0; j < serverNum; j++) {
-        _t_lobbyInfos[j].weight++;
+        t_lobbyInfos_[j].weight++;
     }
-    _t_lobbyInfos[i].weight--;
+    t_lobbyInfos_[i].weight--;
     return true;
 }
 
 bool ClientCenter::randomSceneServer(uint32_t type, ServerId &serverId) {
     refreshSceneInfos();
-    size_t serverNum = _t_sceneInfos.size();
+    size_t serverNum = t_sceneInfos_.size();
     if (!serverNum) return false;
     
-    uint32_t totalWeight = _t_sceneTotalWeights[type];
-    auto &sceneInfos = _t_sceneInfos[type];
+    uint32_t totalWeight = t_sceneTotalWeights_[type];
+    auto &sceneInfos = t_sceneInfos_[type];
 
     uint32_t i = 0;
     // 特殊处理, 前1000无视权重
@@ -365,7 +365,7 @@ bool ClientCenter::randomSceneServer(uint32_t type, ServerId &serverId) {
     serverId = sceneInfos[i].id;
 
     // 调整权重
-    _t_sceneTotalWeights[type] += serverNum - 1;
+    t_sceneTotalWeights_[type] += serverNum - 1;
     for (int j = 0; j < serverNum; j++) {
         sceneInfos[j].weight++;
     }
@@ -374,114 +374,114 @@ bool ClientCenter::randomSceneServer(uint32_t type, ServerId &serverId) {
 }
 
 void ClientCenter::refreshGatewayInfos() {
-    if (_t_gatewayInfosVersion != _gatewayInfosVersion) {
+    if (t_gatewayInfosVersion_ != gatewayInfosVersion_) {
         LOG("refresh gateway info\n");
         //std::vector<GatewayClient::ServerInfo> gatewayInfos;
         {
-            LockGuard lock(_gatewayInfosLock);
+            LockGuard lock(gatewayInfosLock_);
 
-            if (_t_gatewayInfosVersion == _gatewayInfosVersion) {
+            if (t_gatewayInfosVersion_ == gatewayInfosVersion_) {
                 return;
             }
 
-            //gatewayInfos = _gatewayInfos;
-            _t_gatewayInfosVersion = _gatewayInfosVersion;
+            //gatewayInfos = gatewayInfos_;
+            t_gatewayInfosVersion_ = gatewayInfosVersion_;
 
-            _t_gatewayInfos.clear();
-            _t_gatewayAddrMap.clear();
-            _t_gatewayInfos.reserve(_gatewayInfos.size());
+            t_gatewayInfos_.clear();
+            t_gatewayAddrMap_.clear();
+            t_gatewayInfos_.reserve(gatewayInfos_.size());
             uint32_t totalWeight = 0;
-            for (auto &info : _gatewayInfos) {
+            for (auto &info : gatewayInfos_) {
                 //DEBUG_LOG("gateway id:%d\n", info.id);
                 totalWeight += info.weight;
 
-                _t_gatewayInfos.push_back({info.id, info.weight});
+                t_gatewayInfos_.push_back({info.id, info.weight});
 
                 Address gatewayAddr = {info.outerAddr, info.outerPort};
-                _t_gatewayAddrMap.insert(std::make_pair(info.id, std::move(gatewayAddr)));
+                t_gatewayAddrMap_.insert(std::make_pair(info.id, std::move(gatewayAddr)));
             }
             
-            _t_gatewayTotalWeight = totalWeight;
+            t_gatewayTotalWeight_ = totalWeight;
         }
     }
 }
 
 void ClientCenter::refreshRecordInfos() {
-    if (_t_recordInfosVersion != _recordInfosVersion) {
+    if (t_recordInfosVersion_ != recordInfosVersion_) {
         //std::vector<RecordClient::ServerInfo> recordInfos;
         {
-            LockGuard lock(_recordInfosLock);
+            LockGuard lock(recordInfosLock_);
 
-            if (_t_recordInfosVersion == _recordInfosVersion) {
+            if (t_recordInfosVersion_ == recordInfosVersion_) {
                 return;
             }
 
-            //recordInfos = _recordInfos;
-            _t_recordInfosVersion = _recordInfosVersion;
+            //recordInfos = recordInfos_;
+            t_recordInfosVersion_ = recordInfosVersion_;
 
-            _t_recordInfos.clear();
-            _t_recordInfos.reserve(_recordInfos.size());
+            t_recordInfos_.clear();
+            t_recordInfos_.reserve(recordInfos_.size());
             uint32_t totalWeight = 0;
-            for (auto &info : _recordInfos) {
+            for (auto &info : recordInfos_) {
                 totalWeight += info.weight;
 
-                _t_recordInfos.push_back({info.id, info.weight});
+                t_recordInfos_.push_back({info.id, info.weight});
             }
             
-            _t_recordTotalWeight = totalWeight;
+            t_recordTotalWeight_ = totalWeight;
         }
     }
 }
 
 void ClientCenter::refreshLobbyInfos() {
-    if (_t_lobbyInfosVersion != _lobbyInfosVersion) {
+    if (t_lobbyInfosVersion_ != lobbyInfosVersion_) {
         //std::vector<GameClient::ServerInfo> lobbyInfos;
         {
-            LockGuard lock(_lobbyInfosLock);
+            LockGuard lock(lobbyInfosLock_);
 
-            if (_t_lobbyInfosVersion == _lobbyInfosVersion) {
+            if (t_lobbyInfosVersion_ == lobbyInfosVersion_) {
                 return;
             }
 
-            //lobbyInfos = _lobbyInfos;
-            _t_lobbyInfosVersion = _lobbyInfosVersion;
+            //lobbyInfos = lobbyInfos_;
+            t_lobbyInfosVersion_ = lobbyInfosVersion_;
 
-            _t_lobbyInfos.clear();
-            _t_lobbyInfos.reserve(_lobbyInfos.size());
+            t_lobbyInfos_.clear();
+            t_lobbyInfos_.reserve(lobbyInfos_.size());
             uint32_t totalWeight = 0;
-            for (auto &info : _lobbyInfos) {
+            for (auto &info : lobbyInfos_) {
                 totalWeight += info.weight;
 
-                _t_lobbyInfos.push_back({info.id, info.weight});
+                t_lobbyInfos_.push_back({info.id, info.weight});
             }
             
-            _t_lobbyTotalWeight = totalWeight;
+            t_lobbyTotalWeight_ = totalWeight;
         }
     }
 }
 
 void ClientCenter::refreshSceneInfos() {
-    if (_t_sceneInfosVersion != _sceneInfosVersion) {
+    if (t_sceneInfosVersion_ != sceneInfosVersion_) {
         //std::vector<GameClient::ServerInfo> sceneInfos;
         {
-            LockGuard lock(_sceneInfosLock);
+            LockGuard lock(sceneInfosLock_);
 
-            if (_t_sceneInfosVersion == _sceneInfosVersion) {
+            if (t_sceneInfosVersion_ == sceneInfosVersion_) {
                 return;
             }
 
-            //sceneInfos = _sceneInfos;
-            _t_sceneInfosVersion = _sceneInfosVersion;
+            //sceneInfos = sceneInfos_;
+            t_sceneInfosVersion_ = sceneInfosVersion_;
 
-            _t_sceneInfos.clear();
+            t_sceneInfos_.clear();
             std::map<uint32_t, uint32_t> totalWeights;
-            for (auto &info : _sceneInfos) {
+            for (auto &info : sceneInfos_) {
                 totalWeights[info.type] += info.weight;
 
-                _t_sceneInfos[info.type].push_back({info.id, info.weight});
+                t_sceneInfos_[info.type].push_back({info.id, info.weight});
             }
 
-            _t_sceneTotalWeights = std::move(totalWeights);
+            t_sceneTotalWeights_ = std::move(totalWeights);
         }
     }
 }

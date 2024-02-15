@@ -30,11 +30,6 @@ namespace wukong {
 
     // 单例模式实现
     class RecordServer {
-    private:
-        bool _inited = false;
-        IO *_io = nullptr;
-
-        std::vector<std::thread> _threads;
     public:
         static RecordServer& Instance() {
             static RecordServer theSingleton;
@@ -48,6 +43,12 @@ namespace wukong {
         static void recordThread(InnerRpcServer *server, ServerId rcid);
 
     private:
+        bool inited_ = false;
+        IO *io_ = nullptr;
+
+        std::vector<std::thread> threads_;
+        
+    private:
         RecordServer() = default;                                   // ctor hidden
         RecordServer(RecordServer const&) = delete;                 // copy ctor hidden
         RecordServer(RecordServer &&) = delete;                     // move ctor hidden
@@ -56,7 +57,8 @@ namespace wukong {
         ~RecordServer() = default;                                  // dtor hidden
     };
 
-    #define g_RecordServer RecordServer::Instance()
 }
+
+#define g_RecordServer wukong::RecordServer::Instance()
 
 #endif /* wukong_record_server_h */

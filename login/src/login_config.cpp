@@ -39,55 +39,55 @@ bool LoginConfig::parse(const char *path) {
         ERROR_LOG("config error -- id not define\n");
         return false;
     }
-    _id = doc["id"].GetUint();
+    id_ = doc["id"].GetUint();
     
     if (!doc.HasMember("serviceIp")) {
         ERROR_LOG("config error -- serviceIp not define\n");
         return false;
     }
-    _serviceIp = doc["serviceIp"].GetString();
+    serviceIp_ = doc["serviceIp"].GetString();
     
     if (!doc.HasMember("servicePort")) {
         ERROR_LOG("config error -- servicePort not define\n");
         return false;
     }
-    _servicePort = doc["servicePort"].GetUint();
+    servicePort_ = doc["servicePort"].GetUint();
     
     if (!doc.HasMember("zookeeper")) {
         ERROR_LOG("config error -- zookeeper not define\n");
         return false;
     }
-    _zookeeper = doc["zookeeper"].GetString();
+    zookeeper_ = doc["zookeeper"].GetString();
 
     if (!doc.HasMember("workerThreadNum")) {
         ERROR_LOG("config error -- workerThreadNum not define\n");
         return false;
     }
-    _workerThreadNum = doc["workerThreadNum"].GetUint();
+    workerThreadNum_ = doc["workerThreadNum"].GetUint();
     
     if (!doc.HasMember("ioRecvThreadNum")) {
         ERROR_LOG("config error -- ioRecvThreadNum not define\n");
         return false;
     }
-    _ioRecvThreadNum = doc["ioRecvThreadNum"].GetUint();
+    ioRecvThreadNum_ = doc["ioRecvThreadNum"].GetUint();
     
     if (!doc.HasMember("ioSendThreadNum")) {
         ERROR_LOG("config error -- ioSendThreadNum not define\n");
         return false;
     }
-    _ioSendThreadNum = doc["ioSendThreadNum"].GetUint();
+    ioSendThreadNum_ = doc["ioSendThreadNum"].GetUint();
 
     if (!doc.HasMember("playerRoleNumInOneServer")) {
         ERROR_LOG("config error -- playerRoleNumInOneServer not define\n");
         return false;
     }
-    _playerRoleNumInOneServer = doc["playerRoleNumInOneServer"].GetUint();
+    playerRoleNumInOneServer_ = doc["playerRoleNumInOneServer"].GetUint();
 
     if (!doc.HasMember("playerRoleNumInAllServer")) {
         ERROR_LOG("config error -- playerRoleNumInAllServer not define\n");
         return false;
     }
-    _playerRoleNumInAllServer = doc["playerRoleNumInAllServer"].GetUint();
+    playerRoleNumInAllServer_ = doc["playerRoleNumInAllServer"].GetUint();
 
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {
@@ -139,7 +139,7 @@ bool LoginConfig::parse(const char *path) {
         info.maxConnect = redis["maxConnect"].GetUint();
 
         redisNameMap.insert(std::make_pair(info.dbName, true));
-        _redisInfos.push_back(info);
+        redisInfos_.push_back(info);
     }
 
     const Value& mysqls = doc["mysql"];
@@ -195,28 +195,28 @@ bool LoginConfig::parse(const char *path) {
         info.maxConnect = mysql["maxConnect"].GetUint();
     
         mysqlNameMap.insert(std::make_pair(info.dbName, true));
-        _mysqlInfos.push_back(info);
+        mysqlInfos_.push_back(info);
     }
 
     if (!doc.HasMember("coreCache")) {
         ERROR_LOG("config error -- coreCache not define\n");
         return false;
     }
-    _coreCache = doc["coreCache"].GetString();
+    coreCache_ = doc["coreCache"].GetString();
     
     if (!doc.HasMember("corePersist")) {
         ERROR_LOG("config error -- corePersist not define\n");
         return false;
     }
-    _corePersist = doc["corePersist"].GetString();
+    corePersist_ = doc["corePersist"].GetString();
     
     if (!doc.HasMember("coreRecord")) {
         ERROR_LOG("config error -- coreRecord not define\n");
         return false;
     }
-    _coreRecord = doc["coreRecord"].GetString();
+    coreRecord_ = doc["coreRecord"].GetString();
     
-    _zooPath = ZK_LOGIN_SERVER + "/" + std::to_string(_id) + "|" + _serviceIp + ":" + std::to_string(_servicePort);
+    zooPath_ = ZK_LOGIN_SERVER + "/" + std::to_string(id_) + "|" + serviceIp_ + ":" + std::to_string(servicePort_);
 
     return true;
 }

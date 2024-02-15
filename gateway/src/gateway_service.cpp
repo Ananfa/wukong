@@ -108,13 +108,13 @@ void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller
 }
 
 void GatewayServiceImpl::addInnerStub(ServerId sid, pb::InnerGatewayService_Stub* stub) {
-    _innerStubs.insert(std::make_pair(sid, stub));
+    innerStubs_.insert(std::make_pair(sid, stub));
 }
 
 pb::InnerGatewayService_Stub *GatewayServiceImpl::getInnerStub(ServerId sid) {
-    auto it = _innerStubs.find(sid);
+    auto it = innerStubs_.find(sid);
 
-    if (it == _innerStubs.end()) {
+    if (it == innerStubs_.end()) {
         return nullptr;
     }
 
@@ -122,7 +122,7 @@ pb::InnerGatewayService_Stub *GatewayServiceImpl::getInnerStub(ServerId sid) {
 }
 
 void GatewayServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle) {
-    for (auto &pair : _innerStubs) {
+    for (auto &pair : innerStubs_) {
         if (!handle(pair.first, pair.second)) {
             return;
         }
@@ -133,7 +133,7 @@ void InnerGatewayServiceImpl::shutdown(::google::protobuf::RpcController* contro
                                   const ::corpc::Void* request,
                                   ::corpc::Void* response,
                                   ::google::protobuf::Closure* done) {
-    _manager->shutdown();
+    manager_->shutdown();
 }
 
 void InnerGatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
@@ -141,9 +141,9 @@ void InnerGatewayServiceImpl::kick(::google::protobuf::RpcController* controller
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {
     DEBUG_LOG("InnerGatewayServiceImpl::kick -- user[%d]\n", request->userid());
-    auto obj = _manager->getGatewayObject(request->userid());
+    auto obj = manager_->getGatewayObject(request->userid());
     if (obj && obj->getGToken() == request->gtoken()) {
-        response->set_value(_manager->removeGatewayObject(request->userid()));
+        response->set_value(manager_->removeGatewayObject(request->userid()));
     } else {
         if (!obj) {
             ERROR_LOG("InnerGatewayServiceImpl::kick -- obj not exist\n");
@@ -159,7 +159,7 @@ void InnerGatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* 
                                         const ::corpc::Void* request,
                                         ::wukong::pb::Uint32Value* response,
                                         ::google::protobuf::Closure* done) {
-    response->set_value(_manager->getGatewayObjectNum());
+    response->set_value(manager_->getGatewayObjectNum());
 }
 
 void InnerGatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controller,
@@ -170,7 +170,7 @@ void InnerGatewayServiceImpl::forwardOut(::google::protobuf::RpcController* cont
 
     if (request->targets_size() == 0) {
         // 广播给所有在线玩家（这里不包括断线中的玩家）
-        _manager->traverseConnectedGatewayObject([request, msg](std::shared_ptr<GatewayObject> &obj) -> bool {
+        manager_->traverseConnectedGatewayObject([request, msg](std::shared_ptr<GatewayObject> &obj) -> bool {
             obj->getConn()->send(request->type(), true, true, true, 0, msg);
             return true;
         });
@@ -179,7 +179,7 @@ void InnerGatewayServiceImpl::forwardOut(::google::protobuf::RpcController* cont
         for (int i = 0; i < request->targets_size(); i++) {
             // 不论网关对象是否断线都进行转发，消息会存到消息缓存中
             const ::wukong::pb::ForwardOutTarget& target = request->targets(i);
-            auto obj = _manager->getGatewayObject(target.userid());
+            auto obj = manager_->getGatewayObject(target.userid());
             if (!obj) {
                 WARN_LOG("InnerGatewayServiceImpl::forwardOut -- user[%llu] gateway object not found\n", target.userid());
                 continue;
@@ -201,7 +201,7 @@ void InnerGatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController
                                           const ::wukong::pb::SetGameObjectPosRequest* request,
                                           ::wukong::pb::BoolValue* response,
                                           ::google::protobuf::Closure* done) {
-    std::shared_ptr<GatewayObject> obj = _manager->getGatewayObject(request->userid());
+    std::shared_ptr<GatewayObject> obj = manager_->getGatewayObject(request->userid());
     if (!obj) {
         // 注意：正常情况下这里是会进入的，玩家刚进入游戏时的流程里面会进到这里
         //ERROR_LOG("InnerGatewayServiceImpl::setGameObjectPos -- user[%llu] gateway object not found\n", request->userid());
@@ -224,7 +224,7 @@ void InnerGatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController
 
     struct timeval t;
     gettimeofday(&t, NULL);
-    obj->_gameObjectHeartbeatExpire = t.tv_sec + 60;
+    obj->gameObjectHeartbeatExpire_ = t.tv_sec + 60;
     obj->setGameServerStub(request->gstype(), request->gsid());
     response->set_value(true);
 }
@@ -233,9 +233,9 @@ void InnerGatewayServiceImpl::heartbeat(::google::protobuf::RpcController* contr
                                    const ::wukong::pb::GSHeartbeatRequest* request,
                                    ::wukong::pb::BoolValue* response,
                                    ::google::protobuf::Closure* done) {
-    std::shared_ptr<GatewayObject> obj = _manager->getGatewayObject(request->userid());
+    std::shared_ptr<GatewayObject> obj = manager_->getGatewayObject(request->userid());
     if (!obj) {
-        ERROR_LOG("InnerGatewayServiceImpl::heartbeat -- user[%llu] gateway object not found\n", request->userid());
+        WARN_LOG("InnerGatewayServiceImpl::heartbeat -- user[%llu] gateway object not found\n", request->userid());
         return;
     }
 
@@ -246,6 +246,6 @@ void InnerGatewayServiceImpl::heartbeat(::google::protobuf::RpcController* contr
 
     struct timeval t;
     gettimeofday(&t, NULL);
-    obj->_gameObjectHeartbeatExpire = t.tv_sec + 60;
+    obj->gameObjectHeartbeatExpire_ = t.tv_sec + 60;
     response->set_value(true);
 }

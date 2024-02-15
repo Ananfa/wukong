@@ -25,10 +25,12 @@
 
 using namespace wukong;
 
-RecordObject::~RecordObject() {}
+RecordObject::~RecordObject() {
+    DEBUG_LOG("RecordObject::~RecordObject -- role[%d]\n", roleId_);
+}
 
 void RecordObject::start() {
-    _running = true;
+    running_ = true;
 
     {
         RecordObjectRoutineArg *arg = new RecordObjectRoutineArg();
@@ -45,27 +47,27 @@ void RecordObject::start() {
 }
 
 void RecordObject::stop() {
-    if (_running) {
-        _running = false;
+    if (running_) {
+        running_ = false;
 
-        _cond.broadcast();
+        cond_.broadcast();
 
         // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要考虑一下是否需要换地方调用
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
-            ERROR_LOG("RecordObject::stop -- role[%d] connect to cache failed\n", _roleId);
+            ERROR_LOG("RecordObject::stop -- role[%d] connect to cache failed\n", roleId_);
             return;
         }
 
-        if (RedisUtils::RemoveRecordAddress(cache, _roleId, _rToken) == REDIS_DB_ERROR) {
+        if (RedisUtils::RemoveRecordAddress(cache, roleId_, rToken_) == REDIS_DB_ERROR) {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("RecordObject::stop -- role[%d] remove record failed", _roleId);
+            ERROR_LOG("RecordObject::stop -- role[%d] remove record failed", roleId_);
             return;
         }
 
-        if (RedisUtils::SetRoleTTL(cache, _roleId) == REDIS_DB_ERROR) {
+        if (RedisUtils::SetRoleTTL(cache, roleId_) == REDIS_DB_ERROR) {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("RecordObject::stop -- role[%d] expire cache data failed for db error\n", _roleId);
+            ERROR_LOG("RecordObject::stop -- role[%d] expire cache data failed for db error\n", roleId_);
             return;
         }
 
@@ -81,13 +83,13 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
     struct timeval t;
     gettimeofday(&t, NULL);
 
-    obj->_gameObjectHeartbeatExpire = t.tv_sec + RECORD_TIMEOUT;
+    obj->gameObjectHeartbeatExpire_ = t.tv_sec + RECORD_TIMEOUT;
 
-    while (obj->_running) {
+    while (obj->running_) {
         // 目前这里只有当写数据库失败强退记录对象时才会触发（记录对象销毁时机：1.心跳失败 2.写数据库失败）
-        obj->_cond.wait(TOKEN_HEARTBEAT_PERIOD);
+        obj->cond_.wait(TOKEN_HEARTBEAT_PERIOD);
 
-        if (!obj->_running) {
+        if (!obj->running_) {
             // 游戏对象已被销毁
             break;
         }
@@ -96,19 +98,19 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
         bool success = true;
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
-            ERROR_LOG("RecordObject::heartbeatRoutine -- role %d connect to cache failed\n", obj->_roleId);
+            ERROR_LOG("RecordObject::heartbeatRoutine -- role %d connect to cache failed\n", obj->roleId_);
 
             success = false;
         } else {
-            switch (RedisUtils::SetRecordAddressTTL(cache, obj->_roleId, obj->_rToken)) {
+            switch (RedisUtils::SetRecordAddressTTL(cache, obj->roleId_, obj->rToken_)) {
                 case REDIS_DB_ERROR: {
                     g_RedisPoolManager.getCoreCache()->put(cache, true);
-                    ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed for db error\n", obj->_roleId);
+                    ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed for db error\n", obj->roleId_);
                     success = false;
                 }
                 case REDIS_FAIL: {
                     g_RedisPoolManager.getCoreCache()->put(cache, false);
-                    ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed\n", obj->_roleId);
+                    ERROR_LOG("RecordObject::heartbeatRoutine -- role %d check session failed\n", obj->roleId_);
                     success = false;
                 }
                 case REDIS_SUCCESS: {
@@ -121,21 +123,21 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
         if (success) {
             // 判断游戏对象心跳是否过期
             gettimeofday(&t, NULL);
-            success = t.tv_sec < obj->_gameObjectHeartbeatExpire;
+            success = t.tv_sec < obj->gameObjectHeartbeatExpire_;
             if (!success) {
-                ERROR_LOG("RecordObject::heartbeatRoutine -- role %d heartbeat expired\n", obj->_roleId);
+                ERROR_LOG("RecordObject::heartbeatRoutine -- role %d heartbeat expired\n", obj->roleId_);
             }
         }
 
         // 若设置超时不成功，销毁记录对象
         if (!success) {
-            if (obj->_running) {
-                if (!obj->_manager->remove(obj->_roleId)) {
+            if (obj->running_) {
+                if (!obj->manager_->remove(obj->roleId_)) {
                     assert(false);
-                    ERROR_LOG("RecordObject::heartbeatRoutine -- role %d remove record object failed\n", obj->_roleId);
+                    ERROR_LOG("RecordObject::heartbeatRoutine -- role %d remove record object failed\n", obj->roleId_);
                 }
 
-                obj->_running = false;
+                obj->running_ = false;
             }
         }
     }
@@ -152,11 +154,11 @@ void *RecordObject::syncRoutine(void *arg) {
     std::list<std::pair<std::string, std::string>> syncDatas;
     std::list<std::pair<std::string, std::string>> profileDatas;
 
-    while (obj->_running) {
+    while (obj->running_) {
         // 目前这里只有当心跳失败时才会被触发（记录对象销毁时机：1.心跳失败 2.写数据库失败）
-        obj->_cond.wait(CACHE_PERIOD);
+        obj->cond_.wait(CACHE_PERIOD);
 
-        if (!obj->_running) {
+        if (!obj->running_) {
             break;
         }
 
@@ -164,14 +166,14 @@ void *RecordObject::syncRoutine(void *arg) {
         obj->buildSyncDatas(syncDatas);
         if (!syncDatas.empty()) {
             if (obj->cacheData(syncDatas)) {
-                obj->_dirty_map.clear();
-                obj->_cacheFailNum = 0;
+                obj->dirty_map_.clear();
+                obj->cacheFailNum_ = 0;
             } else {
                 // 增加失败计数，若连续3次失败则销毁记录对象，防止长时间回档
-                ERROR_LOG("RecordObject::syncRoutine -- role %d cache data failed\n", obj->_roleId);
-                ++obj->_cacheFailNum;
-                if (obj->_cacheFailNum > 3) {
-                    obj->_manager->remove(obj->_roleId);
+                ERROR_LOG("RecordObject::syncRoutine -- role %d cache data failed\n", obj->roleId_);
+                ++obj->cacheFailNum_;
+                if (obj->cacheFailNum_ > 3) {
+                    obj->manager_->remove(obj->roleId_);
                 }
             }
 
@@ -181,7 +183,7 @@ void *RecordObject::syncRoutine(void *arg) {
         g_RecordDelegate.getMakeProfileHandle()(syncDatas, profileDatas);
         if (!profileDatas.empty()) {
             if (!obj->cacheProfile(profileDatas)) {
-                ERROR_LOG("RecordObject::syncRoutine -- role %d save profile failed\n", obj->_roleId);
+                ERROR_LOG("RecordObject::syncRoutine -- role %d save profile failed\n", obj->roleId_);
             }
 
             profileDatas.clear();
@@ -195,20 +197,20 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
     // 将数据存到cache中，并且加入相应的存盘时间队列
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
-        ERROR_LOG("RecordObject::cacheData -- role %d connect to cache failed\n", _roleId);
+        ERROR_LOG("RecordObject::cacheData -- role %d connect to cache failed\n", roleId_);
 
         return false;
     }
 
-    switch (RedisUtils::UpdateRole(cache, _roleId, datas)) {
+    switch (RedisUtils::UpdateRole(cache, roleId_, datas)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("RecordObject::cacheData -- role %d update data failed for db error\n", _roleId);
+            ERROR_LOG("RecordObject::cacheData -- role %d update data failed for db error\n", roleId_);
             return false;
         }
         case REDIS_FAIL: {
             g_RedisPoolManager.getCoreCache()->put(cache, false);
-            ERROR_LOG("RecordObject::cacheData -- role %d update data failed\n", _roleId);
+            ERROR_LOG("RecordObject::cacheData -- role %d update data failed\n", roleId_);
             return false;
         }
     }
@@ -217,9 +219,9 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
     struct timeval t;
     gettimeofday(&t, NULL);
     uint64_t nowTM = t.tv_sec;
-    if (nowTM >= _saveTM) {
+    if (nowTM >= saveTM_) {
         // 让玩家的存盘落在固定的时间轮位置上，减少不必要存盘
-        uint32_t refPos = _roleId % SAVE_PERIOD;
+        uint32_t refPos = roleId_ % SAVE_PERIOD;
         // 计算当前时间往后第一个能模SAVE_PERIOD等于refPos的时间点
         uint64_t nextSaveTM = (nowTM / SAVE_PERIOD) * SAVE_PERIOD + refPos;
         if (nextSaveTM <= nowTM) {
@@ -228,11 +230,11 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
 
         uint32_t whealPos = nextSaveTM % SAVE_TIME_WHEEL_SIZE;
 
-        if (RedisUtils::AddSaveRoleId(cache, whealPos, _roleId) == REDIS_DB_ERROR) {
+        if (RedisUtils::AddSaveRoleId(cache, whealPos, roleId_) == REDIS_DB_ERROR) {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", _roleId);
+            WARN_LOG("RecordObject::cacheData -- role %d insert save list failed for db error\n", roleId_);
         } else {
-            _saveTM = nextSaveTM;
+            saveTM_ = nextSaveTM;
             g_RedisPoolManager.getCoreCache()->put(cache, false);
         }
     } else {
@@ -245,19 +247,19 @@ bool RecordObject::cacheData(std::list<std::pair<std::string, std::string>> &dat
 bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas) {
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
-        ERROR_LOG("RecordObject::cacheProfile -- role %d connect to cache failed\n", _roleId);
+        ERROR_LOG("RecordObject::cacheProfile -- role %d connect to cache failed\n", roleId_);
         return false;
     }
 
-    switch (RedisUtils::UpdateProfile(cache, _roleId, profileDatas)) {
+    switch (RedisUtils::UpdateProfile(cache, roleId_, profileDatas)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed for db error\n", _roleId);
+            ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed for db error\n", roleId_);
             return false;
         }
         case REDIS_FAIL: {
             g_RedisPoolManager.getCoreCache()->put(cache, false);
-            ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed\n", _roleId);
+            ERROR_LOG("RecordObject::cacheProfile -- role %d update profile failed\n", roleId_);
             return false;
         }
     }

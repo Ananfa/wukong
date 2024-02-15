@@ -31,7 +31,7 @@ namespace wukong {
         static MysqlPool* create(const char *host, const char *user, const char *pwd, const char *dbName, unsigned int port, const char *unix_socket, unsigned long clientflag, uint32_t maxConnectNum);
     
     public:
-        MysqlConnectPool *getPool() { return _mysql; }
+        MysqlConnectPool *getPool() { return mysql_; }
 
         MYSQL *take();
         void put(MYSQL *mysql, bool error);
@@ -43,9 +43,10 @@ namespace wukong {
         void init(const char *host, const char *user, const char *pwd, const char *dbName, unsigned int port, const char *unix_socket, unsigned long clientflag, uint32_t maxConnectNum);
 
     private:
-        MysqlConnectPool *_mysql;
+        MysqlConnectPool *mysql_;
     };
 
+    // TODO: 进行分片（sharding）设计，应配置分片数量，提供计算所属分片的方法（支持参数为字符串或整数）
     class MysqlPoolManager {
     public:
         static MysqlPoolManager& Instance() {
@@ -57,12 +58,12 @@ namespace wukong {
         MysqlPool *getPool(const std::string &poolName);
 
         bool setCoreRecord(const std::string &poolName);
-        MysqlPool *getCoreRecord() { return _coreRecord; }
+        MysqlPool *getCoreRecord() { return coreRecord_; }
 
     private:
-        std::map<std::string, MysqlPool*> _poolMap;
+        std::map<std::string, MysqlPool*> poolMap_;
 
-        MysqlPool *_coreRecord = nullptr;
+        MysqlPool *coreRecord_ = nullptr;
 
     private:
         MysqlPoolManager() = default;                                       // ctor hidden
@@ -74,6 +75,6 @@ namespace wukong {
     };
 }
 
-#define g_MysqlPoolManager MysqlPoolManager::Instance()
+#define g_MysqlPoolManager wukong::MysqlPoolManager::Instance()
 
 #endif /* wukong_mysql_pool_h */

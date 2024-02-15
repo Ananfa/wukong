@@ -39,25 +39,25 @@ bool GatewayConfig::parse(const char *path) {
         ERROR_LOG("config error -- internalIp not define\n");
         return false;
     }
-    _internalIp = doc["internalIp"].GetString();
+    internalIp_ = doc["internalIp"].GetString();
     
     if (!doc.HasMember("externalIp")) {
         ERROR_LOG("config error -- externalIp not define\n");
         return false;
     }
-    _externalIp = doc["externalIp"].GetString();
+    externalIp_ = doc["externalIp"].GetString();
     
     if (doc.HasMember("outerAddr")) {
-        _outerAddr = doc["outerAddr"].GetString();
+        outerAddr_ = doc["outerAddr"].GetString();
     } else {
-        _outerAddr = _externalIp;
+        outerAddr_ = externalIp_;
     }
     
     if (!doc.HasMember("rpcPort")) {
         ERROR_LOG("config error -- rpcPort not define\n");
         return false;
     }
-    _rpcPort = doc["rpcPort"].GetUint();
+    rpcPort_ = doc["rpcPort"].GetUint();
     
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
@@ -98,38 +98,38 @@ bool GatewayConfig::parse(const char *path) {
         }
 
         serverIdMap.insert(std::make_pair(info.id, true));
-        _serverInfos.push_back(info);
+        serverInfos_.push_back(info);
     }
 
     if (!doc.HasMember("zookeeper")) {
         ERROR_LOG("config error -- zookeeper not define\n");
         return false;
     }
-    _zookeeper = doc["zookeeper"].GetString();
+    zookeeper_ = doc["zookeeper"].GetString();
 
     if (!doc.HasMember("verifyTimeout")) {
         ERROR_LOG("config error -- verifyTimeout not define\n");
         return false;
     }
-    _verifyTimeout = doc["verifyTimeout"].GetUint();
+    verifyTimeout_ = doc["verifyTimeout"].GetUint();
     
     if (!doc.HasMember("disconnectTimeout")) {
         ERROR_LOG("config error -- disconnectTimeout not define\n");
         return false;
     }
-    _disconnectTimeout = doc["disconnectTimeout"].GetUint();
+    disconnectTimeout_ = doc["disconnectTimeout"].GetUint();
     
     if (!doc.HasMember("ioRecvThreadNum")) {
         ERROR_LOG("config error -- ioRecvThreadNum not define\n");
         return false;
     }
-    _ioRecvThreadNum = doc["ioRecvThreadNum"].GetUint();
+    ioRecvThreadNum_ = doc["ioRecvThreadNum"].GetUint();
     
     if (!doc.HasMember("ioSendThreadNum")) {
         ERROR_LOG("config error -- ioSendThreadNum not define\n");
         return false;
     }
-    _ioSendThreadNum = doc["ioSendThreadNum"].GetUint();
+    ioSendThreadNum_ = doc["ioSendThreadNum"].GetUint();
     
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {
@@ -181,24 +181,24 @@ bool GatewayConfig::parse(const char *path) {
         info.maxConnect = redis["maxConnect"].GetUint();
 
         redisNameMap.insert(std::make_pair(info.dbName, true));
-        _redisInfos.push_back(info);
+        redisInfos_.push_back(info);
     }
 
     if (!doc.HasMember("coreCache")) {
         ERROR_LOG("config error -- coreCache not define\n");
         return false;
     }
-    _coreCache = doc["coreCache"].GetString();
+    coreCache_ = doc["coreCache"].GetString();
     
     if (!doc.HasMember("enableSceneClient")) {
-        _enableSceneClient = false;
+        enableSceneClient_ = false;
     } else {
-        _enableSceneClient = doc["enableSceneClient"].GetBool();
+        enableSceneClient_ = doc["enableSceneClient"].GetBool();
     }
     
-    _zooPath = ZK_GATEWAY_SERVER + "/" + _internalIp + ":" + std::to_string(_rpcPort) + ":" + _outerAddr;
-    for (const GatewayConfig::ServerInfo &info : _serverInfos) {
-        _zooPath += "|" + std::to_string(info.id) + ":" + std::to_string(info.outerPort);
+    zooPath_ = ZK_GATEWAY_SERVER + "/" + internalIp_ + ":" + std::to_string(rpcPort_) + ":" + outerAddr_;
+    for (const GatewayConfig::ServerInfo &info : serverInfos_) {
+        zooPath_ += "|" + std::to_string(info.id) + ":" + std::to_string(info.outerPort);
     }
     
     return true;

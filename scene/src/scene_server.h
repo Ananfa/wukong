@@ -30,12 +30,6 @@ namespace wukong {
 
     // 单例模式实现
     class SceneServer {
-    private:
-        bool _inited = false;
-        IO *_io = nullptr;
-        RpcClient *_rpcClient = nullptr;
-
-        std::vector<std::thread> _threads;
     public:
         static SceneServer& Instance() {
             static SceneServer theSingleton;
@@ -49,6 +43,13 @@ namespace wukong {
         static void sceneThread(InnerRpcServer *server, ServerId sid);
 
     private:
+        bool inited_ = false;
+        IO *io_ = nullptr;
+        RpcClient *rpcClient_ = nullptr;
+
+        std::vector<std::thread> threads_;
+        
+    private:
         SceneServer() = default;                                // ctor hidden
         SceneServer(SceneServer const&) = delete;               // copy ctor hidden
         SceneServer(SceneServer &&) = delete;                   // move ctor hidden
@@ -57,7 +58,8 @@ namespace wukong {
         ~SceneServer() = default;                               // dtor hidden
     };
 
-    #define g_SceneServer SceneServer::Instance()
 }
+
+#define g_SceneServer wukong::SceneServer::Instance()
 
 #endif /* wukong_scene_server_h */

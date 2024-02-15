@@ -39,19 +39,19 @@ bool SceneConfig::parse(const char *path) {
         ERROR_LOG("config error -- ip not define\n");
         return false;
     }
-    _ip = doc["ip"].GetString();
+    ip_ = doc["ip"].GetString();
     
     if (!doc.HasMember("port")) {
         ERROR_LOG("config error -- port not define\n");
         return false;
     }
-    _port = doc["port"].GetUint();
+    port_ = doc["port"].GetUint();
 
     if (!doc.HasMember("type")) {
         ERROR_LOG("config error -- type not define\n");
         return false;
     }
-    _type = doc["type"].GetUint();
+    type_ = doc["type"].GetUint();
 
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
@@ -80,26 +80,26 @@ bool SceneConfig::parse(const char *path) {
         }
 
         serverIdMap.insert(std::make_pair(info.id, true));
-        _serverInfos.push_back(info);
+        serverInfos_.push_back(info);
     }
 
     if (!doc.HasMember("zookeeper")) {
         ERROR_LOG("config error -- zookeeper not define\n");
         return false;
     }
-    _zookeeper = doc["zookeeper"].GetString();
+    zookeeper_ = doc["zookeeper"].GetString();
 
     if (!doc.HasMember("ioRecvThreadNum")) {
         ERROR_LOG("config error -- ioRecvThreadNum not define\n");
         return false;
     }
-    _ioRecvThreadNum = doc["ioRecvThreadNum"].GetUint();
+    ioRecvThreadNum_ = doc["ioRecvThreadNum"].GetUint();
     
     if (!doc.HasMember("ioSendThreadNum")) {
         ERROR_LOG("config error -- ioSendThreadNum not define\n");
         return false;
     }
-    _ioSendThreadNum = doc["ioSendThreadNum"].GetUint();
+    ioSendThreadNum_ = doc["ioSendThreadNum"].GetUint();
     
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {
@@ -151,40 +151,40 @@ bool SceneConfig::parse(const char *path) {
         info.maxConnect = redis["maxConnect"].GetUint();
 
         redisNameMap.insert(std::make_pair(info.dbName, true));
-        _redisInfos.push_back(info);
+        redisInfos_.push_back(info);
     }
     
     if (!doc.HasMember("coreCache")) {
         ERROR_LOG("config error -- coreCache not define\n");
         return false;
     }
-    _coreCache = doc["coreCache"].GetString();
+    coreCache_ = doc["coreCache"].GetString();
     
     if (!doc.HasMember("updatePeriod")) {
-        _updatePeriod = 0;
+        updatePeriod_ = 0;
     } else {
-        _updatePeriod = doc["updatePeriod"].GetUint();
+        updatePeriod_ = doc["updatePeriod"].GetUint();
     }
 
-    if (_updatePeriod == 0) {
+    if (updatePeriod_ == 0) {
         WARN_LOG("updatePeriod is 0, scenes won't be updated\n");
     }
 
     if (!doc.HasMember("enableLobbyClient")) {
-        _enableLobbyClient = false;
+        enableLobbyClient_ = false;
     } else {
-        _enableLobbyClient = doc["enableLobbyClient"].GetBool();
+        enableLobbyClient_ = doc["enableLobbyClient"].GetBool();
     }
 
     if (!doc.HasMember("enableSceneClient")) {
-        _enableSceneClient = false;
+        enableSceneClient_ = false;
     } else {
-        _enableSceneClient = doc["enableSceneClient"].GetBool();
+        enableSceneClient_ = doc["enableSceneClient"].GetBool();
     }
     
-    _zooPath = ZK_SCENE_SERVER + "/" + _ip + ":" + std::to_string(_port) + ":" + std::to_string(_type);
-    for (const SceneConfig::ServerInfo &info : _serverInfos) {
-        _zooPath += "|" + std::to_string(info.id);
+    zooPath_ = ZK_SCENE_SERVER + "/" + ip_ + ":" + std::to_string(port_) + ":" + std::to_string(type_);
+    for (const SceneConfig::ServerInfo &info : serverInfos_) {
+        zooPath_ += "|" + std::to_string(info.id);
     }
     
     return true;

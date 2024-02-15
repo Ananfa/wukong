@@ -54,11 +54,11 @@ void SceneServer::sceneThread(InnerRpcServer *server, ServerId sid) {
 }
 
 bool SceneServer::init(int argc, char * argv[]) {
-    if (_inited) {
+    if (inited_) {
         return false;
     }
 
-    _inited = true;
+    inited_ = true;
 
     RoutineEnvironment::init();
 
@@ -109,10 +109,10 @@ bool SceneServer::init(int argc, char * argv[]) {
     }
     
     // create IO layer
-    _io = IO::create(g_SceneConfig.getIoRecvThreadNum(), g_SceneConfig.getIoSendThreadNum());
+    io_ = IO::create(g_SceneConfig.getIoRecvThreadNum(), g_SceneConfig.getIoSendThreadNum());
 
     // 初始化rpc clients
-    _rpcClient = RpcClient::create(_io);
+    rpcClient_ = RpcClient::create(io_);
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_SceneConfig.getRedisInfos();
@@ -145,17 +145,17 @@ void SceneServer::run() {
         sceneServiceImpl->addInnerStub(info.id, new pb::InnerSceneService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
         gameServiceImpl->addInnerStub(info.id, new pb::InnerGameService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
 
-        _threads.push_back(std::thread(sceneThread, innerServer, info.id));
+        threads_.push_back(std::thread(sceneThread, innerServer, info.id));
     }
 
     // 启动对外的RPC服务
-    RpcServer *server = RpcServer::create(_io, 0, g_SceneConfig.getIp(), g_SceneConfig.getPort());
+    RpcServer *server = RpcServer::create(io_, 0, g_SceneConfig.getIp(), g_SceneConfig.getPort());
     server->registerService(sceneServiceImpl);
     server->registerService(gameServiceImpl);
 
     // TODO: 场景服是否需要g_SceneCenter负责场景相关sha1值维护？
 
     // 注意：ClientCenter在最后才init，因为服务器准备好才向zookeeper注册
-    g_ClientCenter.init(_rpcClient, g_SceneConfig.getZookeeper(), g_SceneConfig.getZooPath(), true, true, g_SceneConfig.enableLobbyClient(), g_SceneConfig.enableSceneClient());
+    g_ClientCenter.init(rpcClient_, g_SceneConfig.getZookeeper(), g_SceneConfig.getZooPath(), true, true, g_SceneConfig.enableLobbyClient(), g_SceneConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }

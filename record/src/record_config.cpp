@@ -39,13 +39,13 @@ bool RecordConfig::parse(const char *path) {
         ERROR_LOG("config error -- ip not define\n");
         return false;
     }
-    _ip = doc["ip"].GetString();
+    ip_ = doc["ip"].GetString();
 
     if (!doc.HasMember("port")) {
         ERROR_LOG("config error -- port not define\n");
         return false;
     }
-    _port = doc["port"].GetUint();
+    port_ = doc["port"].GetUint();
     
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
@@ -74,26 +74,26 @@ bool RecordConfig::parse(const char *path) {
         }
 
         serverIdMap.insert(std::make_pair(info.id, true));
-        _serverInfos.push_back(info);
+        serverInfos_.push_back(info);
     }
 
     if (!doc.HasMember("zookeeper")) {
         ERROR_LOG("config error -- zookeeper not define\n");
         return false;
     }
-    _zookeeper = doc["zookeeper"].GetString();
+    zookeeper_ = doc["zookeeper"].GetString();
 
     if (!doc.HasMember("ioRecvThreadNum")) {
         ERROR_LOG("config error -- ioRecvThreadNum not define\n");
         return false;
     }
-    _ioRecvThreadNum = doc["ioRecvThreadNum"].GetUint();
+    ioRecvThreadNum_ = doc["ioRecvThreadNum"].GetUint();
     
     if (!doc.HasMember("ioSendThreadNum")) {
         ERROR_LOG("config error -- ioSendThreadNum not define\n");
         return false;
     }
-    _ioSendThreadNum = doc["ioSendThreadNum"].GetUint();
+    ioSendThreadNum_ = doc["ioSendThreadNum"].GetUint();
     
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {
@@ -145,7 +145,7 @@ bool RecordConfig::parse(const char *path) {
         info.maxConnect = redis["maxConnect"].GetUint();
 
         redisNameMap.insert(std::make_pair(info.dbName, true));
-        _redisInfos.push_back(info);
+        redisInfos_.push_back(info);
     }
 
     const Value& mysqls = doc["mysql"];
@@ -201,24 +201,24 @@ bool RecordConfig::parse(const char *path) {
         info.maxConnect = mysql["maxConnect"].GetUint();
     
         mysqlNameMap.insert(std::make_pair(info.dbName, true));
-        _mysqlInfos.push_back(info);
+        mysqlInfos_.push_back(info);
     }
     
     if (!doc.HasMember("coreCache")) {
         ERROR_LOG("config error -- coreCache not define\n");
         return false;
     }
-    _coreCache = doc["coreCache"].GetString();
+    coreCache_ = doc["coreCache"].GetString();
     
     if (!doc.HasMember("coreRecord")) {
         ERROR_LOG("config error -- coreRecord not define\n");
         return false;
     }
-    _coreRecord = doc["coreRecord"].GetString();
+    coreRecord_ = doc["coreRecord"].GetString();
     
-    _zooPath = ZK_RECORD_SERVER + "/" + _ip + ":" + std::to_string(_port);
-    for (const RecordConfig::ServerInfo &info : _serverInfos) {
-        _zooPath += "|" + std::to_string(info.id);
+    zooPath_ = ZK_RECORD_SERVER + "/" + ip_ + ":" + std::to_string(port_);
+    for (const RecordConfig::ServerInfo &info : serverInfos_) {
+        zooPath_ += "|" + std::to_string(info.id);
     }
     
     return true;

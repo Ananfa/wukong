@@ -27,10 +27,10 @@ namespace wukong {
         virtual bool downflow(uint8_t *buf, int space, int &size);
         
     private:
-        std::shared_ptr<HttpParser> _parser;
+        std::shared_ptr<HttpParser> parser_;
         
-        std::string _buf; // 缓存数据
-        uint32_t _nparsed; // _buf中已处理的数量（注意：当_nparsed大于HTTP_PIPELINE_CLEAN_BUF_THRESHOLD时会触发将_buf中已处理数据清理逻辑）
+        std::string buf_; // 缓存数据
+        uint32_t nparsed_; // _buf中已处理的数量（注意：当_nparsed大于HTTP_PIPELINE_CLEAN_BUF_THRESHOLD时会触发将_buf中已处理数据清理逻辑）
     };
     
     class HttpPipelineFactory: public PipelineFactory {
@@ -50,12 +50,12 @@ namespace wukong {
         
         virtual void onClose();
         
-        HttpServer *getServer() { return _server; }
+        HttpServer *getServer() { return server_; }
     private:
-        HttpServer *_server;
+        HttpServer *server_;
         
-        std::string _responseBuf;       // 当前正在发送的response序列化产生的数据
-        uint32_t _responseBufSentNum;   // 已发送的数据量
+        std::string responseBuf_;       // 当前正在发送的response序列化产生的数据
+        uint32_t responseBufSentNum_;   // 已发送的数据量
     public:
         friend class HttpPipeline;
     };
@@ -73,7 +73,7 @@ namespace wukong {
         
         class MultiThreadWorker: public corpc::MultiThreadWorker {
         public:
-            MultiThreadWorker(HttpServer *server, uint16_t threadNum): corpc::MultiThreadWorker(threadNum), _server(server) {}
+            MultiThreadWorker(HttpServer *server, uint16_t threadNum): corpc::MultiThreadWorker(threadNum), server_(server) {}
             virtual ~MultiThreadWorker() {}
             
         protected:
@@ -82,12 +82,12 @@ namespace wukong {
             virtual void handleMessage(void *msg); // 注意：处理完消息需要自己删除msg
             
         private:
-            HttpServer *_server;
+            HttpServer *server_;
         };
         
         class CoroutineWorker: public corpc::CoroutineWorker {
         public:
-            CoroutineWorker(HttpServer *server): _server(server) {}
+            CoroutineWorker(HttpServer *server): server_(server) {}
             virtual ~CoroutineWorker() {}
             
         protected:
@@ -96,7 +96,7 @@ namespace wukong {
             virtual void handleMessage(void *msg); // 注意：处理完消息需要自己删除msg
             
         private:
-            HttpServer *_server;
+            HttpServer *server_;
         };
         
         
@@ -127,9 +127,9 @@ namespace wukong {
         void registerHandler(HttpMethod method, const std::string& uri, HttpHandler handler);
         
     private:
-        std::vector<HttpFilter> _filterVec;
-        std::map<std::string, HttpHandler> _getterMap;
-        std::map<std::string, HttpHandler> _posterMap;
+        std::vector<HttpFilter> filterVec_;
+        std::map<std::string, HttpHandler> getterMap_;
+        std::map<std::string, HttpHandler> posterMap_;
         
     public:
         friend class HttpConnection;

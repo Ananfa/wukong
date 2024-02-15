@@ -27,30 +27,30 @@ void RecordObjectManager::init() {
 }
 
 void RecordObjectManager::shutdown() {
-    if (_shutdown) {
+    if (shutdown_) {
         return;
     }
 
-    _shutdown = true;
+    shutdown_ = true;
 
-    for (auto &recordObj : _roleId2RecordObjectMap) {
+    for (auto &recordObj : roleId2RecordObjectMap_) {
         recordObj.second->stop();
     }
 
-    _roleId2RecordObjectMap.clear();
+    roleId2RecordObjectMap_.clear();
 }
 
 size_t RecordObjectManager::size() {
-    return _roleId2RecordObjectMap.size();
+    return roleId2RecordObjectMap_.size();
 }
 
 bool RecordObjectManager::exist(RoleId roleId) {
-    return _roleId2RecordObjectMap.find(roleId) != _roleId2RecordObjectMap.end();
+    return roleId2RecordObjectMap_.find(roleId) != roleId2RecordObjectMap_.end();
 }
 
 std::shared_ptr<RecordObject> RecordObjectManager::getRecordObject(RoleId roleId) {
-    auto it = _roleId2RecordObjectMap.find(roleId);
-    if (it == _roleId2RecordObjectMap.end()) {
+    auto it = roleId2RecordObjectMap_.find(roleId);
+    if (it == roleId2RecordObjectMap_.end()) {
         return nullptr;
     }
 
@@ -58,12 +58,12 @@ std::shared_ptr<RecordObject> RecordObjectManager::getRecordObject(RoleId roleId
 }
 
 std::shared_ptr<RecordObject> RecordObjectManager::create(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, std::list<std::pair<std::string, std::string>> &datas) {
-    if (_shutdown) {
+    if (shutdown_) {
         WARN_LOG("RecordObjectManager::create -- already shutdown\n");
         return nullptr;
     }
 
-    if (_roleId2RecordObjectMap.find(roleId) != _roleId2RecordObjectMap.end()) {
+    if (roleId2RecordObjectMap_.find(roleId) != roleId2RecordObjectMap_.end()) {
         ERROR_LOG("RecordObjectManager::create -- record object already exist\n");
         return nullptr;
     }
@@ -76,19 +76,19 @@ std::shared_ptr<RecordObject> RecordObjectManager::create(UserId userId, RoleId 
     // 创建RecordObject
     auto obj = g_RecordDelegate.getCreateRecordObjectHandle()(userId, roleId, serverId, rToken, this, datas);
 
-    _roleId2RecordObjectMap.insert(std::make_pair(roleId, obj));
+    roleId2RecordObjectMap_.insert(std::make_pair(roleId, obj));
     obj->start();
 
     return obj;
 }
 
 bool RecordObjectManager::remove(RoleId roleId) {
-    auto it = _roleId2RecordObjectMap.find(roleId);
-    if (it == _roleId2RecordObjectMap.end()) {
+    auto it = roleId2RecordObjectMap_.find(roleId);
+    if (it == roleId2RecordObjectMap_.end()) {
         return false;
     }
 
     it->second->stop();
-    _roleId2RecordObjectMap.erase(it);
+    roleId2RecordObjectMap_.erase(it);
     return true;
 }

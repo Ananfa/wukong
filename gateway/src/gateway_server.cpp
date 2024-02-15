@@ -73,11 +73,11 @@ void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId g
 }
 
 bool GatewayServer::init(int argc, char * argv[]) {
-    if (_inited) {
+    if (inited_) {
         return false;
     }
 
-    _inited = true;
+    inited_ = true;
 
     RoutineEnvironment::init();
 
@@ -128,10 +128,10 @@ bool GatewayServer::init(int argc, char * argv[]) {
     }
     
     // create IO layer
-    _io = IO::create(g_GatewayConfig.getIoRecvThreadNum(), g_GatewayConfig.getIoSendThreadNum());
+    io_ = IO::create(g_GatewayConfig.getIoRecvThreadNum(), g_GatewayConfig.getIoSendThreadNum());
 
     // 初始化rpc clients
-    _rpcClient = RpcClient::create(_io);
+    rpcClient_ = RpcClient::create(io_);
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_GatewayConfig.getRedisInfos();
@@ -162,14 +162,14 @@ void GatewayServer::run() {
 
         gatewayServiceImpl->addInnerStub(info.id, new pb::InnerGatewayService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
 
-        _threads.push_back(std::thread(gatewayThread, innerServer, _io, info.id, info.msgPort));
+        threads_.push_back(std::thread(gatewayThread, innerServer, io_, info.id, info.msgPort));
     }
 
     // 启动对外的RPC服务
-    RpcServer *server = RpcServer::create(_io, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
+    RpcServer *server = RpcServer::create(io_, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
     server->registerService(gatewayServiceImpl);
 
-    g_ClientCenter.init(_rpcClient, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
+    g_ClientCenter.init(rpcClient_, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }
 

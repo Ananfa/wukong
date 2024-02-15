@@ -28,11 +28,11 @@ void GatewayObjectManager::init() {
 }
 
 void GatewayObjectManager::shutdown() {
-    if (_shutdown) {
+    if (shutdown_) {
         return;
     }
 
-    _shutdown = true;
+    shutdown_ = true;
 
     // 销毁所有未认证连接
     clearUnauth();
@@ -42,62 +42,62 @@ void GatewayObjectManager::shutdown() {
 }
 
 void GatewayObjectManager::addUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
-    assert(_unauthNodeMap.find(conn.get()) == _unauthNodeMap.end());
+    assert(unauthNodeMap_.find(conn.get()) == unauthNodeMap_.end());
     MessageConnectionTimeLink::Node *node = new MessageConnectionTimeLink::Node;
     node->data = conn;
-    _unauthLink.push(node);
+    unauthLink_.push(node);
     
-    _unauthNodeMap.insert(std::make_pair(conn.get(), node));
+    unauthNodeMap_.insert(std::make_pair(conn.get(), node));
 }
 
 void GatewayObjectManager::removeUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
-    auto kv = _unauthNodeMap.find(conn.get());
-    if (kv == _unauthNodeMap.end()) {
+    auto kv = unauthNodeMap_.find(conn.get());
+    if (kv == unauthNodeMap_.end()) {
         return;
     }
     
     MessageConnectionTimeLink::Node *node = kv->second;
-    _unauthLink.erase(node);
-    _unauthNodeMap.erase(kv);
+    unauthLink_.erase(node);
+    unauthNodeMap_.erase(kv);
 }
 
 bool GatewayObjectManager::isUnauth(std::shared_ptr<MessageServer::Connection>& conn) {
-    return _unauthNodeMap.find(conn.get()) != _unauthNodeMap.end();
+    return unauthNodeMap_.find(conn.get()) != unauthNodeMap_.end();
 }
 
 void GatewayObjectManager::clearUnauth() {
-    MessageConnectionTimeLink::Node *node = _unauthLink.getHead();
+    MessageConnectionTimeLink::Node *node = unauthLink_.getHead();
     while (node) {
         node->data->close();
         node = node->next;
     }
     
-    _unauthLink.clear();
-    _unauthNodeMap.clear();
+    unauthLink_.clear();
+    unauthNodeMap_.clear();
 }
 
 bool GatewayObjectManager::hasGatewayObject(UserId userId) {
-    return _userId2GatewayObjectMap.find(userId) != _userId2GatewayObjectMap.end() || _disconnectedNodeMap.find(userId) != _disconnectedNodeMap.end();
+    return userId2GatewayObjectMap_.find(userId) != userId2GatewayObjectMap_.end() || disconnectedNodeMap_.find(userId) != disconnectedNodeMap_.end();
 }
 
 bool GatewayObjectManager::removeGatewayObject(UserId userId) {
-    auto it = _userId2GatewayObjectMap.find(userId);
-    if (it != _userId2GatewayObjectMap.end()) {
+    auto it = userId2GatewayObjectMap_.find(userId);
+    if (it != userId2GatewayObjectMap_.end()) {
         auto obj = it->second;
-        auto it1 = _connection2GatewayObjectMap.find(obj->getConn().get());
-        assert(it1 != _connection2GatewayObjectMap.end());
-        _connection2GatewayObjectMap.erase(it1);
-        _userId2GatewayObjectMap.erase(it);
+        auto it1 = connection2GatewayObjectMap_.find(obj->getConn().get());
+        assert(it1 != connection2GatewayObjectMap_.end());
+        connection2GatewayObjectMap_.erase(it1);
+        userId2GatewayObjectMap_.erase(it);
         obj->getConn()->close();
         obj->stop();    // 注意：stop过程会进行协程切换，会产生同步问题
         return true;
     }
 
-    auto it2 = _disconnectedNodeMap.find(userId);
-    if (it2 != _disconnectedNodeMap.end()) {
+    auto it2 = disconnectedNodeMap_.find(userId);
+    if (it2 != disconnectedNodeMap_.end()) {
         auto obj = it2->second->data;
-        _disconnectedLink.erase(it2->second);
-        _disconnectedNodeMap.erase(it2);
+        disconnectedLink_.erase(it2->second);
+        disconnectedNodeMap_.erase(it2);
         obj->stop();    // 注意：stop过程会进行协程切换，会产生同步问题
         return true;
     }
@@ -106,34 +106,34 @@ bool GatewayObjectManager::removeGatewayObject(UserId userId) {
 }
 
 size_t GatewayObjectManager::getGatewayObjectNum() {
-    return _userId2GatewayObjectMap.size() + _disconnectedNodeMap.size();
+    return userId2GatewayObjectMap_.size() + disconnectedNodeMap_.size();
 }
 
 void GatewayObjectManager::clearGatewayObject() {
     // 销毁所有正常routeObject
-    for (auto &pair : _userId2GatewayObjectMap) {
+    for (auto &pair : userId2GatewayObjectMap_) {
         pair.second->getConn()->close();
         pair.second->stop();
     }
-    _userId2GatewayObjectMap.clear();
-    _connection2GatewayObjectMap.clear();
+    userId2GatewayObjectMap_.clear();
+    connection2GatewayObjectMap_.clear();
 
     // 销毁所有断线routeObject
-    for (auto &pair : _disconnectedNodeMap) {
+    for (auto &pair : disconnectedNodeMap_) {
         pair.second->data->stop();
     }
-    _disconnectedNodeMap.clear();
-    _disconnectedLink.clear();
+    disconnectedNodeMap_.clear();
+    disconnectedLink_.clear();
 }
 
 std::shared_ptr<GatewayObject> GatewayObjectManager::getGatewayObject(UserId userId) {
-    auto it = _userId2GatewayObjectMap.find(userId);
-    if (it != _userId2GatewayObjectMap.end()) {
+    auto it = userId2GatewayObjectMap_.find(userId);
+    if (it != userId2GatewayObjectMap_.end()) {
         return it->second;
     }
 
-    auto it2 = _disconnectedNodeMap.find(userId);
-    if (it2 != _disconnectedNodeMap.end()) {
+    auto it2 = disconnectedNodeMap_.find(userId);
+    if (it2 != disconnectedNodeMap_.end()) {
         return it2->second->data;
     }
 
@@ -141,8 +141,8 @@ std::shared_ptr<GatewayObject> GatewayObjectManager::getGatewayObject(UserId use
 }
 
 std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(UserId userId) {
-    auto it = _userId2GatewayObjectMap.find(userId);
-    if (it == _userId2GatewayObjectMap.end()) {
+    auto it = userId2GatewayObjectMap_.find(userId);
+    if (it == userId2GatewayObjectMap_.end()) {
         return nullptr;
     }
 
@@ -150,8 +150,8 @@ std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(U
 }
 
 std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn) {
-    auto it = _connection2GatewayObjectMap.find(conn.get());
-    if (it == _connection2GatewayObjectMap.end()) {
+    auto it = connection2GatewayObjectMap_.find(conn.get());
+    if (it == connection2GatewayObjectMap_.end()) {
         return nullptr;
     }
 
@@ -159,7 +159,7 @@ std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(s
 }
 
 void GatewayObjectManager::traverseConnectedGatewayObject(std::function<bool(std::shared_ptr<GatewayObject>&)> handle) {
-    for (auto &pair : _userId2GatewayObjectMap) {
+    for (auto &pair : userId2GatewayObjectMap_) {
         if (!handle(pair.second)) {
             return;
         }
@@ -167,17 +167,17 @@ void GatewayObjectManager::traverseConnectedGatewayObject(std::function<bool(std
 }
 
 void GatewayObjectManager::addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj) {
-    _userId2GatewayObjectMap.insert(std::make_pair(obj->getUserId(), obj));
-    _connection2GatewayObjectMap.insert(std::make_pair(obj->getConn().get(), obj));
+    userId2GatewayObjectMap_.insert(std::make_pair(obj->getUserId(), obj));
+    connection2GatewayObjectMap_.insert(std::make_pair(obj->getConn().get(), obj));
 }
 
 int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn) {
     // 如果玩家网关对象已存在，将网关对象中的conn更换，并将原conn断线，转移消息缓存
-    auto it = _userId2GatewayObjectMap.find(userId);
-    if (it != _userId2GatewayObjectMap.end()) {
-        assert(_connection2GatewayObjectMap.find(it->second->getConn().get()) != _connection2GatewayObjectMap.end());
+    auto it = userId2GatewayObjectMap_.find(userId);
+    if (it != userId2GatewayObjectMap_.end()) {
+        assert(connection2GatewayObjectMap_.find(it->second->getConn().get()) != connection2GatewayObjectMap_.end());
         if (it->second->getGToken() == token) {
-            _connection2GatewayObjectMap.erase(it->second->getConn().get());
+            connection2GatewayObjectMap_.erase(it->second->getConn().get());
 
             if (it->second->getConn()->isOpen()) {
                 it->second->getConn()->close();
@@ -186,7 +186,7 @@ int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::s
             // 转移消息缓存
             newConn->setMsgBuffer(it->second->getConn()->getMsgBuffer());
             it->second->setConn(newConn);
-            _connection2GatewayObjectMap.insert(std::make_pair(newConn.get(), it->second));
+            connection2GatewayObjectMap_.insert(std::make_pair(newConn.get(), it->second));
             return 1;
         } else {
             return -1;
@@ -194,19 +194,19 @@ int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::s
     }
 
     // 若网关对象处于断线状态中，从断线表移出，并移入正常表，设置网关对象中的conn
-    auto it1 = _disconnectedNodeMap.find(userId);
-    if (it1 != _disconnectedNodeMap.end()) {
-        assert(_userId2GatewayObjectMap.find(userId) == _userId2GatewayObjectMap.end());
+    auto it1 = disconnectedNodeMap_.find(userId);
+    if (it1 != disconnectedNodeMap_.end()) {
+        assert(userId2GatewayObjectMap_.find(userId) == userId2GatewayObjectMap_.end());
 
         if (it1->second->data->getGToken() == token) {
             // 转移消息缓存
             newConn->setMsgBuffer(it1->second->data->getConn()->getMsgBuffer());
             it1->second->data->setConn(newConn);
-            _userId2GatewayObjectMap.insert(std::make_pair(userId, it1->second->data));
-            _connection2GatewayObjectMap.insert(std::make_pair(newConn.get(), it1->second->data));
+            userId2GatewayObjectMap_.insert(std::make_pair(userId, it1->second->data));
+            connection2GatewayObjectMap_.insert(std::make_pair(newConn.get(), it1->second->data));
 
-            _disconnectedLink.erase(it1->second);
-            _disconnectedNodeMap.erase(userId);
+            disconnectedLink_.erase(it1->second);
+            disconnectedNodeMap_.erase(userId);
             return 1;
         } else {
             return -1;
@@ -221,20 +221,20 @@ int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::s
 }
 
 bool GatewayObjectManager::tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Connection> &conn) {
-    auto it = _connection2GatewayObjectMap.find(conn.get());
-    if (it == _connection2GatewayObjectMap.end()) {
+    auto it = connection2GatewayObjectMap_.find(conn.get());
+    if (it == connection2GatewayObjectMap_.end()) {
         return false;
     }
 
-    auto it1 = _userId2GatewayObjectMap.find(it->second->getUserId());
-    assert(it1 != _userId2GatewayObjectMap.end());
-    _userId2GatewayObjectMap.erase(it1);
+    auto it1 = userId2GatewayObjectMap_.find(it->second->getUserId());
+    assert(it1 != userId2GatewayObjectMap_.end());
+    userId2GatewayObjectMap_.erase(it1);
 
     GatewayObjectTimeLink::Node *node = new GatewayObjectTimeLink::Node;
     node->data = std::move(it->second);
-    _connection2GatewayObjectMap.erase(it);
-    _disconnectedLink.push(node);
-    _disconnectedNodeMap.insert(std::make_pair(node->data->getUserId(), node));
+    connection2GatewayObjectMap_.erase(it);
+    disconnectedLink_.push(node);
+    disconnectedNodeMap_.insert(std::make_pair(node->data->getUserId(), node));
     return true;
 }
 
@@ -249,11 +249,11 @@ void *GatewayObjectManager::clearExpiredUnauthRoutine(void *arg) {
         
         time(&now);
         
-        MessageConnectionTimeLink::Node *node = self->_unauthLink.getHead();
+        MessageConnectionTimeLink::Node *node = self->unauthLink_.getHead();
         while (node && node->time + g_GatewayConfig.getVerifyTimeout() < now) {
             node->data->close();
             self->removeUnauthConn(node->data);
-            node = self->_unauthLink.getHead();
+            node = self->unauthLink_.getHead();
         }
     }
     
@@ -271,10 +271,10 @@ void *GatewayObjectManager::clearExpiredDisconnectedRoutine( void *arg ) {
         
         time(&now);
         
-        GatewayObjectTimeLink::Node *node = self->_disconnectedLink.getHead();
+        GatewayObjectTimeLink::Node *node = self->disconnectedLink_.getHead();
         while (node && node->time + g_GatewayConfig.getDisconnectTimeout() < now) {
             self->removeGatewayObject(node->data->getUserId());
-            node = self->_disconnectedLink.getHead();
+            node = self->disconnectedLink_.getHead();
         }
     }
     

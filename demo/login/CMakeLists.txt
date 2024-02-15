@@ -59,7 +59,6 @@ set(SOURCE_FILES
     ../../utils/proto_utils.cpp
     ../../utils/uuid_utils.cpp
     ../generate/demo_role_builder.cpp
-    ../generate/demo_db_utils.cpp
     ../generate/demo_utils.cpp
     ../proto/demo.pb.cc)
 

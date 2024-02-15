@@ -33,20 +33,20 @@ void GlobalEventListener::init() {
             return;
         }
 
-        for (auto queue : _eventQueues) {
+        for (auto queue : eventQueues_) {
             queue->push(eventMsg);
         }
     });
 }
 
 void GlobalEventListener::registerEventQueue(std::shared_ptr<GlobalEventQueue> queue) {
-    _eventRegisterQueue.push(queue);
+    eventRegisterQueue_.push(queue);
 }
 
 void *GlobalEventListener::registerEventQueueRoutine(void * arg) {
     GlobalEventListener *self = (GlobalEventListener *)arg;
 
-    GlobalEventRegisterQueue& queue = self->_eventRegisterQueue;
+    GlobalEventRegisterQueue& queue = self->eventRegisterQueue_;
 
     // 初始化pipe readfd
     int readFd = queue.getReadFd();
@@ -76,7 +76,7 @@ void *GlobalEventListener::registerEventQueueRoutine(void * arg) {
         // 处理任务队列
         std::shared_ptr<GlobalEventQueue> eventQueue = queue.pop();
         while (eventQueue) {
-            self->_eventQueues.push_back(eventQueue);
+            self->eventQueues_.push_back(eventQueue);
                         
             eventQueue = queue.pop();
         }
@@ -86,19 +86,19 @@ void *GlobalEventListener::registerEventQueueRoutine(void * arg) {
 }
 
 void GlobalEventDispatcher::init(GlobalEventListener &listener) {
-    _eventQueue = std::make_shared<GlobalEventQueue>();
+    eventQueue_ = std::make_shared<GlobalEventQueue>();
 
     RoutineEnvironment::startCoroutine(globalEventHandleRoutine, this);
 
-    listener.registerEventQueue(_eventQueue);
+    listener.registerEventQueue(eventQueue_);
 }
 
 uint32_t GlobalEventDispatcher::regGlobalEventHandle(const std::string &name, EventHandle handle) {
-    return _emiter.addEventHandle(name, handle);
+    return emiter_.addEventHandle(name, handle);
 }
 
 void GlobalEventDispatcher::unregGlobalEventHandle(uint32_t refId) {
-    _emiter.removeEventHandle(refId);
+    emiter_.removeEventHandle(refId);
 }
 
 void GlobalEventDispatcher::fireGlobalEvent(const Event &event) {
@@ -121,7 +121,7 @@ void *GlobalEventDispatcher::globalEventHandleRoutine(void * arg) {
     GlobalEventDispatcher *self = (GlobalEventDispatcher *)arg;
 
     // 初始化pipe readfd
-    int readFd = self->_eventQueue->getReadFd();
+    int readFd = self->eventQueue_->getReadFd();
     co_register_fd(readFd);
     co_set_timeout(readFd, -1, 1000);
     
@@ -146,13 +146,13 @@ void *GlobalEventDispatcher::globalEventHandleRoutine(void * arg) {
         }
         
         // 分派事件处理
-        std::shared_ptr<wukong::pb::GlobalEventMessage> message = self->_eventQueue->pop();
+        std::shared_ptr<wukong::pb::GlobalEventMessage> message = self->eventQueue_->pop();
         while (message) {
             Event e(message->topic().c_str());
             e.setParam("data", message->data());
-            self->_emiter.fireEvent(e);
+            self->emiter_.fireEvent(e);
             
-            message = self->_eventQueue->pop();
+            message = self->eventQueue_->pop();
         }
     }
     
@@ -160,5 +160,5 @@ void *GlobalEventDispatcher::globalEventHandleRoutine(void * arg) {
 }
 
 void GlobalEventDispatcher::clear() {
-    _emiter.clear();
+    emiter_.clear();
 }

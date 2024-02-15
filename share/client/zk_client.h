@@ -19,14 +19,14 @@ namespace wukong {
     class ZkRet {
         friend class ZkClient;
     public:
-        bool ok() const { return _code == ZOK; }
-        bool code() const { return _code; }
+        bool ok() const { return code_ == ZOK; }
+        bool code() const { return code_; }
         operator bool() const { return ok(); }
     protected:
-        ZkRet() { _code = ZOK; }
-        ZkRet(int c) { _code = c; }
+        ZkRet() { code_ = ZOK; }
+        ZkRet(int c) { code_ = c; }
     private:
-        int _code;
+        int code_;
     };
 
     typedef std::function<void (const std::string &path, const ZkRet &value)> ValidCallback;
@@ -42,7 +42,7 @@ namespace wukong {
 
         ZkRet init(const std::string &host, int timeout, const std::function<void()> &cb);
         void setLogLevel(ZooLogLevel);
-        zhandle_t* getZkHandle() { return _zkhandle; };
+        zhandle_t* getZkHandle() { return zkhandle_; };
         
         ZkRet getData(const std::string &path, const DataCallback &cb);
         ZkRet setData(const std::string &path, const std::string &value, const ValidCallback &cb);
@@ -77,14 +77,14 @@ namespace wukong {
             virtual ~Watch() {}
             virtual void set() const = 0;
             
-            const std::string &path() const { return _path; }
-            ZkClient* zkClient() const { return _zkClient; }
-            bool isTemporary() const { return _temporary; }
-            void setTemporary() { _temporary = true; }
+            const std::string &path() const { return path_; }
+            ZkClient* zkClient() const { return zkClient_; }
+            bool isTemporary() const { return temporary_; }
+            void setTemporary() { temporary_ = true; }
         protected:
-            ZkClient *_zkClient;
-            std::string _path;
-            bool _temporary;
+            ZkClient *zkClient_;
+            std::string path_;
+            bool temporary_;
         };
         
         class ValidWatch: public Watch {
@@ -92,9 +92,9 @@ namespace wukong {
             typedef ValidCallback Callback;
             ValidWatch(ZkClient *zkClient, const std::string &path, const Callback &cb);
             virtual void set() const;
-            void doCb(const ZkRet &value) const{ _cb(_path, value); };
+            void doCb(const ZkRet &value) const{ cb_(path_, value); };
         private:
-            Callback _cb;
+            Callback cb_;
         };
         
         class DeleteWatch: public ValidWatch {
@@ -114,9 +114,9 @@ namespace wukong {
             typedef DataCallback Callback;
             DataWatch(ZkClient *zkClient, const std::string &path, const Callback &cb);
             virtual void set() const;
-            void doCb(const std::string &value) const{ _cb(_path, value); };
+            void doCb(const std::string &value) const{ cb_(path_, value); };
         private:
-            Callback _cb;
+            Callback cb_;
         };
         
         class ChildrenWatch: public Watch {
@@ -124,9 +124,9 @@ namespace wukong {
             typedef ChildrenCallback Callback;
             ChildrenWatch(ZkClient *zkClient, const std::string &path, const Callback &cb);
             virtual void set() const;
-            void doCb(const std::vector<std::string> &value) const { _cb(_path, value); };
+            void doCb(const std::vector<std::string> &value) const { cb_(path_, value); };
         private:
-            Callback _cb;
+            Callback cb_;
         };
         
         class WatchPool {
@@ -134,10 +134,10 @@ namespace wukong {
             template<class T>
             std::shared_ptr<Watch> add(ZkClient *zkClient, const std::string &path, const typename T::Callback &cb) {
                 std::string name = typeid(T).name() + path;
-                auto it = _watchMap.find(name);
-                if (it == _watchMap.end()) {
+                auto it = watchMap_.find(name);
+                if (it == watchMap_.end()) {
                     std::shared_ptr<Watch> wp = std::make_shared<T>(zkClient, path, cb);
-                    _watchMap[name] = wp;
+                    watchMap_[name] = wp;
                     return wp;
                 } else {
                     return it->second;
@@ -147,8 +147,8 @@ namespace wukong {
             template<class T>
             std::shared_ptr<Watch> get(const std::string &path) {
                 std::string name = typeid(T).name() + path;
-                auto it = _watchMap.find(name);
-                if (it == _watchMap.end()) {
+                auto it = watchMap_.find(name);
+                if (it == watchMap_.end()) {
                     return std::shared_ptr<Watch>();
                 } else {
                     return it->second;
@@ -156,24 +156,24 @@ namespace wukong {
             }
             
             void setAll() const {
-                for (auto &w : _watchMap) {
+                for (auto &w : watchMap_) {
                     w.second->set();
                 }
             }
             
         private:
-            std::map<std::string, std::shared_ptr<Watch>> _watchMap;
+            std::map<std::string, std::shared_ptr<Watch>> watchMap_;
         };
         
     private:
         // e.g. "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183"
-        std::string _host;
-        int _timeout;
-        bool _reconnecting;
-        zhandle_t *_zkhandle;
-        WatchPool _watchPool;
+        std::string host_;
+        int timeout_;
+        bool reconnecting_;
+        zhandle_t *zkhandle_;
+        WatchPool watchPool_;
         // Callback when connected
-        std::function<void()> _cb;
+        std::function<void()> cb_;
         
     private:
         ZkClient();                                                  // ctor hidden
@@ -186,6 +186,6 @@ namespace wukong {
 
 }
 
-#define g_ZkClient ZkClient::Instance()
+#define g_ZkClient wukong::ZkClient::Instance()
 
 #endif /* wukong_zk_client_h */

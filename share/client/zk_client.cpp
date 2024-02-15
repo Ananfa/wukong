@@ -133,14 +133,14 @@ static void *processRoutine(void *arg) {
 }
 
 ZkClient::ZkClient()
-    : _host(""), _timeout(0)
-    , _zkhandle(nullptr)
-    , _reconnecting(false) {}
+    : host_(""), timeout_(0)
+    , zkhandle_(nullptr)
+    , reconnecting_(false) {}
 
 ZkClient::~ZkClient() {
-    if (_zkhandle) {
-        zookeeper_close(_zkhandle);
-        _zkhandle = nullptr;
+    if (zkhandle_) {
+        zookeeper_close(zkhandle_);
+        zkhandle_ = nullptr;
     }
 }
 
@@ -156,20 +156,20 @@ void ZkClient::defaultWatcher(zhandle_t* zh, int type, int state, const char *pa
             const clientid_t *clientid = zoo_client_id(zh);
             LOG("[%s %d] connected to zookeeper server with clientid = %lld\n", __FUNCTION__, __LINE__, clientid->client_id);
             
-            zkClient->_cb();
+            zkClient->cb_();
         }
     } else if (type == ZOO_CREATED_EVENT) {
         ZkClient *zkClient = static_cast<ZkClient*>(watcherCtx);
-        zkClient->_watchPool.get<CreateWatch>(path)->set();
+        zkClient->watchPool_.get<CreateWatch>(path)->set();
     } else if (type == ZOO_DELETED_EVENT) {
         ZkClient *zkClient = static_cast<ZkClient*>(watcherCtx);
-        zkClient->_watchPool.get<DeleteWatch>(path)->set();
+        zkClient->watchPool_.get<DeleteWatch>(path)->set();
     } else if (type == ZOO_CHANGED_EVENT) {
         ZkClient *zkClient = static_cast<ZkClient*>(watcherCtx);
-        zkClient->_watchPool.get<DataWatch>(path)->set();
+        zkClient->watchPool_.get<DataWatch>(path)->set();
     } else if (type == ZOO_CHILD_EVENT) {
         ZkClient *zkClient = static_cast<ZkClient*>(watcherCtx);
-        zkClient->_watchPool.get<ChildrenWatch>(path)->set();
+        zkClient->watchPool_.get<ChildrenWatch>(path)->set();
     } else if (type == ZOO_NOTWATCHING_EVENT) {
         
     } else {
@@ -178,13 +178,13 @@ void ZkClient::defaultWatcher(zhandle_t* zh, int type, int state, const char *pa
 }
 
 ZkRet ZkClient::init(const std::string &host, int timeout, const std::function<void()> &cb) {
-    _host = host;
-    _timeout = timeout;
-    _cb = cb;
+    host_ = host;
+    timeout_ = timeout;
+    cb_ = cb;
     
     setLogLevel(ZOO_LOG_LEVEL_WARN);
-    _zkhandle = zookeeper_init(_host.c_str(), &ZkClient::defaultWatcher, _timeout, 0, this, 0);
-    if (_zkhandle == nullptr) {
+    zkhandle_ = zookeeper_init(host_.c_str(), &ZkClient::defaultWatcher, timeout_, 0, this, 0);
+    if (zkhandle_ == nullptr) {
         ERROR_LOG("init error when connecting to zookeeper servers...\n");
         return ZkRet(ZSYSTEMERROR);
     }
@@ -194,13 +194,13 @@ ZkRet ZkClient::init(const std::string &host, int timeout, const std::function<v
 }
 
 ZkRet ZkClient::reconnect() {
-    if (_zkhandle) {
-        zookeeper_close(_zkhandle);
-        _zkhandle = nullptr;
+    if (zkhandle_) {
+        zookeeper_close(zkhandle_);
+        zkhandle_ = nullptr;
     }
 
-    _zkhandle = zookeeper_init(_host.c_str(), &ZkClient::defaultWatcher, _timeout, 0, this, 0);
-    if (_zkhandle == nullptr) {
+    zkhandle_ = zookeeper_init(host_.c_str(), &ZkClient::defaultWatcher, timeout_, 0, this, 0);
+    if (zkhandle_ == nullptr) {
         ERROR_LOG("reconnect error when connecting to zookeeper servers...\n");
         return ZkRet(ZSYSTEMERROR);
     }
@@ -215,28 +215,28 @@ void ZkClient::setLogLevel(ZooLogLevel loglevel) {
 ZkRet ZkClient::getData(const std::string &path, const DataCallback &cb) {
     DataWatch *watch = new DataWatch(this, path, cb);
     watch->setTemporary();
-    int ret = zoo_aget(_zkhandle, path.c_str(), false, &ZkClient::dataCompletion, watch);
+    int ret = zoo_aget(zkhandle_, path.c_str(), false, &ZkClient::dataCompletion, watch);
     return ZkRet(ret);
 }
 
 ZkRet ZkClient::setData(const std::string &path, const std::string &value, const ValidCallback &cb) {
     ValidWatch *watch = new ValidWatch(this, path, cb);
     watch->setTemporary();
-    int ret = zoo_aset(_zkhandle, path.c_str(), value.c_str(), (int)value.length(), -1, &ZkClient::statCompletion, watch);
+    int ret = zoo_aset(zkhandle_, path.c_str(), value.c_str(), (int)value.length(), -1, &ZkClient::statCompletion, watch);
     return ZkRet(ret);
 }
 
 ZkRet ZkClient::getChildren(const std::string &path, const ChildrenCallback &cb) {
     ChildrenWatch *watch = new ChildrenWatch(this, path, cb);
     watch->setTemporary();
-    int ret = zoo_awget_children(_zkhandle, path.c_str(), nullptr, nullptr, &ZkClient::stringsCompletion, watch);
+    int ret = zoo_awget_children(zkhandle_, path.c_str(), nullptr, nullptr, &ZkClient::stringsCompletion, watch);
     return ZkRet(ret);
 }
 
 ZkRet ZkClient::exists(const std::string &path, const ValidCallback &cb) {
     ValidWatch *watch = new ValidWatch(this, path, cb);
     watch->setTemporary();
-    int ret = zoo_aexists(_zkhandle, path.c_str(), false, &ZkClient::statCompletion, watch);
+    int ret = zoo_aexists(zkhandle_, path.c_str(), false, &ZkClient::statCompletion, watch);
     return ZkRet(ret);
 }
 
@@ -259,34 +259,34 @@ ZkRet ZkClient::createSequenceEphemeralNode(const std::string &path, const std::
 ZkRet ZkClient::deleteNode(const std::string &path, const ValidCallback &cb) {
     ValidWatch *watch = new ValidWatch(this, path, cb);
     watch->setTemporary();
-    int ret = zoo_adelete(_zkhandle, path.c_str(), -1, &ZkClient::voidCompletion, watch);
+    int ret = zoo_adelete(zkhandle_, path.c_str(), -1, &ZkClient::voidCompletion, watch);
     return ZkRet(ret);
 }
 
 void ZkClient::watchData(const std::string &path, const DataCallback &cb) {
-    std::shared_ptr<Watch> wp = _watchPool.add<DataWatch>(this, path, cb);
+    std::shared_ptr<Watch> wp = watchPool_.add<DataWatch>(this, path, cb);
     wp->set();
 }
 
 void ZkClient::watchDelete(const std::string &path, const ValidCallback &cb) {
-    std::shared_ptr<Watch> wp = _watchPool.add<DeleteWatch>(this, path, cb);
+    std::shared_ptr<Watch> wp = watchPool_.add<DeleteWatch>(this, path, cb);
     wp->set();
 }
 
 void ZkClient::watchCreate(const std::string &path, const ValidCallback &cb) {
-    std::shared_ptr<Watch> wp = _watchPool.add<CreateWatch>(this, path, cb);
+    std::shared_ptr<Watch> wp = watchPool_.add<CreateWatch>(this, path, cb);
     wp->set();
 }
 
 void ZkClient::watchChildren(const std::string &path, const ChildrenCallback &cb) {
-    std::shared_ptr<Watch> wp = _watchPool.add<ChildrenWatch>(this, path, cb);
+    std::shared_ptr<Watch> wp = watchPool_.add<ChildrenWatch>(this, path, cb);
     wp->set();
 }
 
 ZkRet ZkClient::createNode(int flags, const std::string &path, const std::string &value, const ValidCallback &cb) {
     ValidWatch *watch = new ValidWatch(this, path, cb);
     watch->setTemporary();
-    int ret = zoo_acreate(_zkhandle, path.c_str(), value.c_str(), (int)value.length(), &ZOO_OPEN_ACL_UNSAFE, flags, &ZkClient::stringCompletion, watch);
+    int ret = zoo_acreate(zkhandle_, path.c_str(), value.c_str(), (int)value.length(), &ZOO_OPEN_ACL_UNSAFE, flags, &ZkClient::stringCompletion, watch);
     return ZkRet(ret);
 }
 
@@ -365,21 +365,21 @@ void ZkClient::stringsCompletion(int rc, const struct String_vector *strings, co
 }
 
 ZkClient::Watch::Watch(ZkClient *zkClient, const std::string &path)
-    : _zkClient(zkClient)
-    , _path(path)
-    , _temporary(false) {}
+    : zkClient_(zkClient)
+    , path_(path)
+    , temporary_(false) {}
 
 ZkClient::ValidWatch::ValidWatch(ZkClient *zkClient, const std::string &path, const ValidCallback &cb)
     : Watch (zkClient, path)
-    , _cb(cb) {}
+    , cb_(cb) {}
 
 void ZkClient::ValidWatch::set() const {
-    int ret = zoo_aexists(_zkClient->_zkhandle, _path.c_str(), false, &ZkClient::statCompletion, this);
+    int ret = zoo_aexists(zkClient_->zkhandle_, path_.c_str(), false, &ZkClient::statCompletion, this);
     if (ret != ZOK) {
         // ZBADARGUMENTS
         // ZINVALIDSTATE
         // ZMARSHALLINGERROR
-        ERROR_LOG("ValidWatch aexists failed, ret = %s, path = %s\n", zoo_error_str(ret), _path.c_str());
+        ERROR_LOG("ValidWatch aexists failed, ret = %s, path = %s\n", zoo_error_str(ret), path_.c_str());
     }
 }
 
@@ -387,12 +387,12 @@ ZkClient::DeleteWatch::DeleteWatch(ZkClient *zkClient, const std::string &path, 
     : ValidWatch (zkClient, path, cb) {}
 
 void ZkClient::DeleteWatch::set() const {
-    int ret = zoo_aexists(_zkClient->_zkhandle, _path.c_str(), true, &ZkClient::statCompletion, this);
+    int ret = zoo_aexists(zkClient_->zkhandle_, path_.c_str(), true, &ZkClient::statCompletion, this);
     if (ret != ZOK) {
         // ZBADARGUMENTS
         // ZINVALIDSTATE
         // ZMARSHALLINGERROR
-        ERROR_LOG("DeleteWatch aexists failed, ret = %s, path = %s\n", zoo_error_str(ret), _path.c_str());
+        ERROR_LOG("DeleteWatch aexists failed, ret = %s, path = %s\n", zoo_error_str(ret), path_.c_str());
     }
 }
 
@@ -400,39 +400,39 @@ ZkClient::CreateWatch::CreateWatch(ZkClient *zkClient, const std::string &path, 
     : ValidWatch (zkClient, path, cb) {}
 
 void ZkClient::CreateWatch::set() const {
-    int ret = zoo_aexists(_zkClient->_zkhandle, _path.c_str(), true, &ZkClient::statCompletion, this);
+    int ret = zoo_aexists(zkClient_->zkhandle_, path_.c_str(), true, &ZkClient::statCompletion, this);
     if (ret != ZOK) {
         // ZBADARGUMENTS
         // ZINVALIDSTATE
         // ZMARSHALLINGERROR
-        ERROR_LOG("CreateWatch aexists failed, ret = %s, path = %s\n", zoo_error_str(ret), _path.c_str());
+        ERROR_LOG("CreateWatch aexists failed, ret = %s, path = %s\n", zoo_error_str(ret), path_.c_str());
     }
 }
 
 ZkClient::DataWatch::DataWatch(ZkClient *zkClient, const std::string &path, const DataCallback &cb)
     : Watch (zkClient, path)
-    , _cb(cb) {}
+    , cb_(cb) {}
 
 void ZkClient::DataWatch::set() const {
-    int ret = zoo_aget(_zkClient->_zkhandle, _path.c_str(), true, &ZkClient::dataCompletion, this);
+    int ret = zoo_aget(zkClient_->zkhandle_, path_.c_str(), true, &ZkClient::dataCompletion, this);
     if (ret != ZOK) {
         // ZBADARGUMENTS
         // ZINVALIDSTATE
         // ZMARSHALLINGERROR
-        ERROR_LOG("DataWatch aget failed, ret = %s, path = %s\n", zoo_error_str(ret), _path.c_str());
+        ERROR_LOG("DataWatch aget failed, ret = %s, path = %s\n", zoo_error_str(ret), path_.c_str());
     }
 }
 
 ZkClient::ChildrenWatch::ChildrenWatch(ZkClient *zkClient, const std::string &path, const ChildrenCallback &cb)
     : Watch (zkClient, path)
-    , _cb(cb) {}
+    , cb_(cb) {}
 
 void ZkClient::ChildrenWatch::set() const {
-    int ret = zoo_aget_children(_zkClient->_zkhandle, _path.c_str(), true, &ZkClient::stringsCompletion, this);
+    int ret = zoo_aget_children(zkClient_->zkhandle_, path_.c_str(), true, &ZkClient::stringsCompletion, this);
     if (ret != ZOK) {
         // ZBADARGUMENTS
         // ZINVALIDSTATE
         // ZMARSHALLINGERROR
-        ERROR_LOG("ChildrenWatch aget_children failed, ret = %s, path = %s\n", zoo_error_str(ret), _path.c_str());
+        ERROR_LOG("ChildrenWatch aget_children failed, ret = %s, path = %s\n", zoo_error_str(ret), path_.c_str());
     }
 }

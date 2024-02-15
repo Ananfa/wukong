@@ -72,13 +72,13 @@ void SceneServiceImpl::enterScene(::google::protobuf::RpcController* controller,
 }
 
 void SceneServiceImpl::addInnerStub(ServerId sid, pb::InnerSceneService_Stub* stub) {
-    _innerStubs.insert(std::make_pair(sid, stub));
+    innerStubs_.insert(std::make_pair(sid, stub));
 }
 
 pb::InnerSceneService_Stub *SceneServiceImpl::getInnerStub(ServerId sid) {
-    auto it = _innerStubs.find(sid);
+    auto it = innerStubs_.find(sid);
 
-    if (it == _innerStubs.end()) {
+    if (it == innerStubs_.end()) {
         return nullptr;
     }
 
@@ -86,7 +86,7 @@ pb::InnerSceneService_Stub *SceneServiceImpl::getInnerStub(ServerId sid) {
 }
 
 void SceneServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerSceneService_Stub*)> handle) {
-    for (auto &pair : _innerStubs) {
+    for (auto &pair : innerStubs_) {
         if (!handle(pair.first, pair.second)) {
             return;
         }
@@ -97,14 +97,14 @@ void InnerSceneServiceImpl::shutdown(::google::protobuf::RpcController* controll
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-    _manager->shutdown();
+    manager_->shutdown();
 }
 
 void InnerSceneServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                       const ::corpc::Void* request,
                                       ::wukong::pb::Uint32Value* response,
                                       ::google::protobuf::Closure* done) {
-    response->set_value(_manager->roleCount());
+    response->set_value(manager_->roleCount());
 }
 
 void InnerSceneServiceImpl::loadScene(::google::protobuf::RpcController* controller,
@@ -112,12 +112,12 @@ void InnerSceneServiceImpl::loadScene(::google::protobuf::RpcController* control
                              ::wukong::pb::LoadSceneResponse* response,
                              ::google::protobuf::Closure* done) {
     // 判断manager中场景是否已经存在
-    if (!request->sceneid().empty() && _manager->existScene(request->sceneid())) {
+    if (!request->sceneid().empty() && manager_->existScene(request->sceneid())) {
         response->set_errcode(SCENE_ALREADY_EXIST);
         return;
     }
     
-    std::string sceneId = _manager->loadScene(request->defid(), request->sceneid(), request->roleid(), request->teamid());
+    std::string sceneId = manager_->loadScene(request->defid(), request->sceneid(), request->roleid(), request->teamid());
     if (sceneId.empty()) {
         response->set_errcode(LOAD_SCENE_FAILED);
         return;
@@ -130,7 +130,7 @@ void InnerSceneServiceImpl::enterScene(::google::protobuf::RpcController* contro
                              const ::wukong::pb::EnterSceneRequest* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done) {
-    auto scene = _manager->getScene(request->sceneid());
+    auto scene = manager_->getScene(request->sceneid());
 
     if (!scene) {
         ERROR_LOG("InnerSceneServiceImpl::enterScene -- scene[%s] not found\n", request->sceneid().c_str());
@@ -146,26 +146,26 @@ void InnerSceneServiceImpl::enterScene(::google::protobuf::RpcController* contro
 
     RoleId roleId = request->roleid();
     // 在gameObjectManager中查询游戏对象，如果存在写错误日志并退出
-    auto gameObj = _manager->getGameObject(roleId);
+    auto gameObj = manager_->getGameObject(roleId);
     if (gameObj) {
         ERROR_LOG("InnerSceneServiceImpl::enterScene -- gameObj[%d] already exist\n", roleId);
         return;
     }
 
     // 创建游戏对象，如果创建游戏对象失败，写错误日志并退出
-    if (!_manager->loadRole(roleId, request->gatewayid())) {
+    if (!manager_->loadRole(roleId, request->gatewayid())) {
         ERROR_LOG("InnerSceneServiceImpl::enterScene -- load role[%d] failed\n", roleId);
         return;
     }
 
     // 问题：游戏对象加载后到进入场景过程中是否会进入场景失败导致游戏对象悬空？加载角色对象完成时发现场景销毁了？遇到这种情况直接销毁游戏对象
-    if (!scene->_running) {
+    if (!scene->running_) {
         ERROR_LOG("InnerSceneServiceImpl::enterScene -- after loaded role[%d] scene stoped\n", roleId);
         gameObj->leaveGame();
         return;
     }
 
-    gameObj = _manager->getGameObject(roleId);
+    gameObj = manager_->getGameObject(roleId);
     assert(gameObj);
 
     scene->enter(gameObj);

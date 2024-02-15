@@ -40,13 +40,13 @@ void GameServiceImpl::enterGame(::google::protobuf::RpcController* controller,
 }
 
 void GameServiceImpl::addInnerStub(ServerId sid, pb::InnerGameService_Stub* stub) {
-    _innerStubs.insert(std::make_pair(sid, stub));
+    innerStubs_.insert(std::make_pair(sid, stub));
 }
 
 pb::InnerGameService_Stub *GameServiceImpl::getInnerStub(ServerId sid) {
-    auto it = _innerStubs.find(sid);
+    auto it = innerStubs_.find(sid);
 
-    if (it == _innerStubs.end()) {
+    if (it == innerStubs_.end()) {
         return nullptr;
     }
 
@@ -54,7 +54,7 @@ pb::InnerGameService_Stub *GameServiceImpl::getInnerStub(ServerId sid) {
 }
 
 void GameServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerGameService_Stub*)> handle) {
-    for (auto &pair : _innerStubs) {
+    for (auto &pair : innerStubs_) {
         if (!handle(pair.first, pair.second)) {
             return;
         }
@@ -65,7 +65,7 @@ void InnerGameServiceImpl::forwardIn(::google::protobuf::RpcController* controll
                                 const ::wukong::pb::ForwardInRequest* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-    auto obj = _manager->getGameObject(request->roleid());
+    auto obj = manager_->getGameObject(request->roleid());
     if (!obj) {
         ERROR_LOG("InnerGameServiceImpl::forwardIn -- role[%llu] game object not found\n", request->roleid());
 //exit(0);
@@ -80,7 +80,7 @@ void InnerGameServiceImpl::enterGame(::google::protobuf::RpcController* controll
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
     // 获取GameObject
-    auto obj = _manager->getGameObject(request->roleid());
+    auto obj = manager_->getGameObject(request->roleid());
     if (!obj) {
         ERROR_LOG("InnerGameServiceImpl::enterGame -- role[%llu] game object not found\n", request->roleid());
         return;

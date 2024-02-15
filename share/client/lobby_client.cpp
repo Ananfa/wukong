@@ -20,16 +20,16 @@
 using namespace corpc;
 using namespace wukong;
 
-std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> LobbyClient::_addr2stubs;
-std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_stubs;
-Mutex LobbyClient::_stubsLock;
-std::atomic<uint32_t> LobbyClient::_stubChangeNum(0);
-thread_local uint32_t LobbyClient::_t_stubChangeNum = 0;
-thread_local std::map<ServerId, LobbyClient::StubInfo> LobbyClient::_t_stubs;
+std::map<std::string, std::pair<std::shared_ptr<pb::GameService_Stub>, std::shared_ptr<pb::LobbyService_Stub>>> LobbyClient::addr2stubs_;
+std::map<ServerId, LobbyClient::StubInfo> LobbyClient::stubs_;
+Mutex LobbyClient::stubsLock_;
+std::atomic<uint32_t> LobbyClient::stubChangeNum_(0);
+thread_local uint32_t LobbyClient::t_stubChangeNum_ = 0;
+thread_local std::map<ServerId, LobbyClient::StubInfo> LobbyClient::t_stubs_;
 
 void LobbyClient::shutdown() {
     refreshStubs();
-    std::map<ServerId, LobbyClient::StubInfo> stubs = _t_stubs;
+    std::map<ServerId, LobbyClient::StubInfo> stubs = t_stubs_;
     
     for (const auto& kv : stubs) {
         corpc::Void *request = new corpc::Void();
@@ -45,7 +45,7 @@ std::vector<GameClient::ServerInfo> LobbyClient::getServerInfos() {
     std::map<std::string, bool> handledAddrs; // 记录已处理的rpc地址
 
     refreshStubs();
-    std::map<ServerId, StubInfo> localStubs = _t_stubs;
+    std::map<ServerId, StubInfo> localStubs = t_stubs_;
     
     // 清除原来的信息
     infos.reserve(localStubs.size());
@@ -145,7 +145,7 @@ void LobbyClient::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId rol
 }
 
 bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
-    if (!_client) {
+    if (!client_) {
         ERROR_LOG("LobbyClient::setServers -- not init\n");
         return false;
     }
@@ -161,11 +161,11 @@ bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
             continue;
         }
 
-        iter = _addr2stubs.find(addr);
-        if (iter != _addr2stubs.end()) {
+        iter = addr2stubs_.find(addr);
+        if (iter != addr2stubs_.end()) {
             stubPair = iter->second;
         } else {
-            RpcClient::Channel *channel = new RpcClient::Channel(_client, address.ip, address.port, 1);
+            RpcClient::Channel *channel = new RpcClient::Channel(client_, address.ip, address.port, 1);
 
             stubPair = std::make_pair(
                 std::make_shared<pb::GameService_Stub>(channel, pb::GameService::STUB_OWNS_CHANNEL),
@@ -174,8 +174,8 @@ bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
         addr2stubs.insert(std::make_pair(addr, stubPair));
 
         for (uint16_t serverId : address.serverIds) {
-            auto iter1 = _stubs.find(serverId);
-            if (iter1 != _stubs.end()) {
+            auto iter1 = stubs_.find(serverId);
+            if (iter1 != stubs_.end()) {
                 if (iter1->second.rpcAddr == addr) {
                     stubs.insert(std::make_pair(serverId, iter1->second));
                     continue;
@@ -191,12 +191,12 @@ bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
         }
     }
     
-    _addr2stubs = addr2stubs;
+    addr2stubs_ = addr2stubs;
 
     {
-        LockGuard lock(_stubsLock);
-        _stubs = stubs;
-        _stubChangeNum++;
+        LockGuard lock(stubsLock_);
+        stubs_ = stubs;
+        stubChangeNum_++;
     }
     
     return true;
@@ -204,8 +204,8 @@ bool LobbyClient::setServers(const std::vector<AddressInfo> &addresses) {
 
 std::shared_ptr<pb::GameService_Stub> LobbyClient::getGameServiceStub(ServerId sid) {
     refreshStubs();
-    auto iter = _t_stubs.find(sid);
-    if (iter == _t_stubs.end()) {
+    auto iter = t_stubs_.find(sid);
+    if (iter == t_stubs_.end()) {
         return nullptr;
     }
 
@@ -214,8 +214,8 @@ std::shared_ptr<pb::GameService_Stub> LobbyClient::getGameServiceStub(ServerId s
 
 std::shared_ptr<pb::LobbyService_Stub> LobbyClient::getLobbyServiceStub(ServerId sid) {
     refreshStubs();
-    auto iter = _t_stubs.find(sid);
-    if (iter == _t_stubs.end()) {
+    auto iter = t_stubs_.find(sid);
+    if (iter == t_stubs_.end()) {
         return nullptr;
     }
 
@@ -223,17 +223,17 @@ std::shared_ptr<pb::LobbyService_Stub> LobbyClient::getLobbyServiceStub(ServerId
 }
 
 void LobbyClient::refreshStubs() {
-    if (_t_stubChangeNum != _stubChangeNum) {
+    if (t_stubChangeNum_ != stubChangeNum_) {
         {
-            LockGuard lock(_stubsLock);
+            LockGuard lock(stubsLock_);
 
-            if (_t_stubChangeNum == _stubChangeNum) {
+            if (t_stubChangeNum_ == stubChangeNum_) {
                 return;
             }
             
-            _t_stubs.clear();
-            _t_stubs = _stubs;
-            _t_stubChangeNum = _stubChangeNum;
+            t_stubs_.clear();
+            t_stubs_ = stubs_;
+            t_stubChangeNum_ = stubChangeNum_;
         }
     }
 }

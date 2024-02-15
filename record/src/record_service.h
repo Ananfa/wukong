@@ -57,12 +57,12 @@ namespace wukong {
         void traverseInnerStubs(std::function<bool(ServerId, pb::InnerRecordService_Stub*)> handle);
 
     private:
-        std::map<ServerId, pb::InnerRecordService_Stub*> _innerStubs; // 注意：该map只在系统启动时初始化，启动后不再修改
+        std::map<ServerId, pb::InnerRecordService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
     
     class InnerRecordServiceImpl : public pb::InnerRecordService {
     public:
-        InnerRecordServiceImpl(RecordObjectManager *manager): _manager(manager) {}
+        InnerRecordServiceImpl(RecordObjectManager *manager): manager_(manager) {}
 
         virtual void shutdown(::google::protobuf::RpcController* controller,
                               const ::corpc::Void* request,
@@ -90,7 +90,7 @@ namespace wukong {
                                ::google::protobuf::Closure* done);
 
     private:
-        RecordObjectManager *_manager;
+        RecordObjectManager *manager_;
     };
     
 }

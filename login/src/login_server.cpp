@@ -35,11 +35,11 @@ using namespace corpc;
 using namespace wukong;
 
 bool LoginServer::init(int argc, char * argv[]) {
-    if (_inited) {
+    if (inited_) {
         return false;
     }
 
-    _inited = true;
+    inited_ = true;
 
     RoutineEnvironment::init();
 
@@ -90,13 +90,13 @@ bool LoginServer::init(int argc, char * argv[]) {
     }
     
     // create IO layer
-    _io = IO::create(g_LoginConfig.getIoRecvThreadNum(), g_LoginConfig.getIoSendThreadNum());
+    io_ = IO::create(g_LoginConfig.getIoRecvThreadNum(), g_LoginConfig.getIoSendThreadNum());
     
     // 初始化rpc clients
-    _rpcClient = RpcClient::create(_io);
+    rpcClient_ = RpcClient::create(io_);
 
     // 启动http服务
-    _httpServer = HttpServer::create(_io, g_LoginConfig.getWorkerThreadNum(), g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
+    _httpServer = HttpServer::create(io_, g_LoginConfig.getWorkerThreadNum(), g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_LoginConfig.getRedisInfos();
@@ -129,6 +129,6 @@ bool LoginServer::init(int argc, char * argv[]) {
 
 void LoginServer::run() {
     g_LoginHandlerMgr.init(_httpServer);
-    g_ClientCenter.init(_rpcClient, g_LoginConfig.getZookeeper(), g_LoginConfig.getZooPath(), true, false, false, false);
+    g_ClientCenter.init(rpcClient_, g_LoginConfig.getZookeeper(), g_LoginConfig.getZooPath(), true, false, false, false);
     RoutineEnvironment::runEventLoop();
 }

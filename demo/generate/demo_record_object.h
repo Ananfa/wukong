@@ -24,13 +24,13 @@ namespace demo {
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
         
     private:
-        std::string _name;
-        uint32_t _exp;
-        uint32_t _lv;
-        demo::pb::Currency* _currency = nullptr;
-        std::map<uint32_t, demo::pb::Card*> _card_map;
-        std::map<uint32_t, demo::pb::Pet*> _pet_map;
-        demo::pb::SignInActivity* _signinactivity = nullptr;
+        std::string name_;
+        uint32_t exp_;
+        uint32_t lv_;
+        demo::pb::Currency* currency_ = nullptr;
+        std::map<uint32_t, demo::pb::Card*> card_map_;
+        std::map<uint32_t, demo::pb::Pet*> pet_map_;
+        demo::pb::SignInActivity* signinactivity_ = nullptr;
 
     };
 

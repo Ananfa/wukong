@@ -1,7 +1,7 @@
 #ifndef wukong_define_h
 #define wukong_define_h
 
-#include "corpc_define.h"
+#include "corpc_queue.h"
 #include "inner_common.pb.h"
 #include <string>
 

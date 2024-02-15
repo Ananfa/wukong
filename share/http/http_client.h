@@ -10,15 +10,15 @@ namespace wukong {
 
     class HttpResponse {
     public:
-        HttpResponse(int64_t &code, std::string &body): m_code(code), m_body(body) {}
+        HttpResponse(int64_t &code, std::string &body): code_(code), body_(body) {}
         ~HttpResponse() {}
         
-        const int64_t& code() const { return m_code; }
-        const std::string& body() const { return m_body; }
+        const int64_t& code() const { return code_; }
+        const std::string& body() const { return body_; }
         
     private:
-        int64_t m_code;
-        std::string m_body;
+        int64_t code_;
+        std::string body_;
         // TODO: get http response headers
     };
 
@@ -65,29 +65,29 @@ namespace wukong {
             std::string value;
         };
         
-        CURL *m_curl;
+        CURL *curl_;
         
         // Request stuff
-        std::string m_url;
-        int32_t m_timeout;
-        std::string m_method;
-        std::string m_userAgent;
-        std::string m_requestBody;
-        struct curl_slist *m_headers;
-        std::vector<QueryParam> m_queryParams;
-        std::string m_param;
+        std::string url_;
+        int32_t timeout_;
+        std::string method_;
+        std::string userAgent_;
+        std::string requestBody_;
+        struct curl_slist *headers_;
+        std::vector<QueryParam> queryParams_;
+        std::string param_;
         
         // Response stuff
-        CURLcode m_result;
+        CURLcode result_;
         /* Http Response Code
          1xx    Transient code, a new one follows
          2xx    Things are OK
          3xx    The content is somewhere else
          4xx    Failed because of a client problem
          5xx    Failed because of a server problem */
-        int64_t m_code;
-        std::string m_responseBody;
-        char m_errbuf[CURL_ERROR_SIZE];
+        int64_t code_;
+        std::string responseBody_;
+        char errbuf_[CURL_ERROR_SIZE];
         
     };
 
@@ -103,7 +103,7 @@ namespace wukong {
         void doPost(HttpRequest *request,std::function<void(const HttpResponse&)> done);
         
     private:
-        CURLSH *m_curlCache;
+        CURLSH *curlCache_;
         
     private:
         HttpClient();                                     // ctor hidden

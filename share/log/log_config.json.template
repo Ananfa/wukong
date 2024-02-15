@@ -1,0 +1,17 @@
+[
+    {
+        "id": 1,
+        "desc": "player action log",
+        "fileName": "player_action.log",
+        "rotateType": 2, // 0.no rotate 1.hourly 2.daily 3.weekly 4.monthly
+        "addTimestamp": true
+    },
+    {
+        "id": 2,
+        "desc": "tlog",
+        "fileName": "tlog.log",
+        "rotateType": 2, // 0.no rotate 1.hourly 2.daily 3.weekly 4.monthly
+        "addTimestamp": false
+    }
+
+]

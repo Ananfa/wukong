@@ -49,12 +49,12 @@ namespace wukong {
         void traverseInnerStubs(std::function<bool(ServerId, pb::InnerSceneService_Stub*)> handle);
 
     private:
-        std::map<ServerId, pb::InnerSceneService_Stub*> _innerStubs; // 注意：该map只在系统启动时初始化，启动后不再修改
+        std::map<ServerId, pb::InnerSceneService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
     
     class InnerSceneServiceImpl : public pb::InnerSceneService {
     public:
-        InnerSceneServiceImpl(SceneManager *manager): _manager(manager) {}
+        InnerSceneServiceImpl(SceneManager *manager): manager_(manager) {}
 
         virtual void shutdown(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
@@ -74,7 +74,7 @@ namespace wukong {
                              ::google::protobuf::Closure* done);
 
     private:
-        SceneManager *_manager;
+        SceneManager *manager_;
     };
     
 }

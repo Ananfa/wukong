@@ -39,13 +39,13 @@ bool LobbyConfig::parse(const char *path) {
         ERROR_LOG("config error -- ip not define\n");
         return false;
     }
-    _ip = doc["ip"].GetString();
+    ip_ = doc["ip"].GetString();
     
     if (!doc.HasMember("port")) {
         ERROR_LOG("config error -- port not define\n");
         return false;
     }
-    _port = doc["port"].GetUint();
+    port_ = doc["port"].GetUint();
     
     if (!doc.HasMember("servers")) {
         ERROR_LOG("config error -- servers not define\n");
@@ -74,26 +74,26 @@ bool LobbyConfig::parse(const char *path) {
         }
 
         serverIdMap.insert(std::make_pair(info.id, true));
-        _serverInfos.push_back(info);
+        serverInfos_.push_back(info);
     }
 
     if (!doc.HasMember("zookeeper")) {
         ERROR_LOG("config error -- zookeeper not define\n");
         return false;
     }
-    _zookeeper = doc["zookeeper"].GetString();
+    zookeeper_ = doc["zookeeper"].GetString();
 
     if (!doc.HasMember("ioRecvThreadNum")) {
         ERROR_LOG("config error -- ioRecvThreadNum not define\n");
         return false;
     }
-    _ioRecvThreadNum = doc["ioRecvThreadNum"].GetUint();
+    ioRecvThreadNum_ = doc["ioRecvThreadNum"].GetUint();
     
     if (!doc.HasMember("ioSendThreadNum")) {
         ERROR_LOG("config error -- ioSendThreadNum not define\n");
         return false;
     }
-    _ioSendThreadNum = doc["ioSendThreadNum"].GetUint();
+    ioSendThreadNum_ = doc["ioSendThreadNum"].GetUint();
 
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {
@@ -145,7 +145,7 @@ bool LobbyConfig::parse(const char *path) {
         info.maxConnect = redis["maxConnect"].GetUint();
 
         redisNameMap.insert(std::make_pair(info.dbName, true));
-        _redisInfos.push_back(info);
+        redisInfos_.push_back(info);
     }
 
     if (!doc.HasMember("coreCache")) {
@@ -155,20 +155,26 @@ bool LobbyConfig::parse(const char *path) {
     _coreCache = doc["coreCache"].GetString();
     
     if (!doc.HasMember("updatePeriod")) {
-        _updatePeriod = 0;
+        updatePeriod_ = 0;
     } else {
-        _updatePeriod = doc["updatePeriod"].GetUint();
+        updatePeriod_ = doc["updatePeriod"].GetUint();
     }
     
     if (!doc.HasMember("enableSceneClient")) {
-        _enableSceneClient = false;
+        enableSceneClient_ = false;
     } else {
-        _enableSceneClient = doc["enableSceneClient"].GetBool();
+        enableSceneClient_ = doc["enableSceneClient"].GetBool();
     }
+
+    if (!doc.HasMember("logConfigFile")) {
+        ERROR_LOG("config error -- logConfigFile not define\n");
+        return false;
+    }
+    logConfigFile_ = doc["logConfigFile"].GetString();
     
-    _zooPath = ZK_LOBBY_SERVER + "/" + _ip + ":" + std::to_string(_port);
-    for (const LobbyConfig::ServerInfo &info : _serverInfos) {
-        _zooPath += "|" + std::to_string(info.id);
+    zooPath_ = ZK_LOBBY_SERVER + "/" + ip_ + ":" + std::to_string(port_);
+    for (const LobbyConfig::ServerInfo &info : serverInfos_) {
+        zooPath_ += "|" + std::to_string(info.id);
     }
     
     return true;

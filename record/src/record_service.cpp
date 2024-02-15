@@ -84,13 +84,13 @@ void RecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
 }
 
 void RecordServiceImpl::addInnerStub(ServerId sid, pb::InnerRecordService_Stub* stub) {
-    _innerStubs.insert(std::make_pair(sid, stub));
+    innerStubs_.insert(std::make_pair(sid, stub));
 }
 
 pb::InnerRecordService_Stub *RecordServiceImpl::getInnerStub(ServerId sid) {
-    auto it = _innerStubs.find(sid);
+    auto it = innerStubs_.find(sid);
 
-    if (it == _innerStubs.end()) {
+    if (it == innerStubs_.end()) {
         return nullptr;
     }
 
@@ -98,7 +98,7 @@ pb::InnerRecordService_Stub *RecordServiceImpl::getInnerStub(ServerId sid) {
 }
 
 void RecordServiceImpl::traverseInnerStubs(std::function<bool(ServerId, pb::InnerRecordService_Stub*)> handle) {
-    for (auto &pair : _innerStubs) {
+    for (auto &pair : innerStubs_) {
         if (!handle(pair.first, pair.second)) {
             return;
         }
@@ -109,14 +109,14 @@ void InnerRecordServiceImpl::shutdown(::google::protobuf::RpcController* control
                                 const ::corpc::Void* request,
                                 ::corpc::Void* response,
                                 ::google::protobuf::Closure* done) {
-    _manager->shutdown();
+    manager_->shutdown();
 }
 
 void InnerRecordServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
                                       const ::corpc::Void* request,
                                       ::wukong::pb::Uint32Value* response,
                                       ::google::protobuf::Closure* done) {
-    response->set_value(_manager->size());
+    response->set_value(manager_->size());
 }
 
 void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controller,
@@ -125,7 +125,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
                                  ::google::protobuf::Closure* done) {
     RoleId roleId = request->roleid();
 
-    if (_manager->isShutdown()) {
+    if (manager_->isShutdown()) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- role[%llu] server is shutdown\n", roleId);
         response->set_errcode(1);
         return;
@@ -134,7 +134,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     std::list<std::pair<std::string, std::string>> datas;
 
     // 查看是否有本地缓存的record object
-    std::shared_ptr<RecordObject> obj = _manager->getRecordObject(roleId);
+    std::shared_ptr<RecordObject> obj = manager_->getRecordObject(roleId);
     if (obj) {
         obj->setLToken(request->ltoken());
 
@@ -159,7 +159,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     gettimeofday(&t, NULL);
     std::string rToken = std::to_string(t.tv_sec);
 
-    switch (RedisUtils::SetRecordAddress(cache, roleId, _manager->getId(), rToken)) {
+    switch (RedisUtils::SetRecordAddress(cache, roleId, manager_->getId(), rToken)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- role[%llu] set record failed\n", roleId);
@@ -190,7 +190,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
         g_RedisPoolManager.getCoreCache()->put(cache, false);
 
         // 创建record object
-        obj = _manager->create(userId, roleId, serverId, rToken, datas);
+        obj = manager_->create(userId, roleId, serverId, rToken, datas);
         if (!obj) {
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- role[%llu] create record object failed\n", roleId);
             response->set_errcode(7);
@@ -223,6 +223,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
         response->set_errcode(9);
         return;
     }
+    DEBUG_LOG("InnerRecordServiceImpl::loadRoleData -- user[%llu] role[%llu]\n", userId, roleId);
 
     g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
 
@@ -269,7 +270,7 @@ void InnerRecordServiceImpl::loadRoleData(::google::protobuf::RpcController* con
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     // 创建record object
-    obj = _manager->create(userId, roleId, serverId, rToken, datas);
+    obj = manager_->create(userId, roleId, serverId, rToken, datas);
     if (!obj) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- user[%llu] role[%llu] create record object failed\n", userId, roleId);
         response->set_errcode(7);
@@ -289,7 +290,7 @@ void InnerRecordServiceImpl::sync(::google::protobuf::RpcController* controller,
                              ::wukong::pb::BoolValue* response,
                              ::google::protobuf::Closure* done) {
     // 数据同步
-    std::shared_ptr<RecordObject> obj = _manager->getRecordObject(request->roleid());
+    std::shared_ptr<RecordObject> obj = manager_->getRecordObject(request->roleid());
     if (!obj) {
         ERROR_LOG("InnerRecordServiceImpl::sync -- role[%llu] record object not found\n", request->roleid());
         return;
@@ -308,9 +309,9 @@ void InnerRecordServiceImpl::heartbeat(::google::protobuf::RpcController* contro
                                   const ::wukong::pb::RSHeartbeatRequest* request,
                                   ::wukong::pb::BoolValue* response,
                                   ::google::protobuf::Closure* done) {
-    std::shared_ptr<RecordObject> obj = _manager->getRecordObject(request->roleid());
+    std::shared_ptr<RecordObject> obj = manager_->getRecordObject(request->roleid());
     if (!obj) {
-        ERROR_LOG("InnerRecordServiceImpl::heartbeat -- role[%llu] record object not found\n", request->roleid());
+        WARN_LOG("InnerRecordServiceImpl::heartbeat -- role[%llu] record object not found\n", request->roleid());
         return;
     }
 
@@ -322,6 +323,6 @@ void InnerRecordServiceImpl::heartbeat(::google::protobuf::RpcController* contro
     struct timeval t;
     gettimeofday(&t, NULL);
     // 注意：对于记录对象来说，当游戏对象销毁后记录对象可以缓存久一些，减轻数据库压力，这里设置10分钟
-    obj->_gameObjectHeartbeatExpire = t.tv_sec + RECORD_TIMEOUT;
+    obj->gameObjectHeartbeatExpire_ = t.tv_sec + RECORD_TIMEOUT;
     response->set_value(true);
 }

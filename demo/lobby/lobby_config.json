@@ -28,4 +28,5 @@
     "coreCache": "cache",
     "updatePeriod": 1000,
     "enableSceneClient": true
+    "logConfigFile": "../log_config.json"
 }

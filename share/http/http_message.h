@@ -30,11 +30,11 @@ namespace wukong {
         
     public:
         // 类型
-        int8_t getType() const { return m_Type; }
+        int8_t getType() const { return type_; }
         
         // VERSION
-        void setVersion(const char *v) { m_Version = v; }
-        const std::string& getVersion() const { return m_Version; }
+        void setVersion(const char *v) { version_ = v; }
+        const std::string& getVersion() const { return version_; }
         
         // HEADER
         // 是否有指定的HEAD
@@ -42,35 +42,35 @@ namespace wukong {
         // 添加Header
         void addHeader(const char *key, const char *value);
         // 获取所有包头
-        const Headers& getHeaders() const { return m_Headers; }
+        const Headers& getHeaders() const { return headers_; }
         // 获取包头对应的VALUE
         const std::string& operator[] (const std::string &key);
         
         // CONTENT
         // 设置容量
         void setCapacity(uint32_t c) {
-            m_Capacity = c;
-            m_Content.reserve(c);
+            capacity_ = c;
+            content_.reserve(c);
         }
         // 获取内容
-        const std::string& getContent() const { return m_Content; }
+        const std::string& getContent() const { return content_; }
         // 获取内容当前长度
-        uint32_t getContentSize() const { return m_Content.size(); }
+        uint32_t getContentSize() const { return content_.size(); }
         // 获取内容总长度
-        uint32_t getContentCapacity() const { return m_Capacity; }
+        uint32_t getContentCapacity() const { return capacity_; }
         // 添加内容
-        void appendContent(const std::string &value) { m_Content += value; }
+        void appendContent(const std::string &value) { content_ += value; }
         
     public:
         // 是否保活
         bool isKeepalive();
         
     protected:
-        int8_t          m_Type;         // 类型
-        std::string     m_Version;      // 版本号
-        Headers         m_Headers;      // HTTP头
-        std::string     m_Content;      // 内容
-        uint32_t        m_Capacity;     // 内容总长度
+        int8_t          type_;         // 类型
+        std::string     version_;      // 版本号
+        Headers         headers_;      // HTTP头
+        std::string     content_;      // 内容
+        uint32_t        capacity_;     // 内容总长度
     };
 
     // HTTP请求
@@ -86,33 +86,33 @@ namespace wukong {
         
     public:
         // URL
-        void setURL(const char *url) { m_URL = url; }
-        const std::string& getURL() const { return m_URL; }
+        void setURL(const char *url) { url_ = url; }
+        const std::string& getURL() const { return url_; }
         
         // URI
-        void setURI(const char *uri) { m_URI = uri; }
-        const std::string& getURI() const { return m_URI; }
+        void setURI(const char *uri) { uri_ = uri; }
+        const std::string& getURI() const { return uri_; }
         
         // METHOD
-        void setMethod(const char *method) { m_Method = method; }
-        const std::string& getMethod() const { return m_Method; }
+        void setMethod(const char *method) { method_ = method; }
+        const std::string& getMethod() const { return method_; }
         
         // PARAMS
         // 添加params
         void addParam(const char *key, const char *value);
         // 获取所有参数
-        const Params& getParams() const { return m_Params; }
+        const Params& getParams() const { return params_; }
         // 获取参数对应的VALUE
         const std::string & operator[] (const std::string &key);
         // 是否有这个参数
-        bool has(const std::string &param) const { return m_Params.end() != m_Params.find( param ); }
+        bool has(const std::string &param) const { return params_.end() != params_.find( param ); }
         
     private:
-        std::string     m_URL;
-        std::string     m_URI;
-        std::string     m_Method;
-        std::string     m_ClientHost;
-        Params          m_Params;
+        std::string     url_;
+        std::string     uri_;
+        std::string     method_;
+        std::string     clientHost_;
+        Params          params_;
     };
 
     // HTTP回应
@@ -122,11 +122,11 @@ namespace wukong {
         virtual ~ResponseMessage();
         
     public:
-        int32_t getStatusCode() const { return m_StatusCode; }
-        void setStatusCode(int32_t code) { m_StatusCode = code; }
+        int32_t getStatusCode() const { return statusCode_; }
+        void setStatusCode(int32_t code) { statusCode_ = code; }
         
-        const std::string getReasonPhrase() const { return m_ReasonPhrase; }
-        void setReasonPhrase(const char *reason) { m_ReasonPhrase = reason; }
+        const std::string getReasonPhrase() const { return reasonPhrase_; }
+        void setReasonPhrase(const char *reason) { reasonPhrase_ = reason; }
         
     private:
         static std::string reasonPhrase(int32_t code);
@@ -143,8 +143,8 @@ namespace wukong {
         void addDefaultHeaders();
         
     private:
-        int32_t         m_StatusCode;
-        std::string     m_ReasonPhrase;
+        int32_t         statusCode_;
+        std::string     reasonPhrase_;
     };
 
     /*! Enum for the HTTP status codes.

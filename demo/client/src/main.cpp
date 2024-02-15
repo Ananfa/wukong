@@ -13,18 +13,20 @@
 
 //#define TEST_RECONNECT
 
-uint32_t numPerThread = 1;
+uint32_t numPerThread = 20;
 bool reloginWithSameAccount = false;
 
-uint32_t maxNum = 1000;
+uint32_t maxNum = 200000;
 std::atomic<int> g_count(0);
+std::atomic<uint64_t> g_totalCostTm(0);
+std::atomic<uint64_t> g_maxCostTm(0);
+std::atomic<int> g_cnt(0);
+
 
 using namespace demo;
 using namespace corpc;
 using namespace wukong;
 using namespace rapidjson;
-
-static std::atomic<int> g_cnt(0);
 
 struct AccountInfo {
     uint32_t account;
@@ -65,8 +67,13 @@ static void *log_routine( void *arg )
         } else {
             average = total;
         }
+
+        uint64_t totalCostTm = g_totalCostTm.load();
+        int count = g_count.load();
+        uint64_t averageCostTm = totalCostTm / count;
+        uint64_t maxCostTm = g_maxCostTm.load();
         
-        LOG("time %ld seconds, cnt: %d, average: %d, total: %d\n", difTime, cnt, average, total);
+        LOG("time %ld seconds, cnt: %d, average: %d, total: %d, averageCost: %d, maxCost: %d\n", difTime, cnt, average, total, averageCostTm, maxCostTm);
         
         g_cnt -= cnt;
     }
@@ -78,6 +85,8 @@ static void *test_login(void *arg) {
     AccountInfo *accountInfo = (AccountInfo *)arg;
     DEBUG_LOG("account: %d\n", accountInfo->account);
     std::string account = std::to_string(accountInfo->account);
+    struct timeval loginStartTm;
+    gettimeofday(&loginStartTm, NULL);
 
     if (accountInfo->userId == 0) {
         std::string token;
@@ -91,7 +100,7 @@ static void *test_login(void *arg) {
             request.setQueryHeader("Content-Type", "application/x-www-form-urlencoded");
             request.addQueryParam("openid", account.c_str());
             g_HttpClient.doPost(&request, [&](const HttpResponse &response) {
-                //DEBUG_LOG("login response: %s\n", response.body().c_str());
+                DEBUG_LOG("login response: %s\n", response.body().c_str());
                 Document doc;
                 if (doc.Parse(response.body().c_str()).HasParseError()) {
                     ERROR_LOG("login failed for parse response error\n");
@@ -236,7 +245,7 @@ static void *test_login(void *arg) {
     uint16_t recvTag = 0;
     uint16_t lastRecvTag = 0;
     uint16_t sendTag = 1;
-    uint64_t sendHelloAt = 0;
+    //uint64_t sendHelloAt = 0;
     bool enterGame = false;
     std::shared_ptr<google::protobuf::Message> rMsg;
     while (true) {
@@ -245,7 +254,7 @@ static void *test_login(void *arg) {
             client->recv(rType, recvTag, rMsg);
             if (!rType) {
                 if (!client->isRunning()) {
-                    ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d, sendHelloAt:%d\n", account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->gToken.c_str(), enterGame, sendHelloAt);
+                    ERROR_LOG("client->recv connection closed, account:%s, userId: %d, roleId: %d, token: %s, enter: %d\n", account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->gToken.c_str(), enterGame);
 
                     exit(0);
                     // 断线处理，由于服务器在处理connect消息和auth消息时有概率顺序反了导致断线，这里直接进行重登
@@ -278,8 +287,20 @@ static void *test_login(void *arg) {
                 std::shared_ptr<pb::StringValue> resp = std::static_pointer_cast<pb::StringValue>(rMsg);
                 DEBUG_LOG("echo: %s\n", resp->value().c_str());
 
+                struct timeval loginFinishTm;
+                gettimeofday(&loginFinishTm, NULL);
+
+                uint64_t loginCostTime = (loginFinishTm.tv_sec - loginStartTm.tv_sec) * 1000000 + (loginFinishTm.tv_usec - loginStartTm.tv_usec);
+                uint64_t totalCostTm = g_totalCostTm.fetch_add(loginCostTime);
+
                 int count = g_count.fetch_add(1);
-                if (count > maxNum) {
+                
+                uint64_t maxCostTime = g_maxCostTm.load();
+                if (loginCostTime > maxCostTime) {
+                    g_maxCostTm.store(loginCostTime);
+                }
+
+                if (count >= maxNum) {
                     ERROR_LOG("finished\n");
                     client->stop();
                 } else {
@@ -318,14 +339,13 @@ static void *test_login(void *arg) {
             //ERROR_LOG("rType:%d\n", rType);
             g_cnt++;
             DEBUG_LOG("start send \"hello world\"\n");
+
             // 发Echo消息
             std::shared_ptr<pb::StringValue> echoReq(new pb::StringValue);
             echoReq->set_value("hello world");
 
             client->send(C2S_MESSAGE_ID_ECHO, ++sendTag, true, std::static_pointer_cast<google::protobuf::Message>(echoReq));
-            struct timeval t;
-            gettimeofday(&t, NULL);
-            sendHelloAt = t.tv_sec;
+            
         }
 
     }
@@ -354,10 +374,10 @@ int main(int argc, const char *argv[]) {
     LOG("start...\n");
 
     std::thread t1 = std::thread(clientThread, 20000000, numPerThread);
-    //std::thread t2 = std::thread(clientThread, 30000000, numPerThread);
-    //std::thread t3 = std::thread(clientThread, 40000000, numPerThread);
-    //std::thread t4 = std::thread(clientThread, 50000000, numPerThread);
-    //std::thread t5 = std::thread(clientThread, 60000000, numPerThread);
+    std::thread t2 = std::thread(clientThread, 30000000, numPerThread);
+    std::thread t3 = std::thread(clientThread, 40000000, numPerThread);
+    std::thread t4 = std::thread(clientThread, 50000000, numPerThread);
+    std::thread t5 = std::thread(clientThread, 60000000, numPerThread);
 
     RoutineEnvironment::startCoroutine(log_routine, NULL);
 

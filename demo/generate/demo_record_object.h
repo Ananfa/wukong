@@ -1,4 +1,4 @@
-// TODO：此文件通过工具生成
+// This file is generated. Don't edit it
 
 #ifndef demo_record_object_h
 #define demo_record_object_h

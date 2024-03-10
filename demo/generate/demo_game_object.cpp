@@ -1,4 +1,5 @@
-// TODO：此文件通过工具生成
+// This file is generated. Don't edit it
+
 #include "demo_game_object.h"
 #include "proto_utils.h"
 #include "share/const.h"
@@ -7,25 +8,22 @@ using namespace wukong;
 using namespace demo;
 
 DemoGameObject::DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): wukong::GameObject(userId, roleId, serverId, lToken, manager) {
-    // 设置属性初始值(基础类型可以有默认值)
     name_ = "";
     exp_ = 0;
-    lv_ = 1;
+    lv_ = 0;
     currency_ = new demo::pb::Currency;
     signinactivity_ = new demo::pb::SignInActivity;
 }
 
 DemoGameObject::~DemoGameObject() {
     delete currency_;
-    delete signinactivity_;
-
     for (auto &pair : card_map_) {
         delete pair.second;
     }
-
     for (auto &pair : pet_map_) {
         delete pair.second;
     }
+    delete signinactivity_;
 }
 
 bool DemoGameObject::initData(const std::string &data) {
@@ -134,7 +132,6 @@ bool DemoGameObject::initData(const std::string &data) {
 }
 
 void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {
-    // 根据_dirty_map中记录打包数据
     for (auto &pair : dirty_map_) {
         if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
@@ -211,7 +208,6 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
 }
 
 void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
-    // 将所有数据打包
     {
         auto msg = new wukong::pb::StringValue;
         msg->set_value(name_);
@@ -223,7 +219,6 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
         datas.push_back(std::make_pair("name", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(exp_);
@@ -235,7 +230,6 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
         datas.push_back(std::make_pair("exp", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(lv_);
@@ -247,7 +241,6 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
         datas.push_back(std::make_pair("lv", std::move(msgData)));
         delete msg;
     }
-
     {
         std::string msgData(currency_->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
@@ -255,7 +248,6 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
 
         datas.push_back(std::make_pair("currency", std::move(msgData)));
     }
-
     {
         auto msg = new demo::pb::Cards;
         for (auto &pair : card_map_) {
@@ -270,10 +262,9 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
         datas.push_back(std::make_pair("card", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new demo::pb::Pets;
-        for (auto pair : pet_map_) {
+        for (auto &pair : pet_map_) {
             auto pet = msg->add_pets();
             *pet = *(pair.second);
         }
@@ -285,7 +276,6 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
         datas.push_back(std::make_pair("pet", std::move(msgData)));
         delete msg;
     }
-
     {
         std::string msgData(signinactivity_->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
@@ -293,7 +283,6 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
 
         datas.push_back(std::make_pair("signinactivity", std::move(msgData)));
     }
-
 }
 
 void DemoGameObject::onEnterGame() {
@@ -422,7 +411,7 @@ void DemoGameObject::setPetDirty(uint32_t petid) {
 
 void DemoGameObject::addPet(demo::pb::Pet* pet) {
     pet_map_.insert(std::make_pair(pet->petid(), pet));
-    setCardDirty(pet->petid());
+    setPetDirty(pet->petid());
 }
 
 void DemoGameObject::removePet(uint32_t petid) {
@@ -430,14 +419,15 @@ void DemoGameObject::removePet(uint32_t petid) {
     if (it != pet_map_.end()) {
         delete it->second;
         pet_map_.erase(it);
-        setCardDirty(petid);
+        setPetDirty(petid);
     }
 }
 
-demo::pb::SignInActivity* DemoGameObject::getSignInActivity() {
+demo::pb::SignInActivity* DemoGameObject::getSigninactivity() {
     return signinactivity_;
 }
 
-void DemoGameObject::setSignInActivityDirty() {
+void DemoGameObject::setSigninactivityDirty() {
     dirty_map_["signinactivity"] = true;
 }
+

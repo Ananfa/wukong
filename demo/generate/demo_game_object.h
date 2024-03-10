@@ -1,12 +1,12 @@
-// TODO：此文件通过工具生成
+// This file is generated. Don't edit it
 
 #ifndef demo_game_object_h
 #define demo_game_object_h
 
-#include "game_object.h"
-#include "game_object_manager.h"
-#include "common.pb.h"
 #include "demo.pb.h"
+#include "game_object.h"
+#include "common.pb.h"
+#include "game_object_manager.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -14,7 +14,6 @@
 using namespace wukong;
 
 namespace demo {
-    // 注意：此对象非线程安全
     class DemoGameObject: public wukong::GameObject {
     public:
         DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager);
@@ -25,17 +24,14 @@ namespace demo {
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes);
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
         virtual void onEnterGame();
-
         const std::string& getName();
         void setName(const std::string& name);
         uint32_t getExp();
         void setExp(uint32_t exp);
         uint32_t getLv();
         void setLv(uint32_t lv);
-
         demo::pb::Currency* getCurrency();
         void setCurrencyDirty();
-
         std::vector<uint32_t> getAllCardKeys();
         bool hasCard(uint32_t cardid);
         uint32_t getCardNum();
@@ -43,7 +39,6 @@ namespace demo {
         void setCardDirty(uint32_t cardid);
         void addCard(demo::pb::Card* card);
         void removeCard(uint32_t cardid);
-
         std::vector<uint32_t> getAllPetKeys();
         bool hasPet(uint32_t petid);
         uint32_t getPetNum();
@@ -51,20 +46,18 @@ namespace demo {
         void setPetDirty(uint32_t petid);
         void addPet(demo::pb::Pet* pet);
         void removePet(uint32_t petid);
-
-        demo::pb::SignInActivity* getSignInActivity();
-        void setSignInActivityDirty();
+        demo::pb::SignInActivity* getSigninactivity();
+        void setSigninactivityDirty();
 
     private:
         std::string name_;
         uint32_t exp_;
         uint32_t lv_;
-        demo::pb::Currency* currency_ = nullptr;
+        demo::pb::Currency* currency_;
         std::map<uint32_t, demo::pb::Card*> card_map_;
         std::map<uint32_t, demo::pb::Pet*> pet_map_;
-        demo::pb::SignInActivity* signinactivity_ = nullptr;
+        demo::pb::SignInActivity* signinactivity_;
     };
-
 }
 
 #endif /* demo_game_object_h */

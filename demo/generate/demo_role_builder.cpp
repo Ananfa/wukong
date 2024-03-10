@@ -1,32 +1,29 @@
-// TODO：此文件通过工具生成
+// This file is generated. Don't edit it
 
 #include "demo_role_builder.h"
 
 using namespace demo;
 
 DemoRoleBuilder::DemoRoleBuilder() {
-	name_ = "";
+    name_ = "";
     exp_ = 0;
-    lv_ = 1;
+    lv_ = 0;
     currency_ = new demo::pb::Currency;
     signinactivity_ = new demo::pb::SignInActivity;
 }
 
 DemoRoleBuilder::~DemoRoleBuilder() {
     delete currency_;
-    delete signinactivity_;
-
     for (auto &pair : card_map_) {
         delete pair.second;
     }
-
     for (auto &pair : pet_map_) {
         delete pair.second;
     }
+    delete signinactivity_;
 }
 
 void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> &datas) {
-    // 将所有数据打包
     {
         auto msg = new wukong::pb::StringValue;
         msg->set_value(name_);
@@ -38,7 +35,6 @@ void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> 
         datas.push_back(std::make_pair("name", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(exp_);
@@ -50,7 +46,6 @@ void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> 
         datas.push_back(std::make_pair("exp", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(lv_);
@@ -62,7 +57,6 @@ void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> 
         datas.push_back(std::make_pair("lv", std::move(msgData)));
         delete msg;
     }
-
     {
         std::string msgData(currency_->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
@@ -70,7 +64,6 @@ void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> 
 
         datas.push_back(std::make_pair("currency", std::move(msgData)));
     }
-
     {
         auto msg = new demo::pb::Cards;
         for (auto &pair : card_map_) {
@@ -85,10 +78,9 @@ void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> 
         datas.push_back(std::make_pair("card", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new demo::pb::Pets;
-        for (auto pair : pet_map_) {
+        for (auto &pair : pet_map_) {
             auto pet = msg->add_pets();
             *pet = *(pair.second);
         }
@@ -100,7 +92,6 @@ void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> 
         datas.push_back(std::make_pair("pet", std::move(msgData)));
         delete msg;
     }
-
     {
         std::string msgData(signinactivity_->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
@@ -111,29 +102,30 @@ void DemoRoleBuilder::buildDatas(std::list<std::pair<std::string, std::string>> 
 }
 
 void DemoRoleBuilder::setName(const std::string& name) {
-	name_ = name;
+    name_ = name;
 }
 
 void DemoRoleBuilder::setExp(uint32_t exp) {
-	exp_ = exp;
+    exp_ = exp;
 }
 
 void DemoRoleBuilder::setLv(uint32_t lv) {
-	lv_ = lv;
+    lv_ = lv;
 }
 
 demo::pb::Currency* DemoRoleBuilder::getCurrency() {
-	return currency_;
+    return currency_;
 }
 
 void DemoRoleBuilder::addCard(demo::pb::Card* card) {
-	card_map_.insert(std::make_pair(card->cardid(), card));
+    card_map_.insert(std::make_pair(card->cardid(), card));
 }
 
 void DemoRoleBuilder::addPet(demo::pb::Pet* pet) {
-	pet_map_.insert(std::make_pair(pet->petid(), pet));
+    pet_map_.insert(std::make_pair(pet->petid(), pet));
 }
 
-demo::pb::SignInActivity* DemoRoleBuilder::getSignInActivity() {
-	return signinactivity_;
+demo::pb::SignInActivity* DemoRoleBuilder::getSigninactivity() {
+    return signinactivity_;
 }
+

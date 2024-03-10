@@ -1,4 +1,4 @@
-// TODO：此文件通过工具生成
+// This file is generated. Don't edit it
 
 #include "demo_utils.h"
 #include "redis_utils.h"
@@ -13,10 +13,9 @@ using namespace wukong;
 bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &pDatas) {
     serverId = 0;
     pDatas.clear();
-    // 先从cache中加载profile数据
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
-        ERROR_LOG("DemoUtils::LoadProfile -- connect to cache failed\n");
+        ERROR_LOG("connect to cache failed\n");
         return false;
     }
 
@@ -27,7 +26,7 @@ bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, s
         }
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("DemoUtils::LoadProfile -- load role profile failed for db error\n");
+            ERROR_LOG("load role profile failed for db error\n");
             return false;
         }
     }
@@ -36,10 +35,9 @@ bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, s
 
     std::list<std::pair<std::string, std::string>> rDatas;
 
-    // cache中找不到profile数据，先从cache中尝试加载角色数据并存入cache中
     if (RedisUtils::LoadRole(cache, roleId, userId, serverId, rDatas, false) == REDIS_DB_ERROR) {
         g_RedisPoolManager.getCoreCache()->put(cache, true);
-        ERROR_LOG("DemoUtils::LoadProfile -- load role data failed for db error\n");
+        ERROR_LOG("load role data failed for db error\n");
         return false;
     }
     
@@ -49,12 +47,12 @@ bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, s
         switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, pDatas)) {
             case REDIS_DB_ERROR: {
                 g_RedisPoolManager.getCoreCache()->put(cache, true);
-                ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed for db error\n");
+                ERROR_LOG("save role profile failed for db error\n");
                 return false;
             }
             case REDIS_FAIL: {
                 g_RedisPoolManager.getCoreCache()->put(cache, false);
-                ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed\n");
+                ERROR_LOG("save role profile failed\n");
                 return false;
             }
         }
@@ -65,10 +63,9 @@ bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, s
     
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
-    // cache中没有数据，需要从mysql中加载数据并存入cache中
     MYSQL *mysql = g_MysqlPoolManager.getCoreRecord()->take();
     if (!mysql) {
-        ERROR_LOG("DemoUtils::LoadProfile -- connect to mysql failed\n");
+        ERROR_LOG("connect to mysql failed\n");
         return false;
     }
 
@@ -77,18 +74,17 @@ bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, s
         g_MysqlPoolManager.getCoreRecord()->put(mysql, true);
         return false;
     }
-    DEBUG_LOG("loadRole -- roleId:%d userId:%d\n", roleId, userId);
 
     g_MysqlPoolManager.getCoreRecord()->put(mysql, false);
 
     if (data.empty()) {
-        ERROR_LOG("DemoUtils::LoadProfile -- no role data\n");
+        ERROR_LOG("no role data\n");
         return false;
     }
 
     wukong::pb::DataFragments fragments;
     if (!fragments.ParseFromString(data)) {
-        ERROR_LOG("DemoUtils::LoadProfile -- parse role:%d data failed\n", roleId);
+        ERROR_LOG("parse role:%d data failed\n", roleId);
         return false;
     }
 
@@ -106,19 +102,19 @@ bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, s
 
     cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
-        ERROR_LOG("DemoUtils::LoadProfile -- connect to cache failed\n");
+        ERROR_LOG("connect to cache failed\n");
         return false;
     }
 
     switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, pDatas)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
-            ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed for db error\n");
+            ERROR_LOG("save role profile failed for db error\n");
             return false;
         }
         case REDIS_FAIL: {
             g_RedisPoolManager.getCoreCache()->put(cache, false);
-            ERROR_LOG("DemoUtils::LoadProfile -- save role profile failed\n");
+            ERROR_LOG("save role profile failed\n");
             return false;
         }
     }
@@ -128,9 +124,8 @@ bool DemoUtils::LoadProfile(RoleId roleId, UserId &userId, ServerId &serverId, s
 }
 
 void DemoUtils::MakeProfile(const std::list<std::pair<std::string, std::string>> &datas, std::list<std::pair<std::string, std::string>> &pDatas) {
-    // 注意：下面这段循环在不同生成代码中会不一样
     for (auto &data : datas) {
-        if (data.first.compare("name") == 0 || 
+        if (data.first.compare("name") == 0|| 
             data.first.compare("lv") == 0) {
             pDatas.push_back(data);
         }

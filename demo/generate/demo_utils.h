@@ -1,4 +1,4 @@
-// TODO：此文件通过工具生成
+// This file is generated. Don't edit it
 
 #ifndef demo_utils_h
 #define demo_utils_h

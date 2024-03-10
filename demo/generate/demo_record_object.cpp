@@ -1,14 +1,14 @@
-// TODO：此文件通过工具生成
+// This file is generated. Don't edit it
+
 #include "demo_record_object.h"
 #include "corpc_utils.h"
 
 using namespace demo;
 
 DemoRecordObject::DemoRecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): wukong::RecordObject(userId, roleId, serverId, rToken, manager) {
-    // 设置属性初始值(基础类型可以有默认值)
     name_ = "";
     exp_ = 0;
-    lv_ = 1;
+    lv_ = 0;
     currency_ = new demo::pb::Currency;
     signinactivity_ = new demo::pb::SignInActivity;
 }
@@ -227,7 +227,6 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
 }
 
 void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) {
-    // 将脏数据打包
     for (auto &pair : dirty_map_) {
         if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
@@ -302,7 +301,6 @@ void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::stri
 }
 
 void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
-    // 将所有数据打包
     {
         auto msg = new wukong::pb::StringValue;
         msg->set_value(name_);
@@ -314,7 +312,6 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         datas.push_back(std::make_pair("name", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(exp_);
@@ -326,7 +323,6 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         datas.push_back(std::make_pair("exp", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new wukong::pb::Uint32Value;
         msg->set_value(lv_);
@@ -338,7 +334,6 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         datas.push_back(std::make_pair("lv", std::move(msgData)));
         delete msg;
     }
-
     {
         std::string msgData(currency_->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
@@ -346,7 +341,6 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
 
         datas.push_back(std::make_pair("currency", std::move(msgData)));
     }
-
     {
         auto msg = new demo::pb::Cards;
         for (auto &pair : card_map_) {
@@ -361,10 +355,9 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         datas.push_back(std::make_pair("card", std::move(msgData)));
         delete msg;
     }
-
     {
         auto msg = new demo::pb::Pets;
-        for (auto pair : pet_map_) {
+        for (auto &pair : pet_map_) {
             auto pet = msg->add_pets();
             *pet = *(pair.second);
         }
@@ -376,7 +369,6 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
         datas.push_back(std::make_pair("pet", std::move(msgData)));
         delete msg;
     }
-
     {
         std::string msgData(signinactivity_->ByteSizeLong(), 0);
         uint8_t *buf = (uint8_t *)msgData.data();
@@ -384,5 +376,4 @@ void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::strin
 
         datas.push_back(std::make_pair("signinactivity", std::move(msgData)));
     }
-
 }

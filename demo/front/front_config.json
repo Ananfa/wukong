@@ -1,0 +1,16 @@
+{
+    "ip": "0.0.0.0",
+    "port": 16000,
+    "workerThreadNum": 4,
+    "redis": [
+        {
+            "dbName": "cache",
+            "host": "127.0.0.1",
+            "port": 6379,
+            "pwd": "",
+            "maxConnect": 8,
+            "dbIndex": 0
+        }
+    ],
+    "coreCache": "cache"
+}

@@ -215,7 +215,23 @@ bool LoginConfig::parse(const char *path) {
         return false;
     }
     coreRecord_ = doc["coreRecord"].GetString();
-    
+
+    if (doc.HasMember("front")) {
+        const Value& front = doc["front"];
+
+        if (!front.HasMember("host")) {
+            ERROR_LOG("config error -- front.host not define\n");
+            return false;
+        }
+        frontAddr_.host = front["host"].GetString();
+
+        if (!front.HasMember("port")) {
+            ERROR_LOG("config error -- front.port not define\n");
+            return false;
+        }
+        frontAddr_.port = front["port"].GetUint();
+    }
+
     zooPath_ = ZK_LOGIN_SERVER + "/" + std::to_string(id_) + "|" + serviceIp_ + ":" + std::to_string(servicePort_);
 
     return true;

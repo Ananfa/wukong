@@ -11,6 +11,7 @@ message AuthRequest {
     string token = 2;      // 登录token
     string cipher = 3;     // 通信密码（经过RSA加密）
     uint32 recvSerial = 4; // 客户端接收的最后消息序号
+    uint32 gateId = 5;     // 网关服id
 }
 
 // 消息屏蔽回复

@@ -35,6 +35,7 @@ struct AccountInfo {
     uint32_t roleId = 0;
     std::string gToken;
     uint32_t lastRecvSerial = 0;
+    uint32_t gateId = 0;
     std::string gatewayHost;
     uint16_t gatewayPort;
 };
@@ -207,6 +208,7 @@ static void *test_login(void *arg) {
                 }
 
                 accountInfo->gToken = doc["gToken"].GetString();
+                accountInfo->gateId = doc["gateId"].GetUint();
                 accountInfo->gatewayHost = doc["host"].GetString();
                 accountInfo->gatewayPort = doc["port"].GetUint();
             });
@@ -237,7 +239,8 @@ static void *test_login(void *arg) {
     authreq->set_token(accountInfo->gToken.c_str());
     authreq->set_cipher(accountInfo->cipher.c_str());
     authreq->set_recvserial(accountInfo->lastRecvSerial);
-    DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d, recvSerial: %d\n", account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->lastRecvSerial);
+    authreq->set_gateid(accountInfo->gateId);
+    DEBUG_LOG("======== send auth, account:%s, userId: %d, roleId: %d, recvSerial: %d, gateId: %d\n", account.c_str(), accountInfo->userId, accountInfo->roleId, accountInfo->lastRecvSerial, accountInfo->gateId);
     client->send(C2S_MESSAGE_ID_AUTH, 0, false, authreq);
 
     // 接收处理从服务器发来

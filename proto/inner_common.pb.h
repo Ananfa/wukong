@@ -46,7 +46,7 @@ struct TableStruct_inner_5fcommon_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[9]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -55,21 +55,45 @@ struct TableStruct_inner_5fcommon_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_inner_5fcommon_2eproto;
 namespace wukong {
 namespace pb {
+class GateServerInfo;
+struct GateServerInfoDefaultTypeInternal;
+extern GateServerInfoDefaultTypeInternal _GateServerInfo_default_instance_;
 class GlobalEventMessage;
 struct GlobalEventMessageDefaultTypeInternal;
 extern GlobalEventMessageDefaultTypeInternal _GlobalEventMessage_default_instance_;
+class LobbyServerInfo;
+struct LobbyServerInfoDefaultTypeInternal;
+extern LobbyServerInfoDefaultTypeInternal _LobbyServerInfo_default_instance_;
 class OnlineCount;
 struct OnlineCountDefaultTypeInternal;
 extern OnlineCountDefaultTypeInternal _OnlineCount_default_instance_;
 class OnlineCounts;
 struct OnlineCountsDefaultTypeInternal;
 extern OnlineCountsDefaultTypeInternal _OnlineCounts_default_instance_;
+class RecordServerInfo;
+struct RecordServerInfoDefaultTypeInternal;
+extern RecordServerInfoDefaultTypeInternal _RecordServerInfo_default_instance_;
+class SceneServerInfo;
+struct SceneServerInfoDefaultTypeInternal;
+extern SceneServerInfoDefaultTypeInternal _SceneServerInfo_default_instance_;
+class ServerAccessRequest;
+struct ServerAccessRequestDefaultTypeInternal;
+extern ServerAccessRequestDefaultTypeInternal _ServerAccessRequest_default_instance_;
+class ServerInfo;
+struct ServerInfoDefaultTypeInternal;
+extern ServerInfoDefaultTypeInternal _ServerInfo_default_instance_;
 }  // namespace pb
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
+template<> ::wukong::pb::GateServerInfo* Arena::CreateMaybeMessage<::wukong::pb::GateServerInfo>(Arena*);
 template<> ::wukong::pb::GlobalEventMessage* Arena::CreateMaybeMessage<::wukong::pb::GlobalEventMessage>(Arena*);
+template<> ::wukong::pb::LobbyServerInfo* Arena::CreateMaybeMessage<::wukong::pb::LobbyServerInfo>(Arena*);
 template<> ::wukong::pb::OnlineCount* Arena::CreateMaybeMessage<::wukong::pb::OnlineCount>(Arena*);
 template<> ::wukong::pb::OnlineCounts* Arena::CreateMaybeMessage<::wukong::pb::OnlineCounts>(Arena*);
+template<> ::wukong::pb::RecordServerInfo* Arena::CreateMaybeMessage<::wukong::pb::RecordServerInfo>(Arena*);
+template<> ::wukong::pb::SceneServerInfo* Arena::CreateMaybeMessage<::wukong::pb::SceneServerInfo>(Arena*);
+template<> ::wukong::pb::ServerAccessRequest* Arena::CreateMaybeMessage<::wukong::pb::ServerAccessRequest>(Arena*);
+template<> ::wukong::pb::ServerInfo* Arena::CreateMaybeMessage<::wukong::pb::ServerInfo>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
 namespace pb {
@@ -532,6 +556,969 @@ class GlobalEventMessage final :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_inner_5fcommon_2eproto;
 };
+// -------------------------------------------------------------------
+
+class GateServerInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.GateServerInfo) */ {
+ public:
+  inline GateServerInfo() : GateServerInfo(nullptr) {}
+  ~GateServerInfo() override;
+  explicit constexpr GateServerInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GateServerInfo(const GateServerInfo& from);
+  GateServerInfo(GateServerInfo&& from) noexcept
+    : GateServerInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline GateServerInfo& operator=(const GateServerInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GateServerInfo& operator=(GateServerInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GateServerInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GateServerInfo* internal_default_instance() {
+    return reinterpret_cast<const GateServerInfo*>(
+               &_GateServerInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(GateServerInfo& a, GateServerInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GateServerInfo* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GateServerInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline GateServerInfo* New() const final {
+    return new GateServerInfo();
+  }
+
+  GateServerInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<GateServerInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GateServerInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const GateServerInfo& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GateServerInfo* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.GateServerInfo";
+  }
+  protected:
+  explicit GateServerInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kMsgHostFieldNumber = 1,
+    kMsgPortFieldNumber = 2,
+  };
+  // string msg_host = 1;
+  void clear_msg_host();
+  const std::string& msg_host() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_msg_host(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_msg_host();
+  PROTOBUF_MUST_USE_RESULT std::string* release_msg_host();
+  void set_allocated_msg_host(std::string* msg_host);
+  private:
+  const std::string& _internal_msg_host() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_msg_host(const std::string& value);
+  std::string* _internal_mutable_msg_host();
+  public:
+
+  // int32 msg_port = 2;
+  void clear_msg_port();
+  ::PROTOBUF_NAMESPACE_ID::int32 msg_port() const;
+  void set_msg_port(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_msg_port() const;
+  void _internal_set_msg_port(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.GateServerInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr msg_host_;
+  ::PROTOBUF_NAMESPACE_ID::int32 msg_port_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_inner_5fcommon_2eproto;
+};
+// -------------------------------------------------------------------
+
+class LobbyServerInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.LobbyServerInfo) */ {
+ public:
+  inline LobbyServerInfo() : LobbyServerInfo(nullptr) {}
+  ~LobbyServerInfo() override;
+  explicit constexpr LobbyServerInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  LobbyServerInfo(const LobbyServerInfo& from);
+  LobbyServerInfo(LobbyServerInfo&& from) noexcept
+    : LobbyServerInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline LobbyServerInfo& operator=(const LobbyServerInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LobbyServerInfo& operator=(LobbyServerInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LobbyServerInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LobbyServerInfo* internal_default_instance() {
+    return reinterpret_cast<const LobbyServerInfo*>(
+               &_LobbyServerInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(LobbyServerInfo& a, LobbyServerInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LobbyServerInfo* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LobbyServerInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LobbyServerInfo* New() const final {
+    return new LobbyServerInfo();
+  }
+
+  LobbyServerInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<LobbyServerInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const LobbyServerInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const LobbyServerInfo& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LobbyServerInfo* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.LobbyServerInfo";
+  }
+  protected:
+  explicit LobbyServerInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.LobbyServerInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_inner_5fcommon_2eproto;
+};
+// -------------------------------------------------------------------
+
+class RecordServerInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.RecordServerInfo) */ {
+ public:
+  inline RecordServerInfo() : RecordServerInfo(nullptr) {}
+  ~RecordServerInfo() override;
+  explicit constexpr RecordServerInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  RecordServerInfo(const RecordServerInfo& from);
+  RecordServerInfo(RecordServerInfo&& from) noexcept
+    : RecordServerInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline RecordServerInfo& operator=(const RecordServerInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RecordServerInfo& operator=(RecordServerInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const RecordServerInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const RecordServerInfo* internal_default_instance() {
+    return reinterpret_cast<const RecordServerInfo*>(
+               &_RecordServerInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(RecordServerInfo& a, RecordServerInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RecordServerInfo* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(RecordServerInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline RecordServerInfo* New() const final {
+    return new RecordServerInfo();
+  }
+
+  RecordServerInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<RecordServerInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const RecordServerInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const RecordServerInfo& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RecordServerInfo* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.RecordServerInfo";
+  }
+  protected:
+  explicit RecordServerInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.RecordServerInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_inner_5fcommon_2eproto;
+};
+// -------------------------------------------------------------------
+
+class SceneServerInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.SceneServerInfo) */ {
+ public:
+  inline SceneServerInfo() : SceneServerInfo(nullptr) {}
+  ~SceneServerInfo() override;
+  explicit constexpr SceneServerInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  SceneServerInfo(const SceneServerInfo& from);
+  SceneServerInfo(SceneServerInfo&& from) noexcept
+    : SceneServerInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline SceneServerInfo& operator=(const SceneServerInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SceneServerInfo& operator=(SceneServerInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const SceneServerInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SceneServerInfo* internal_default_instance() {
+    return reinterpret_cast<const SceneServerInfo*>(
+               &_SceneServerInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(SceneServerInfo& a, SceneServerInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SceneServerInfo* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SceneServerInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline SceneServerInfo* New() const final {
+    return new SceneServerInfo();
+  }
+
+  SceneServerInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<SceneServerInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const SceneServerInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const SceneServerInfo& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SceneServerInfo* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.SceneServerInfo";
+  }
+  protected:
+  explicit SceneServerInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.SceneServerInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_inner_5fcommon_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ServerInfo final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.ServerInfo) */ {
+ public:
+  inline ServerInfo() : ServerInfo(nullptr) {}
+  ~ServerInfo() override;
+  explicit constexpr ServerInfo(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ServerInfo(const ServerInfo& from);
+  ServerInfo(ServerInfo&& from) noexcept
+    : ServerInfo() {
+    *this = ::std::move(from);
+  }
+
+  inline ServerInfo& operator=(const ServerInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ServerInfo& operator=(ServerInfo&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ServerInfo& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ServerInfo* internal_default_instance() {
+    return reinterpret_cast<const ServerInfo*>(
+               &_ServerInfo_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(ServerInfo& a, ServerInfo& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ServerInfo* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ServerInfo* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ServerInfo* New() const final {
+    return new ServerInfo();
+  }
+
+  ServerInfo* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ServerInfo>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ServerInfo& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const ServerInfo& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ServerInfo* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.ServerInfo";
+  }
+  protected:
+  explicit ServerInfo(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kRpcHostFieldNumber = 3,
+    kGateInfoFieldNumber = 6,
+    kLobbyInfoFieldNumber = 7,
+    kRecordInfoFieldNumber = 8,
+    kSceneInfoFieldNumber = 9,
+    kServerTypeFieldNumber = 1,
+    kServerIdFieldNumber = 2,
+    kRpcPortFieldNumber = 4,
+  };
+  // string rpc_host = 3;
+  void clear_rpc_host();
+  const std::string& rpc_host() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_rpc_host(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_rpc_host();
+  PROTOBUF_MUST_USE_RESULT std::string* release_rpc_host();
+  void set_allocated_rpc_host(std::string* rpc_host);
+  private:
+  const std::string& _internal_rpc_host() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_rpc_host(const std::string& value);
+  std::string* _internal_mutable_rpc_host();
+  public:
+
+  // .wukong.pb.GateServerInfo gate_info = 6;
+  bool has_gate_info() const;
+  private:
+  bool _internal_has_gate_info() const;
+  public:
+  void clear_gate_info();
+  const ::wukong::pb::GateServerInfo& gate_info() const;
+  PROTOBUF_MUST_USE_RESULT ::wukong::pb::GateServerInfo* release_gate_info();
+  ::wukong::pb::GateServerInfo* mutable_gate_info();
+  void set_allocated_gate_info(::wukong::pb::GateServerInfo* gate_info);
+  private:
+  const ::wukong::pb::GateServerInfo& _internal_gate_info() const;
+  ::wukong::pb::GateServerInfo* _internal_mutable_gate_info();
+  public:
+  void unsafe_arena_set_allocated_gate_info(
+      ::wukong::pb::GateServerInfo* gate_info);
+  ::wukong::pb::GateServerInfo* unsafe_arena_release_gate_info();
+
+  // .wukong.pb.LobbyServerInfo lobby_info = 7;
+  bool has_lobby_info() const;
+  private:
+  bool _internal_has_lobby_info() const;
+  public:
+  void clear_lobby_info();
+  const ::wukong::pb::LobbyServerInfo& lobby_info() const;
+  PROTOBUF_MUST_USE_RESULT ::wukong::pb::LobbyServerInfo* release_lobby_info();
+  ::wukong::pb::LobbyServerInfo* mutable_lobby_info();
+  void set_allocated_lobby_info(::wukong::pb::LobbyServerInfo* lobby_info);
+  private:
+  const ::wukong::pb::LobbyServerInfo& _internal_lobby_info() const;
+  ::wukong::pb::LobbyServerInfo* _internal_mutable_lobby_info();
+  public:
+  void unsafe_arena_set_allocated_lobby_info(
+      ::wukong::pb::LobbyServerInfo* lobby_info);
+  ::wukong::pb::LobbyServerInfo* unsafe_arena_release_lobby_info();
+
+  // .wukong.pb.RecordServerInfo record_info = 8;
+  bool has_record_info() const;
+  private:
+  bool _internal_has_record_info() const;
+  public:
+  void clear_record_info();
+  const ::wukong::pb::RecordServerInfo& record_info() const;
+  PROTOBUF_MUST_USE_RESULT ::wukong::pb::RecordServerInfo* release_record_info();
+  ::wukong::pb::RecordServerInfo* mutable_record_info();
+  void set_allocated_record_info(::wukong::pb::RecordServerInfo* record_info);
+  private:
+  const ::wukong::pb::RecordServerInfo& _internal_record_info() const;
+  ::wukong::pb::RecordServerInfo* _internal_mutable_record_info();
+  public:
+  void unsafe_arena_set_allocated_record_info(
+      ::wukong::pb::RecordServerInfo* record_info);
+  ::wukong::pb::RecordServerInfo* unsafe_arena_release_record_info();
+
+  // .wukong.pb.SceneServerInfo scene_info = 9;
+  bool has_scene_info() const;
+  private:
+  bool _internal_has_scene_info() const;
+  public:
+  void clear_scene_info();
+  const ::wukong::pb::SceneServerInfo& scene_info() const;
+  PROTOBUF_MUST_USE_RESULT ::wukong::pb::SceneServerInfo* release_scene_info();
+  ::wukong::pb::SceneServerInfo* mutable_scene_info();
+  void set_allocated_scene_info(::wukong::pb::SceneServerInfo* scene_info);
+  private:
+  const ::wukong::pb::SceneServerInfo& _internal_scene_info() const;
+  ::wukong::pb::SceneServerInfo* _internal_mutable_scene_info();
+  public:
+  void unsafe_arena_set_allocated_scene_info(
+      ::wukong::pb::SceneServerInfo* scene_info);
+  ::wukong::pb::SceneServerInfo* unsafe_arena_release_scene_info();
+
+  // int32 server_type = 1;
+  void clear_server_type();
+  ::PROTOBUF_NAMESPACE_ID::int32 server_type() const;
+  void set_server_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_server_type() const;
+  void _internal_set_server_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 server_id = 2;
+  void clear_server_id();
+  ::PROTOBUF_NAMESPACE_ID::int32 server_id() const;
+  void set_server_id(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_server_id() const;
+  void _internal_set_server_id(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 rpc_port = 4;
+  void clear_rpc_port();
+  ::PROTOBUF_NAMESPACE_ID::int32 rpc_port() const;
+  void set_rpc_port(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_rpc_port() const;
+  void _internal_set_rpc_port(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.ServerInfo)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rpc_host_;
+  ::wukong::pb::GateServerInfo* gate_info_;
+  ::wukong::pb::LobbyServerInfo* lobby_info_;
+  ::wukong::pb::RecordServerInfo* record_info_;
+  ::wukong::pb::SceneServerInfo* scene_info_;
+  ::PROTOBUF_NAMESPACE_ID::int32 server_type_;
+  ::PROTOBUF_NAMESPACE_ID::int32 server_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 rpc_port_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_inner_5fcommon_2eproto;
+};
+// -------------------------------------------------------------------
+
+class ServerAccessRequest final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.ServerAccessRequest) */ {
+ public:
+  inline ServerAccessRequest() : ServerAccessRequest(nullptr) {}
+  ~ServerAccessRequest() override;
+  explicit constexpr ServerAccessRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ServerAccessRequest(const ServerAccessRequest& from);
+  ServerAccessRequest(ServerAccessRequest&& from) noexcept
+    : ServerAccessRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline ServerAccessRequest& operator=(const ServerAccessRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ServerAccessRequest& operator=(ServerAccessRequest&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const ServerAccessRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ServerAccessRequest* internal_default_instance() {
+    return reinterpret_cast<const ServerAccessRequest*>(
+               &_ServerAccessRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  friend void swap(ServerAccessRequest& a, ServerAccessRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ServerAccessRequest* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ServerAccessRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ServerAccessRequest* New() const final {
+    return new ServerAccessRequest();
+  }
+
+  ServerAccessRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ServerAccessRequest>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const ServerAccessRequest& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const ServerAccessRequest& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ServerAccessRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.ServerAccessRequest";
+  }
+  protected:
+  explicit ServerAccessRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kConcernTypesFieldNumber = 2,
+    kServerInfoFieldNumber = 1,
+  };
+  // repeated int32 concern_types = 2;
+  int concern_types_size() const;
+  private:
+  int _internal_concern_types_size() const;
+  public:
+  void clear_concern_types();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_concern_types(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      _internal_concern_types() const;
+  void _internal_add_concern_types(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      _internal_mutable_concern_types();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::int32 concern_types(int index) const;
+  void set_concern_types(int index, ::PROTOBUF_NAMESPACE_ID::int32 value);
+  void add_concern_types(::PROTOBUF_NAMESPACE_ID::int32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      concern_types() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      mutable_concern_types();
+
+  // .wukong.pb.ServerInfo server_info = 1;
+  bool has_server_info() const;
+  private:
+  bool _internal_has_server_info() const;
+  public:
+  void clear_server_info();
+  const ::wukong::pb::ServerInfo& server_info() const;
+  PROTOBUF_MUST_USE_RESULT ::wukong::pb::ServerInfo* release_server_info();
+  ::wukong::pb::ServerInfo* mutable_server_info();
+  void set_allocated_server_info(::wukong::pb::ServerInfo* server_info);
+  private:
+  const ::wukong::pb::ServerInfo& _internal_server_info() const;
+  ::wukong::pb::ServerInfo* _internal_mutable_server_info();
+  public:
+  void unsafe_arena_set_allocated_server_info(
+      ::wukong::pb::ServerInfo* server_info);
+  ::wukong::pb::ServerInfo* unsafe_arena_release_server_info();
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.ServerAccessRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 > concern_types_;
+  mutable std::atomic<int> _concern_types_cached_byte_size_;
+  ::wukong::pb::ServerInfo* server_info_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_inner_5fcommon_2eproto;
+};
 // ===================================================================
 
 
@@ -723,9 +1710,714 @@ inline void GlobalEventMessage::set_allocated_data(std::string* data) {
   // @@protoc_insertion_point(field_set_allocated:wukong.pb.GlobalEventMessage.data)
 }
 
+// -------------------------------------------------------------------
+
+// GateServerInfo
+
+// string msg_host = 1;
+inline void GateServerInfo::clear_msg_host() {
+  msg_host_.ClearToEmpty();
+}
+inline const std::string& GateServerInfo::msg_host() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.GateServerInfo.msg_host)
+  return _internal_msg_host();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void GateServerInfo::set_msg_host(ArgT0&& arg0, ArgT... args) {
+ 
+ msg_host_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:wukong.pb.GateServerInfo.msg_host)
+}
+inline std::string* GateServerInfo::mutable_msg_host() {
+  std::string* _s = _internal_mutable_msg_host();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.GateServerInfo.msg_host)
+  return _s;
+}
+inline const std::string& GateServerInfo::_internal_msg_host() const {
+  return msg_host_.Get();
+}
+inline void GateServerInfo::_internal_set_msg_host(const std::string& value) {
+  
+  msg_host_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* GateServerInfo::_internal_mutable_msg_host() {
+  
+  return msg_host_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* GateServerInfo::release_msg_host() {
+  // @@protoc_insertion_point(field_release:wukong.pb.GateServerInfo.msg_host)
+  return msg_host_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void GateServerInfo::set_allocated_msg_host(std::string* msg_host) {
+  if (msg_host != nullptr) {
+    
+  } else {
+    
+  }
+  msg_host_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), msg_host,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.GateServerInfo.msg_host)
+}
+
+// int32 msg_port = 2;
+inline void GateServerInfo::clear_msg_port() {
+  msg_port_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 GateServerInfo::_internal_msg_port() const {
+  return msg_port_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 GateServerInfo::msg_port() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.GateServerInfo.msg_port)
+  return _internal_msg_port();
+}
+inline void GateServerInfo::_internal_set_msg_port(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  msg_port_ = value;
+}
+inline void GateServerInfo::set_msg_port(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_msg_port(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.GateServerInfo.msg_port)
+}
+
+// -------------------------------------------------------------------
+
+// LobbyServerInfo
+
+// -------------------------------------------------------------------
+
+// RecordServerInfo
+
+// -------------------------------------------------------------------
+
+// SceneServerInfo
+
+// -------------------------------------------------------------------
+
+// ServerInfo
+
+// int32 server_type = 1;
+inline void ServerInfo::clear_server_type() {
+  server_type_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerInfo::_internal_server_type() const {
+  return server_type_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerInfo::server_type() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.server_type)
+  return _internal_server_type();
+}
+inline void ServerInfo::_internal_set_server_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  server_type_ = value;
+}
+inline void ServerInfo::set_server_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_server_type(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ServerInfo.server_type)
+}
+
+// int32 server_id = 2;
+inline void ServerInfo::clear_server_id() {
+  server_id_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerInfo::_internal_server_id() const {
+  return server_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerInfo::server_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.server_id)
+  return _internal_server_id();
+}
+inline void ServerInfo::_internal_set_server_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  server_id_ = value;
+}
+inline void ServerInfo::set_server_id(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_server_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ServerInfo.server_id)
+}
+
+// string rpc_host = 3;
+inline void ServerInfo::clear_rpc_host() {
+  rpc_host_.ClearToEmpty();
+}
+inline const std::string& ServerInfo::rpc_host() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.rpc_host)
+  return _internal_rpc_host();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void ServerInfo::set_rpc_host(ArgT0&& arg0, ArgT... args) {
+ 
+ rpc_host_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:wukong.pb.ServerInfo.rpc_host)
+}
+inline std::string* ServerInfo::mutable_rpc_host() {
+  std::string* _s = _internal_mutable_rpc_host();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ServerInfo.rpc_host)
+  return _s;
+}
+inline const std::string& ServerInfo::_internal_rpc_host() const {
+  return rpc_host_.Get();
+}
+inline void ServerInfo::_internal_set_rpc_host(const std::string& value) {
+  
+  rpc_host_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* ServerInfo::_internal_mutable_rpc_host() {
+  
+  return rpc_host_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* ServerInfo::release_rpc_host() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ServerInfo.rpc_host)
+  return rpc_host_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void ServerInfo::set_allocated_rpc_host(std::string* rpc_host) {
+  if (rpc_host != nullptr) {
+    
+  } else {
+    
+  }
+  rpc_host_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), rpc_host,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ServerInfo.rpc_host)
+}
+
+// int32 rpc_port = 4;
+inline void ServerInfo::clear_rpc_port() {
+  rpc_port_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerInfo::_internal_rpc_port() const {
+  return rpc_port_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerInfo::rpc_port() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.rpc_port)
+  return _internal_rpc_port();
+}
+inline void ServerInfo::_internal_set_rpc_port(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  rpc_port_ = value;
+}
+inline void ServerInfo::set_rpc_port(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_rpc_port(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ServerInfo.rpc_port)
+}
+
+// .wukong.pb.GateServerInfo gate_info = 6;
+inline bool ServerInfo::_internal_has_gate_info() const {
+  return this != internal_default_instance() && gate_info_ != nullptr;
+}
+inline bool ServerInfo::has_gate_info() const {
+  return _internal_has_gate_info();
+}
+inline void ServerInfo::clear_gate_info() {
+  if (GetArenaForAllocation() == nullptr && gate_info_ != nullptr) {
+    delete gate_info_;
+  }
+  gate_info_ = nullptr;
+}
+inline const ::wukong::pb::GateServerInfo& ServerInfo::_internal_gate_info() const {
+  const ::wukong::pb::GateServerInfo* p = gate_info_;
+  return p != nullptr ? *p : reinterpret_cast<const ::wukong::pb::GateServerInfo&>(
+      ::wukong::pb::_GateServerInfo_default_instance_);
+}
+inline const ::wukong::pb::GateServerInfo& ServerInfo::gate_info() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.gate_info)
+  return _internal_gate_info();
+}
+inline void ServerInfo::unsafe_arena_set_allocated_gate_info(
+    ::wukong::pb::GateServerInfo* gate_info) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(gate_info_);
+  }
+  gate_info_ = gate_info;
+  if (gate_info) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:wukong.pb.ServerInfo.gate_info)
+}
+inline ::wukong::pb::GateServerInfo* ServerInfo::release_gate_info() {
+  
+  ::wukong::pb::GateServerInfo* temp = gate_info_;
+  gate_info_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::wukong::pb::GateServerInfo* ServerInfo::unsafe_arena_release_gate_info() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ServerInfo.gate_info)
+  
+  ::wukong::pb::GateServerInfo* temp = gate_info_;
+  gate_info_ = nullptr;
+  return temp;
+}
+inline ::wukong::pb::GateServerInfo* ServerInfo::_internal_mutable_gate_info() {
+  
+  if (gate_info_ == nullptr) {
+    auto* p = CreateMaybeMessage<::wukong::pb::GateServerInfo>(GetArenaForAllocation());
+    gate_info_ = p;
+  }
+  return gate_info_;
+}
+inline ::wukong::pb::GateServerInfo* ServerInfo::mutable_gate_info() {
+  ::wukong::pb::GateServerInfo* _msg = _internal_mutable_gate_info();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ServerInfo.gate_info)
+  return _msg;
+}
+inline void ServerInfo::set_allocated_gate_info(::wukong::pb::GateServerInfo* gate_info) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete gate_info_;
+  }
+  if (gate_info) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::wukong::pb::GateServerInfo>::GetOwningArena(gate_info);
+    if (message_arena != submessage_arena) {
+      gate_info = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, gate_info, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  gate_info_ = gate_info;
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ServerInfo.gate_info)
+}
+
+// .wukong.pb.LobbyServerInfo lobby_info = 7;
+inline bool ServerInfo::_internal_has_lobby_info() const {
+  return this != internal_default_instance() && lobby_info_ != nullptr;
+}
+inline bool ServerInfo::has_lobby_info() const {
+  return _internal_has_lobby_info();
+}
+inline void ServerInfo::clear_lobby_info() {
+  if (GetArenaForAllocation() == nullptr && lobby_info_ != nullptr) {
+    delete lobby_info_;
+  }
+  lobby_info_ = nullptr;
+}
+inline const ::wukong::pb::LobbyServerInfo& ServerInfo::_internal_lobby_info() const {
+  const ::wukong::pb::LobbyServerInfo* p = lobby_info_;
+  return p != nullptr ? *p : reinterpret_cast<const ::wukong::pb::LobbyServerInfo&>(
+      ::wukong::pb::_LobbyServerInfo_default_instance_);
+}
+inline const ::wukong::pb::LobbyServerInfo& ServerInfo::lobby_info() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.lobby_info)
+  return _internal_lobby_info();
+}
+inline void ServerInfo::unsafe_arena_set_allocated_lobby_info(
+    ::wukong::pb::LobbyServerInfo* lobby_info) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(lobby_info_);
+  }
+  lobby_info_ = lobby_info;
+  if (lobby_info) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:wukong.pb.ServerInfo.lobby_info)
+}
+inline ::wukong::pb::LobbyServerInfo* ServerInfo::release_lobby_info() {
+  
+  ::wukong::pb::LobbyServerInfo* temp = lobby_info_;
+  lobby_info_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::wukong::pb::LobbyServerInfo* ServerInfo::unsafe_arena_release_lobby_info() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ServerInfo.lobby_info)
+  
+  ::wukong::pb::LobbyServerInfo* temp = lobby_info_;
+  lobby_info_ = nullptr;
+  return temp;
+}
+inline ::wukong::pb::LobbyServerInfo* ServerInfo::_internal_mutable_lobby_info() {
+  
+  if (lobby_info_ == nullptr) {
+    auto* p = CreateMaybeMessage<::wukong::pb::LobbyServerInfo>(GetArenaForAllocation());
+    lobby_info_ = p;
+  }
+  return lobby_info_;
+}
+inline ::wukong::pb::LobbyServerInfo* ServerInfo::mutable_lobby_info() {
+  ::wukong::pb::LobbyServerInfo* _msg = _internal_mutable_lobby_info();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ServerInfo.lobby_info)
+  return _msg;
+}
+inline void ServerInfo::set_allocated_lobby_info(::wukong::pb::LobbyServerInfo* lobby_info) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete lobby_info_;
+  }
+  if (lobby_info) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::wukong::pb::LobbyServerInfo>::GetOwningArena(lobby_info);
+    if (message_arena != submessage_arena) {
+      lobby_info = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, lobby_info, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  lobby_info_ = lobby_info;
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ServerInfo.lobby_info)
+}
+
+// .wukong.pb.RecordServerInfo record_info = 8;
+inline bool ServerInfo::_internal_has_record_info() const {
+  return this != internal_default_instance() && record_info_ != nullptr;
+}
+inline bool ServerInfo::has_record_info() const {
+  return _internal_has_record_info();
+}
+inline void ServerInfo::clear_record_info() {
+  if (GetArenaForAllocation() == nullptr && record_info_ != nullptr) {
+    delete record_info_;
+  }
+  record_info_ = nullptr;
+}
+inline const ::wukong::pb::RecordServerInfo& ServerInfo::_internal_record_info() const {
+  const ::wukong::pb::RecordServerInfo* p = record_info_;
+  return p != nullptr ? *p : reinterpret_cast<const ::wukong::pb::RecordServerInfo&>(
+      ::wukong::pb::_RecordServerInfo_default_instance_);
+}
+inline const ::wukong::pb::RecordServerInfo& ServerInfo::record_info() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.record_info)
+  return _internal_record_info();
+}
+inline void ServerInfo::unsafe_arena_set_allocated_record_info(
+    ::wukong::pb::RecordServerInfo* record_info) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(record_info_);
+  }
+  record_info_ = record_info;
+  if (record_info) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:wukong.pb.ServerInfo.record_info)
+}
+inline ::wukong::pb::RecordServerInfo* ServerInfo::release_record_info() {
+  
+  ::wukong::pb::RecordServerInfo* temp = record_info_;
+  record_info_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::wukong::pb::RecordServerInfo* ServerInfo::unsafe_arena_release_record_info() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ServerInfo.record_info)
+  
+  ::wukong::pb::RecordServerInfo* temp = record_info_;
+  record_info_ = nullptr;
+  return temp;
+}
+inline ::wukong::pb::RecordServerInfo* ServerInfo::_internal_mutable_record_info() {
+  
+  if (record_info_ == nullptr) {
+    auto* p = CreateMaybeMessage<::wukong::pb::RecordServerInfo>(GetArenaForAllocation());
+    record_info_ = p;
+  }
+  return record_info_;
+}
+inline ::wukong::pb::RecordServerInfo* ServerInfo::mutable_record_info() {
+  ::wukong::pb::RecordServerInfo* _msg = _internal_mutable_record_info();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ServerInfo.record_info)
+  return _msg;
+}
+inline void ServerInfo::set_allocated_record_info(::wukong::pb::RecordServerInfo* record_info) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete record_info_;
+  }
+  if (record_info) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::wukong::pb::RecordServerInfo>::GetOwningArena(record_info);
+    if (message_arena != submessage_arena) {
+      record_info = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, record_info, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  record_info_ = record_info;
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ServerInfo.record_info)
+}
+
+// .wukong.pb.SceneServerInfo scene_info = 9;
+inline bool ServerInfo::_internal_has_scene_info() const {
+  return this != internal_default_instance() && scene_info_ != nullptr;
+}
+inline bool ServerInfo::has_scene_info() const {
+  return _internal_has_scene_info();
+}
+inline void ServerInfo::clear_scene_info() {
+  if (GetArenaForAllocation() == nullptr && scene_info_ != nullptr) {
+    delete scene_info_;
+  }
+  scene_info_ = nullptr;
+}
+inline const ::wukong::pb::SceneServerInfo& ServerInfo::_internal_scene_info() const {
+  const ::wukong::pb::SceneServerInfo* p = scene_info_;
+  return p != nullptr ? *p : reinterpret_cast<const ::wukong::pb::SceneServerInfo&>(
+      ::wukong::pb::_SceneServerInfo_default_instance_);
+}
+inline const ::wukong::pb::SceneServerInfo& ServerInfo::scene_info() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerInfo.scene_info)
+  return _internal_scene_info();
+}
+inline void ServerInfo::unsafe_arena_set_allocated_scene_info(
+    ::wukong::pb::SceneServerInfo* scene_info) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(scene_info_);
+  }
+  scene_info_ = scene_info;
+  if (scene_info) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:wukong.pb.ServerInfo.scene_info)
+}
+inline ::wukong::pb::SceneServerInfo* ServerInfo::release_scene_info() {
+  
+  ::wukong::pb::SceneServerInfo* temp = scene_info_;
+  scene_info_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::wukong::pb::SceneServerInfo* ServerInfo::unsafe_arena_release_scene_info() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ServerInfo.scene_info)
+  
+  ::wukong::pb::SceneServerInfo* temp = scene_info_;
+  scene_info_ = nullptr;
+  return temp;
+}
+inline ::wukong::pb::SceneServerInfo* ServerInfo::_internal_mutable_scene_info() {
+  
+  if (scene_info_ == nullptr) {
+    auto* p = CreateMaybeMessage<::wukong::pb::SceneServerInfo>(GetArenaForAllocation());
+    scene_info_ = p;
+  }
+  return scene_info_;
+}
+inline ::wukong::pb::SceneServerInfo* ServerInfo::mutable_scene_info() {
+  ::wukong::pb::SceneServerInfo* _msg = _internal_mutable_scene_info();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ServerInfo.scene_info)
+  return _msg;
+}
+inline void ServerInfo::set_allocated_scene_info(::wukong::pb::SceneServerInfo* scene_info) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete scene_info_;
+  }
+  if (scene_info) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::wukong::pb::SceneServerInfo>::GetOwningArena(scene_info);
+    if (message_arena != submessage_arena) {
+      scene_info = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, scene_info, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  scene_info_ = scene_info;
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ServerInfo.scene_info)
+}
+
+// -------------------------------------------------------------------
+
+// ServerAccessRequest
+
+// .wukong.pb.ServerInfo server_info = 1;
+inline bool ServerAccessRequest::_internal_has_server_info() const {
+  return this != internal_default_instance() && server_info_ != nullptr;
+}
+inline bool ServerAccessRequest::has_server_info() const {
+  return _internal_has_server_info();
+}
+inline void ServerAccessRequest::clear_server_info() {
+  if (GetArenaForAllocation() == nullptr && server_info_ != nullptr) {
+    delete server_info_;
+  }
+  server_info_ = nullptr;
+}
+inline const ::wukong::pb::ServerInfo& ServerAccessRequest::_internal_server_info() const {
+  const ::wukong::pb::ServerInfo* p = server_info_;
+  return p != nullptr ? *p : reinterpret_cast<const ::wukong::pb::ServerInfo&>(
+      ::wukong::pb::_ServerInfo_default_instance_);
+}
+inline const ::wukong::pb::ServerInfo& ServerAccessRequest::server_info() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerAccessRequest.server_info)
+  return _internal_server_info();
+}
+inline void ServerAccessRequest::unsafe_arena_set_allocated_server_info(
+    ::wukong::pb::ServerInfo* server_info) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(server_info_);
+  }
+  server_info_ = server_info;
+  if (server_info) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:wukong.pb.ServerAccessRequest.server_info)
+}
+inline ::wukong::pb::ServerInfo* ServerAccessRequest::release_server_info() {
+  
+  ::wukong::pb::ServerInfo* temp = server_info_;
+  server_info_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::wukong::pb::ServerInfo* ServerAccessRequest::unsafe_arena_release_server_info() {
+  // @@protoc_insertion_point(field_release:wukong.pb.ServerAccessRequest.server_info)
+  
+  ::wukong::pb::ServerInfo* temp = server_info_;
+  server_info_ = nullptr;
+  return temp;
+}
+inline ::wukong::pb::ServerInfo* ServerAccessRequest::_internal_mutable_server_info() {
+  
+  if (server_info_ == nullptr) {
+    auto* p = CreateMaybeMessage<::wukong::pb::ServerInfo>(GetArenaForAllocation());
+    server_info_ = p;
+  }
+  return server_info_;
+}
+inline ::wukong::pb::ServerInfo* ServerAccessRequest::mutable_server_info() {
+  ::wukong::pb::ServerInfo* _msg = _internal_mutable_server_info();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.ServerAccessRequest.server_info)
+  return _msg;
+}
+inline void ServerAccessRequest::set_allocated_server_info(::wukong::pb::ServerInfo* server_info) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete server_info_;
+  }
+  if (server_info) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::wukong::pb::ServerInfo>::GetOwningArena(server_info);
+    if (message_arena != submessage_arena) {
+      server_info = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, server_info, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  server_info_ = server_info;
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.ServerAccessRequest.server_info)
+}
+
+// repeated int32 concern_types = 2;
+inline int ServerAccessRequest::_internal_concern_types_size() const {
+  return concern_types_.size();
+}
+inline int ServerAccessRequest::concern_types_size() const {
+  return _internal_concern_types_size();
+}
+inline void ServerAccessRequest::clear_concern_types() {
+  concern_types_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerAccessRequest::_internal_concern_types(int index) const {
+  return concern_types_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 ServerAccessRequest::concern_types(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.ServerAccessRequest.concern_types)
+  return _internal_concern_types(index);
+}
+inline void ServerAccessRequest::set_concern_types(int index, ::PROTOBUF_NAMESPACE_ID::int32 value) {
+  concern_types_.Set(index, value);
+  // @@protoc_insertion_point(field_set:wukong.pb.ServerAccessRequest.concern_types)
+}
+inline void ServerAccessRequest::_internal_add_concern_types(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  concern_types_.Add(value);
+}
+inline void ServerAccessRequest::add_concern_types(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_add_concern_types(value);
+  // @@protoc_insertion_point(field_add:wukong.pb.ServerAccessRequest.concern_types)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+ServerAccessRequest::_internal_concern_types() const {
+  return concern_types_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+ServerAccessRequest::concern_types() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.ServerAccessRequest.concern_types)
+  return _internal_concern_types();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+ServerAccessRequest::_internal_mutable_concern_types() {
+  return &concern_types_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+ServerAccessRequest::mutable_concern_types() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.ServerAccessRequest.concern_types)
+  return _internal_mutable_concern_types();
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

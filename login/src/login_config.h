@@ -54,6 +54,8 @@ namespace wukong {
         const std::string& getCorePersist() const { return corePersist_; }
         const std::string& getCoreRecord() const { return coreRecord_; }
         
+        const Address& getFrontAddr() const { return frontAddr_; }
+
         const std::string& getZooPath() const { return zooPath_; }
 
     private:
@@ -79,8 +81,10 @@ namespace wukong {
         std::string corePersist_;  // 用作游戏服务器核心落地redis库(redis中的一个)
         std::string coreRecord_;  // 用作游戏服务器核心落地mysql库(mysql中的一个)
 
+        Address frontAddr_; // 前端地址（若配置了前端服客户端通过前端服与gateway通信，否则客户端直接与gateway服连接）
+
         std::string zooPath_;
-        
+
     private:
         LoginConfig() = default;                            // ctor hidden
         LoginConfig(LoginConfig const&) = delete;            // copy ctor hidden

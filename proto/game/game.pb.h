@@ -191,6 +191,7 @@ class AuthRequest final :
     kCipherFieldNumber = 3,
     kUserIdFieldNumber = 1,
     kRecvSerialFieldNumber = 4,
+    kGateIdFieldNumber = 5,
   };
   // string token = 2;
   void clear_token();
@@ -238,6 +239,15 @@ class AuthRequest final :
   void _internal_set_recvserial(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
+  // uint32 gateId = 5;
+  void clear_gateid();
+  ::PROTOBUF_NAMESPACE_ID::uint32 gateid() const;
+  void set_gateid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_gateid() const;
+  void _internal_set_gateid(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:wukong.pb.AuthRequest)
  private:
   class _Internal;
@@ -249,6 +259,7 @@ class AuthRequest final :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr cipher_;
   ::PROTOBUF_NAMESPACE_ID::uint64 userid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 recvserial_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 gateid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_game_2eproto;
 };
@@ -532,6 +543,26 @@ inline void AuthRequest::_internal_set_recvserial(::PROTOBUF_NAMESPACE_ID::uint3
 inline void AuthRequest::set_recvserial(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_recvserial(value);
   // @@protoc_insertion_point(field_set:wukong.pb.AuthRequest.recvSerial)
+}
+
+// uint32 gateId = 5;
+inline void AuthRequest::clear_gateid() {
+  gateid_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AuthRequest::_internal_gateid() const {
+  return gateid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 AuthRequest::gateid() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.AuthRequest.gateId)
+  return _internal_gateid();
+}
+inline void AuthRequest::_internal_set_gateid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  gateid_ = value;
+}
+inline void AuthRequest::set_gateid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_gateid(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.AuthRequest.gateId)
 }
 
 // -------------------------------------------------------------------

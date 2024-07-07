@@ -15,3 +15,38 @@ message GlobalEventMessage {
     string topic = 1;
     bytes data = 2;
 }
+
+message GateServerInfo {
+    string msg_host = 1;
+    int32 msg_port = 2;
+}
+
+message LobbyServerInfo {
+    // TODO:
+}
+
+message RecordServerInfo {
+    // TODO:
+}
+
+message SceneServerInfo {
+    // TODO:
+}
+
+message ServerInfo {
+    int32 server_type = 1;
+    int32 server_id = 2;
+
+    string rpc_host = 3;
+    int32 rpc_port = 4;
+
+    GateServerInfo gate_info = 6;
+    LobbyServerInfo lobby_info = 7;
+    RecordServerInfo record_info = 8;
+    SceneServerInfo scene_info = 9;
+}
+
+message ServerAccessRequest {
+    ServerInfo server_info = 1; // 功能服自身信息
+    repeated int32 concern_types = 2; // 关注服务类型
+}

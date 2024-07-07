@@ -93,10 +93,16 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 
     pb::AuthRequest *request = static_cast<pb::AuthRequest*>(msg.get());
     UserId userId = request->userid();
-    ServerId gateId = manager_->getId();
+    ServerId gateId = request->gateid();
     const std::string &gToken = request->token();
 
     DEBUG_LOG("GatewayHandler::authHandle -- userId:%d\n", userId);
+
+    if (gateId != manager_->getId()) {
+        ERROR_LOG("GatewayHandler::authHandle -- gateid not match\n");
+        conn->close();
+        return;
+    }
 
     // 若本地网关对象存在，直接跟本地网关对象的gToken比较，不需访问redis
     int ret = manager_->tryChangeGatewayObjectConn(userId, gToken, conn);

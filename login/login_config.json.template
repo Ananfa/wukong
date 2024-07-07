@@ -38,5 +38,9 @@
     ],
     "coreCache": "cache",                       // 用作游戏服务器核心缓存redis库(redis中的一个)
     "corePersist": "persist",                   // 用作游戏服务器核心落地redis库(redis中的一个)
-    "coreRecord": "record"                      // 用作游戏服务器核心落地mysql库(mysql中的一个)
+    "coreRecord": "record",                     // 用作游戏服务器核心落地mysql库(mysql中的一个)
+    "front": {                                  // 前端地址（若配置了前端服客户端通过前端服与gateway通信，否则客户端直接与gateway服连接）
+        "host": "xx.xx.xx.xx",
+        "port": xx
+    }
 }

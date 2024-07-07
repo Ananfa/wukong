@@ -23,7 +23,8 @@ constexpr AuthRequest::AuthRequest(
   : token_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , cipher_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , userid_(uint64_t{0u})
-  , recvserial_(0u){}
+  , recvserial_(0u)
+  , gateid_(0u){}
 struct AuthRequestDefaultTypeInternal {
   constexpr AuthRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -61,6 +62,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_game_2eproto::offsets[] PROTOB
   PROTOBUF_FIELD_OFFSET(::wukong::pb::AuthRequest, token_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::AuthRequest, cipher_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::AuthRequest, recvserial_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::AuthRequest, gateid_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BanResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -70,7 +72,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_game_2eproto::offsets[] PROTOB
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::wukong::pb::AuthRequest)},
-  { 9, -1, sizeof(::wukong::pb::BanResponse)},
+  { 10, -1, sizeof(::wukong::pb::BanResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -79,14 +81,14 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_game_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\ngame.proto\022\twukong.pb\"P\n\013AuthRequest\022\016"
+  "\n\ngame.proto\022\twukong.pb\"`\n\013AuthRequest\022\016"
   "\n\006userId\030\001 \001(\004\022\r\n\005token\030\002 \001(\t\022\016\n\006cipher\030"
-  "\003 \001(\t\022\022\n\nrecvSerial\030\004 \001(\r\"\034\n\013BanResponse"
-  "\022\r\n\005msgId\030\001 \001(\rb\006proto3"
+  "\003 \001(\t\022\022\n\nrecvSerial\030\004 \001(\r\022\016\n\006gateId\030\005 \001("
+  "\r\"\034\n\013BanResponse\022\r\n\005msgId\030\001 \001(\rb\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_game_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_game_2eproto = {
-  false, false, 143, descriptor_table_protodef_game_2eproto, "game.proto", 
+  false, false, 159, descriptor_table_protodef_game_2eproto, "game.proto", 
   &descriptor_table_game_2eproto_once, nullptr, 0, 2,
   schemas, file_default_instances, TableStruct_game_2eproto::offsets,
   file_level_metadata_game_2eproto, file_level_enum_descriptors_game_2eproto, file_level_service_descriptors_game_2eproto,
@@ -129,8 +131,8 @@ AuthRequest::AuthRequest(const AuthRequest& from)
       GetArenaForAllocation());
   }
   ::memcpy(&userid_, &from.userid_,
-    static_cast<size_t>(reinterpret_cast<char*>(&recvserial_) -
-    reinterpret_cast<char*>(&userid_)) + sizeof(recvserial_));
+    static_cast<size_t>(reinterpret_cast<char*>(&gateid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(gateid_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.AuthRequest)
 }
 
@@ -139,8 +141,8 @@ token_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlread
 cipher_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&userid_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&recvserial_) -
-    reinterpret_cast<char*>(&userid_)) + sizeof(recvserial_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&gateid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(gateid_));
 }
 
 AuthRequest::~AuthRequest() {
@@ -175,8 +177,8 @@ void AuthRequest::Clear() {
   token_.ClearToEmpty();
   cipher_.ClearToEmpty();
   ::memset(&userid_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&recvserial_) -
-      reinterpret_cast<char*>(&userid_)) + sizeof(recvserial_));
+      reinterpret_cast<char*>(&gateid_) -
+      reinterpret_cast<char*>(&userid_)) + sizeof(gateid_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -215,6 +217,13 @@ const char* AuthRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       case 4:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
           recvserial_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 gateId = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          gateid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -279,6 +288,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_recvserial(), target);
   }
 
+  // uint32 gateId = 5;
+  if (this->_internal_gateid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(5, this->_internal_gateid(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -323,6 +338,13 @@ size_t AuthRequest::ByteSizeLong() const {
         this->_internal_recvserial());
   }
 
+  // uint32 gateId = 5;
+  if (this->_internal_gateid() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_gateid());
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -363,6 +385,9 @@ void AuthRequest::MergeFrom(const AuthRequest& from) {
   if (from._internal_recvserial() != 0) {
     _internal_set_recvserial(from._internal_recvserial());
   }
+  if (from._internal_gateid() != 0) {
+    _internal_set_gateid(from._internal_gateid());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -391,8 +416,8 @@ void AuthRequest::InternalSwap(AuthRequest* other) {
       &other->cipher_, other->GetArenaForAllocation()
   );
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(AuthRequest, recvserial_)
-      + sizeof(AuthRequest::recvserial_)
+      PROTOBUF_FIELD_OFFSET(AuthRequest, gateid_)
+      + sizeof(AuthRequest::gateid_)
       - PROTOBUF_FIELD_OFFSET(AuthRequest, userid_)>(
           reinterpret_cast<char*>(&userid_),
           reinterpret_cast<char*>(&other->userid_));

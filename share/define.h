@@ -22,6 +22,16 @@ typedef uint64_t RoleId;
 // 服务器类型
 typedef uint16_t GameServerType;
 
+enum ServerType {
+    SERVER_TYPE_NEXUS = 1,
+    SERVER_TYPE_FRONT = 2,
+    SERVER_TYPE_LOGIN = 3,
+    SERVER_TYPE_GATE = 4,
+    SERVER_TYPE_LOBBY = 5,
+    SERVER_TYPE_RECORD = 6,
+    SERVER_TYPE_SCENE = 7
+};
+
 enum ServerStatus {
     SERVER_STATUS_NORMAL = 1,
     SERVER_STATUS_FULL = 2,

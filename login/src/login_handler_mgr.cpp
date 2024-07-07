@@ -547,7 +547,11 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
         return setErrorResponse(response, "cant find gateway");
     }
 
-    Address gatewayAddr = g_ClientCenter.getGatewayAddress(gatewayId);
+    // 若配置了前端服客户端通过前端服与gateway通信，否则客户端直接与gateway服连接
+    Address targetAddr = g_LoginConfig.getFrontAddr();
+    if (targetAddr.host.empty()) {
+        targetAddr = g_ClientCenter.getGatewayAddress(gatewayId);
+    }
 
     // TODO: 在passport信息中加入加密密钥
     // 客户端连接gateway后将passport转成session
@@ -573,8 +577,9 @@ void LoginHandlerMgr::enterGame(std::shared_ptr<RequestMessage> &request, std::s
     JsonWriter json;
     json.start();
     json.put("retCode", 0);
-    json.put("host", gatewayAddr.host);
-    json.put("port", gatewayAddr.port);
+    json.put("gateId", gatewayId);
+    json.put("host", targetAddr.host);
+    json.put("port", targetAddr.port);
     json.put("gToken", gToken);
     json.end();
     

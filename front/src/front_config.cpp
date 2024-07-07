@@ -47,11 +47,17 @@ bool FrontConfig::parse(const char *path) {
     }
     port_ = doc["port"].GetUint();
 
-    if (!doc.HasMember("workerThreadNum")) {
-        ERROR_LOG("config error -- workerThreadNum not define\n");
+    if (!doc.HasMember("inflowThreadNum")) {
+        ERROR_LOG("config error -- inflowThreadNum not define\n");
         return false;
     }
-    workerThreadNum_ = doc["workerThreadNum"].GetUint();
+    inflowThreadNum_ = doc["inflowThreadNum"].GetUint();
+    
+    if (!doc.HasMember("outflowThreadNum")) {
+        ERROR_LOG("config error -- outflowThreadNum not define\n");
+        return false;
+    }
+    outflowThreadNum_ = doc["outflowThreadNum"].GetUint();
     
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {

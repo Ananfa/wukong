@@ -1,7 +1,8 @@
 {
     "ip": "0.0.0.0",
     "port": 16000,
-    "workerThreadNum": 4,
+    "inflowThreadNum": 2,
+    "outflowThreadNum": 2,
     "redis": [
         {
             "dbName": "cache",

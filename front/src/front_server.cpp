@@ -135,18 +135,31 @@ bool FrontServer::init(int argc, char * argv[]) {
     }
     localAddr_.sin_addr.s_addr = nIP;
 
+    if (g_FrontConfig.getInflowThreadNum() == 0) {
+        ERROR_LOG("FrontServer::init -- inflowThreadNum config cant be zero\n");
+        return false;
+    }
+
+    if (g_FrontConfig.getOutflowThreadNum() == 0) {
+        ERROR_LOG("FrontServer::init -- outflowThreadNum config cant be zero\n");
+        return false;
+    }
+
     return true;
 }
 
 void FrontServer::run() {
-    uint32_t threadNum = g_FrontConfig.getWorkerThreadNum();
-    if (threadNum > 0) {
-        threads_.reserve(threadNum);
-        for (int i = 0; i < threadNum; ++i) {
-            threads_.push_back(std::thread(threadEntry, this));
-        }
-    } else {
-        RoutineEnvironment::startCoroutine(queueConsumeRoutine, this);
+    uint32_t inflowThreadNum = g_FrontConfig.getInflowThreadNum();
+    uint32_t outflowThreadNum = g_FrontConfig.getOutflowThreadNum();
+
+    threads_.reserve(inflowThreadNum + outflowThreadNum);
+
+    for (int i = 0; i < inflowThreadNum; ++i) {
+        threads_.push_back(std::thread(inflowThreadEntry));
+    }
+
+    for (int i = 0; i < outflowThreadNum; ++i) {
+        threads_.push_back(std::thread(outflowThreadEntry));
     }
 
     listenFd_ = socket(AF_INET,SOCK_STREAM, IPPROTO_TCP);
@@ -167,22 +180,27 @@ void FrontServer::run() {
         return;
     }
 
-    RoutineEnvironment::startCoroutine(acceptRoutine, this);
+    RoutineEnvironment::startCoroutine(acceptRoutine, nullptr);
     
     RoutineEnvironment::runEventLoop();
 }
 
-void FrontServer::threadEntry( FrontServer *self ) {
-    RoutineEnvironment::startCoroutine(queueConsumeRoutine, self);
+void FrontServer::inflowThreadEntry( ) {
+    RoutineEnvironment::startCoroutine(inflowQueueConsumeRoutine, nullptr);
+
+    RoutineEnvironment::runEventLoop();
+}
+
+void FrontServer::outflowThreadEntry( ) {
+    RoutineEnvironment::startCoroutine(outflowQueueConsumeRoutine, nullptr);
 
     RoutineEnvironment::runEventLoop();
 }
 
 void *FrontServer::acceptRoutine( void * arg ) {
-    FrontServer *self = (FrontServer *)arg;
-    int listenFd = self->listenFd_;
+    int listenFd = g_FrontServer.listenFd_;
     
-    LOG("start listen %d %s:%d\n", listenFd, self->ip_.c_str(), self->port_);
+    LOG("start listen %d %s:%d\n", listenFd, g_FrontServer.ip_.c_str(), g_FrontServer.port_);
     listen( listenFd, 1024 );
     
     // 注意：由于accept方法没有进行hook，只好将它设置为NONBLOCK并且自己对它进行poll
@@ -214,23 +232,24 @@ void *FrontServer::acceptRoutine( void * arg ) {
         // 设置读写超时时间，默认为1秒
         co_set_timeout(fd, -1, 1000);
         
-        self->queue_.push(fd);
+        //self->queue_.push(fd);
+        RoutineEnvironment::startCoroutine(authRoutine, (void *)fd);
     }
     
     return NULL;
 }
 
-void *FrontServer::queueConsumeRoutine( void * arg ) {
-    FrontServer *self = (FrontServer *)arg;
-
-    while (true) {
-        int fd = self->queue_.pop();
-
-        RoutineEnvironment::startCoroutine(authRoutine, (void *)fd);
-    }
-
-    return NULL;
-}
+//void *FrontServer::queueConsumeRoutine( void * arg ) {
+//    FrontServer *self = (FrontServer *)arg;
+//
+//    while (true) {
+//        int fd = self->queue_.pop();
+//
+//        RoutineEnvironment::startCoroutine(authRoutine, (void *)fd);
+//    }
+//
+//    return NULL;
+//}
 
 void *FrontServer::authRoutine( void * arg ) {
     int fd = (uint64_t)arg;
@@ -356,19 +375,43 @@ void *FrontServer::authRoutine( void * arg ) {
         return false;
     }
 
-    TransportConnection *tCon = new TransportConnection();
+    std::shared_ptr<TransportConnection> tCon(new TransportConnection());
     tCon->clientFd = fd;
     tCon->gateFd = gateFd;
 
     // 创建流入和流出两协程（参数是转发对象的共享指针）
-    RoutineEnvironment::startCoroutine(inflowRoutine, tCon);
-    RoutineEnvironment::startCoroutine(outflowRoutine, tCon);
+    // 注意：inflowRoutine和outFlowRoutine不能在同一线程中运行
+    g_FrontServer.inflowQueue_.push(tCon);
+    g_FrontServer.outflowQueue_.push(tCon);
+
+    //RoutineEnvironment::startCoroutine(inflowRoutine, tCon);
+    //RoutineEnvironment::startCoroutine(outflowRoutine, tCon);
+
+    return NULL;
+}
+
+void *FrontServer::inflowQueueConsumeRoutine( void * arg ) {
+    while (true) {
+        std::shared_ptr<TransportConnection> conn = g_FrontServer.inflowQueue_.pop();
+
+        RoutineEnvironment::startCoroutine(inflowRoutine, conn.get());
+    }
+
+    return NULL;
+}
+
+void *FrontServer::outflowQueueConsumeRoutine( void * arg ) {
+    while (true) {
+        std::shared_ptr<TransportConnection> conn = g_FrontServer.outflowQueue_.pop();
+
+        RoutineEnvironment::startCoroutine(outflowRoutine, conn.get());
+    }
 
     return NULL;
 }
 
 void *FrontServer::inflowRoutine( void * arg ) {
-    TransportConnection *tCon = (TransportConnection *)arg;
+    std::shared_ptr<TransportConnection> tCon = ((TransportConnection *)arg)->getPtr();
 
     std::string buffs(CORPC_MAX_BUFFER_SIZE,0);
     uint8_t *buf = (uint8_t *)buffs.data();
@@ -419,13 +462,12 @@ void *FrontServer::inflowRoutine( void * arg ) {
 
     close(tCon->clientFd);
     close(tCon->gateFd);
-    delete tCon;
 
     return NULL;
 }
 
 void *FrontServer::outflowRoutine( void * arg ) {
-    TransportConnection *tCon = (TransportConnection *)arg;
+    std::shared_ptr<TransportConnection> tCon = ((TransportConnection *)arg)->getPtr();
 
     std::string buffs(CORPC_MAX_BUFFER_SIZE,0);
     uint8_t *buf = (uint8_t *)buffs.data();

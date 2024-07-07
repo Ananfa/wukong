@@ -27,16 +27,23 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef MPMC_NoLockBlockQueue<int> FdQueue;
+    class TransportConnection: public std::enable_shared_from_this<TransportConnection> {
+    public:
+        TransportConnection(): clientFd(0), gateFd(0), closeSem(0) {}
+        virtual ~TransportConnection() {}
 
-    struct TransportConnection {
+        std::shared_ptr<TransportConnection> getPtr() {
+            return shared_from_this();
+        }
+
+    public:
         int clientFd;
         int gateFd;
 
         Semaphore closeSem;
-
-        TransportConnection(): clientFd(0), gateFd(0), closeSem(0) {}
     };
+
+    typedef MPMC_NoLockBlockQueue<std::shared_ptr<TransportConnection>> TransportConnectionQueue;
 
     // 单例模式实现
     class FrontServer {
@@ -50,10 +57,12 @@ namespace wukong {
         void run();
 
     private:
-        static void threadEntry( FrontServer *self );
+        static void inflowThreadEntry( );
+        static void outflowThreadEntry( );
 
         static void *acceptRoutine( void * arg );
-        static void *queueConsumeRoutine( void * arg );
+        static void *inflowQueueConsumeRoutine( void * arg );
+        static void *outflowQueueConsumeRoutine( void * arg );
         static void *authRoutine( void * arg );
         static void *inflowRoutine( void * arg );
         static void *outflowRoutine( void * arg );
@@ -67,7 +76,8 @@ namespace wukong {
         sockaddr_in localAddr_;
         int listenFd_;
 
-        FdQueue queue_;
+        TransportConnectionQueue inflowQueue_;
+        TransportConnectionQueue outflowQueue_;
 
         std::vector<std::thread> threads_;
 

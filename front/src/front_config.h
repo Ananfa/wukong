@@ -37,7 +37,8 @@ namespace wukong {
         const std::string& getIp() const { return ip_; }
         uint16_t getPort() const { return port_; }
 
-        uint32_t getWorkerThreadNum() const { return workerThreadNum_; }
+        uint32_t getInflowThreadNum() const { return inflowThreadNum_; }
+        uint32_t getOutflowThreadNum() const { return outflowThreadNum_; }
 
         const std::vector<RedisInfo>& getRedisInfos() const { return redisInfos_; }
         
@@ -47,7 +48,8 @@ namespace wukong {
         std::string ip_;    // 提供rpc服务的ip
         uint16_t port_;     // rpc服务端口
 
-        uint32_t workerThreadNum_; // 工作线程数量
+        uint32_t inflowThreadNum_; // 入流线程数量
+        uint32_t outflowThreadNum_; // 出流线程数量
 
         std::vector<RedisInfo> redisInfos_; // Redis库配置
 

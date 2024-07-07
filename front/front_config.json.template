@@ -1,7 +1,8 @@
 {
     "ip": "0.0.0.0",         // 对外监听IP地址
     "port": 16000,           // 对外监听端口
-    "workerThreadNum": 4,    // 工作线程数
+    "inflowThreadNum": 2,    // 入流线程数
+    "outflowThreadNum": 2,   // 出流线程数
     "redis": [
         {                                       // 缓存服务器
             "dbName": "cache",

@@ -20,47 +20,49 @@
 #include "share/const.h"
 #include "string_utils.h"
 #include "redis_utils.h"
+#include "gateway_config.h"
+#include "gateway_object_manager.h"
 
 #include "game.pb.h"
 
 using namespace wukong;
 
-void GatewayHandler::registerMessages(corpc::TcpMessageServer *server) {
-    server->registerMessage(CORPC_MSG_TYPE_CONNECT, nullptr, false, std::bind(&GatewayHandler::connectHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    server->registerMessage(CORPC_MSG_TYPE_CLOSE, nullptr, true, std::bind(&GatewayHandler::closeHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    server->registerMessage(CORPC_MSG_TYPE_BANNED, nullptr, true, std::bind(&GatewayHandler::banHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    server->registerMessage(C2S_MESSAGE_ID_AUTH, new pb::AuthRequest, true, std::bind(&GatewayHandler::authHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+void GatewayHandler::registerMessages(corpc::MessageTerminal *terminal) {
+    terminal->registerMessage(CORPC_MSG_TYPE_CONNECT, nullptr, false, GatewayHandler::connectHandle);
+    terminal->registerMessage(CORPC_MSG_TYPE_CLOSE, nullptr, true, GatewayHandler::closeHandle);
+    terminal->registerMessage(CORPC_MSG_TYPE_BANNED, nullptr, true, GatewayHandler::banHandle);
+    terminal->registerMessage(C2S_MESSAGE_ID_AUTH, new pb::AuthRequest, true, GatewayHandler::authHandle);
 
-    server->setOtherMessageHandle(std::bind(&GatewayHandler::bypassHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal->setOtherMessageHandle(GatewayHandler::bypassHandle);
 }
 
-void GatewayHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+void GatewayHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     // 登记未认证连接
     DEBUG_LOG("GatewayHandler::connectHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
 
-    if (manager_->isShutdown()) {
+    if (g_GatewayObjectManager.isShutdown()) {
         conn->close();
     } else {
         if (conn->isOpen()) {
-            manager_->addUnauthConn(conn);
+            g_GatewayObjectManager.addUnauthConn(conn);
         } else {
             DEBUG_LOG("GatewayHandler::connectHandle -- conn %d[%d] is not open\n", conn.get(), conn->getfd());
         }
     }
 }
 
-void GatewayHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+void GatewayHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("GatewayHandler::closeHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
     assert(!conn->isOpen());
-    if (manager_->isUnauth(conn)) {
-        manager_->removeUnauthConn(conn);
-    } else if (!manager_->tryMoveToDisconnectedLink(conn)) {
+    if (g_GatewayObjectManager.isUnauth(conn)) {
+        g_GatewayObjectManager.removeUnauthConn(conn);
+    } else if (!g_GatewayObjectManager.tryMoveToDisconnectedLink(conn)) {
         // 注意：出现这种情况的原因是在认证过程中断线，或者玩家被踢出时
         DEBUG_LOG("GatewayHandler::closeHandle -- connection close but cant move to disconnected list\n");
     }
 }
 
-void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("GatewayHandler::banHandle -- msgType:%d\n", type);
     // 向客户端发屏蔽消息
     std::shared_ptr<pb::BanResponse> response(new pb::BanResponse);
@@ -69,9 +71,9 @@ void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<googl
     conn->send(S2C_MESSAGE_ID_BAN, false, false, true, tag, response);
 }
 
-void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("GatewayHandler::authHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
-    if (manager_->isShutdown()) {
+    if (g_GatewayObjectManager.isShutdown()) {
         ERROR_LOG("GatewayHandler::authHandle -- server shutdown\n");
         conn->close();
         return;
@@ -83,13 +85,13 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     }
 
     // 确认连接是未认证连接（不允许重复发认证消息）（调试发现：也可能是auth消息处理在connect消息处理之前发生导致--有概率发生）
-    if (!manager_->isUnauth(conn)) {
+    if (!g_GatewayObjectManager.isUnauth(conn)) {
         ERROR_LOG("GatewayHandler::authHandle -- not an unauth connection\n");
         conn->close();
         return;
     }
 
-    manager_->removeUnauthConn(conn);
+    g_GatewayObjectManager.removeUnauthConn(conn);
 
     pb::AuthRequest *request = static_cast<pb::AuthRequest*>(msg.get());
     UserId userId = request->userid();
@@ -98,14 +100,14 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
 
     DEBUG_LOG("GatewayHandler::authHandle -- userId:%d\n", userId);
 
-    if (gateId != manager_->getId()) {
+    if (gateId != g_GatewayConfig.getId()) {
         ERROR_LOG("GatewayHandler::authHandle -- gateid not match\n");
         conn->close();
         return;
     }
 
     // 若本地网关对象存在，直接跟本地网关对象的gToken比较，不需访问redis
-    int ret = manager_->tryChangeGatewayObjectConn(userId, gToken, conn);
+    int ret = g_GatewayObjectManager.tryChangeGatewayObjectConn(userId, gToken, conn);
     if (ret == -1) {
         ERROR_LOG("GatewayHandler::authHandle -- reconnect token not match\n");
         conn->close();
@@ -154,7 +156,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     }
 
     // 为了防止重复连接，由于协程存在穿插执行的情况，程序执行到这里时可能已经产生了网关对象，在创建网关对象前应校验一下
-    if (manager_->hasGatewayObject(userId)) {
+    if (g_GatewayObjectManager.hasGatewayObject(userId)) {
         g_RedisPoolManager.getCoreCache()->put(cache, false);
         ERROR_LOG("GatewayHandler::authHandle -- user %d gateway object already exist\n", userId);
         conn->close();
@@ -184,10 +186,10 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         }
     }
 
-    assert(!manager_->hasGatewayObject(userId));
+    assert(!g_GatewayObjectManager.hasGatewayObject(userId));
 
     // 创建玩家网关对象
-    std::shared_ptr<GatewayObject> obj = std::make_shared<GatewayObject>(userId, roleId, gToken, conn, manager_);
+    std::shared_ptr<GatewayObject> obj = std::make_shared<GatewayObject>(userId, roleId, gToken, conn);
 
     // 队伍成员同时登录时会导致进入游戏失败，且passport失效（因此需要重试）
     int leftTryTimes = 3;
@@ -275,7 +277,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         }
     }
 
-    assert(!manager_->hasGatewayObject(userId));
+    assert(!g_GatewayObjectManager.hasGatewayObject(userId));
 
     // 在登记到已连接表之前，需要再判断一次是否断线（由于进行过能导致协程切换的redis操作）
     if (!conn->isOpen()) {
@@ -295,17 +297,17 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     // 将网关对象登记到已连接表，登记完成后，游戏对象和客户端就能通过网关对象转发消息了
-    manager_->addConnectedGatewayObject(obj);
+    g_GatewayObjectManager.addConnectedGatewayObject(obj);
     obj->start();
 
     // 通知游戏对象发开始游戏所需数据给客户端
     obj->enterGame();
 }
 
-void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn) {
+void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     //ERROR_LOG("GatewayHandler::bypassHandle msg:%d\n", type);
 
-    std::shared_ptr<GatewayObject> obj = manager_->getConnectedGatewayObject(conn);
+    std::shared_ptr<GatewayObject> obj = g_GatewayObjectManager.getConnectedGatewayObject(conn);
     if (!obj) {
         ERROR_LOG("GatewayHandler::bypassHandle -- gateway object not found, msg:%d\n", type);
         return;

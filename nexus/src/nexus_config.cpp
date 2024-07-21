@@ -47,6 +47,18 @@ bool NexusConfig::parse(const char *path) {
     }
     port_ = doc["port"].GetUint();
 
+    if (!doc.HasMember("accessTimeout")) {
+        ERROR_LOG("config error -- accessTimeout not define\n");
+        return false;
+    }
+    accessTimeout_ = doc["accessTimeout"].GetUint();
+    
+    if (!doc.HasMember("disconnectTimeout")) {
+        ERROR_LOG("config error -- disconnectTimeout not define\n");
+        return false;
+    }
+    disconnectTimeout_ = doc["disconnectTimeout"].GetUint();
+    
     if (!doc.HasMember("ioRecvThreadNum")) {
         ERROR_LOG("config error -- ioRecvThreadNum not define\n");
         return false;
@@ -58,6 +70,68 @@ bool NexusConfig::parse(const char *path) {
         return false;
     }
     ioSendThreadNum_ = doc["ioSendThreadNum"].GetUint();
+
+    if (!doc.HasMember("concern")) {
+        ERROR_LOG("config error -- concern not define\n");
+        return false;
+    }
+
+    const Value& concern = doc["concern"];
+    if (!concern.IsArray()) {
+        ERROR_LOG("config error -- concern not array\n");
+        return false;
+    }
+
+    for (SizeType i = 0; i < concern.Size(); i++) {
+        const Value& concernItem = concern[i];
+
+        if (!concernItem.HasMember("serverType")) {
+            ERROR_LOG("config error -- concern[%d] serverType not define\n", i);
+            return false;
+        }
+        int32_t serverType = concernItem["serverType"].GetInt();
+
+        if (concern_map_.find(serverType) != concern_map_.end()) {
+            ERROR_LOG("config error -- concern serverType[%d] is repeated\n", serverType);
+            return false;
+        }
+
+        if (!concernItem.HasMember("concernServerTypes")) {
+            ERROR_LOG("config error -- concern[%d] concernServerTypes not define\n", i);
+            return false;
+        }
+
+        const Value& concernServerTypes = doc["concernServerTypes"];
+        if (!concernServerTypes.IsArray()) {
+            ERROR_LOG("config error -- concern[%d] concernServerTypes not array\n", i);
+            return false;
+        }
+
+        for (SizeType j = 0; j < concernServerTypes.Size(); j++) {
+            int32_t concernServerType = concernServerTypes[j].GetInt();
+
+            concern_map_[serverType].insert(concernServerType);
+            be_concern_map_[concernServerType].insert(serverType);
+        }
+    }
     
     return true;
+}
+
+const std::set<uint32_t> &NexusConfig::getConcerns(uint32_t server_type) {
+    auto it = concern_map_.find(server_type);
+    if (it != concern_map_.end()) {
+        return it->second;
+    }
+
+    return empty_concern_set_;
+}
+
+const std::set<uint32_t> &NexusConfig::getBeConcerns(uint32_t server_type) {
+    auto it = be_concern_map_.find(server_type);
+    if (it != be_concern_map_.end()) {
+        return it->second;
+    }
+
+    return empty_concern_set_;
 }

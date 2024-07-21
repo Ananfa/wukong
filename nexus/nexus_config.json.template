@@ -1,6 +1,30 @@
 {
     "ip": "0.0.0.0",         // 对外监听IP地址
     "port": 17000,           // 对外监听端口
+    "accessTimeout": 10,     // 接入超时时间，功能服连接Nexus服务器后在此时间内需要完成接入
+    "disconnectTimeout": 30, // 断线保护时间，客户端可在这段时间内重连
     "ioRecvThreadNum": 2,    // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
-    "ioSendThreadNum": 2     // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+    "ioSendThreadNum": 2,    // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+    "concern": [             // 服务器关注关系（当新服务器注册时，会将新服务器信息发送给关注此新服类型的服务器）
+        {
+            "serverType": 2,    // Front服关注Gate服
+            "concernServerTypes": [4]
+        },
+        {
+            "serverType": 3,    // Login服关注Gate服
+            "concernServerTypes": [4]
+        },
+        {
+            "serverType": 4,    // Gate服关注Lobby和Scene服
+            "concernServerTypes": [5, 7]
+        },
+        {
+            "serverType": 5,    // Lobby服关注Gate、Record和Scene服
+            "concernServerTypes": [4, 6, 7]
+        },
+        {
+            "serverType": 7,    // Scene服关注Gate、Lobby和Scene服
+            "concernServerTypes": [4, 5, 7]
+        }
+    ]
 }

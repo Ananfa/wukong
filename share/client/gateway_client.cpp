@@ -91,25 +91,15 @@ std::vector<GatewayClient::ServerInfo> GatewayClient::getServerInfos() {
         handledAddrs.insert(std::make_pair(kv.second.rpcAddr, true));
 
         corpc::Void *request = new corpc::Void();
-        pb::OnlineCounts *response = new pb::OnlineCounts();
+        pb::OnlineCount *response = new pb::OnlineCount();
         Controller *controller = new Controller();
         kv.second.stub->getOnlineCount(controller, request, response, nullptr);
         
         if (controller->Failed()) {
             ERROR_LOG("GatewayClient::getServerInfos -- Rpc Call Failed : %s\n", controller->ErrorText().c_str());
-            continue;
         } else {
-            auto countInfos = response->counts();
-
-            for (auto it = countInfos.begin(); it != countInfos.end(); ++it) {
-                auto it1 = localStubs.find(it->serverid());
-                if (it1 == localStubs.end()) {
-                    ERROR_LOG("GatewayClient::getServerInfos -- Server[%d] stub info not exist\n", it->serverid());
-                    continue;
-                }
-                infos.push_back({it->serverid(), it1->second.outerAddr, it1->second.outerPort, it->count(), 0});
-                totalCount += it->count();
-            }
+            infos.push_back({kv.first, kv.second.outerAddr, kv.second.outerPort, response->count(), 0});
+            totalCount += response->count();
         }
         
         delete controller;

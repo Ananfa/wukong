@@ -46,7 +46,7 @@ namespace wukong {
 
         static void gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort);
 
-        static void banMsgHandle(corpc::TcpMessageServer *msgServer);
+        static void banMsgHandle(corpc::MessageTerminal *terminal);
 
     private:
         bool inited_ = false;

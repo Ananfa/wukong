@@ -28,6 +28,7 @@ namespace wukong {
     typedef TimeLink<MessageTerminal::Connection> MessageConnectionTimeLink;
     typedef TimeLink<ServerObject> ServerObjectTimeLink;
 
+    // 注意： ServerManager非线程安全，应在同一线程中管理
     class ServerManager {
     public:
         static ServerManager& Instance() {
@@ -35,17 +36,35 @@ namespace wukong {
             return instance;
         }
 
-        void addUnknownConn(std::shared_ptr<MessageTerminal::Connection>& conn);
-        void removeUnknownConn(std::shared_ptr<MessageTerminal::Connection>& conn);
-        bool isUnknown(std::shared_ptr<MessageTerminal::Connection>& conn);
-        void clearUnknown();
+        bool start();   // 在管理线程中调用一次
 
-        bool tryMoveToDisconnectedLink(std::shared_ptr<MessageTerminal::Connection> &conn);
+        void addUnaccessConn(std::shared_ptr<MessageTerminal::Connection>& conn);
+        void removeUnaccessConn(std::shared_ptr<MessageTerminal::Connection>& conn);
+        bool isUnaccess(std::shared_ptr<MessageTerminal::Connection>& conn);
+        void clearUnaccess();
+
+        bool hasServerObject(ServerType stype, ServerId sid); // 判断服务对象是否存在（包括已连接及断线中）
+        bool removeServerObject(ServerType stype, ServerId sid); // 删除服务对象（包括已连接及断线中）
+        //bool isDisconnectedObject(ServerType stype, ServerId sid); // 是否断线中
+
+        std::shared_ptr<ServerObject> getServerObject(ServerType stype, ServerId sid); // 获取服务对象（包括已连接及断线中）
+        std::shared_ptr<ServerObject> getConnectedServerObject(std::shared_ptr<MessageTerminal::Connection> &conn);
+
+        const std::map<ServerId, std::shared_ptr<ServerObject>>& getServerObjects(ServerType stype);
+
+        void moveToDisconnected(std::shared_ptr<ServerObject> &obj);
+        void addConnectedServer(std::shared_ptr<ServerObject> &obj);
 
     private:
+        static void *clearExpiredUnaccessRoutine( void *arg );  // 清理过时未认证连接
+        static void *clearExpiredDisconnectedRoutine( void *arg ); // 清理过时断线服务对象
+
+    private:
+        bool started;
+
         // 未认证连接相关数据结构
-        MessageConnectionTimeLink unknownLink_;
-        std::map<MessageTerminal::Connection*, MessageConnectionTimeLink::Node*> unknownNodeMap_;
+        MessageConnectionTimeLink unaccessLink_;
+        std::map<MessageTerminal::Connection*, MessageConnectionTimeLink::Node*> unaccessNodeMap_;
     
         // 断线中的服务对象相关数据结构（等待过期清理或者断线重连）
         ServerObjectTimeLink disconnectedLink_;
@@ -55,8 +74,10 @@ namespace wukong {
         std::map<ServerType, std::map<ServerId, std::shared_ptr<ServerObject>>> serverObjectMap_;
         std::map<MessageTerminal::Connection*, std::shared_ptr<ServerObject>> connection2ServerObjectMap_;
 
+        std::map<ServerId, std::shared_ptr<ServerObject>> emptyServerObjectMap_; // 用于找不到时返回
+
     private:
-        ServerManager() = default;                                       // ctor hidden
+        ServerManager(): started(false) {}                               // ctor hidden
         ~ServerManager() = default;                                      // destruct hidden
         ServerManager(ServerManager const&) = delete;                    // copy ctor delete
         ServerManager(ServerManager &&) = delete;                        // move ctor delete

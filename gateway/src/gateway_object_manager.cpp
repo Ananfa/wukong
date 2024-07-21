@@ -41,7 +41,7 @@ void GatewayObjectManager::shutdown() {
     clearGatewayObject();
 }
 
-void GatewayObjectManager::addUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
+void GatewayObjectManager::addUnauthConn(std::shared_ptr<MessageTerminal::Connection>& conn) {
     assert(unauthNodeMap_.find(conn.get()) == unauthNodeMap_.end());
     MessageConnectionTimeLink::Node *node = new MessageConnectionTimeLink::Node;
     node->data = conn;
@@ -50,7 +50,7 @@ void GatewayObjectManager::addUnauthConn(std::shared_ptr<MessageServer::Connecti
     unauthNodeMap_.insert(std::make_pair(conn.get(), node));
 }
 
-void GatewayObjectManager::removeUnauthConn(std::shared_ptr<MessageServer::Connection>& conn) {
+void GatewayObjectManager::removeUnauthConn(std::shared_ptr<MessageTerminal::Connection>& conn) {
     auto kv = unauthNodeMap_.find(conn.get());
     if (kv == unauthNodeMap_.end()) {
         return;
@@ -61,7 +61,7 @@ void GatewayObjectManager::removeUnauthConn(std::shared_ptr<MessageServer::Conne
     unauthNodeMap_.erase(kv);
 }
 
-bool GatewayObjectManager::isUnauth(std::shared_ptr<MessageServer::Connection>& conn) {
+bool GatewayObjectManager::isUnauth(std::shared_ptr<MessageTerminal::Connection>& conn) {
     return unauthNodeMap_.find(conn.get()) != unauthNodeMap_.end();
 }
 
@@ -149,7 +149,7 @@ std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(U
     return it->second;
 }
 
-std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn) {
+std::shared_ptr<GatewayObject> GatewayObjectManager::getConnectedGatewayObject(std::shared_ptr<MessageTerminal::Connection> &conn) {
     auto it = connection2GatewayObjectMap_.find(conn.get());
     if (it == connection2GatewayObjectMap_.end()) {
         return nullptr;
@@ -171,7 +171,7 @@ void GatewayObjectManager::addConnectedGatewayObject(std::shared_ptr<GatewayObje
     connection2GatewayObjectMap_.insert(std::make_pair(obj->getConn().get(), obj));
 }
 
-int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn) {
+int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageTerminal::Connection> &newConn) {
     // 如果玩家网关对象已存在，将网关对象中的conn更换，并将原conn断线，转移消息缓存
     auto it = userId2GatewayObjectMap_.find(userId);
     if (it != userId2GatewayObjectMap_.end()) {
@@ -220,7 +220,7 @@ int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::s
     return 0;
 }
 
-bool GatewayObjectManager::tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Connection> &conn) {
+bool GatewayObjectManager::tryMoveToDisconnectedLink(std::shared_ptr<MessageTerminal::Connection> &conn) {
     auto it = connection2GatewayObjectMap_.find(conn.get());
     if (it == connection2GatewayObjectMap_.end()) {
         return false;

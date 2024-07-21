@@ -24,6 +24,8 @@
 namespace wukong {
     class GatewayServiceImpl : public pb::GatewayService {
     public:
+        GatewayServiceImpl() {}
+        
         virtual void shutdown(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
                              ::corpc::Void* response,
@@ -34,7 +36,7 @@ namespace wukong {
                              ::google::protobuf::Closure* done);
         virtual void getOnlineCount(::google::protobuf::RpcController* controller,
                              const ::corpc::Void* request,
-                             ::wukong::pb::OnlineCounts* response,
+                             ::wukong::pb::OnlineCount* response,
                              ::google::protobuf::Closure* done);
         virtual void forwardOut(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::ForwardOutRequest* request,
@@ -49,54 +51,7 @@ namespace wukong {
                              ::wukong::pb::BoolValue* response,
                              ::google::protobuf::Closure* done);
 
-        void addInnerStub(ServerId sid, pb::InnerGatewayService_Stub* stub);
-
-    private:
-        pb::InnerGatewayService_Stub *getInnerStub(ServerId sid);
-        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerGatewayService_Stub*)> handle);
-
-    private:
-        std::map<ServerId, pb::InnerGatewayService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
-
-    class InnerGatewayServiceImpl : public pb::InnerGatewayService {
-    public:
-        InnerGatewayServiceImpl(GatewayObjectManager *manager): manager_(manager) {}
-        
-        virtual void shutdown(::google::protobuf::RpcController* controller,
-                              const ::corpc::Void* request,
-                              ::corpc::Void* response,
-                              ::google::protobuf::Closure* done);
-        
-        virtual void kick(::google::protobuf::RpcController* controller,
-                          const ::wukong::pb::KickRequest* request,
-                          ::wukong::pb::BoolValue* response,
-                          ::google::protobuf::Closure* done);
-
-        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
-                                    const ::corpc::Void* request,
-                                    ::wukong::pb::Uint32Value* response,
-                                    ::google::protobuf::Closure* done);
-
-        virtual void forwardOut(::google::protobuf::RpcController* controller,
-                                const ::wukong::pb::ForwardOutRequest* request,
-                                ::corpc::Void* response,
-                                ::google::protobuf::Closure* done);
-        
-        virtual void setGameObjectPos(::google::protobuf::RpcController* controller,
-                                      const ::wukong::pb::SetGameObjectPosRequest* request,
-                                      ::wukong::pb::BoolValue* response,
-                                      ::google::protobuf::Closure* done);
-
-        virtual void heartbeat(::google::protobuf::RpcController* controller,
-                               const ::wukong::pb::GSHeartbeatRequest* request,
-                               ::wukong::pb::BoolValue* response,
-                               ::google::protobuf::Closure* done);
-
-    private:
-        GatewayObjectManager *manager_;
-    };
-
 }
 
 #endif /* wukong_gateway_service_h */

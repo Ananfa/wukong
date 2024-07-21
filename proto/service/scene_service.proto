@@ -43,42 +43,17 @@ service SceneService {
     }
 
     // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示负载过高）
-    rpc getOnlineCount(corpc.Void) returns(OnlineCounts)
-    {
-        option (corpc.need_coroutine) = true; // default is false
-        option (corpc.timeout) = 1000; // default is 0
-    }
+    //rpc getOnlineCount(corpc.Void) returns(OnlineCounts)
+    //{
+    //    option (corpc.need_coroutine) = true; // default is false
+    //    option (corpc.timeout) = 1000; // default is 0
+    //}
 
-    // 加载场景
-    rpc loadScene(LoadSceneRequest) returns(LoadSceneResponse)
-    {
-        option (corpc.need_coroutine) = true;
-    }
-
-    // 进入场景
-    rpc enterScene(EnterSceneRequest) returns(corpc.Void)
-    {
-        option (corpc.not_care_response) = true;
-        option (corpc.delete_in_done) = true;
-    }
-
-}
-
-service InnerSceneService {
-    option (corpc.global_service_id) = 5;
-
-    // 关闭场景服
-    rpc shutdown(corpc.Void) returns(corpc.Void)
+    rpc forwardIn(ForwardInRequest) returns(corpc.Void)
     {
         option (corpc.not_care_response) = true;
     }
-
-    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示负载过高）
-    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
-    {
-        option (corpc.timeout) = 500; // default is 0
-    }
-
+    
     // 加载场景
     rpc loadScene(LoadSceneRequest) returns(LoadSceneResponse)
     {
@@ -91,4 +66,34 @@ service InnerSceneService {
         option (corpc.not_care_response) = true;
         option (corpc.need_coroutine) = true;
     }
+
 }
+
+//service InnerSceneService {
+//    option (corpc.global_service_id) = 5;
+//
+//    // 关闭场景服
+//    rpc shutdown(corpc.Void) returns(corpc.Void)
+//    {
+//        option (corpc.not_care_response) = true;
+//    }
+//
+//    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示负载过高）
+//    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+//    {
+//        option (corpc.timeout) = 500; // default is 0
+//    }
+//
+//    // 加载场景
+//    rpc loadScene(LoadSceneRequest) returns(LoadSceneResponse)
+//    {
+//        option (corpc.need_coroutine) = true;
+//    }
+//
+//    // 进入场景
+//    rpc enterScene(EnterSceneRequest) returns(corpc.Void)
+//    {
+//        option (corpc.not_care_response) = true;
+//        option (corpc.need_coroutine) = true;
+//    }
+//}

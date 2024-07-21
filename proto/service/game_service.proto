@@ -6,50 +6,50 @@ option cc_generic_services = true;
 
 package wukong.pb;
 
-message ForwardInRequest {
-    uint32 serverId = 1; // 物理服编号
-    int32 type = 2; // 消息类型
-    uint32 tag = 3; // 消息tag（用于客户端与服务器RPC）
-    uint64 roleId = 4; // 发送目标角色
-    bytes rawMsg = 5; // 原始消息数据
-}
-
-message EnterGameRequest {
-    uint32 serverId = 1; // 物理服编号
-    uint64 roleId = 2;
-    string lToken = 3;
-    uint32 gatewayId = 4;
-}
-
-// 玩家游戏对象所在服务器需要实现GameService服务
-service GameService {
-    option (corpc.global_service_id) = 2;
-
-    rpc forwardIn(ForwardInRequest) returns(corpc.Void)
-    {
-        option (corpc.not_care_response) = true;
-        option (corpc.delete_in_done) = true;
-    }
-
-    // 注意：enterGame方法用于告诉游戏服向客户端发角色初始化数据，该方法可以重复调用，不应改变数据
-    rpc enterGame(EnterGameRequest) returns(corpc.Void)
-    {
-        option (corpc.not_care_response) = true;
-        option (corpc.delete_in_done) = true;
-    }
-}
-
-service InnerGameService {
-    option (corpc.global_service_id) = 2;
-
-    rpc forwardIn(ForwardInRequest) returns(corpc.Void)
-    {
-        option (corpc.not_care_response) = true;
-    }
-
-    // 注意：enterGame方法用于告诉游戏服向客户端发角色初始化数据，该方法可以重复调用，不应改变数据
-    rpc enterGame(EnterGameRequest) returns(corpc.Void)
-    {
-        option (corpc.not_care_response) = true;
-    }
-}
+//message ForwardInRequest {
+//    uint32 serverId = 1; // 物理服编号
+//    int32 type = 2; // 消息类型
+//    uint32 tag = 3; // 消息tag（用于客户端与服务器RPC）
+//    uint64 roleId = 4; // 发送目标角色
+//    bytes rawMsg = 5; // 原始消息数据
+//}
+//
+//message EnterGameRequest {
+//    uint32 serverId = 1; // 物理服编号
+//    uint64 roleId = 2;
+//    string lToken = 3;
+//    uint32 gatewayId = 4;
+//}
+//
+//// 玩家游戏对象所在服务器需要实现GameService服务
+//service GameService {
+//    option (corpc.global_service_id) = 2;
+//
+//    rpc forwardIn(ForwardInRequest) returns(corpc.Void)
+//    {
+//        option (corpc.not_care_response) = true;
+//        option (corpc.delete_in_done) = true;
+//    }
+//
+//    // 注意：enterGame方法用于告诉游戏服向客户端发角色初始化数据，该方法可以重复调用，不应改变数据
+//    rpc enterGame(EnterGameRequest) returns(corpc.Void)
+//    {
+//        option (corpc.not_care_response) = true;
+//        option (corpc.delete_in_done) = true;
+//    }
+//}
+//
+//service InnerGameService {
+//    option (corpc.global_service_id) = 2;
+//
+//    rpc forwardIn(ForwardInRequest) returns(corpc.Void)
+//    {
+//        option (corpc.not_care_response) = true;
+//    }
+//
+//    // 注意：enterGame方法用于告诉游戏服向客户端发角色初始化数据，该方法可以重复调用，不应改变数据
+//    rpc enterGame(EnterGameRequest) returns(corpc.Void)
+//    {
+//        option (corpc.not_care_response) = true;
+//    }
+//}

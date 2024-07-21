@@ -48,5 +48,25 @@ message ServerInfo {
 
 message ServerAccessRequest {
     ServerInfo server_info = 1; // 功能服自身信息
-    repeated int32 concern_types = 2; // 关注服务类型
+}
+
+message ServerAccessResponse {
+    repeated ServerInfo server_infos = 1;
+}
+
+message ServerInfoNtf {
+    ServerInfo server_info = 1;
+}
+
+message RemoveServerNtf {
+    int32 server_type = 1;
+    int32 server_id = 2;
+}
+
+message ForwardInRequest {
+    uint32 serverId = 1; // 物理服编号
+    int32 type = 2; // 消息类型
+    uint32 tag = 3; // 消息tag（用于客户端与服务器RPC）
+    uint64 roleId = 4; // 发送目标角色
+    bytes rawMsg = 5; // 原始消息数据
 }

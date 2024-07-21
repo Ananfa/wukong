@@ -29,7 +29,8 @@ namespace wukong {
         static void closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
         
         static void accessHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
-        
+        static void updateHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+
     private:
         NexusHandler() = default;                                 // ctor hidden
         NexusHandler(NexusHandler const&) = delete;               // copy ctor hidden

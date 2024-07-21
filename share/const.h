@@ -25,6 +25,14 @@ namespace wukong {
     const std::string ZK_DEFAULT_VALUE             = "1";
     const int ZK_TIMEOUT                           = 3000; // 单位毫秒
 
+    const ServerType SERVER_TYPE_NEXUS             = 1; // 服务器注册发现服
+    const ServerType SERVER_TYPE_FRONT             = 2; // 前置转发服
+    const ServerType SERVER_TYPE_LOGIN             = 3; // 登录服
+    const ServerType SERVER_TYPE_GATE              = 4; // 网关服
+    const ServerType SERVER_TYPE_LOBBY             = 5; // 大厅服
+    const ServerType SERVER_TYPE_RECORD            = 6; // 记录服
+    const ServerType SERVER_TYPE_SCENE             = 7; // 场景服
+
     const int LOGIN_LOCK_TIME                      = 0; // 登录锁时长，单位秒
 
     const int PASSPORT_TIMEOUT                     = 60; // passport超时时间
@@ -41,6 +49,15 @@ namespace wukong {
     const int MAX_SAVE_WORKER_NUM                  = 10; // 同时最多可以有多少个保存工人协程
 
     const int DISTRIBUTE_LOCK_EXPIRE               = 30; // 分布式锁过期时间
+
+    // 功能服向Nexus服发的消息ID定义
+    const uint16_t S2N_MESSAGE_ID_ACCESS           = 1; // 功能服向Nexus服注册消息
+    const uint16_t S2N_MESSAGE_ID_UPDATE           = 2; // 服务器状态更新
+
+    // Nexus服向功能服发的消息ID定义
+    const uint16_t N2S_MESSAGE_ID_ACCESS_RSP       = 1; // 服务器信息列表消息
+    const uint16_t N2S_MESSAGE_ID_SVRINFO          = 2; // 服务器信息更新消息
+    const uint16_t N2S_MESSAGE_ID_RMSVR            = 3; // 删除服务器信息消息
 
     // 客户端向服务器发的消息ID定义
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息

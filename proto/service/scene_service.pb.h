@@ -622,9 +622,9 @@ class SceneService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        const ::corpc::Void* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
-  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCounts* response,
+  virtual void forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardInRequest* request,
+                       ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   virtual void loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::LoadSceneRequest* request,
@@ -667,9 +667,9 @@ class SceneService_Stub : public SceneService {
                        const ::corpc::Void* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
-  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCounts* response,
+  void forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::ForwardInRequest* request,
+                       ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
   void loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::LoadSceneRequest* request,
@@ -683,89 +683,6 @@ class SceneService_Stub : public SceneService {
   ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
   bool owns_channel_;
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SceneService_Stub);
-};
-
-
-// -------------------------------------------------------------------
-
-class InnerSceneService_Stub;
-
-class InnerSceneService : public ::PROTOBUF_NAMESPACE_ID::Service {
- protected:
-  // This class should be treated as an abstract interface.
-  inline InnerSceneService() {};
- public:
-  virtual ~InnerSceneService();
-
-  typedef InnerSceneService_Stub Stub;
-
-  static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
-
-  virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
-  virtual void loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::LoadSceneRequest* request,
-                       ::wukong::pb::LoadSceneResponse* response,
-                       ::google::protobuf::Closure* done);
-  virtual void enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::EnterSceneRequest* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-
-  // implements Service ----------------------------------------------
-
-  const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GetDescriptor();
-  void CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
-                  ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                  const ::PROTOBUF_NAMESPACE_ID::Message* request,
-                  ::PROTOBUF_NAMESPACE_ID::Message* response,
-                  ::google::protobuf::Closure* done);
-  const ::PROTOBUF_NAMESPACE_ID::Message& GetRequestPrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
-  const ::PROTOBUF_NAMESPACE_ID::Message& GetResponsePrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
-
- private:
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerSceneService);
-};
-
-class InnerSceneService_Stub : public InnerSceneService {
- public:
-  InnerSceneService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel);
-  InnerSceneService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
-                   ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership);
-  ~InnerSceneService_Stub();
-
-  inline ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel() { return channel_; }
-
-  // implements InnerSceneService ------------------------------------------
-
-  void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
-  void loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::LoadSceneRequest* request,
-                       ::wukong::pb::LoadSceneResponse* response,
-                       ::google::protobuf::Closure* done);
-  void enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::EnterSceneRequest* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
- private:
-  ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
-  bool owns_channel_;
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerSceneService_Stub);
 };
 
 

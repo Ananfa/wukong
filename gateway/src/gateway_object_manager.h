@@ -17,7 +17,7 @@
 #ifndef wukong_gateway_object_manager_h
 #define wukong_gateway_object_manager_h
 
-#include "corpc_message_server.h"
+#include "corpc_message_terminal.h"
 #include "corpc_redis.h"
 #include "timelink.h"
 #include "gateway_object.h"
@@ -26,23 +26,25 @@
 using namespace corpc;
 
 namespace wukong {
-    typedef TimeLink<MessageServer::Connection> MessageConnectionTimeLink;
+    typedef TimeLink<MessageTerminal::Connection> MessageConnectionTimeLink;
     typedef TimeLink<GatewayObject> GatewayObjectTimeLink;
 
     class GatewayObjectManager {
     public:
-        GatewayObjectManager(ServerId id):id_(id), shutdown_(false) {}
+        static GatewayObjectManager& Instance() {
+            static GatewayObjectManager theSingleton;
+            return theSingleton;
+        }
 
+    public:
         void init();
-
-        ServerId getId() { return id_; }
 
         void shutdown();
         bool isShutdown() { return shutdown_; }
 
-        void addUnauthConn(std::shared_ptr<MessageServer::Connection>& conn);
-        void removeUnauthConn(std::shared_ptr<MessageServer::Connection>& conn);
-        bool isUnauth(std::shared_ptr<MessageServer::Connection>& conn);
+        void addUnauthConn(std::shared_ptr<MessageTerminal::Connection>& conn);
+        void removeUnauthConn(std::shared_ptr<MessageTerminal::Connection>& conn);
+        bool isUnauth(std::shared_ptr<MessageTerminal::Connection>& conn);
         void clearUnauth();
         size_t unauthSize() const { return unauthNodeMap_.size(); }
 
@@ -55,29 +57,28 @@ namespace wukong {
 
         // 获取已连接的网关对象
         std::shared_ptr<GatewayObject> getConnectedGatewayObject(UserId userId);
-        std::shared_ptr<GatewayObject> getConnectedGatewayObject(std::shared_ptr<MessageServer::Connection> &conn);
+        std::shared_ptr<GatewayObject> getConnectedGatewayObject(std::shared_ptr<MessageTerminal::Connection> &conn);
         void traverseConnectedGatewayObject(std::function<bool(std::shared_ptr<GatewayObject>&)> handle); // 注意：handle方法中不能有协程切换产生
 
         void addConnectedGatewayObject(std::shared_ptr<GatewayObject> &obj);
 
         // tryChangeGatewayObjectConn方法当token一致时更新网关对象（包括已连接及断线中）的客户端连接
         // 返回：-1.token不一致更换失败 0.网关对象不存在 1.更换成功
-        int tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageServer::Connection> &newConn);
+        int tryChangeGatewayObjectConn(UserId userId, const std::string &token, std::shared_ptr<MessageTerminal::Connection> &newConn);
 
         // tryMoveToDisconnectedLink将网关对象从已连接表转移到断线表，若没有找到返回false
-        bool tryMoveToDisconnectedLink(std::shared_ptr<MessageServer::Connection> &conn);
+        bool tryMoveToDisconnectedLink(std::shared_ptr<MessageTerminal::Connection> &conn);
 
     private:
         static void *clearExpiredUnauthRoutine( void *arg );  // 清理过时未认证连接
         static void *clearExpiredDisconnectedRoutine( void *arg ); // 清理过时断线网关对象
 
     private:
-        ServerId id_;       // gateway服务号
         bool shutdown_;
 
         // 未认证连接相关数据结构
         MessageConnectionTimeLink unauthLink_;
-        std::map<MessageServer::Connection*, MessageConnectionTimeLink::Node*> unauthNodeMap_;
+        std::map<MessageTerminal::Connection*, MessageConnectionTimeLink::Node*> unauthNodeMap_;
     
         // 断线中的网关对象相关数据结构（等待过期清理或者断线重连）
         GatewayObjectTimeLink disconnectedLink_;
@@ -85,9 +86,19 @@ namespace wukong {
 
         // 正常网关对象列表
         std::map<UserId, std::shared_ptr<GatewayObject>> userId2GatewayObjectMap_;
-        std::map<MessageServer::Connection*, std::shared_ptr<GatewayObject>> connection2GatewayObjectMap_;
+        std::map<MessageTerminal::Connection*, std::shared_ptr<GatewayObject>> connection2GatewayObjectMap_;
+
+    private:
+        GatewayObjectManager(): shutdown_(false) {}                               // ctor hidden
+        GatewayObjectManager(GatewayObjectManager const&) = delete;               // copy ctor hidden
+        GatewayObjectManager(GatewayObjectManager &&) = delete;                   // move ctor hidden
+        GatewayObjectManager& operator=(GatewayObjectManager const&) = delete;    // assign op. hidden
+        GatewayObjectManager& operator=(GatewayObjectManager &&) = delete;        // move assign op. hidden
+        ~GatewayObjectManager() = default;                                        // dtor hidden
     };
 
 }
+
+#define g_GatewayObjectManager wukong::GatewayObjectManager::Instance()
 
 #endif /* wukong_gateway_object_manager_h */

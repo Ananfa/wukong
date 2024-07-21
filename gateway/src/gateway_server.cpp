@@ -39,38 +39,38 @@ using namespace rapidjson;
 using namespace corpc;
 using namespace wukong;
 
-void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort) {
-    // 启动RPC服务
-    server->start(0);
-    
-    GatewayObjectManager *mgr = new GatewayObjectManager(gwid);
-    mgr->init();
-
-    InnerGatewayServiceImpl *gatewayServiceImpl = new InnerGatewayServiceImpl(mgr);
-    server->registerService(gatewayServiceImpl);
-
-    // 启动消息服务，注册连接建立、断开、消息禁止、身份认证等消息处理，以及设置旁路处理（将消息转发给玩家游戏对象所在的服务器）
-    corpc::TcpMessageServer *msgServer = new corpc::TcpMessageServer(msg_io, true, true, true, true, g_GatewayConfig.getExternalIp(), msgPort);
-    msgServer->start();
-    
-    GatewayHandler *handler = new GatewayHandler(mgr);
-    handler->registerMessages(msgServer);
-
-    // 从Redis中获取初始的消息屏蔽信息
-    RoutineEnvironment::startCoroutine([](void * arg) -> void* {
-        corpc::TcpMessageServer *msgServer = (corpc::TcpMessageServer *)arg;
-        banMsgHandle(msgServer);
-        return NULL;
-    }, msgServer);
-
-    // 用订阅主题“屏蔽”，不需要用全服事件
-    //PubsubService::Subscribe("WK_BanMsg", true, std::bind(&GatewayServer::banMsgHandle, this, std::placeholders::_1, std::placeholders::_2));
-    PubsubService::Subscribe("WK_BanMsg", true, [msgServer](const std::string& topic, const std::string& msg) {
-        banMsgHandle(msgServer);
-    });
-
-    RoutineEnvironment::runEventLoop();
-}
+//void GatewayServer::gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort) {
+//    // 启动RPC服务
+//    server->start(0);
+//    
+//    GatewayObjectManager *mgr = new GatewayObjectManager(gwid);
+//    mgr->init();
+//
+//    InnerGatewayServiceImpl *gatewayServiceImpl = new InnerGatewayServiceImpl(mgr);
+//    server->registerService(gatewayServiceImpl);
+//
+//    // 启动消息服务，注册连接建立、断开、消息禁止、身份认证等消息处理，以及设置旁路处理（将消息转发给玩家游戏对象所在的服务器）
+//    corpc::TcpMessageServer *msgServer = new corpc::TcpMessageServer(msg_io, true, true, true, true, g_GatewayConfig.getExternalIp(), msgPort);
+//    msgServer->start();
+//    
+//    GatewayHandler *handler = new GatewayHandler(mgr);
+//    handler->registerMessages(msgServer);
+//
+//    // 从Redis中获取初始的消息屏蔽信息
+//    RoutineEnvironment::startCoroutine([](void * arg) -> void* {
+//        corpc::TcpMessageServer *msgServer = (corpc::TcpMessageServer *)arg;
+//        banMsgHandle(msgServer);
+//        return NULL;
+//    }, msgServer);
+//
+//    // 用订阅主题“屏蔽”，不需要用全服事件
+//    //PubsubService::Subscribe("WK_BanMsg", true, std::bind(&GatewayServer::banMsgHandle, this, std::placeholders::_1, std::placeholders::_2));
+//    PubsubService::Subscribe("WK_BanMsg", true, [msgServer](const std::string& topic, const std::string& msg) {
+//        banMsgHandle(msgServer);
+//    });
+//
+//    RoutineEnvironment::runEventLoop();
+//}
 
 bool GatewayServer::init(int argc, char * argv[]) {
     if (inited_) {
@@ -128,7 +128,7 @@ bool GatewayServer::init(int argc, char * argv[]) {
     }
     
     // create IO layer
-    io_ = IO::create(g_GatewayConfig.getIoRecvThreadNum(), g_GatewayConfig.getIoSendThreadNum());
+    io_ = IO::create(g_GatewayConfig.getIoRecvThreadNum(), g_GatewayConfig.getIoSendThreadNum(), 0);
 
     // 初始化rpc clients
     rpcClient_ = RpcClient::create(io_);
@@ -152,28 +152,53 @@ bool GatewayServer::init(int argc, char * argv[]) {
 }
 
 void GatewayServer::run() {
-    GatewayServiceImpl *gatewayServiceImpl = new GatewayServiceImpl();
+    //GatewayServiceImpl *gatewayServiceImpl = new GatewayServiceImpl();
 
     // 根据servers配置启动Gateway服务，每线程跑一个服务
-    const std::vector<GatewayConfig::ServerInfo> &gatewayInfos = g_GatewayConfig.getServerInfos();
-    for (auto &info : gatewayInfos) {
-        // 创建内部RPC服务
-        InnerRpcServer *innerServer = new InnerRpcServer();
-
-        gatewayServiceImpl->addInnerStub(info.id, new pb::InnerGatewayService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
-
-        threads_.push_back(std::thread(gatewayThread, innerServer, io_, info.id, info.msgPort));
-    }
+    //const std::vector<GatewayConfig::ServerInfo> &gatewayInfos = g_GatewayConfig.getServerInfos();
+    //for (auto &info : gatewayInfos) {
+    //    // 创建内部RPC服务
+    //    InnerRpcServer *innerServer = new InnerRpcServer();
+    //
+    //    gatewayServiceImpl->addInnerStub(info.id, new pb::InnerGatewayService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
+    //
+    //    threads_.push_back(std::thread(gatewayThread, innerServer, io_, info.id, info.msgPort));
+    //}
 
     // 启动对外的RPC服务
-    RpcServer *server = RpcServer::create(io_, 0, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
-    server->registerService(gatewayServiceImpl);
+    RpcServer *server = RpcServer::create(io_, nullptr, g_GatewayConfig.getInternalIp(), g_GatewayConfig.getRpcPort());
+    server->registerService(new GatewayServiceImpl());
 
-    g_ClientCenter.init(rpcClient_, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
+    // 启动消息服务，注册连接建立、断开、消息禁止、身份认证等消息处理，以及设置旁路处理（将消息转发给玩家游戏对象所在的服务器）
+    //corpc::TcpMessageServer *msgServer = new corpc::TcpMessageServer(io_, true, true, true, true, g_GatewayConfig.getExternalIp(), msgPort);
+    //msgServer->start();
+
+    corpc::MessageTerminal *terminal = new corpc::MessageTerminal(true, true, true, true);
+    GatewayHandler::registerMessages(terminal);
+
+    corpc::TcpMessageServer *msgServer = new corpc::TcpMessageServer(io_, nullptr, terminal, g_GatewayConfig.getExternalIp(), g_GatewayConfig.getMsgPort());
+    msgServer->start();
+
+    // 从Redis中获取初始的消息屏蔽信息
+    RoutineEnvironment::startCoroutine([](void * arg) -> void* {
+        corpc::MessageTerminal *terminal = (corpc::MessageTerminal *)arg;
+        banMsgHandle(terminal);
+        return NULL;
+    }, terminal);
+
+    // 用订阅主题“屏蔽”，不需要用全服事件
+    //PubsubService::Subscribe("WK_BanMsg", true, std::bind(&GatewayServer::banMsgHandle, this, std::placeholders::_1, std::placeholders::_2));
+    PubsubService::Subscribe("WK_BanMsg", true, [terminal](const std::string& topic, const std::string& msg) {
+        banMsgHandle(terminal);
+    });
+
+    // TODO: 启动Nexus client
+
+    //g_ClientCenter.init(rpcClient_, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
 }
 
-void GatewayServer::banMsgHandle(corpc::TcpMessageServer *msgServer) {
+void GatewayServer::banMsgHandle(corpc::MessageTerminal *terminal) {
     // 从Redis中查出最新的封禁消息列表，并更新消息服务的封禁列表
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
     if (!cache) {
@@ -217,6 +242,6 @@ void GatewayServer::banMsgHandle(corpc::TcpMessageServer *msgServer) {
         }
     }
     if (banMsgList.size() > 0) {
-        msgServer->setBanMessages(banMsgList);
+        terminal->setBanMessages(banMsgList);
     }
 }

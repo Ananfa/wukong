@@ -66,7 +66,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT EnterSceneRequestDefaultTypeInt
 }  // namespace wukong
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_scene_5fservice_2eproto[3];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_scene_5fservice_2eproto = nullptr;
-static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_scene_5fservice_2eproto[2];
+static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_scene_5fservice_2eproto[1];
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_scene_5fservice_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
@@ -117,21 +117,14 @@ const char descriptor_table_protodef_scene_5fservice_2eproto[] PROTOBUF_SECTION_
   "eResponse\022\017\n\007errCode\030\001 \001(\r\022\017\n\007sceneId\030\002 "
   "\001(\t\"Y\n\021EnterSceneRequest\022\020\n\010serverId\030\001 \001"
   "(\r\022\016\n\006roleId\030\002 \001(\004\022\021\n\tgatewayId\030\003 \001(\r\022\017\n"
-  "\007sceneId\030\004 \001(\t2\224\002\n\014SceneService\022*\n\010shutd"
-  "own\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022A\n\016g"
-  "etOnlineCount\022\013.corpc.Void\032\027.wukong.pb.O"
-  "nlineCounts\"\t\220\361\004\001\240\361\004\350\007\022L\n\tloadScene\022\033.wu"
-  "kong.pb.LoadSceneRequest\032\034.wukong.pb.Loa"
-  "dSceneResponse\"\004\220\361\004\001\022A\n\nenterScene\022\034.wuk"
-  "ong.pb.EnterSceneRequest\032\013.corpc.Void\"\010\230"
-  "\361\004\001\250\361\004\001\032\004\200\361\004\0052\224\002\n\021InnerSceneService\022*\n\010s"
-  "hutdown\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022"
-  "<\n\016getOnlineCount\022\013.corpc.Void\032\026.wukong."
-  "pb.Uint32Value\"\005\240\361\004\364\003\022L\n\tloadScene\022\033.wuk"
-  "ong.pb.LoadSceneRequest\032\034.wukong.pb.Load"
-  "SceneResponse\"\004\220\361\004\001\022A\n\nenterScene\022\034.wuko"
-  "ng.pb.EnterSceneRequest\032\013.corpc.Void\"\010\230\361"
-  "\004\001\220\361\004\001\032\004\200\361\004\005B\003\200\001\001b\006proto3"
+  "\007sceneId\030\004 \001(\t2\216\002\n\014SceneService\022*\n\010shutd"
+  "own\022\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022;\n\tf"
+  "orwardIn\022\033.wukong.pb.ForwardInRequest\032\013."
+  "corpc.Void\"\004\230\361\004\001\022L\n\tloadScene\022\033.wukong.p"
+  "b.LoadSceneRequest\032\034.wukong.pb.LoadScene"
+  "Response\"\004\220\361\004\001\022A\n\nenterScene\022\034.wukong.pb"
+  ".EnterSceneRequest\032\013.corpc.Void\"\010\230\361\004\001\220\361\004"
+  "\001\032\004\200\361\004\005B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_scene_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -140,7 +133,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_scene_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_scene_5fservice_2eproto = {
-  false, false, 905, descriptor_table_protodef_scene_5fservice_2eproto, "scene_service.proto", 
+  false, false, 620, descriptor_table_protodef_scene_5fservice_2eproto, "scene_service.proto", 
   &descriptor_table_scene_5fservice_2eproto_once, descriptor_table_scene_5fservice_2eproto_deps, 3, 3,
   schemas, file_default_instances, TableStruct_scene_5fservice_2eproto::offsets,
   file_level_metadata_scene_5fservice_2eproto, file_level_enum_descriptors_scene_5fservice_2eproto, file_level_service_descriptors_scene_5fservice_2eproto,
@@ -1014,11 +1007,11 @@ void SceneService::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
   done->Run();
 }
 
-void SceneService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::corpc::Void*,
-                         ::wukong::pb::OnlineCounts*,
+void SceneService::forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::wukong::pb::ForwardInRequest*,
+                         ::corpc::Void*,
                          ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method getOnlineCount() not implemented.");
+  controller->SetFailed("Method forwardIn() not implemented.");
   done->Run();
 }
 
@@ -1054,10 +1047,10 @@ void SceneService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* m
              done);
       break;
     case 1:
-      getOnlineCount(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
+      forwardIn(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::ForwardInRequest*>(
                  request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::OnlineCounts*>(
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
                  response),
              done);
       break;
@@ -1090,7 +1083,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& SceneService::GetRequestPrototype(
     case 0:
       return ::corpc::Void::default_instance();
     case 1:
-      return ::corpc::Void::default_instance();
+      return ::wukong::pb::ForwardInRequest::default_instance();
     case 2:
       return ::wukong::pb::LoadSceneRequest::default_instance();
     case 3:
@@ -1109,7 +1102,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& SceneService::GetResponsePrototype(
     case 0:
       return ::corpc::Void::default_instance();
     case 1:
-      return ::wukong::pb::OnlineCounts::default_instance();
+      return ::corpc::Void::default_instance();
     case 2:
       return ::wukong::pb::LoadSceneResponse::default_instance();
     case 3:
@@ -1139,9 +1132,9 @@ void SceneService_Stub::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* control
   channel_->CallMethod(descriptor()->method(0),
                        controller, request, response, done);
 }
-void SceneService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::corpc::Void* request,
-                              ::wukong::pb::OnlineCounts* response,
+void SceneService_Stub::forwardIn(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::wukong::pb::ForwardInRequest* request,
+                              ::corpc::Void* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(1),
                        controller, request, response, done);
@@ -1154,173 +1147,6 @@ void SceneService_Stub::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* contro
                        controller, request, response, done);
 }
 void SceneService_Stub::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::EnterSceneRequest* request,
-                              ::corpc::Void* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(3),
-                       controller, request, response, done);
-}
-// ===================================================================
-
-InnerSceneService::~InnerSceneService() {}
-
-const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* InnerSceneService::descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_scene_5fservice_2eproto);
-  return file_level_service_descriptors_scene_5fservice_2eproto[1];
-}
-
-const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* InnerSceneService::GetDescriptor() {
-  return descriptor();
-}
-
-void InnerSceneService::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::corpc::Void*,
-                         ::corpc::Void*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method shutdown() not implemented.");
-  done->Run();
-}
-
-void InnerSceneService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::corpc::Void*,
-                         ::wukong::pb::Uint32Value*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method getOnlineCount() not implemented.");
-  done->Run();
-}
-
-void InnerSceneService::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::LoadSceneRequest*,
-                         ::wukong::pb::LoadSceneResponse*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method loadScene() not implemented.");
-  done->Run();
-}
-
-void InnerSceneService::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::EnterSceneRequest*,
-                         ::corpc::Void*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method enterScene() not implemented.");
-  done->Run();
-}
-
-void InnerSceneService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
-                             ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                             const ::PROTOBUF_NAMESPACE_ID::Message* request,
-                             ::PROTOBUF_NAMESPACE_ID::Message* response,
-                             ::google::protobuf::Closure* done) {
-  GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_scene_5fservice_2eproto[1]);
-  switch(method->index()) {
-    case 0:
-      shutdown(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
-                 response),
-             done);
-      break;
-    case 1:
-      getOnlineCount(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::Uint32Value*>(
-                 response),
-             done);
-      break;
-    case 2:
-      loadScene(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::LoadSceneRequest*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::LoadSceneResponse*>(
-                 response),
-             done);
-      break;
-    case 3:
-      enterScene(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::EnterSceneRequest*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
-                 response),
-             done);
-      break;
-    default:
-      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
-      break;
-  }
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message& InnerSceneService::GetRequestPrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
-  GOOGLE_DCHECK_EQ(method->service(), descriptor());
-  switch(method->index()) {
-    case 0:
-      return ::corpc::Void::default_instance();
-    case 1:
-      return ::corpc::Void::default_instance();
-    case 2:
-      return ::wukong::pb::LoadSceneRequest::default_instance();
-    case 3:
-      return ::wukong::pb::EnterSceneRequest::default_instance();
-    default:
-      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
-      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
-          ->GetPrototype(method->input_type());
-  }
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message& InnerSceneService::GetResponsePrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
-  GOOGLE_DCHECK_EQ(method->service(), descriptor());
-  switch(method->index()) {
-    case 0:
-      return ::corpc::Void::default_instance();
-    case 1:
-      return ::wukong::pb::Uint32Value::default_instance();
-    case 2:
-      return ::wukong::pb::LoadSceneResponse::default_instance();
-    case 3:
-      return ::corpc::Void::default_instance();
-    default:
-      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
-      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
-          ->GetPrototype(method->output_type());
-  }
-}
-
-InnerSceneService_Stub::InnerSceneService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel)
-  : channel_(channel), owns_channel_(false) {}
-InnerSceneService_Stub::InnerSceneService_Stub(
-    ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
-    ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership)
-  : channel_(channel),
-    owns_channel_(ownership == ::PROTOBUF_NAMESPACE_ID::Service::STUB_OWNS_CHANNEL) {}
-InnerSceneService_Stub::~InnerSceneService_Stub() {
-  if (owns_channel_) delete channel_;
-}
-
-void InnerSceneService_Stub::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::corpc::Void* request,
-                              ::corpc::Void* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(0),
-                       controller, request, response, done);
-}
-void InnerSceneService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::corpc::Void* request,
-                              ::wukong::pb::Uint32Value* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(1),
-                       controller, request, response, done);
-}
-void InnerSceneService_Stub::loadScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::LoadSceneRequest* request,
-                              ::wukong::pb::LoadSceneResponse* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(2),
-                       controller, request, response, done);
-}
-void InnerSceneService_Stub::enterScene(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::wukong::pb::EnterSceneRequest* request,
                               ::corpc::Void* response,
                               ::google::protobuf::Closure* done) {

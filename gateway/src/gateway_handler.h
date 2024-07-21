@@ -17,26 +17,28 @@
 #ifndef wukong_gateway_handler_h
 #define wukong_gateway_handler_h
 
-#include "gateway_object_manager.h"
-#include "corpc_message_server.h"
+#include "corpc_message_terminal.h"
 
 namespace wukong {
     class GatewayHandler {
     public:
-        GatewayHandler(GatewayObjectManager *manager): manager_(manager) {}
-        ~GatewayHandler() {}
-
-        void registerMessages(corpc::TcpMessageServer *server);
+        static void registerMessages(corpc::MessageTerminal *terminal);
 
     private:
-        void connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn);
-        void closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn);
-        void banHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn);
-        void authHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageServer::Connection> conn);
+        static void connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        static void closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        static void banHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        static void authHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
 
-        void bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageServer::Connection> conn);
+        static void bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+
     private:
-        GatewayObjectManager *manager_;
+        GatewayHandler() = default;                                   // ctor hidden
+        GatewayHandler(GatewayHandler const&) = delete;               // copy ctor hidden
+        GatewayHandler(GatewayHandler &&) = delete;                   // move ctor hidden
+        GatewayHandler& operator=(GatewayHandler const&) = delete;    // assign op. hidden
+        GatewayHandler& operator=(GatewayHandler &&) = delete;        // move assign op. hidden
+        ~GatewayHandler() = default;                                  // dtor hidden
     };
 }
 

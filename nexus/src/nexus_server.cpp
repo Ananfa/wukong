@@ -19,6 +19,7 @@
 #include "corpc_routine_env.h"
 #include "nexus_config.h"
 #include "nexus_handler.h"
+#include "server_manager.h"
 #include "utility.h"
 
 #include <signal.h>
@@ -87,6 +88,8 @@ bool NexusServer::init(int argc, char * argv[]) {
 
 void NexusServer::run() {
     IO *io = IO::create(g_NexusConfig.getIoRecvThreadNum(), g_NexusConfig.getIoSendThreadNum(), 0);
+
+    g_ServerManager.start();
 
     corpc::MessageTerminal *terminal = new corpc::MessageTerminal(true, true, true, true);
     

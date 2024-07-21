@@ -96,7 +96,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT GSHeartbeatRequestDefaultTypeIn
 }  // namespace wukong
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_gateway_5fservice_2eproto[5];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_gateway_5fservice_2eproto = nullptr;
-static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_gateway_5fservice_2eproto[2];
+static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_gateway_5fservice_2eproto[1];
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_gateway_5fservice_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
@@ -174,28 +174,17 @@ const char descriptor_table_protodef_gateway_5fservice_2eproto[] PROTOBUF_SECTIO
   "leId\030\003 \001(\004\022\016\n\006lToken\030\004 \001(\t\022\016\n\006gsType\030\005 \001"
   "(\r\022\014\n\004gsId\030\006 \001(\r\"F\n\022GSHeartbeatRequest\022\020"
   "\n\010serverId\030\001 \001(\r\022\016\n\006userId\030\002 \001(\004\022\016\n\006lTok"
-  "en\030\003 \001(\t2\245\003\n\016GatewayService\022*\n\010shutdown\022"
+  "en\030\003 \001(\t2\222\003\n\016GatewayService\022*\n\010shutdown\022"
   "\013.corpc.Void\032\013.corpc.Void\"\004\230\361\004\001\022:\n\004kick\022"
   "\026.wukong.pb.KickRequest\032\024.wukong.pb.Bool"
-  "Value\"\004\220\361\004\001\022A\n\016getOnlineCount\022\013.corpc.Vo"
-  "id\032\027.wukong.pb.OnlineCounts\"\t\220\361\004\001\240\361\004\320\017\022A"
-  "\n\nforwardOut\022\034.wukong.pb.ForwardOutReque"
-  "st\032\013.corpc.Void\"\010\230\361\004\001\250\361\004\001\022R\n\020setGameObje"
-  "ctPos\022\".wukong.pb.SetGameObjectPosReques"
-  "t\032\024.wukong.pb.BoolValue\"\004\220\361\004\001\022K\n\theartbe"
-  "at\022\035.wukong.pb.GSHeartbeatRequest\032\024.wuko"
-  "ng.pb.BoolValue\"\t\220\361\004\001\240\361\004\320\017\032\004\200\361\004\0012\227\003\n\023Inn"
-  "erGatewayService\022*\n\010shutdown\022\013.corpc.Voi"
-  "d\032\013.corpc.Void\"\004\230\361\004\001\022:\n\004kick\022\026.wukong.pb"
-  ".KickRequest\032\024.wukong.pb.BoolValue\"\004\220\361\004\001"
-  "\022<\n\016getOnlineCount\022\013.corpc.Void\032\026.wukong"
-  ".pb.Uint32Value\"\005\240\361\004\364\003\022=\n\nforwardOut\022\034.w"
-  "ukong.pb.ForwardOutRequest\032\013.corpc.Void\""
-  "\004\230\361\004\001\022L\n\020setGameObjectPos\022\".wukong.pb.Se"
-  "tGameObjectPosRequest\032\024.wukong.pb.BoolVa"
-  "lue\022G\n\theartbeat\022\035.wukong.pb.GSHeartbeat"
-  "Request\032\024.wukong.pb.BoolValue\"\005\240\361\004\320\017\032\004\200\361"
-  "\004\001B\003\200\001\001b\006proto3"
+  "Value\"\004\220\361\004\001\022<\n\016getOnlineCount\022\013.corpc.Vo"
+  "id\032\026.wukong.pb.OnlineCount\"\005\240\361\004\320\017\022=\n\nfor"
+  "wardOut\022\034.wukong.pb.ForwardOutRequest\032\013."
+  "corpc.Void\"\004\230\361\004\001\022L\n\020setGameObjectPos\022\".w"
+  "ukong.pb.SetGameObjectPosRequest\032\024.wukon"
+  "g.pb.BoolValue\022G\n\theartbeat\022\035.wukong.pb."
+  "GSHeartbeatRequest\032\024.wukong.pb.BoolValue"
+  "\"\005\240\361\004\320\017\032\004\200\361\004\001B\003\200\001\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_gateway_5fservice_2eproto_deps[3] = {
   &::descriptor_table_common_2eproto,
@@ -204,7 +193,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_gateway_5fservice_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_gateway_5fservice_2eproto = {
-  false, false, 1375, descriptor_table_protodef_gateway_5fservice_2eproto, "gateway_service.proto", 
+  false, false, 946, descriptor_table_protodef_gateway_5fservice_2eproto, "gateway_service.proto", 
   &descriptor_table_gateway_5fservice_2eproto_once, descriptor_table_gateway_5fservice_2eproto_deps, 3, 5,
   schemas, file_default_instances, TableStruct_gateway_5fservice_2eproto::offsets,
   file_level_metadata_gateway_5fservice_2eproto, file_level_enum_descriptors_gateway_5fservice_2eproto, file_level_service_descriptors_gateway_5fservice_2eproto,
@@ -1643,7 +1632,7 @@ void GatewayService::kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
 
 void GatewayService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                          const ::corpc::Void*,
-                         ::wukong::pb::OnlineCounts*,
+                         ::wukong::pb::OnlineCount*,
                          ::google::protobuf::Closure* done) {
   controller->SetFailed("Method getOnlineCount() not implemented.");
   done->Run();
@@ -1700,7 +1689,7 @@ void GatewayService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor*
       getOnlineCount(controller,
              ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
                  request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::OnlineCounts*>(
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::OnlineCount*>(
                  response),
              done);
       break;
@@ -1766,7 +1755,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message& GatewayService::GetResponsePrototype(
     case 1:
       return ::wukong::pb::BoolValue::default_instance();
     case 2:
-      return ::wukong::pb::OnlineCounts::default_instance();
+      return ::wukong::pb::OnlineCount::default_instance();
     case 3:
       return ::corpc::Void::default_instance();
     case 4:
@@ -1807,7 +1796,7 @@ void GatewayService_Stub::kick(::PROTOBUF_NAMESPACE_ID::RpcController* controlle
 }
 void GatewayService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::corpc::Void* request,
-                              ::wukong::pb::OnlineCounts* response,
+                              ::wukong::pb::OnlineCount* response,
                               ::google::protobuf::Closure* done) {
   channel_->CallMethod(descriptor()->method(2),
                        controller, request, response, done);
@@ -1827,227 +1816,6 @@ void GatewayService_Stub::setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcControlle
                        controller, request, response, done);
 }
 void GatewayService_Stub::heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::GSHeartbeatRequest* request,
-                              ::wukong::pb::BoolValue* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(5),
-                       controller, request, response, done);
-}
-// ===================================================================
-
-InnerGatewayService::~InnerGatewayService() {}
-
-const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* InnerGatewayService::descriptor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_gateway_5fservice_2eproto);
-  return file_level_service_descriptors_gateway_5fservice_2eproto[1];
-}
-
-const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* InnerGatewayService::GetDescriptor() {
-  return descriptor();
-}
-
-void InnerGatewayService::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::corpc::Void*,
-                         ::corpc::Void*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method shutdown() not implemented.");
-  done->Run();
-}
-
-void InnerGatewayService::kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::KickRequest*,
-                         ::wukong::pb::BoolValue*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method kick() not implemented.");
-  done->Run();
-}
-
-void InnerGatewayService::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::corpc::Void*,
-                         ::wukong::pb::Uint32Value*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method getOnlineCount() not implemented.");
-  done->Run();
-}
-
-void InnerGatewayService::forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::ForwardOutRequest*,
-                         ::corpc::Void*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method forwardOut() not implemented.");
-  done->Run();
-}
-
-void InnerGatewayService::setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::SetGameObjectPosRequest*,
-                         ::wukong::pb::BoolValue*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method setGameObjectPos() not implemented.");
-  done->Run();
-}
-
-void InnerGatewayService::heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                         const ::wukong::pb::GSHeartbeatRequest*,
-                         ::wukong::pb::BoolValue*,
-                         ::google::protobuf::Closure* done) {
-  controller->SetFailed("Method heartbeat() not implemented.");
-  done->Run();
-}
-
-void InnerGatewayService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
-                             ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                             const ::PROTOBUF_NAMESPACE_ID::Message* request,
-                             ::PROTOBUF_NAMESPACE_ID::Message* response,
-                             ::google::protobuf::Closure* done) {
-  GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_gateway_5fservice_2eproto[1]);
-  switch(method->index()) {
-    case 0:
-      shutdown(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
-                 response),
-             done);
-      break;
-    case 1:
-      kick(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::KickRequest*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::BoolValue*>(
-                 response),
-             done);
-      break;
-    case 2:
-      getOnlineCount(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::corpc::Void*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::Uint32Value*>(
-                 response),
-             done);
-      break;
-    case 3:
-      forwardOut(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::ForwardOutRequest*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::corpc::Void*>(
-                 response),
-             done);
-      break;
-    case 4:
-      setGameObjectPos(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::SetGameObjectPosRequest*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::BoolValue*>(
-                 response),
-             done);
-      break;
-    case 5:
-      heartbeat(controller,
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::wukong::pb::GSHeartbeatRequest*>(
-                 request),
-             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::wukong::pb::BoolValue*>(
-                 response),
-             done);
-      break;
-    default:
-      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
-      break;
-  }
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message& InnerGatewayService::GetRequestPrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
-  GOOGLE_DCHECK_EQ(method->service(), descriptor());
-  switch(method->index()) {
-    case 0:
-      return ::corpc::Void::default_instance();
-    case 1:
-      return ::wukong::pb::KickRequest::default_instance();
-    case 2:
-      return ::corpc::Void::default_instance();
-    case 3:
-      return ::wukong::pb::ForwardOutRequest::default_instance();
-    case 4:
-      return ::wukong::pb::SetGameObjectPosRequest::default_instance();
-    case 5:
-      return ::wukong::pb::GSHeartbeatRequest::default_instance();
-    default:
-      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
-      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
-          ->GetPrototype(method->input_type());
-  }
-}
-
-const ::PROTOBUF_NAMESPACE_ID::Message& InnerGatewayService::GetResponsePrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
-  GOOGLE_DCHECK_EQ(method->service(), descriptor());
-  switch(method->index()) {
-    case 0:
-      return ::corpc::Void::default_instance();
-    case 1:
-      return ::wukong::pb::BoolValue::default_instance();
-    case 2:
-      return ::wukong::pb::Uint32Value::default_instance();
-    case 3:
-      return ::corpc::Void::default_instance();
-    case 4:
-      return ::wukong::pb::BoolValue::default_instance();
-    case 5:
-      return ::wukong::pb::BoolValue::default_instance();
-    default:
-      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
-      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
-          ->GetPrototype(method->output_type());
-  }
-}
-
-InnerGatewayService_Stub::InnerGatewayService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel)
-  : channel_(channel), owns_channel_(false) {}
-InnerGatewayService_Stub::InnerGatewayService_Stub(
-    ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
-    ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership)
-  : channel_(channel),
-    owns_channel_(ownership == ::PROTOBUF_NAMESPACE_ID::Service::STUB_OWNS_CHANNEL) {}
-InnerGatewayService_Stub::~InnerGatewayService_Stub() {
-  if (owns_channel_) delete channel_;
-}
-
-void InnerGatewayService_Stub::shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::corpc::Void* request,
-                              ::corpc::Void* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(0),
-                       controller, request, response, done);
-}
-void InnerGatewayService_Stub::kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::KickRequest* request,
-                              ::wukong::pb::BoolValue* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(1),
-                       controller, request, response, done);
-}
-void InnerGatewayService_Stub::getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::corpc::Void* request,
-                              ::wukong::pb::Uint32Value* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(2),
-                       controller, request, response, done);
-}
-void InnerGatewayService_Stub::forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::ForwardOutRequest* request,
-                              ::corpc::Void* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(3),
-                       controller, request, response, done);
-}
-void InnerGatewayService_Stub::setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                              const ::wukong::pb::SetGameObjectPosRequest* request,
-                              ::wukong::pb::BoolValue* response,
-                              ::google::protobuf::Closure* done) {
-  channel_->CallMethod(descriptor()->method(4),
-                       controller, request, response, done);
-}
-void InnerGatewayService_Stub::heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                               const ::wukong::pb::GSHeartbeatRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done) {

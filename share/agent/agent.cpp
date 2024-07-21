@@ -1,5 +1,5 @@
 /*
- * Created by Xianke Liu on 2024/7/6.
+ * Created by Xianke Liu on 2024/7/16.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-#include "server_object.h"
+#include "agent.h"
 
 using namespace wukong;
 
-void ServerObject::send(int16_t type, std::shared_ptr<google::protobuf::Message> msg) {
-    if (conn_) {
-        conn_->send(type, false, false, false, 0, msg);
-    }
+Agent::~Agent() {}
+
+void Agent::removeStub(ServerId sid) {
+    stubs_.erase(sid);
 }
+
+GameAgent::~GameAgent() {}

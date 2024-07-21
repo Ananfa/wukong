@@ -1,0 +1,30 @@
+{
+    "ip": "0.0.0.0",
+    "port": 17000,
+    "accessTimeout": 10,
+    "disconnectTimeout": 30,
+    "ioRecvThreadNum": 2,
+    "ioSendThreadNum": 2,
+    "concern": [
+        {
+            "serverType": 2,
+            "concernServerTypes": [4]
+        },
+        {
+            "serverType": 3,
+            "concernServerTypes": [4]
+        },
+        {
+            "serverType": 4,
+            "concernServerTypes": [5, 7]
+        },
+        {
+            "serverType": 5,
+            "concernServerTypes": [4, 6, 7]
+        },
+        {
+            "serverType": 7,
+            "concernServerTypes": [4, 5, 7]
+        }
+    ]
+}

@@ -17,13 +17,34 @@
 #ifndef wukong_server_object_h
 #define wukong_server_object_h
 
+#include "define.h"
+#include "corpc_message_terminal.h"
+
+#include "inner_common.pb.h"
+
 namespace wukong {
 
     class ServerObject {
     public:
-    	ServerObject() {}
+    	ServerObject(const pb::ServerInfo& info): info_(info) {}
     	~ServerObject() {}
 
+        void resetConn() { conn_.reset(); }
+        void setConn(std::shared_ptr<MessageTerminal::Connection> &conn) { conn_ = conn; }
+        std::shared_ptr<corpc::MessageTerminal::Connection> &getConn() { return conn_; }
+
+        ServerType getType() { return info_.server_type(); }
+        ServerId getId() { return info_.server_id(); }
+
+        void setInfo(const pb::ServerInfo& info) { info_ = info; }
+        const pb::ServerInfo &getInfo() { return info_; }
+
+        void send(int16_t type, std::shared_ptr<google::protobuf::Message> msg);
+
+    private:
+        pb::ServerInfo info_;
+
+        std::shared_ptr<MessageTerminal::Connection> conn_; // 客户端连接
     };
 
 }

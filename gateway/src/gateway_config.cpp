@@ -35,6 +35,12 @@ bool GatewayConfig::parse(const char *path) {
     Document doc;
     doc.ParseStream(is);
     
+    if (!doc.HasMember("id")) {
+        ERROR_LOG("config error -- id not define\n");
+        return false;
+    }
+    id_ = doc["id"].GetInt();
+
     if (!doc.HasMember("internalIp")) {
         ERROR_LOG("config error -- internalIp not define\n");
         return false;
@@ -47,66 +53,18 @@ bool GatewayConfig::parse(const char *path) {
     }
     externalIp_ = doc["externalIp"].GetString();
     
-    if (doc.HasMember("outerAddr")) {
-        outerAddr_ = doc["outerAddr"].GetString();
-    } else {
-        outerAddr_ = externalIp_;
-    }
-    
     if (!doc.HasMember("rpcPort")) {
         ERROR_LOG("config error -- rpcPort not define\n");
         return false;
     }
     rpcPort_ = doc["rpcPort"].GetUint();
     
-    if (!doc.HasMember("servers")) {
-        ERROR_LOG("config error -- servers not define\n");
+    if (!doc.HasMember("msgPort")) {
+        ERROR_LOG("config error -- msgPort not define\n");
         return false;
     }
-
-    const Value& servers = doc["servers"];
-    if (!servers.IsArray()) {
-        ERROR_LOG("config error -- servers not array\n");
-        return false;
-    }
-
-    std::map<uint32_t, bool> serverIdMap;
-    for (SizeType i = 0; i < servers.Size(); i++) {
-        const Value& server = servers[i];
-
-        ServerInfo info;
-        if (!server.HasMember("id")) {
-            ERROR_LOG("config error -- servers[%d] id not define\n", i);
-            return false;
-        }
-        info.id = server["id"].GetInt();
-        if (serverIdMap.find(info.id) != serverIdMap.end()) {
-            ERROR_LOG("config error -- servers id %d duplicate\n", info.id);
-            return false;
-        }
-
-        if (!server.HasMember("msgPort")) {
-            ERROR_LOG("config error -- servers[%d] id msgPort not define\n", i);
-            return false;
-        }
-        info.msgPort = server["msgPort"].GetUint();
-        
-        if (server.HasMember("outerPort")) {
-            info.outerPort = server["outerPort"].GetUint();
-        } else {
-            info.outerPort = info.msgPort;
-        }
-
-        serverIdMap.insert(std::make_pair(info.id, true));
-        serverInfos_.push_back(info);
-    }
-
-    if (!doc.HasMember("zookeeper")) {
-        ERROR_LOG("config error -- zookeeper not define\n");
-        return false;
-    }
-    zookeeper_ = doc["zookeeper"].GetString();
-
+    msgPort_ = doc["msgPort"].GetUint();
+    
     if (!doc.HasMember("verifyTimeout")) {
         ERROR_LOG("config error -- verifyTimeout not define\n");
         return false;
@@ -189,17 +147,6 @@ bool GatewayConfig::parse(const char *path) {
         return false;
     }
     coreCache_ = doc["coreCache"].GetString();
-    
-    if (!doc.HasMember("enableSceneClient")) {
-        enableSceneClient_ = false;
-    } else {
-        enableSceneClient_ = doc["enableSceneClient"].GetBool();
-    }
-    
-    zooPath_ = ZK_GATEWAY_SERVER + "/" + internalIp_ + ":" + std::to_string(rpcPort_) + ":" + outerAddr_;
-    for (const GatewayConfig::ServerInfo &info : serverInfos_) {
-        zooPath_ += "|" + std::to_string(info.id) + ":" + std::to_string(info.outerPort);
-    }
     
     return true;
 }

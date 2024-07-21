@@ -14,6 +14,13 @@ message LoadRoleRequest {
     uint32 gatewayId = 3;
 }
 
+message EnterGameRequest {
+    uint32 serverId = 1; // 物理服编号
+    uint64 roleId = 2;
+    string lToken = 3;
+    uint32 gatewayId = 4;
+}
+
 // 玩家游戏对象所在服务器需要实现GameService服务
 service LobbyService {
     option (corpc.global_service_id) = 3;
@@ -25,39 +32,50 @@ service LobbyService {
     }
 
     // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
-    rpc getOnlineCount(corpc.Void) returns(OnlineCounts)
-    {
-        option (corpc.need_coroutine) = true; // default is false
-        option (corpc.timeout) = 1000; // default is 0
-    }
+    //rpc getOnlineCount(corpc.Void) returns(OnlineCounts)
+    //{
+    //    option (corpc.need_coroutine) = true; // default is false
+    //    option (corpc.timeout) = 1000; // default is 0
+    //}
 
+    rpc forwardIn(ForwardInRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+    }
+    
     // 加载指定角色，返回成功(true)/失败(false)
     rpc loadRole(LoadRoleRequest) returns(BoolValue)
     {
         option (corpc.need_coroutine) = true; // default is false
     }
 
-}
-
-service InnerLobbyService {
-    option (corpc.global_service_id) = 3;
-
-    // 关闭lobby服
-    rpc shutdown(corpc.Void) returns(corpc.Void)
+    // 注意：enterGame方法用于告诉游戏服向客户端发角色初始化数据，该方法可以重复调用，不应改变数据
+    rpc enterGame(EnterGameRequest) returns(corpc.Void)
     {
-        option (corpc.not_care_response) = true; // default is false
-    }
-
-    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
-    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
-    {
-        option (corpc.timeout) = 500; // default is 0
-    }
-
-    // 加载指定角色，返回成功(true)/失败(false)
-    rpc loadRole(LoadRoleRequest) returns(BoolValue)
-    {
-        option (corpc.need_coroutine) = true; // default is false
+        option (corpc.not_care_response) = true;
     }
 
 }
+
+//service InnerLobbyService {
+//    option (corpc.global_service_id) = 3;
+//
+//    // 关闭lobby服
+//    rpc shutdown(corpc.Void) returns(corpc.Void)
+//    {
+//        option (corpc.not_care_response) = true; // default is false
+//    }
+//
+//    // 获取在线玩家数，用于负载均衡（超时时间1秒，超时表示网关负载过高，后续不被继续分配）
+//    rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+//    {
+//        option (corpc.timeout) = 500; // default is 0
+//    }
+//
+//    // 加载指定角色，返回成功(true)/失败(false)
+//    rpc loadRole(LoadRoleRequest) returns(BoolValue)
+//    {
+//        option (corpc.need_coroutine) = true; // default is false
+//    }
+//
+//}

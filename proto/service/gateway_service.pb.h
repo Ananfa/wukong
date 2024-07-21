@@ -994,7 +994,7 @@ class GatewayService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        ::google::protobuf::Closure* done);
   virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCounts* response,
+                       ::wukong::pb::OnlineCount* response,
                        ::google::protobuf::Closure* done);
   virtual void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardOutRequest* request,
@@ -1047,7 +1047,7 @@ class GatewayService_Stub : public GatewayService {
                        ::google::protobuf::Closure* done);
   void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCounts* response,
+                       ::wukong::pb::OnlineCount* response,
                        ::google::protobuf::Closure* done);
   void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardOutRequest* request,
@@ -1065,105 +1065,6 @@ class GatewayService_Stub : public GatewayService {
   ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
   bool owns_channel_;
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(GatewayService_Stub);
-};
-
-
-// -------------------------------------------------------------------
-
-class InnerGatewayService_Stub;
-
-class InnerGatewayService : public ::PROTOBUF_NAMESPACE_ID::Service {
- protected:
-  // This class should be treated as an abstract interface.
-  inline InnerGatewayService() {};
- public:
-  virtual ~InnerGatewayService();
-
-  typedef InnerGatewayService_Stub Stub;
-
-  static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
-
-  virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  virtual void kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::KickRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
-  virtual void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::ForwardOutRequest* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  virtual void setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::SetGameObjectPosRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-  virtual void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::GSHeartbeatRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-
-  // implements Service ----------------------------------------------
-
-  const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GetDescriptor();
-  void CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
-                  ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                  const ::PROTOBUF_NAMESPACE_ID::Message* request,
-                  ::PROTOBUF_NAMESPACE_ID::Message* response,
-                  ::google::protobuf::Closure* done);
-  const ::PROTOBUF_NAMESPACE_ID::Message& GetRequestPrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
-  const ::PROTOBUF_NAMESPACE_ID::Message& GetResponsePrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
-
- private:
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerGatewayService);
-};
-
-class InnerGatewayService_Stub : public InnerGatewayService {
- public:
-  InnerGatewayService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel);
-  InnerGatewayService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
-                   ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership);
-  ~InnerGatewayService_Stub();
-
-  inline ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel() { return channel_; }
-
-  // implements InnerGatewayService ------------------------------------------
-
-  void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  void kick(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::KickRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
-  void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::ForwardOutRequest* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  void setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::SetGameObjectPosRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-  void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::GSHeartbeatRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
- private:
-  ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
-  bool owns_channel_;
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerGatewayService_Stub);
 };
 
 

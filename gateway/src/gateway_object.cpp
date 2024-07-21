@@ -17,6 +17,7 @@
 #include "corpc_routine_env.h"
 #include "gateway_object.h"
 #include "gateway_object_manager.h"
+#include "gateway_config.h"
 #include "gateway_server.h"
 #include "redis_pool.h"
 #include "redis_utils.h"
@@ -55,6 +56,19 @@ bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
     }
 
     return true;
+}
+
+void GatewayObject::setRelateServer(ServerType stype, ServerId sid) {
+    relateServers_[stype] = sid;
+}
+
+ServerId GatewayObject::getRelateServerId(ServerType stype) {
+    auto it = relateServers_.find(stype);
+    if (it != relateServers_.end()) {
+        return it->second;
+    }
+
+    return 0;
 }
 
 void GatewayObject::start() {
@@ -150,7 +164,7 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
         // 若设置超时不成功，销毁网关对象
         if (!success) {
             if (obj->running_) {
-                if (!obj->manager_->removeGatewayObject(obj->userId_)) {
+                if (!g_GatewayObjectManager.removeGatewayObject(obj->userId_)) {
                     assert(false);
                     ERROR_LOG("GatewayObject::heartbeatRoutine -- user[%llu] role[%llu] remove route object failed\n", obj->userId_, obj->roleId_);
                 }
@@ -199,7 +213,7 @@ void GatewayObject::enterGame() {
     request->set_serverid(gameServerId_);
     request->set_roleid(roleId_);
     request->set_ltoken(lToken_);
-    request->set_gatewayid(manager_->getId());
+    request->set_gatewayid(g_GatewayConfig.getId());
 
     gameServerStub_->enterGame(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
 }

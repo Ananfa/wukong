@@ -17,7 +17,7 @@
 #ifndef wukong_gateway_object_h
 #define wukong_gateway_object_h
 
-#include "corpc_message_server.h"
+#include "corpc_message_terminal.h"
 #include "corpc_cond.h"
 #include "share/define.h"
 #include "game_service.pb.h"
@@ -26,7 +26,6 @@ using namespace corpc;
 
 namespace wukong {
     class GatewayObject;
-    class GatewayObjectManager;
 
     struct GatewayObjectRoutineArg {
         std::shared_ptr<GatewayObject> obj;
@@ -34,18 +33,21 @@ namespace wukong {
 
     class GatewayObject: public std::enable_shared_from_this<GatewayObject> {
     public:
-        GatewayObject(UserId userId, RoleId roleId, const std::string &gToken, std::shared_ptr<MessageServer::Connection> &conn, GatewayObjectManager *manager): userId_(userId), roleId_(roleId), gToken_(gToken), conn_(conn), manager_(manager), running_(false) {}
+        GatewayObject(UserId userId, RoleId roleId, const std::string &gToken, std::shared_ptr<MessageTerminal::Connection> &conn): userId_(userId), roleId_(roleId), gToken_(gToken), conn_(conn), running_(false) {}
 
-        std::shared_ptr<MessageServer::Connection> &getConn() { return conn_; }
-        std::shared_ptr<pb::GameService_Stub> &getGameServerStub() { return gameServerStub_; }
+        std::shared_ptr<MessageTerminal::Connection> &getConn() { return conn_; }
+        //std::shared_ptr<pb::GameService_Stub> &getGameServerStub() { return gameServerStub_; }
         const std::string &getGToken() { return gToken_; }
         void setLToken(const std::string &lToken) { lToken_ = lToken; }
         const std::string &getLToken() { return lToken_; }
         UserId getUserId() { return userId_; }
         RoleId getRoleId() { return roleId_; }
 
-        void setConn(std::shared_ptr<MessageServer::Connection> &conn) { conn_ = conn; }
-        bool setGameServerStub(GameServerType gsType, ServerId sid);
+        void setConn(std::shared_ptr<MessageTerminal::Connection> &conn) { conn_ = conn; }
+        //bool setGameServerStub(GameServerType gsType, ServerId sid);
+
+        void setRelateServer(ServerType stype, ServerId sid);
+        ServerId getRelateServerId(ServerType stype);
 
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
@@ -58,10 +60,14 @@ namespace wukong {
         static void *heartbeatRoutine( void *arg );  // 心跳协程，周期对session重设超时时间，心跳失败时需通知Manager销毁网关对象
 
     private:
-        std::shared_ptr<MessageServer::Connection> conn_; // 客户端连接
-        std::shared_ptr<pb::GameService_Stub> gameServerStub_; // 游戏对象所在服务器stub
-        GameServerType gameServerType_; // 游戏对象所在服务器类型
-        ServerId gameServerId_; // 游戏对象所在服务器id
+        std::shared_ptr<MessageTerminal::Connection> conn_; // 客户端连接
+
+        // 玩家所关联的各种服务ID，用于消息转发，一种服务器只能关联一个
+        std::map<ServerType, ServerId> relateServers_;
+
+        //std::shared_ptr<pb::GameService_Stub> gameServerStub_; // 游戏对象所在服务器stub
+        //GameServerType gameServerType_; // 游戏对象所在服务器类型
+        //ServerId gameServerId_; // 游戏对象所在服务器id
         std::string gToken_; // 断线重连校验身份用
         std::string lToken_; // 游戏对象唯一标识
         UserId userId_;
@@ -72,10 +78,8 @@ namespace wukong {
         uint64_t gameObjectHeartbeatExpire_; // 游戏对象心跳超时时间
         Cond cond_;
 
-        GatewayObjectManager *manager_; // 关联的manager
-
     public:
-        friend class InnerGatewayServiceImpl;
+        friend class GatewayServiceImpl;
     };
 }
 

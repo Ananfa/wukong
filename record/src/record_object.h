@@ -83,7 +83,7 @@ namespace wukong {
         RecordObjectManager *manager_; // 关联的manager
 
     public:
-        friend class InnerRecordServiceImpl;
+        friend class RecordServiceImpl;
     };
 }
 

@@ -35,18 +35,18 @@
 using namespace corpc;
 using namespace wukong;
 
-void RecordServer::recordThread(InnerRpcServer *server, ServerId rcid) {
-    // 启动RPC服务
-    server->start(0);
-    
-    RecordObjectManager *mgr = new RecordObjectManager(rcid);
-    mgr->init();
-
-    InnerRecordServiceImpl *recordServiceImpl = new InnerRecordServiceImpl(mgr);
-    server->registerService(recordServiceImpl);
-
-    RoutineEnvironment::runEventLoop();
-}
+//void RecordServer::recordThread(InnerRpcServer *server, ServerId rcid) {
+//    // 启动RPC服务
+//    server->start(0);
+//    
+//    RecordObjectManager *mgr = new RecordObjectManager(rcid);
+//    mgr->init();
+//
+//    InnerRecordServiceImpl *recordServiceImpl = new InnerRecordServiceImpl(mgr);
+//    server->registerService(recordServiceImpl);
+//
+//    RoutineEnvironment::runEventLoop();
+//}
 
 bool RecordServer::init(int argc, char * argv[]) {
     if (inited_) {
@@ -104,7 +104,15 @@ bool RecordServer::init(int argc, char * argv[]) {
     }
     
     // create IO layer
-    io_ = IO::create(g_RecordConfig.getIoRecvThreadNum(), g_RecordConfig.getIoSendThreadNum());
+    io_ = IO::create(g_RecordConfig.getIoRecvThreadNum(), g_RecordConfig.getIoSendThreadNum(), 0);
+
+    pb::ServerInfo serverInfo;
+    serverInfo.set_server_type(SERVER_TYPE_RECORD);
+    serverInfo.set_server_id(g_RecordConfig.getId());
+    if (!g_AgentManager.init(io_, g_RecordConfig.getNexusAddr().host, g_RecordConfig.getNexusAddr().port, serverInfo)) {
+        ERROR_LOG("agent manager init failed\n");
+        return false;
+    }
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_RecordConfig.getRedisInfos();
@@ -128,28 +136,33 @@ bool RecordServer::init(int argc, char * argv[]) {
     g_RedisPoolManager.setCoreCache(g_RecordConfig.getCoreCache());
     g_MysqlPoolManager.setCoreRecord(g_RecordConfig.getCoreRecord());
 
+    g_RecordObjectManager.init();
+
     return true;
 }
 
 void RecordServer::run() {
-    RecordServiceImpl *recordServiceImpl = new RecordServiceImpl();
-
-    // 根据servers配置启动Record服务，每线程跑一个服务
-    const std::vector<RecordConfig::ServerInfo> &recordInfos = g_RecordConfig.getServerInfos();
-    for (auto &info : recordInfos) {
-        // 创建内部RPC服务
-        InnerRpcServer *innerServer = new InnerRpcServer();
-
-        recordServiceImpl->addInnerStub(info.id, new pb::InnerRecordService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
-
-        threads_.push_back(std::thread(recordThread, innerServer, info.id));
-    }
+    //RecordServiceImpl *recordServiceImpl = new RecordServiceImpl();
+    //
+    //// 根据servers配置启动Record服务，每线程跑一个服务
+    //const std::vector<RecordConfig::ServerInfo> &recordInfos = g_RecordConfig.getServerInfos();
+    //for (auto &info : recordInfos) {
+    //    // 创建内部RPC服务
+    //    InnerRpcServer *innerServer = new InnerRpcServer();
+    //
+    //    recordServiceImpl->addInnerStub(info.id, new pb::InnerRecordService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
+    //
+    //    threads_.push_back(std::thread(recordThread, innerServer, info.id));
+    //}
 
     // 启动对外的RPC服务
-    RpcServer *server = RpcServer::create(io_, 0, g_RecordConfig.getIp(), g_RecordConfig.getPort());
-    server->registerService(recordServiceImpl);
+    RpcServer *server = RpcServer::create(io_, nullptr, g_RecordConfig.getIp(), g_RecordConfig.getPort());
+    server->registerService(new RecordServiceImpl());
 
     g_RecordCenter.init();
-    g_ClientCenter.init(nullptr, g_RecordConfig.getZookeeper(), g_RecordConfig.getZooPath(), false, false, false, false);
+
+    g_AgentManager.start();
+
+    //g_ClientCenter.init(nullptr, g_RecordConfig.getZookeeper(), g_RecordConfig.getZooPath(), false, false, false, false);
     RoutineEnvironment::runEventLoop();
 }

@@ -29,10 +29,6 @@ namespace wukong {
                        const ::corpc::Void* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
-    virtual void getOnlineCount(::google::protobuf::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
     virtual void loadRoleData(::google::protobuf::RpcController* controller,
                        const ::wukong::pb::LoadRoleDataRequest* request,
                        ::wukong::pb::LoadRoleDataResponse* response,

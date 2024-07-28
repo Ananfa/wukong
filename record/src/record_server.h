@@ -18,7 +18,7 @@
 #define wukong_record_server_h
 
 #include "corpc_rpc_client.h"
-#include "corpc_inner_rpc.h"
+//#include "corpc_inner_rpc.h"
 #include "share/define.h"
 #include "record_service.pb.h"
 #include <map>

@@ -34,7 +34,6 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "corpc_option.pb.h"
 #include "common.pb.h"
-#include "inner_common.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_record_5fservice_2eproto
@@ -986,10 +985,6 @@ class RecordService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        const ::corpc::Void* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
-  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCounts* response,
-                       ::google::protobuf::Closure* done);
   virtual void loadRoleData(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::LoadRoleDataRequest* request,
                        ::wukong::pb::LoadRoleDataResponse* response,
@@ -1035,10 +1030,6 @@ class RecordService_Stub : public RecordService {
                        const ::corpc::Void* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
-  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCounts* response,
-                       ::google::protobuf::Closure* done);
   void loadRoleData(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::LoadRoleDataRequest* request,
                        ::wukong::pb::LoadRoleDataResponse* response,
@@ -1055,97 +1046,6 @@ class RecordService_Stub : public RecordService {
   ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
   bool owns_channel_;
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(RecordService_Stub);
-};
-
-
-// -------------------------------------------------------------------
-
-class InnerRecordService_Stub;
-
-class InnerRecordService : public ::PROTOBUF_NAMESPACE_ID::Service {
- protected:
-  // This class should be treated as an abstract interface.
-  inline InnerRecordService() {};
- public:
-  virtual ~InnerRecordService();
-
-  typedef InnerRecordService_Stub Stub;
-
-  static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
-
-  virtual void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
-  virtual void loadRoleData(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::LoadRoleDataRequest* request,
-                       ::wukong::pb::LoadRoleDataResponse* response,
-                       ::google::protobuf::Closure* done);
-  virtual void sync(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::SyncRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-  virtual void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::RSHeartbeatRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-
-  // implements Service ----------------------------------------------
-
-  const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GetDescriptor();
-  void CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
-                  ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                  const ::PROTOBUF_NAMESPACE_ID::Message* request,
-                  ::PROTOBUF_NAMESPACE_ID::Message* response,
-                  ::google::protobuf::Closure* done);
-  const ::PROTOBUF_NAMESPACE_ID::Message& GetRequestPrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
-  const ::PROTOBUF_NAMESPACE_ID::Message& GetResponsePrototype(
-    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
-
- private:
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerRecordService);
-};
-
-class InnerRecordService_Stub : public InnerRecordService {
- public:
-  InnerRecordService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel);
-  InnerRecordService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
-                   ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership);
-  ~InnerRecordService_Stub();
-
-  inline ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel() { return channel_; }
-
-  // implements InnerRecordService ------------------------------------------
-
-  void shutdown(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::Uint32Value* response,
-                       ::google::protobuf::Closure* done);
-  void loadRoleData(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::LoadRoleDataRequest* request,
-                       ::wukong::pb::LoadRoleDataResponse* response,
-                       ::google::protobuf::Closure* done);
-  void sync(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::SyncRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
-  void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::RSHeartbeatRequest* request,
-                       ::wukong::pb::BoolValue* response,
-                       ::google::protobuf::Closure* done);
- private:
-  ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
-  bool owns_channel_;
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(InnerRecordService_Stub);
 };
 
 

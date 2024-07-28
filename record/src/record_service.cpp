@@ -33,20 +33,13 @@ void RecordServiceImpl::shutdown(::google::protobuf::RpcController* controller,
     g_RecordObjectManager.shutdown();
 }
 
-void RecordServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
-                             const ::corpc::Void* request,
-                             ::wukong::pb::Uint32Value* response,
-                             ::google::protobuf::Closure* done) {
-    response->set_value(g_RecordObjectManager.size());
-}
-
 void RecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::LoadRoleDataRequest* request,
                              ::wukong::pb::LoadRoleDataResponse* response,
                              ::google::protobuf::Closure* done) {
     RoleId roleId = request->roleid();
 
-    if (manager_->isShutdown()) {
+    if (g_RecordObjectManager.isShutdown()) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- role[%llu] server is shutdown\n", roleId);
         response->set_errcode(1);
         return;
@@ -55,7 +48,7 @@ void RecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controll
     std::list<std::pair<std::string, std::string>> datas;
 
     // 查看是否有本地缓存的record object
-    std::shared_ptr<RecordObject> obj = manager_->getRecordObject(roleId);
+    std::shared_ptr<RecordObject> obj = g_RecordObjectManager.getRecordObject(roleId);
     if (obj) {
         obj->setLToken(request->ltoken());
 
@@ -80,7 +73,7 @@ void RecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controll
     gettimeofday(&t, NULL);
     std::string rToken = std::to_string(t.tv_sec);
 
-    switch (RedisUtils::SetRecordAddress(cache, roleId, manager_->getId(), rToken)) {
+    switch (RedisUtils::SetRecordAddress(cache, roleId, g_RecordConfig.getId(), rToken)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- role[%llu] set record failed\n", roleId);
@@ -111,7 +104,7 @@ void RecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controll
         g_RedisPoolManager.getCoreCache()->put(cache, false);
 
         // 创建record object
-        obj = manager_->create(userId, roleId, serverId, rToken, datas);
+        obj = g_RecordObjectManager.create(userId, roleId, serverId, rToken, datas);
         if (!obj) {
             ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- role[%llu] create record object failed\n", roleId);
             response->set_errcode(7);
@@ -191,7 +184,7 @@ void RecordServiceImpl::loadRoleData(::google::protobuf::RpcController* controll
     g_RedisPoolManager.getCoreCache()->put(cache, false);
 
     // 创建record object
-    obj = manager_->create(userId, roleId, serverId, rToken, datas);
+    obj = g_RecordObjectManager.create(userId, roleId, serverId, rToken, datas);
     if (!obj) {
         ERROR_LOG("InnerRecordServiceImpl::loadRoleData -- user[%llu] role[%llu] create record object failed\n", userId, roleId);
         response->set_errcode(7);
@@ -211,7 +204,7 @@ void RecordServiceImpl::sync(::google::protobuf::RpcController* controller,
                           ::wukong::pb::BoolValue* response,
                           ::google::protobuf::Closure* done) {
     // 数据同步
-    std::shared_ptr<RecordObject> obj = manager_->getRecordObject(request->roleid());
+    std::shared_ptr<RecordObject> obj = g_RecordObjectManager.getRecordObject(request->roleid());
     if (!obj) {
         ERROR_LOG("InnerRecordServiceImpl::sync -- role[%llu] record object not found\n", request->roleid());
         return;
@@ -230,7 +223,7 @@ void RecordServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
                                const ::wukong::pb::RSHeartbeatRequest* request,
                                ::wukong::pb::BoolValue* response,
                                ::google::protobuf::Closure* done) {
-    std::shared_ptr<RecordObject> obj = manager_->getRecordObject(request->roleid());
+    std::shared_ptr<RecordObject> obj = g_RecordObjectManager.getRecordObject(request->roleid());
     if (!obj) {
         WARN_LOG("InnerRecordServiceImpl::heartbeat -- role[%llu] record object not found\n", request->roleid());
         return;

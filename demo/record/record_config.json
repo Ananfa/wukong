@@ -1,24 +1,13 @@
 {
+    "id": 10001,
     "ip": "127.0.0.1",
     "port": 11001,
-    "servers": [
-        {
-            "id": 10001
-        },
-        {
-            "id": 10002
-        },
-        {
-            "id": 10003
-        }
-    ],
-    "zookeeper": "127.0.0.1:2181",
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
     "redis": [
         {
             "dbName": "cache",
-            "host": "192.168.32.1",
+            "host": "192.168.0.110",
             "port": 6379,
             "pwd": "",
             "maxConnect": 8,
@@ -28,13 +17,17 @@
     "mysql": [
         {
             "dbName": "record",
-            "host": "192.168.32.1",
+            "host": "192.168.0.110",
             "port": 3306,
             "user": "root",
-            "pwd": "111111",
+            "pwd": "123456",
             "maxConnect": 20
         }
     ],
     "coreCache": "cache",
-    "coreRecord": "record"
+    "coreRecord": "record",
+    "nexus": {
+        "host": "127.0.0.1",
+        "port": 17000
+    }
 }

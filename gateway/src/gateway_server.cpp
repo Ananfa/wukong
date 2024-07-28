@@ -167,6 +167,8 @@ bool GatewayServer::init(int argc, char * argv[]) {
     // 初始化发布订阅服务
     PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool());
 
+    g_GatewayObjectManager.init();
+
     return true;
 }
 

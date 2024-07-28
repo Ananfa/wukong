@@ -148,5 +148,21 @@ bool GatewayConfig::parse(const char *path) {
     }
     coreCache_ = doc["coreCache"].GetString();
     
+    if (doc.HasMember("nexus")) {
+        const Value& nexus = doc["nexus"];
+
+        if (!nexus.HasMember("host")) {
+            ERROR_LOG("config error -- nexus.host not define\n");
+            return false;
+        }
+        nexusAddr_.host = nexus["host"].GetString();
+
+        if (!nexus.HasMember("port")) {
+            ERROR_LOG("config error -- nexus.port not define\n");
+            return false;
+        }
+        nexusAddr_.port = nexus["port"].GetUint();
+    }
+
     return true;
 }

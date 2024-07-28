@@ -19,44 +19,60 @@
 using namespace corpc;
 using namespace wukong;
 
-void LobbyAgent::addStub(ServerId sid, const std::string &host, int32_t port) {
-    auto it = stubs_.find(sid);
-    if (it != stubs_.end()) {
+void LobbyAgent::setStub(const pb::ServerInfo &serverInfo) {
+    auto it = stubInfos_.find(serverInfo.server_id());
+    if (it != stubInfos_.end()) {
         // 若地址改变则重建stub
-        auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(it->second);
-
-        auto channel = (RpcClient::Channel*)stub->channel();
-
-        if (channel->getHost() == host && channel->getPort() == port) {
+        if (serverInfo.rpc_host() == it->second.info.rpc_host() && serverInfo.rpc_port() == it->second.info.rpc_port()) {
+            it->second.info = serverInfo;
             return;
         }
 
-        stubs_.erase(it);
+        it->second.info = serverInfo;
+
+        if (client_) {
+            it->second.stub = std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(client_, serverInfo.rpc_host(), serverInfo.rpc_port(), 1), google::protobuf::Service::STUB_OWNS_CHANNEL);
+        }
+        
+        return;
     }
 
-    auto stub = std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(client_, host, port, 1), google::protobuf::Service::STUB_OWNS_CHANNEL);
-    stubs_.insert(std::make_pair(sid, stub));
+    if (client_) {
+        stubInfos_.insert(std::make_pair(serverInfo.server_id(), StubInfo{serverInfo, std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(client_, serverInfo.rpc_host(), serverInfo.rpc_port(), 1), google::protobuf::Service::STUB_OWNS_CHANNEL)}));
+    } else {
+        stubInfos_.insert(std::make_pair(serverInfo.server_id(), StubInfo{info:serverInfo}));
+    }
 }
 
 void LobbyAgent::shutdown() {
-    auto stubs = stubs_;
+    if (!client_) {
+        ERROR_LOG("LobbyAgent::shutdown -- rpc client is NULL.\n");
+        return;
+    }
+
+    auto stubInfos = stubInfos_;
     
-    for (const auto& kv : stubs) {
+    for (const auto& kv : stubInfos) {
         corpc::Void *request = new corpc::Void();
         
-        auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(kv.second);
+        auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(kv.second.stub);
         stub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<google::protobuf::Message *>(callDoneHandle, request));
     }
 }
 
-void LobbyAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &rawMsg) {
-    auto it = stubs_.find(sid);
-    if (it == stubs_.end()) {
+void LobbyAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) {
+    if (!client_) {
+        ERROR_LOG("LobbyAgent::forwardIn -- rpc client is NULL.\n");
+        return;
+    }
+
+    auto it = stubInfos_.find(sid);
+    if (it == stubInfos_.end()) {
         ERROR_LOG("LobbyAgent::forwardIn -- server %d stub not avaliable, waiting.\n", sid);
         return;
     }
 
-    auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(it->second);
+    auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(it->second.stub);
 
     pb::ForwardInRequest *request = new pb::ForwardInRequest();
     Controller *controller = new Controller();
@@ -69,22 +85,27 @@ void LobbyAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId role
 
     request->set_roleid(roleId);
     
-    if (!rawMsg.empty()) {
-        request->set_rawmsg(rawMsg);
+    if (rawMsg && !rawMsg->empty()) {
+        request->set_rawmsg(rawMsg->c_str());
     }
     
     stub->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<google::protobuf::Message *>(callDoneHandle, request, controller));
 }
 
 bool LobbyAgent::loadRole(ServerId sid, RoleId roleId, ServerId gwId) {
+    if (!client_) {
+        ERROR_LOG("LobbyAgent::loadRole -- rpc client is NULL.\n");
+        return false;
+    }
+
     bool ret = false;
-    auto it = stubs_.find(sid);
-    if (it == stubs_.end()) {
+    auto it = stubInfos_.find(sid);
+    if (it == stubInfos_.end()) {
         ERROR_LOG("LobbyAgent::loadRole -- server %d stub not avaliable, waiting.\n", sid);
         return ret;
     }
 
-    auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(it->second);
+    auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(it->second.stub);
 
     pb::LoadRoleRequest *request = new pb::LoadRoleRequest();
     pb::BoolValue *response = new pb::BoolValue();
@@ -105,4 +126,27 @@ bool LobbyAgent::loadRole(ServerId sid, RoleId roleId, ServerId gwId) {
     delete request;
 
     return ret;
+}
+
+void LobbyAgent::enterGame(ServerId sid, RoleId roleId, const std::string &lToken, ServerId gwId) {
+    if (!client_) {
+        ERROR_LOG("LobbyAgent::enterGame -- rpc client is NULL.\n");
+        return;
+    }
+
+    auto it = stubInfos_.find(sid);
+    if (it == stubInfos_.end()) {
+        ERROR_LOG("LobbyAgent::enterGame -- server %d stub not avaliable, waiting.\n", sid);
+        return;
+    }
+
+    auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(it->second.stub);
+
+    pb::EnterGameRequest *request = new pb::EnterGameRequest();
+    Controller *controller = new Controller();
+    request->set_roleid(roleId);
+    request->set_ltoken(lToken);
+    request->set_gatewayid(gwId);
+
+    stub->enterGame(controller, request, nullptr, google::protobuf::NewCallback<google::protobuf::Message *>(callDoneHandle, request, controller));
 }

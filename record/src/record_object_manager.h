@@ -28,11 +28,17 @@ namespace wukong {
 
     class RecordObjectManager {
     public:
-        RecordObjectManager(ServerId id):id_(id), shutdown_(false) {}
+        static RecordObjectManager& Instance() {
+            static RecordObjectManager theSingleton;
+            return theSingleton;
+        }
+
+    public:
+        //RecordObjectManager(ServerId id):id_(id), shutdown_(false) {}
 
         void init();
 
-        ServerId getId() { return id_; }
+        //ServerId getId() { return id_; }
 
         void shutdown();
         bool isShutdown() { return shutdown_; }
@@ -46,12 +52,22 @@ namespace wukong {
         bool remove(RoleId roleId); // 删除玩家记录对象
 
     private:
-        ServerId id_;
+        //ServerId id_;
         bool shutdown_;
 
         std::map<RoleId, std::shared_ptr<RecordObject>> roleId2RecordObjectMap_;
+
+    private:
+        RecordObjectManager(): shutdown_(false) {}                              // ctor hidden
+        RecordObjectManager(RecordObjectManager const&) = delete;               // copy ctor hidden
+        RecordObjectManager(RecordObjectManager &&) = delete;                   // move ctor hidden
+        RecordObjectManager& operator=(RecordObjectManager const&) = delete;    // assign op. hidden
+        RecordObjectManager& operator=(RecordObjectManager &&) = delete;        // move assign op. hidden
+        ~RecordObjectManager() = default;                                       // dtor hidden
     };
 
 }
+
+#define g_RecordObjectManager wukong::RecordObjectManager::Instance()
 
 #endif /* wukong_record_object_manager_h */

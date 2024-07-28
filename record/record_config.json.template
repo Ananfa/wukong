@@ -1,18 +1,7 @@
 {
+    "id": 10001,                                // 服务号
     "ip": "127.0.0.1",                          // 内网提供rpc服务的监听ip
     "port": 11001,                              // rpc服务端口
-    "servers": [                                // Record服务组
-        {
-            "id": 10001                         // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
-        },
-        {
-            "id": 10002                         // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
-        },
-        {
-            "id": 10003                         // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
-        }
-    ],
-    "zookeeper": "127.0.0.1:2181",              // ZooKeeper
     "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
     "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
     "redis": [
@@ -36,5 +25,9 @@
         }
     ],
     "coreCache": "cache",                       // 用作游戏服务器核心缓存redis库(redis中的一个)
-    "coreRecord": "record"                      // 用作游戏服务器核心落地mysql库(mysql中的一个)
+    "coreRecord": "record",                     // 用作游戏服务器核心落地mysql库(mysql中的一个)
+    "nexus": {                                  // 服务注册发现服地址
+        "host": "127.0.0.1",
+        "port": 17000
+    }
 }

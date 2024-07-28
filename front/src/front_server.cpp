@@ -19,6 +19,8 @@
 #include "corpc_routine_env.h"
 
 #include "front_config.h"
+#include "agent_manager.h"
+#include "gateway_agent.h"
 
 #include "redis_pool.h"
 #include "redis_utils.h"
@@ -93,6 +95,19 @@ bool FrontServer::init(int argc, char * argv[]) {
         return false;
     }
     
+    // create IO layer
+    io_ = IO::create(1, 1, 0);
+
+    g_AgentManager.registerAgent(new GatewayAgent(nullptr));
+
+    pb::ServerInfo serverInfo;
+    serverInfo.set_server_type(SERVER_TYPE_FRONT);
+    serverInfo.set_server_id(g_FrontConfig.getId());
+    if (!g_AgentManager.init(io_, g_FrontConfig.getNexusAddr().host, g_FrontConfig.getNexusAddr().port, serverInfo)) {
+        ERROR_LOG("agent manager init failed\n");
+        return false;
+    }
+
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_FrontConfig.getRedisInfos();
     for (auto &info : redisInfos) {
@@ -182,6 +197,8 @@ void FrontServer::run() {
 
     RoutineEnvironment::startCoroutine(acceptRoutine, nullptr);
     
+    g_AgentManager.start();
+
     RoutineEnvironment::runEventLoop();
 }
 
@@ -323,10 +340,15 @@ void *FrontServer::authRoutine( void * arg ) {
         return NULL;
     }
 
-    // TODO: 获得gateid对应gate服地址
-    std::string gateHost;
-    uint16_t gatePort;
+    // 获得gateid对应gate服信息
+    GatewayAgent *gateAgent = (GatewayAgent*)g_AgentManager.getAgent(SERVER_TYPE_GATE);
+    pb::ServerInfo *gateSvrInfo = gateAgent->getServerInfo(authMsg.gateid());
+    if (!gateSvrInfo) {
+        ERROR_LOG("FrontServer::authRoutine -- gate[%d] not found\n", authMsg.gateid());
 
+        close(fd);
+        return NULL;
+    }
 
     // 连接gate服
     int gateFd;
@@ -341,8 +363,8 @@ void *FrontServer::authRoutine( void * arg ) {
     struct sockaddr_in addr;
     bzero(&addr,sizeof(addr));
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(gatePort);
-    int nIP = inet_addr(gateHost.c_str());
+    addr.sin_port = htons(gateSvrInfo->gate_info().msg_port());
+    int nIP = inet_addr(gateSvrInfo->gate_info().msg_host().c_str());
     addr.sin_addr.s_addr = nIP;
     
     if (connect(gateFd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {

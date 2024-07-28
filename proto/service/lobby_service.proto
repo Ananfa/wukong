@@ -9,13 +9,13 @@ option cc_generic_services = true;
 package wukong.pb;
 
 message LoadRoleRequest {
-    uint32 serverId = 1; // 物理服编号
+    //uint32 serverId = 1; // 物理服编号
     uint64 roleId = 2;
     uint32 gatewayId = 3;
 }
 
 message EnterGameRequest {
-    uint32 serverId = 1; // 物理服编号
+    //uint32 serverId = 1; // 物理服编号
     uint64 roleId = 2;
     string lToken = 3;
     uint32 gatewayId = 4;

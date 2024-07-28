@@ -19,8 +19,8 @@
 
 #include "login_delegate.h"
 #include "http_server.h"
-#include "gateway_client.h"
-#include "corpc_mutex.h"
+//#include "gateway_client.h"
+//#include "corpc_mutex.h"
 
 #include <map>
 #include <atomic>
@@ -71,24 +71,28 @@ namespace wukong {
         void setResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         void setErrorResponse(std::shared_ptr<ResponseMessage> &response, const std::string &content);
         
-        void updateServerGroupDataVersion() { serverGroupDataVersion_++; }
+        //void updateServerGroupDataVersion() { serverGroupDataVersion_++; }
         void updateServerGroupData();
-        void refreshServerGroupData();
+        //void refreshServerGroupData();
 
         bool checkToken(UserId userId, const std::string& token);
 
         static void *saveUserRoutine(void *arg); // 将account-userid对应关系信息存盘的协程
 
     private:
-        // TODO: 采用读写锁方式改造server group数据的访问逻辑
-        static std::string serverGroupData_;
-        static Mutex serverGroupDataLock_;
-        static std::atomic<uint32_t> serverGroupDataVersion_;
+        std::string serverGroupData_;
+        std::map<GroupId, uint32_t> groupStatusMap_;
+        std::map<ServerId, GroupId> serverId2groupIdMap_;
 
-        static thread_local std::string t_serverGroupData_;
-        static thread_local uint32_t t_serverGroupDataVersion_;
-        static thread_local std::map<GroupId, uint32_t> t_groupStatusMap_;
-        static thread_local std::map<ServerId, GroupId> t_serverId2groupIdMap_;
+        // TODO: 采用读写锁方式改造server group数据的访问逻辑
+        //static std::string serverGroupData_;
+        //static Mutex serverGroupDataLock_;
+        //static std::atomic<uint32_t> serverGroupDataVersion_;
+        //
+        //static thread_local std::string t_serverGroupData_;
+        //static thread_local uint32_t t_serverGroupDataVersion_;
+        //static thread_local std::map<GroupId, uint32_t> t_groupStatusMap_;
+        //static thread_local std::map<ServerId, GroupId> t_serverId2groupIdMap_;
 
         LoginDelegate delegate_;
 

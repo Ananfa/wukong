@@ -24,7 +24,10 @@
 #include "gateway_service.h"
 #include "gateway_object_manager.h"
 #include "gateway_handler.h"
-#include "client_center.h"
+//#include "client_center.h"
+#include "agent_manager.h"
+#include "lobby_agent.h"
+#include "scene_agent.h"
 #include "redis_pool.h"
 #include "redis_utils.h"
 #include "rapidjson/document.h"
@@ -133,6 +136,22 @@ bool GatewayServer::init(int argc, char * argv[]) {
     // 初始化rpc clients
     rpcClient_ = RpcClient::create(io_);
 
+    g_AgentManager.registerAgent(new LobbyAgent(rpcClient_));
+    g_AgentManager.registerAgent(new SceneAgent(rpcClient_));
+
+    pb::ServerInfo serverInfo;
+    serverInfo.set_server_type(SERVER_TYPE_GATE);
+    serverInfo.set_server_id(g_GatewayConfig.getId());
+    serverInfo.set_rpc_host(g_GatewayConfig.getInternalIp());
+    serverInfo.set_rpc_port(g_GatewayConfig.getRpcPort());
+    auto gateInfo = serverInfo.mutable_gate_info();
+    gateInfo->set_msg_host(g_GatewayConfig.getExternalIp());
+    gateInfo->set_msg_port(g_GatewayConfig.getMsgPort());
+    if (!g_AgentManager.init(io_, g_GatewayConfig.getNexusAddr().host, g_GatewayConfig.getNexusAddr().port, serverInfo)) {
+        ERROR_LOG("agent manager init failed\n");
+        return false;
+    }
+
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_GatewayConfig.getRedisInfos();
     for (auto &info : redisInfos) {
@@ -176,8 +195,10 @@ void GatewayServer::run() {
     corpc::MessageTerminal *terminal = new corpc::MessageTerminal(true, true, true, true);
     GatewayHandler::registerMessages(terminal);
 
-    corpc::TcpMessageServer *msgServer = new corpc::TcpMessageServer(io_, nullptr, terminal, g_GatewayConfig.getExternalIp(), g_GatewayConfig.getMsgPort());
+    corpc::TcpMessageServer *msgServer = new corpc::TcpMessageServer(io_, nullptr, terminal, "0.0.0.0", g_GatewayConfig.getMsgPort());
     msgServer->start();
+
+    g_AgentManager.start();
 
     // 从Redis中获取初始的消息屏蔽信息
     RoutineEnvironment::startCoroutine([](void * arg) -> void* {
@@ -191,8 +212,6 @@ void GatewayServer::run() {
     PubsubService::Subscribe("WK_BanMsg", true, [terminal](const std::string& topic, const std::string& msg) {
         banMsgHandle(terminal);
     });
-
-    // TODO: 启动Nexus client
 
     //g_ClientCenter.init(rpcClient_, g_GatewayConfig.getZookeeper(), g_GatewayConfig.getZooPath(), false, false, true, g_GatewayConfig.enableSceneClient());
     RoutineEnvironment::runEventLoop();
@@ -232,10 +251,10 @@ void GatewayServer::banMsgHandle(corpc::MessageTerminal *terminal) {
         return;
     }
 
-    std::map<int, bool> banMsgMap;
-    std::list<int> banMsgList;
+    std::map<int32_t, bool> banMsgMap;
+    std::list<int32_t> banMsgList;
     for (SizeType i = 0; i < doc.Size(); i++) {
-        int msgType = doc[i].GetInt();
+        int32_t msgType = doc[i].GetInt();
         if (banMsgMap.find(msgType) == banMsgMap.end()) { // 防重
             banMsgList.push_back(msgType);
             banMsgMap.insert(std::make_pair(msgType, true));

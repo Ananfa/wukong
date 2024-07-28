@@ -19,44 +19,60 @@
 using namespace corpc;
 using namespace wukong;
 
-void GatewayAgent::addStub(ServerId sid, const std::string &host, int32_t port) {
-    auto it = stubs_.find(sid);
-    if (it != stubs_.end()) {
+void GatewayAgent::setStub(const pb::ServerInfo &serverInfo) {
+    auto it = stubInfos_.find(serverInfo.server_id());
+    if (it != stubInfos_.end()) {
         // 若地址改变则重建stub
-        auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(it->second);
-
-        auto channel = (RpcClient::Channel*)stub->channel();
-
-        if (channel->getHost() == host && channel->getPort() == port) {
+        if (serverInfo.rpc_host() == it->second.info.rpc_host() && serverInfo.rpc_port() == it->second.info.rpc_port()) {
+            it->second.info = serverInfo;
             return;
         }
 
-        stubs_.erase(it);
+        it->second.info = serverInfo;
+
+        if (client_) {
+            it->second.stub = std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(client_, serverInfo.rpc_host(), serverInfo.rpc_port(), 1), google::protobuf::Service::STUB_OWNS_CHANNEL);
+        }
+        
+        return;
     }
 
-    auto stub = std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(client_, host, port, 1), google::protobuf::Service::STUB_OWNS_CHANNEL);
-    stubs_.insert(std::make_pair(sid, stub));
+    if (client_) {
+        stubInfos_.insert(std::make_pair(serverInfo.server_id(), StubInfo{serverInfo, std::make_shared<pb::GatewayService_Stub>(new RpcClient::Channel(client_, serverInfo.rpc_host(), serverInfo.rpc_port(), 1), google::protobuf::Service::STUB_OWNS_CHANNEL)}));
+    } else {
+        stubInfos_.insert(std::make_pair(serverInfo.server_id(), StubInfo{info:serverInfo}));
+    }
 }
 
 void GatewayAgent::shutdown() {
-    auto stubs = stubs_;
+    if (!client_) {
+        ERROR_LOG("GatewayAgent::shutdown -- rpc client is NULL.\n");
+        return;
+    }
+
+    auto stubInfos = stubInfos_;
     
-    for (const auto& kv : stubs) {
+    for (const auto& kv : stubInfos) {
         corpc::Void *request = new corpc::Void();
         
-        auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(kv.second);
+        auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(kv.second.stub);
         stub->shutdown(nullptr, request, nullptr, google::protobuf::NewCallback<google::protobuf::Message *>(callDoneHandle, request));
     }
 }
 
 bool GatewayAgent::kick(ServerId sid, UserId userId, const std::string &gToken) {
-    auto it = stubs_.find(sid);
-    if (it == stubs_.end()) {
+    if (!client_) {
+        ERROR_LOG("GatewayAgent::kick -- rpc client is NULL.\n");
+        return false;
+    }
+
+    auto it = stubInfos_.find(sid);
+    if (it == stubInfos_.end()) {
         ERROR_LOG("GatewayAgent::kick -- server %d stub not avaliable, waiting.\n", sid);
         return false;
     }
 
-    auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(it->second);
+    auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(it->second.stub);
     
     bool result = false;
     pb::KickRequest *request = new pb::KickRequest();
@@ -81,15 +97,20 @@ bool GatewayAgent::kick(ServerId sid, UserId userId, const std::string &gToken) 
 }
 
 void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, std::string>> &targets, const std::string &msg) {
+    if (!client_) {
+        ERROR_LOG("GatewayAgent::broadcast -- rpc client is NULL.\n");
+        return;
+    }
+
     if (sid == 0) { // 全服广播
         if (targets.size() > 0) { // 全服广播不应设置指定目标
             WARN_LOG("GatewayAgent::broadcast -- targets list not empty when global broadcast\n");
         }
 
         // 全服广播
-        auto stubs = stubs_;
+        auto stubInfos = stubInfos_;
 
-        if (stubs.size() > 0) {
+        if (stubInfos.size() > 0) {
             pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
             request->set_serverid(sid);
             request->set_type(type);
@@ -109,19 +130,19 @@ void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std
                 done->Run();
             });
 
-            for (auto &kv : stubs) {
-                auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(kv.second);
+            for (auto &kv : stubInfos) {
+                auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(kv.second.stub);
                 stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback(callDoneHandle, donePtr));
             }
         }
     } else { // 单服广播或多播
-        auto it = stubs_.find(sid);
-        if (it == stubs_.end()) {
+        auto it = stubInfos_.find(sid);
+        if (it == stubInfos_.end()) {
             ERROR_LOG("GatewayAgent::broadcast -- server %d stub not avaliable, waiting.\n", sid);
             return;
         }
 
-        auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(it->second);
+        auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(it->second.stub);
 
         pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
         request->set_serverid(sid);

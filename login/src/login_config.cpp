@@ -53,18 +53,6 @@ bool LoginConfig::parse(const char *path) {
     }
     servicePort_ = doc["servicePort"].GetUint();
     
-    if (!doc.HasMember("zookeeper")) {
-        ERROR_LOG("config error -- zookeeper not define\n");
-        return false;
-    }
-    zookeeper_ = doc["zookeeper"].GetString();
-
-    if (!doc.HasMember("workerThreadNum")) {
-        ERROR_LOG("config error -- workerThreadNum not define\n");
-        return false;
-    }
-    workerThreadNum_ = doc["workerThreadNum"].GetUint();
-    
     if (!doc.HasMember("ioRecvThreadNum")) {
         ERROR_LOG("config error -- ioRecvThreadNum not define\n");
         return false;
@@ -216,23 +204,47 @@ bool LoginConfig::parse(const char *path) {
     }
     coreRecord_ = doc["coreRecord"].GetString();
 
-    if (doc.HasMember("front")) {
-        const Value& front = doc["front"];
+    if (doc.HasMember("nexus")) {
+        const Value& nexus = doc["nexus"];
 
-        if (!front.HasMember("host")) {
-            ERROR_LOG("config error -- front.host not define\n");
+        if (!nexus.HasMember("host")) {
+            ERROR_LOG("config error -- nexus.host not define\n");
             return false;
         }
-        frontAddr_.host = front["host"].GetString();
+        nexusAddr_.host = nexus["host"].GetString();
 
-        if (!front.HasMember("port")) {
-            ERROR_LOG("config error -- front.port not define\n");
+        if (!nexus.HasMember("port")) {
+            ERROR_LOG("config error -- nexus.port not define\n");
             return false;
         }
-        frontAddr_.port = front["port"].GetUint();
+        nexusAddr_.port = nexus["port"].GetUint();
     }
 
-    zooPath_ = ZK_LOGIN_SERVER + "/" + std::to_string(id_) + "|" + serviceIp_ + ":" + std::to_string(servicePort_);
+    const Value& fronts = doc["front"];
+    if (!fronts.IsArray()) {
+        ERROR_LOG("config error -- redis not array\n");
+        return false;
+    }
+
+    for (SizeType i = 0; i < fronts.Size(); i++) {
+        const Value& front = fronts[i];
+
+        Address addr;
+        
+        if (!front.HasMember("host")) {
+            ERROR_LOG("config error -- front[%d].host not define\n", i);
+            return false;
+        }
+        addr.host = front["host"].GetString();
+        
+        if (!front.HasMember("port")) {
+            ERROR_LOG("config error -- front[%d].port not define\n", i);
+            return false;
+        }
+        addr.port = front["port"].GetUint();
+
+        frontAddrs_.push_back(addr);
+    }
 
     return true;
 }

@@ -22,7 +22,7 @@ using namespace wukong;
 
 bool AgentManager::init(IO *io, const std::string& nexusHost, uint16_t nexusPort, const pb::ServerInfo &serverInfo) {
     if (inited_) {
-        ERROR_LOG("AgentManager::init -- already inited\n");
+        ERROR_LOG("agent manager already inited\n");
         return false;
     }
 
@@ -31,11 +31,11 @@ bool AgentManager::init(IO *io, const std::string& nexusHost, uint16_t nexusPort
     terminal_ = new corpc::MessageTerminal(true, true, true, true);
     nexusClient_ = new corpc::TcpClient(io, nullptr, terminal_, nexusHost, nexusPort);
 
-    terminal_->registerMessage(CORPC_MSG_TYPE_CONNECT, nullptr, false, AgentManager::connectHandle);
-    terminal_->registerMessage(CORPC_MSG_TYPE_CLOSE, nullptr, true, AgentManager::closeHandle);
-    terminal_->registerMessage(N2S_MESSAGE_ID_ACCESS_RSP, nullptr, true, AgentManager::accessRspHandle);
-    terminal_->registerMessage(N2S_MESSAGE_ID_SVRINFO, nullptr, true, AgentManager::svrInfoHandle);
-    terminal_->registerMessage(N2S_MESSAGE_ID_RMSVR, nullptr, true, AgentManager::rmSvrHandle);
+    terminal_->registerMessage(CORPC_MSG_TYPE_CONNECT, nullptr, false, std::bind(&AgentManager::connectHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal_->registerMessage(CORPC_MSG_TYPE_CLOSE, nullptr, true, std::bind(&AgentManager::closeHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal_->registerMessage(N2S_MESSAGE_ID_ACCESS_RSP, nullptr, true, std::bind(&AgentManager::accessRspHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal_->registerMessage(N2S_MESSAGE_ID_SVRINFO, nullptr, true, std::bind(&AgentManager::svrInfoHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal_->registerMessage(N2S_MESSAGE_ID_RMSVR, nullptr, true, std::bind(&AgentManager::rmSvrHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
     inited_ = true;
     return true;
@@ -50,17 +50,41 @@ bool AgentManager::start() {
 
     nexusClient_->connect();
     RoutineEnvironment::startCoroutine(updateRoutine, this);
+    return true;
 }
 
-std::map<ServerId, pb::ServerInfo>& AgentManager::getRemoteServerInfos(ServerType stype) {
-    auto it = remoteServerInfos_.find(stype);
-
-    if (it != remoteServerInfos_.end()) {
-        return it->second;
-    }
-
-    return emptyServerInfoMap_;
-}
+//void AgentManager::setRemoteServerInfo(const pb::ServerInfo& serverInfo) {
+//    remoteServerInfos_[serverInfo.server_type()][serverInfo.server_id()] = serverInfo;
+//}
+//
+//void AgentManager::removeRemoteServerInfo(ServerType stype, ServerId sid) {
+//    auto it1 = remoteServerInfos_.find(stype);
+//
+//    if (it1 == remoteServerInfos_.end()) {
+//        WARN_LOG("server[%d:%d] not exist\n", stype, sid);
+//        return;
+//    }
+//
+//    it1->second.erase(sid);
+//    if (it1->second.empty()) {
+//        remoteServerInfos_.erase(it1);
+//    }
+//}
+//
+//pb::ServerInfo* AgentManager::getRemoteServerInfo(ServerType stype, ServerId sid) {
+//    auto it1 = remoteServerInfos_.find(stype);
+//
+//    if (it1 == remoteServerInfos_.end()) {
+//        return nullptr;
+//    }
+//
+//    auto it2 = it1->second.find(sid);
+//    if (it2 == it1->second.end()) {
+//        return nullptr;
+//    }
+//
+//    return &it2->second;
+//}
 
 void AgentManager::registerAgent(Agent *agent) {
     if (agents_.find(agent->getType()) != agents_.end()) {
@@ -71,7 +95,7 @@ void AgentManager::registerAgent(Agent *agent) {
     agents_.insert(std::make_pair(agent->getType(), agent));
 }
 
-Agent *AgentManager::getAgent(ServerType stype) {
+Agent* AgentManager::getAgent(ServerType stype) {
     auto it = agents_.find(stype);
     if (it != agents_.end()) {
         return it->second;
@@ -80,83 +104,63 @@ Agent *AgentManager::getAgent(ServerType stype) {
     return nullptr;
 }
 
-void AgentManager::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void AgentManager::connectHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     LOG("nexus-server connected\n");
     std::shared_ptr<pb::ServerAccessRequest> accessMsg(new pb::ServerAccessRequest);
 
-    pb::ServerInfo &info = g_AgentManager.getLocalServerInfo();
     pb::ServerInfo* info1 = accessMsg->mutable_server_info();
-    *info1 = info;
+    *info1 = localServerInfo_;
 
     conn->send(S2N_MESSAGE_ID_ACCESS, false, false, false, 0, accessMsg);
     
-    g_AgentManager.localServerInfoChanged_ = false;
+    localServerInfoChanged_ = false;
 }
 
-void AgentManager::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void AgentManager::closeHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     LOG("nexus-server disconnected\n");
-    while (!g_AgentManager.nexusClient_->connect()) {
+    while (!nexusClient_->connect()) {
         LOG("try reconnect nexus-server\n");
         sleep(1);
     }
 }
 
-void AgentManager::accessRspHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void AgentManager::accessRspHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     // 初始化本地stub数据
     pb::ServerAccessResponse *response = static_cast<pb::ServerAccessResponse*>(msg.get());
 
     // 重置服务器信息
-    std::map<ServerType, std::map<ServerId, pb::ServerInfo>> newRemoteServerInfos;
+    std::map<ServerType, std::list<pb::ServerInfo>> serverInfos;
     for (auto it = response->server_infos().begin(); it != response->server_infos().end(); ++it) {
-        ServerType stype = it->server_type();
-        ServerId sid = it->server_id();
-
-        Agent *agent = g_AgentManager.getAgent(stype);
-        agent->addStub(it->server_id(), it->rpc_host(), it->rpc_port());
-
-        newRemoteServerInfos[stype].insert(std::make_pair(sid, *it));
+        serverInfos[it->server_type()].push_back(*it);
     }
 
-    std::list<std::pair<ServerType, ServerId>> removeServers;
-    for (auto pair1 : g_AgentManager.remoteServerInfos_) {
-        ServerType stype = pair1.first;
-        for (auto pair2 : pair1.second) {
-            ServerId sid = pair2.first;
-            assert(stype == pair2.second.server_type());
-            assert(sid == pair2.second.server_id());
-
-            auto it1 = newRemoteServerInfos.find(stype);
-            if (it1 != newRemoteServerInfos.end()) {
-                auto it2 = it1->second.find(sid);
-                if (it2 != it1->second.end()) {
-                    continue;
-                }
-            }
-
-            removeServers.push_back(std::make_pair(stype, sid));
-        }
+    for (auto &pair : agents_) {
+        pair.second->resetStubs(serverInfos[pair.first]);
     }
-
-    for (auto pair : removeServers) {
-        Agent *agent = g_AgentManager.getAgent(pair.first);
-        agent->removeStub(pair.second);
-    }
-
-    g_AgentManager.remoteServerInfos_ = std::move(newRemoteServerInfos);
 }
 
-void AgentManager::svrInfoHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void AgentManager::svrInfoHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     pb::ServerInfoNtf *ntf = static_cast<pb::ServerInfoNtf*>(msg.get());
 
-    ServerType stype = ntf->server_info().server_type();
-    Agent *agent = g_AgentManager.getAgent(stype);
-    agent->addStub(ntf->server_info().server_id(), ntf->server_info().rpc_host(), ntf->server_info().rpc_port());
+    auto it = agents_.find(ntf->server_info().server_type());
+    if (it == agents_.end()) {
+        ERROR_LOG("agent not exist\n");
+        return;
+    }
+
+    it->second->setStub(ntf->server_info());
 }
 
-void AgentManager::rmSvrHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void AgentManager::rmSvrHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     pb::RemoveServerNtf *ntf = static_cast<pb::RemoveServerNtf*>(msg.get());
-    Agent *agent = g_AgentManager.getAgent(ntf->server_type());
-    agent->removeStub(ntf->server_id());
+
+    auto it = agents_.find(ntf->server_type());
+    if (it == agents_.end()) {
+        ERROR_LOG("agent not exist\n");
+        return;
+    }
+
+    it->second->removeStub(ntf->server_id());
 }
 
 void *AgentManager::updateRoutine(void *arg) {
@@ -177,4 +181,6 @@ void *AgentManager::updateRoutine(void *arg) {
 
         sleep(10);
     }
+
+    return nullptr;
 }

@@ -23,7 +23,9 @@
 #include "utility.h"
 
 #include "login_handler_mgr.h"
-#include "client_center.h"
+//#include "client_center.h"
+#include "agent_manager.h"
+#include "gateway_agent.h"
 
 #include "redis_pool.h"
 #include "mysql_pool.h"
@@ -90,13 +92,23 @@ bool LoginServer::init(int argc, char * argv[]) {
     }
     
     // create IO layer
-    io_ = IO::create(g_LoginConfig.getIoRecvThreadNum(), g_LoginConfig.getIoSendThreadNum());
+    io_ = IO::create(g_LoginConfig.getIoRecvThreadNum(), g_LoginConfig.getIoSendThreadNum(), 0);
     
     // 初始化rpc clients
     rpcClient_ = RpcClient::create(io_);
 
+    g_AgentManager.registerAgent(new GatewayAgent(rpcClient_));
+
+    pb::ServerInfo serverInfo;
+    serverInfo.set_server_type(SERVER_TYPE_LOGIN);
+    serverInfo.set_server_id(g_LoginConfig.getId());
+    if (!g_AgentManager.init(io_, g_LoginConfig.getNexusAddr().host, g_LoginConfig.getNexusAddr().port, serverInfo)) {
+        ERROR_LOG("agent manager init failed\n");
+        return false;
+    }
+
     // 启动http服务
-    _httpServer = HttpServer::create(io_, g_LoginConfig.getWorkerThreadNum(), g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
+    _httpServer = HttpServer::create(io_, nullptr, g_LoginConfig.getServiceIp(), g_LoginConfig.getServicePort());
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_LoginConfig.getRedisInfos();
@@ -129,6 +141,8 @@ bool LoginServer::init(int argc, char * argv[]) {
 
 void LoginServer::run() {
     g_LoginHandlerMgr.init(_httpServer);
-    g_ClientCenter.init(rpcClient_, g_LoginConfig.getZookeeper(), g_LoginConfig.getZooPath(), true, false, false, false);
+
+    g_AgentManager.start();
+    
     RoutineEnvironment::runEventLoop();
 }

@@ -27,7 +27,7 @@ namespace wukong {
         GatewayAgent(RpcClient *client): Agent(SERVER_TYPE_GATE, client) {}
         virtual ~GatewayAgent() {}
 
-        virtual void addStub(ServerId sid, const std::string &host, int32_t port) override;
+        virtual void setStub(const pb::ServerInfo &serverInfo) override;
 
         void shutdown() override;
         bool kick(ServerId sid, UserId userId, const std::string &gToken);

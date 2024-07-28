@@ -27,10 +27,10 @@ namespace wukong {
         SceneAgent(RpcClient *client): GameAgent(SERVER_TYPE_SCENE, client) {}
         virtual ~SceneAgent() {}
 
-        virtual void addStub(ServerId sid, const std::string &host, int32_t port) override;
+        virtual void setStub(const pb::ServerInfo &serverInfo) override;
 
         void shutdown() override;
-        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &rawMsg) override;
+        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) override;
         
         std::string loadScene(ServerId sid, uint32_t defId, const std::string &sceneId, RoleId roleId, const std::string &teamId);
         void enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId);

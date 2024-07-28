@@ -21,42 +21,44 @@
 #include "gateway_server.h"
 #include "redis_pool.h"
 #include "redis_utils.h"
-#include "lobby_client.h"
-#include "scene_client.h"
+//#include "lobby_client.h"
+//#include "scene_client.h"
+#include "agent_manager.h"
+#include "lobby_agent.h"
 #include "share/const.h"
 
 #include <sys/time.h>
 
 using namespace wukong;
 
-bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
-    if (!gameServerStub_ || gameServerType_ != gsType || gameServerId_ != sid) {
-        gameServerType_ = gsType;
-        gameServerId_ = sid;
-
-        switch (gsType) {
-            case GAME_SERVER_TYPE_LOBBY: {
-                gameServerStub_ = g_LobbyClient.getGameServiceStub(sid);
-                break;
-            }
-            case GAME_SERVER_TYPE_SCENE: {
-                gameServerStub_ = g_SceneClient.getGameServiceStub(sid);
-                break;
-            }
-            default: {
-                ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] unknown game server[gsType:%d sid: %d]\n", userId_, roleId_, gsType, sid);
-                break;
-            }
-        }
-    }
-
-    if (!gameServerStub_) {
-        ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] game server[gsType:%d sid: %d] not found\n", userId_, roleId_, gsType, sid);
-        return false;
-    }
-
-    return true;
-}
+//bool GatewayObject::setGameServerStub(GameServerType gsType, ServerId sid) {
+//    if (!gameServerStub_ || gameServerType_ != gsType || gameServerId_ != sid) {
+//        gameServerType_ = gsType;
+//        gameServerId_ = sid;
+//
+//        switch (gsType) {
+//            case GAME_SERVER_TYPE_LOBBY: {
+//                gameServerStub_ = g_LobbyClient.getGameServiceStub(sid);
+//                break;
+//            }
+//            case GAME_SERVER_TYPE_SCENE: {
+//                gameServerStub_ = g_SceneClient.getGameServiceStub(sid);
+//                break;
+//            }
+//            default: {
+//                ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] unknown game server[gsType:%d sid: %d]\n", userId_, roleId_, gsType, sid);
+//                break;
+//            }
+//        }
+//    }
+//
+//    if (!gameServerStub_) {
+//        ERROR_LOG("GatewayObject::setGameServerStub -- user[%llu] role[%llu] game server[gsType:%d sid: %d] not found\n", userId_, roleId_, gsType, sid);
+//        return false;
+//    }
+//
+//    return true;
+//}
 
 void GatewayObject::setRelateServer(ServerType stype, ServerId sid) {
     relateServers_[stype] = sid;
@@ -87,7 +89,7 @@ void GatewayObject::stop() {
 
         cond_.broadcast();
 
-        // TODO: 在这里直接进行redis操作会有协程切换，导致一些流程同步问题，需要重新考虑redis操作的地方
+        // 注意: 在这里直接进行redis操作会有协程切换，可能会导致一些流程同步问题（是否可以开新协程处理? 这样就不能保证stop返回session被清理）
         // 清除session
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
         if (!cache) {
@@ -177,43 +179,40 @@ void *GatewayObject::heartbeatRoutine( void *arg ) {
     return nullptr;
 }
 
-void GatewayObject::forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::string> &rawMsg) {
-    if (!gameServerStub_) {
-        ERROR_LOG("GatewayObject::forwardIn -- user[%llu] role[%llu] game server stub not set\n", userId_, roleId_);
+void GatewayObject::forwardIn(int32_t msgType, uint16_t tag, std::shared_ptr<std::string> &rawMsg) {
+    ServerType stype = (msgType >> 16) & 0xFFFF;
+
+    ServerId sid = getRelateServerId(stype);
+    if (sid == 0) {
+        ERROR_LOG("GatewayObject::forwardIn -- user[%llu] role[%llu] server[%d] not bound\n", userId_, roleId_, stype);
         return;
     }
-    
-    pb::ForwardInRequest *request = new pb::ForwardInRequest();
-    Controller *controller = new Controller();
-    request->set_serverid(gameServerId_);
-    request->set_type(type);
 
-    if (tag != 0) {
-        request->set_tag(tag);
+    GameAgent *agent = (GameAgent*)g_AgentManager.getAgent(stype);
+
+    if (!agent) {
+        ERROR_LOG("GatewayObject::forwardIn -- game agent[%d] not found\n", stype);
+        return;
     }
 
-    request->set_roleid(roleId_);
-    
-    if (rawMsg && !rawMsg->empty()) {
-        request->set_rawmsg(rawMsg->c_str());
-    }
-    
-    gameServerStub_->forwardIn(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
+    agent->forwardIn(sid, msgType, tag, roleId_, rawMsg);
 }
 
 void GatewayObject::enterGame() {
     DEBUG_LOG("GatewayObject::enterGame -- user: %d\n", userId_);
-    if (!gameServerStub_) {
-        ERROR_LOG("GatewayObject::enterGame -- user[%llu] role[%llu] game server stub not set\n", userId_, roleId_);
+
+    ServerId sid = getRelateServerId(SERVER_TYPE_LOBBY);
+    if (sid == 0) {
+        ERROR_LOG("GatewayObject::enterGame -- user[%llu] role[%llu] lobby not bound\n", userId_, roleId_);
         return;
     }
-    
-    pb::EnterGameRequest *request = new pb::EnterGameRequest();
-    Controller *controller = new Controller();
-    request->set_serverid(gameServerId_);
-    request->set_roleid(roleId_);
-    request->set_ltoken(lToken_);
-    request->set_gatewayid(g_GatewayConfig.getId());
 
-    gameServerStub_->enterGame(controller, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request, controller));
+    LobbyAgent *agent = (LobbyAgent*)g_AgentManager.getAgent(SERVER_TYPE_LOBBY);
+
+    if (!agent) {
+        ERROR_LOG("GatewayObject::enterGame -- lobby agent not found\n");
+        return;
+    }
+
+    agent->enterGame(sid, roleId_, lToken_, g_GatewayConfig.getId());
 }

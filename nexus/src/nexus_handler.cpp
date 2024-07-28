@@ -31,7 +31,7 @@ void NexusHandler::registerMessages(corpc::MessageTerminal *terminal) {
     terminal->registerMessage(S2N_MESSAGE_ID_UPDATE, nullptr, false, NexusHandler::updateHandle);
 }
 
-void NexusHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void NexusHandler::connectHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     // 登记未认证连接
     DEBUG_LOG("NexusHandler::connectHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
 
@@ -42,7 +42,7 @@ void NexusHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<goo
     }
 }
 
-void NexusHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void NexusHandler::closeHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("NexusHandler::closeHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
     assert(!conn->isOpen());
 
@@ -59,7 +59,7 @@ void NexusHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<googl
     }
 }
 
-void NexusHandler::accessHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void NexusHandler::accessHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("NexusHandler::accessHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
 
     if (!conn->isOpen()) {
@@ -126,7 +126,7 @@ void NexusHandler::accessHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     }
 }
 
-void NexusHandler::updateHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void NexusHandler::updateHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("NexusHandler::updateHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
 
     auto sobj = g_ServerManager.getConnectedServerObject(conn);

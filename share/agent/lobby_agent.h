@@ -27,11 +27,12 @@ namespace wukong {
         LobbyAgent(RpcClient *client): GameAgent(SERVER_TYPE_LOBBY, client) {}
         virtual ~LobbyAgent() {}
 
-        virtual void addStub(ServerId sid, const std::string &host, int32_t port) override;
+        virtual void setStub(const pb::ServerInfo &serverInfo) override;
 
         void shutdown() override;
-        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &rawMsg) override;
+        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) override;
         bool loadRole(ServerId sid, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
+        void enterGame(ServerId sid, RoleId roleId, const std::string &lToken, ServerId gwId);
 
     };
 }

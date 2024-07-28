@@ -27,23 +27,33 @@ using namespace corpc;
 namespace wukong {
     class Agent {
     public:
+        struct StubInfo {
+            pb::ServerInfo info;
+            std::shared_ptr<google::protobuf::Service> stub;
+        };
+
+    public:
         Agent(ServerType serverType, RpcClient *client): serverType_(serverType), client_(client) {}
         virtual ~Agent() = 0;
 
         ServerType getType() { return serverType_; }
 
-        virtual void addStub(ServerId sid, const std::string &host, int32_t port) = 0;
+        void resetStubs(const std::list<pb::ServerInfo> &serverInfos);
+        virtual void setStub(const pb::ServerInfo &serverInfo) = 0;
         void removeStub(ServerId sid);
 
         std::shared_ptr<google::protobuf::Service> getStub(ServerId sid);
+        pb::ServerInfo* getServerInfo(ServerId sid);
 
         virtual void shutdown() = 0;
+
+        virtual bool randomServer(ServerId &serverId); // 各类Agent可重载此方法
 
     protected:
         ServerType serverType_;
         RpcClient *client_;
 
-        std::map<ServerId, std::shared_ptr<google::protobuf::Service>> stubs_;
+        std::map<ServerId, StubInfo> stubInfos_;
     };
 
     class GameAgent: public Agent {
@@ -51,7 +61,7 @@ namespace wukong {
         GameAgent(ServerType serverType, RpcClient *client): Agent(serverType, client) {}
         virtual ~GameAgent() = 0;
 
-        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, const std::string &rawMsg) = 0;
+        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) = 0;
     };
 }
     

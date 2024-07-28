@@ -27,7 +27,7 @@ namespace wukong {
         RecordAgent(RpcClient *client): Agent(SERVER_TYPE_RECORD, client) {}
         virtual ~RecordAgent() {}
 
-        virtual void addStub(ServerId sid, const std::string &host, int32_t port) override;
+        virtual void setStub(const pb::ServerInfo &serverInfo) override;
 
         void shutdown() override;
 

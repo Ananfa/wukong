@@ -38,9 +38,6 @@ namespace wukong {
         const std::string& getServiceIp() const { return serviceIp_; }
         const uint16_t getServicePort() const { return servicePort_; }
         
-        const std::string& getZookeeper() const { return zookeeper_; }
-        
-        uint32_t getWorkerThreadNum() const { return workerThreadNum_; }
         uint32_t getIoRecvThreadNum() const { return ioRecvThreadNum_; }
         uint32_t getIoSendThreadNum() const { return ioSendThreadNum_; }
 
@@ -54,18 +51,15 @@ namespace wukong {
         const std::string& getCorePersist() const { return corePersist_; }
         const std::string& getCoreRecord() const { return coreRecord_; }
         
-        const Address& getFrontAddr() const { return frontAddr_; }
+        const Address& getNexusAddr() const { return nexusAddr_; }
 
-        const std::string& getZooPath() const { return zooPath_; }
+        const std::vector<Address>& getFrontAddrs() const { return frontAddrs_; }
 
     private:
         uint32_t id_;       // 服务号（Login服唯一标识，与zookeeper注册发现有关）
         std::string serviceIp_;    // 对外提供http服务的ip
         uint16_t servicePort_;     // 对外提供http服务的端口
 
-        std::string zookeeper_;
-        
-        uint32_t workerThreadNum_;  // http处理线程数（为0时表示在主线程进行http处理）
         uint32_t ioRecvThreadNum_;  // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t ioSendThreadNum_;  // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
 
@@ -81,9 +75,8 @@ namespace wukong {
         std::string corePersist_;  // 用作游戏服务器核心落地redis库(redis中的一个)
         std::string coreRecord_;  // 用作游戏服务器核心落地mysql库(mysql中的一个)
 
-        Address frontAddr_; // 前端地址（若配置了前端服客户端通过前端服与gateway通信，否则客户端直接与gateway服连接）
-
-        std::string zooPath_;
+        Address nexusAddr_;  // 注册发现服地址
+        std::vector<Address> frontAddrs_; // 前端地址（若配置了前端服客户端通过前端服与gateway通信，否则客户端直接与gateway服连接）
 
     private:
         LoginConfig() = default;                            // ctor hidden

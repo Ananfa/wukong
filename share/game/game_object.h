@@ -86,7 +86,7 @@ namespace wukong {
         void fireGlobalEvent(const Event &event);
 
     private:
-        int reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
+        //int reportGameObjectPos(); // 切场景时向gateway上报游戏对象新所在
         int heartbeatToGateway();
         int heartbeatToRecord();
 

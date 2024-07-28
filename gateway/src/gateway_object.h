@@ -53,7 +53,7 @@ namespace wukong {
         void stop(); // 停止心跳
 
         /* 业务逻辑 */
-        void forwardIn(int16_t type, uint16_t tag, std::shared_ptr<std::string> &rawMsg);
+        void forwardIn(int32_t msgType, uint16_t tag, std::shared_ptr<std::string> &rawMsg);
         void enterGame(); // 通知进入游戏
 
     private:

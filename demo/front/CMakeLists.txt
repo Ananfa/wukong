@@ -41,7 +41,11 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
+    ../../share/agent/agent.cpp
+    ../../share/agent/agent_manager.cpp
+    ../../share/agent/gateway_agent.cpp
     ../../share/db/redis_pool.cpp
+    ../../proto/service/gateway_service.pb.cc
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
     ../../utils/redis_utils.cpp)
@@ -66,15 +70,18 @@ set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 ${CMAKE_CXX_FLAGS}")
 include_directories(/usr/local/include)
 include_directories(/usr/local/include/co)
 include_directories(/usr/local/include/corpc)
+include_directories(/usr/local/include/corpc/kcp)
 include_directories(/usr/local/include/corpc/proto)
 include_directories(/usr/local/include/hiredis)
 include_directories(../..)
 include_directories(../../front/src)
 include_directories(../../share)
+include_directories(../../share/agent)
 include_directories(../../share/db)
 include_directories(../../utils)
 include_directories(../../proto)
 include_directories(../../proto/game)
+include_directories(../../proto/service)
 include_directories(../../deps/rapidjson/include)
 
 # Add target

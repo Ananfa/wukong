@@ -19,6 +19,7 @@
 
 #include "corpc_queue.h"
 #include "corpc_semaphore.h"
+#include "corpc_rpc_client.h"
 
 #include <string>
 #include <vector>
@@ -75,6 +76,9 @@ namespace wukong {
 
         sockaddr_in localAddr_;
         int listenFd_;
+
+        IO *io_ = nullptr;
+        RpcClient *rpcClient_ = nullptr;
 
         TransportConnectionQueue inflowQueue_;
         TransportConnectionQueue outflowQueue_;

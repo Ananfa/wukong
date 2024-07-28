@@ -37,8 +37,8 @@ namespace wukong {
         static RedisAccessResult SetSessionTTL(redisContext *redis, UserId userId, const std::string &gToken);
         static RedisAccessResult RemoveSession(redisContext *redis, UserId userId, const std::string &gToken);
 
-        static RedisAccessResult GetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType &stype, ServerId &sid, std::string &ltoken);
-        static RedisAccessResult SetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType stype, ServerId sid, const std::string &lToken);
+        static RedisAccessResult GetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId &sid, std::string &ltoken);
+        static RedisAccessResult SetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId sid, const std::string &lToken);
         static RedisAccessResult RemoveGameObjectAddress(redisContext *redis, RoleId roleId, const std::string &lToken);
         static RedisAccessResult SetGameObjectAddressTTL(redisContext *redis, RoleId roleId, const std::string &lToken);
 

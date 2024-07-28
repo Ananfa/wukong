@@ -47,12 +47,12 @@ void GatewayServiceImpl::kick(::google::protobuf::RpcController* controller,
     }
 }
 
-void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
-                     const ::corpc::Void* request,
-                     ::wukong::pb::OnlineCount* response,
-                     ::google::protobuf::Closure* done) {
-    response->set_count(g_GatewayObjectManager.getGatewayObjectNum());
-}
+//void GatewayServiceImpl::getOnlineCount(::google::protobuf::RpcController* controller,
+//                     const ::corpc::Void* request,
+//                     ::wukong::pb::Uint32Value* response,
+//                     ::google::protobuf::Closure* done) {
+//    response->set_value(g_GatewayObjectManager.getGatewayObjectNum());
+//}
 
 void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controller,
                      const ::wukong::pb::ForwardOutRequest* request,
@@ -88,37 +88,40 @@ void GatewayServiceImpl::forwardOut(::google::protobuf::RpcController* controlle
     }
 }
 
-void GatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController* controller,
-                     const ::wukong::pb::SetGameObjectPosRequest* request,
-                     ::wukong::pb::BoolValue* response,
-                     ::google::protobuf::Closure* done) {
-    std::shared_ptr<GatewayObject> obj = g_GatewayObjectManager.getGatewayObject(request->userid());
-    if (!obj) {
-        // 注意：正常情况下这里是会进入的，玩家刚进入游戏时的流程里面会进到这里
-        //ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- user[%llu] gateway object not found\n", request->userid());
-        return;
-    }
-
-    // 场景切换时重建gameobj对象时，ltoken会重新生成，此时会与session中记录的值不一致，这里不应判断ltoken值
-    //if (obj->getLToken() != request->ltoken()) {
-    //    ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- user[%llu] ltoken not match\n", request->userid());
-    //    return;
-    //}
-
-    if (obj->getRoleId() != request->roleid()) {
-        ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- user[%llu] roleid not match\n", request->userid());
-        return;
-    }
-
-    // 重置ltoken
-    obj->setLToken(request->ltoken());
-
-    struct timeval t;
-    gettimeofday(&t, NULL);
-    obj->gameObjectHeartbeatExpire_ = t.tv_sec + 60;
-    obj->setGameServerStub(request->gstype(), request->gsid());
-    response->set_value(true);
-}
+//void GatewayServiceImpl::setGameObjectPos(::google::protobuf::RpcController* controller,
+//                     const ::wukong::pb::SetGameObjectPosRequest* request,
+//                     ::wukong::pb::BoolValue* response,
+//                     ::google::protobuf::Closure* done) {
+//    std::shared_ptr<GatewayObject> obj = g_GatewayObjectManager.getGatewayObject(request->userid());
+//    if (!obj) {
+//        // 注意：正常情况下这里是会进入的，玩家刚进入游戏时的流程里面会进到这里
+//        //ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- user[%llu] gateway object not found\n", request->userid());
+//        return;
+//    }
+//
+//    // 场景切换时重建gameobj对象时，ltoken会重新生成，此时会与session中记录的值不一致，这里不应判断ltoken值
+//    //if (obj->getLToken() != request->ltoken()) {
+//    //    ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- user[%llu] ltoken not match\n", request->userid());
+//    //    return;
+//    //}
+//
+//    if (obj->getRoleId() != request->roleid()) {
+//        ERROR_LOG("GatewayServiceImpl::setGameObjectPos -- user[%llu] roleid not match\n", request->userid());
+//        return;
+//    }
+//
+//    // 重置ltoken
+//    obj->setLToken(request->ltoken());
+//
+//    obj->setRelateServer(SERVER_TYPE_LOBBY, request->gsid());
+//
+//    struct timeval t;
+//    gettimeofday(&t, NULL);
+//    obj->gameObjectHeartbeatExpire_ = t.tv_sec + 60;
+//
+//    //obj->setGameServerStub(request->gstype(), request->gsid());
+//    response->set_value(true);
+//}
 
 void GatewayServiceImpl::heartbeat(::google::protobuf::RpcController* controller,
                      const ::wukong::pb::GSHeartbeatRequest* request,

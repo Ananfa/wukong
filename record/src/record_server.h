@@ -22,7 +22,7 @@
 #include "share/define.h"
 #include "record_service.pb.h"
 #include <map>
-#include <thread>
+//#include <thread>
 
 using namespace corpc;
 
@@ -39,14 +39,14 @@ namespace wukong {
         bool init(int argc, char * argv[]);
         void run();
 
-    private:
-        static void recordThread(InnerRpcServer *server, ServerId rcid);
+    //private:
+    //    static void recordThread(InnerRpcServer *server, ServerId rcid);
 
     private:
         bool inited_ = false;
         IO *io_ = nullptr;
 
-        std::vector<std::thread> threads_;
+        //std::vector<std::thread> threads_;
         
     private:
         RecordServer() = default;                                   // ctor hidden

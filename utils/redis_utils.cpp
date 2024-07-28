@@ -579,24 +579,22 @@ RedisAccessResult RedisUtils::RemoveSession(redisContext *redis, UserId userId, 
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType &stype, ServerId &sid, std::string &lToken) {
-    redisReply *reply = (redisReply *)redisCommand(redis, "HMGET Location:%llu lToken stype sid", roleId);
+RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId &sid, std::string &lToken) {
+    redisReply *reply = (redisReply *)redisCommand(redis, "HMGET Location:%llu lToken sid", roleId);
     if (!reply) {
         return REDIS_DB_ERROR;
     }
 
-    if (reply->type != REDIS_REPLY_ARRAY || reply->elements != 3) {
+    if (reply->type != REDIS_REPLY_ARRAY || reply->elements != 2) {
         freeReplyObject(reply);
         return REDIS_REPLY_INVALID;
     }
 
     if (reply->element[0]->type == REDIS_REPLY_STRING) {
         assert(reply->element[1]->type == REDIS_REPLY_STRING);
-        assert(reply->element[2]->type == REDIS_REPLY_STRING);
         // 这里不再向游戏对象所在服发RPC（极端情况是游戏对象刚巧销毁导致网关对象指向了不存在的游戏对象的游戏服务器，网关对象一段时间没有收到游戏对象心跳后销毁）
         lToken = reply->element[0]->str;
-        stype = atoi(reply->element[1]->str);
-        sid = atoi(reply->element[2]->str);
+        sid = atoi(reply->element[1]->str);
 
         freeReplyObject(reply);
         return REDIS_SUCCESS;
@@ -604,18 +602,17 @@ RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId r
 
     assert(reply->element[0]->type == REDIS_REPLY_NIL);
     assert(reply->element[1]->type == REDIS_REPLY_NIL);
-    assert(reply->element[2]->type == REDIS_REPLY_NIL);
     freeReplyObject(reply);
     return REDIS_FAIL;
 }
 
-RedisAccessResult RedisUtils::SetGameObjectAddress(redisContext *redis, RoleId roleId, GameServerType stype, ServerId sid, const std::string &lToken) {
+RedisAccessResult RedisUtils::SetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId sid, const std::string &lToken) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_LOCATION_CMD_NAME);
     redisReply *reply;
     if (!cmdSha1) {
-        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Location:%llu %s %d %d %d", SET_LOCATION_CMD, roleId, lToken.c_str(), stype, sid, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVAL %s 1 Location:%llu %s %d %d", SET_LOCATION_CMD, roleId, lToken.c_str(), sid, TOKEN_TIMEOUT);
     } else {
-        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Location:%llu %s %d %d %d", cmdSha1, roleId, lToken.c_str(), stype, sid, TOKEN_TIMEOUT);
+        reply = (redisReply *)redisCommand(redis, "EVALSHA %s 1 Location:%llu %s %d %d", cmdSha1, roleId, lToken.c_str(), sid, TOKEN_TIMEOUT);
     }
 
     if (!reply) {

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "corpc_option.proto";
 import "common.proto";
-import "inner_common.proto";
+//import "inner_common.proto";
 
 option cc_generic_services = true;
 
@@ -27,14 +27,14 @@ message ForwardOutRequest {
     bytes rawMsg = 5; // 原始消息数据
 }
 
-message SetGameObjectPosRequest {
-    uint32 serverId = 1;
-    uint64 userId = 2;
-    uint64 roleId = 3;
-    string lToken = 4;
-    uint32 gsType = 5;
-    uint32 gsId = 6;
-}
+//message SetGameObjectPosRequest {
+//    uint32 serverId = 1;
+//    uint64 userId = 2;
+//    uint64 roleId = 3;
+//    string lToken = 4;
+//    uint32 gsType = 5;
+//    uint32 gsId = 6;
+//}
 
 message GSHeartbeatRequest {
     uint32 serverId = 1;
@@ -58,11 +58,11 @@ service GatewayService {
     }
 
     // 获取在线玩家数，用于负载均衡（超时时间2秒，超时表示该网关负载过高，后续不被继续分配）
-    rpc getOnlineCount(corpc.Void) returns(OnlineCount)
-    {
-        //option (corpc.need_coroutine) = true;
-        option (corpc.timeout) = 2000;
-    }
+    //rpc getOnlineCount(corpc.Void) returns(Uint32Value)
+    //{
+    //    //option (corpc.need_coroutine) = true;
+    //    option (corpc.timeout) = 2000;
+    //}
 
     rpc forwardOut(ForwardOutRequest) returns(corpc.Void)
     {
@@ -71,7 +71,7 @@ service GatewayService {
     }
 
     // 设置游戏对象位置（切场景时位置会改变）
-    rpc setGameObjectPos(SetGameObjectPosRequest) returns(BoolValue);
+    //rpc setGameObjectPos(SetGameObjectPosRequest) returns(BoolValue);
     //{
     //    option (corpc.need_coroutine) = true;
     //}

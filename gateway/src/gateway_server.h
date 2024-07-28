@@ -18,13 +18,13 @@
 #define wukong_gateway_server_h
 
 #include "corpc_rpc_client.h"
-#include "corpc_inner_rpc.h"
+//#include "corpc_inner_rpc.h"
 #include "corpc_message_server.h"
-#include "game_client.h"
+//#include "game_client.h"
 #include "share/define.h"
 #include "gateway_service.pb.h"
 #include <map>
-#include <thread>
+//#include <thread>
 #include <functional>
 
 using namespace corpc;
@@ -42,9 +42,9 @@ namespace wukong {
         void run();
 
     private:
-        void enterZoo();
+        //void enterZoo();
 
-        static void gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort);
+        //static void gatewayThread(InnerRpcServer *server, IO *msg_io, ServerId gwid, uint16_t msgPort);
 
         static void banMsgHandle(corpc::MessageTerminal *terminal);
 
@@ -53,7 +53,7 @@ namespace wukong {
         IO *io_ = nullptr;
         RpcClient *rpcClient_ = nullptr;
 
-        std::vector<std::thread> threads_;
+        //std::vector<std::thread> threads_;
 
     private:
         GatewayServer() = default;                                  // ctor hidden

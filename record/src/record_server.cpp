@@ -23,7 +23,8 @@
 #include "record_center.h"
 #include "redis_pool.h"
 #include "mysql_pool.h"
-#include "client_center.h"
+//#include "client_center.h"
+#include "agent_manager.h"
 
 #include "utility.h"
 #include "share/const.h"

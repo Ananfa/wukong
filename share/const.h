@@ -6,24 +6,24 @@
 
 namespace wukong {
     // ZooKeeper core server node name
-    const std::string ZK_ADMIN_SERVER              = "/admin_server";
-    const std::string ZK_GATEWAY_SERVER            = "/gateway_server";
-    const std::string ZK_LOBBY_SERVER              = "/lobby_server";
-    const std::string ZK_LOGIN_SERVER              = "/login_server";
-    const std::string ZK_RECORD_SERVER             = "/record_server";
-    const std::string ZK_PROFILE_SERVER            = "/profile_server";
-    const std::string ZK_SCENE_SERVER              = "/scene_server"; // 可以有不同子类型的场景服
-
-    // 其他服务器
-    const std::string ZK_BATTLE_SERVER             = "/battle_server"; // 战斗计算服，对于某些看战斗录像类型游戏，由于战斗计算比较占cpu资源，因此可以把战斗计算放到单独的服务器上进行
-    const std::string ZK_SCENEMGR_SERVER           = "/scenemgr_server"; // 场景管理服，负责世界场景维护，将世界场景负载均衡到场景服中部署，定期检查场景存活状态，若发现有场景不存在重新部署场景
-
-    // 大厅服和场景服都是玩家游戏对象可驻留的服务器（游戏服）
-    const GameServerType GAME_SERVER_TYPE_LOBBY    = 1;
-    const GameServerType GAME_SERVER_TYPE_SCENE    = 2;
-
-    const std::string ZK_DEFAULT_VALUE             = "1";
-    const int ZK_TIMEOUT                           = 3000; // 单位毫秒
+//    const std::string ZK_ADMIN_SERVER              = "/admin_server";
+//    const std::string ZK_GATEWAY_SERVER            = "/gateway_server";
+//    const std::string ZK_LOBBY_SERVER              = "/lobby_server";
+//    const std::string ZK_LOGIN_SERVER              = "/login_server";
+//    const std::string ZK_RECORD_SERVER             = "/record_server";
+//    const std::string ZK_PROFILE_SERVER            = "/profile_server";
+//    const std::string ZK_SCENE_SERVER              = "/scene_server"; // 可以有不同子类型的场景服
+//
+//    // 其他服务器
+//    const std::string ZK_BATTLE_SERVER             = "/battle_server"; // 战斗计算服，对于某些看战斗录像类型游戏，由于战斗计算比较占cpu资源，因此可以把战斗计算放到单独的服务器上进行
+//    const std::string ZK_SCENEMGR_SERVER           = "/scenemgr_server"; // 场景管理服，负责世界场景维护，将世界场景负载均衡到场景服中部署，定期检查场景存活状态，若发现有场景不存在重新部署场景
+//
+//    // 大厅服和场景服都是玩家游戏对象可驻留的服务器（游戏服）
+//    const GameServerType GAME_SERVER_TYPE_LOBBY    = 1;
+//    const GameServerType GAME_SERVER_TYPE_SCENE    = 2;
+//
+//    const std::string ZK_DEFAULT_VALUE             = "1";
+//    const int ZK_TIMEOUT                           = 3000; // 单位毫秒
 
     const ServerType SERVER_TYPE_NEXUS             = 1; // 服务器注册发现服
     const ServerType SERVER_TYPE_FRONT             = 2; // 前置转发服
@@ -143,8 +143,8 @@ namespace wukong {
     const char SET_LOCATION_CMD[] = "\
         local ret = redis.call('hsetnx',KEYS[1],'lToken',ARGV[1])\
         if ret==1 then\
-          redis.call('hmset',KEYS[1],'stype',ARGV[2],'sid',ARGV[3])\
-          redis.call('expire',KEYS[1],ARGV[4])\
+          redis.call('hset',KEYS[1],'sid',ARGV[2])\
+          redis.call('expire',KEYS[1],ARGV[3])\
           return 1\
         else\
           return 0\
@@ -169,8 +169,8 @@ namespace wukong {
         elseif lToken ~= ARGV[1] then\
           return 0\
         end\
-        redis.call('hmset',KEYS[1],'stype',ARGV[2],'sid',ARGV[3])\
-        redis.call('expire',KEYS[1],ARGV[4])\
+        redis.call('hset',KEYS[1],'sid',ARGV[2])\
+        redis.call('expire',KEYS[1],ARGV[3])\
         return 1";
 
     const char SET_LOCATION_EXPIRE_CMD_NAME[] = "set_loc_ex";

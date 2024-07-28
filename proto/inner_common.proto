@@ -2,14 +2,14 @@ syntax = "proto3";
 
 package wukong.pb;
 
-message OnlineCount {
-    uint32 serverId = 1;
-    int32 count = 2;
-}
-
-message OnlineCounts {
-    repeated OnlineCount counts = 1;
-}
+//message OnlineCount {
+//    uint32 serverId = 1;
+//    int32 count = 2;
+//}
+//
+//message OnlineCounts {
+//    repeated OnlineCount counts = 1;
+//}
 
 message GlobalEventMessage {
     string topic = 1;

@@ -34,7 +34,6 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "corpc_option.pb.h"
 #include "common.pb.h"
-#include "inner_common.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_gateway_5fservice_2eproto
@@ -50,7 +49,7 @@ struct TableStruct_gateway_5fservice_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -71,9 +70,6 @@ extern GSHeartbeatRequestDefaultTypeInternal _GSHeartbeatRequest_default_instanc
 class KickRequest;
 struct KickRequestDefaultTypeInternal;
 extern KickRequestDefaultTypeInternal _KickRequest_default_instance_;
-class SetGameObjectPosRequest;
-struct SetGameObjectPosRequestDefaultTypeInternal;
-extern SetGameObjectPosRequestDefaultTypeInternal _SetGameObjectPosRequest_default_instance_;
 }  // namespace pb
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
@@ -81,7 +77,6 @@ template<> ::wukong::pb::ForwardOutRequest* Arena::CreateMaybeMessage<::wukong::
 template<> ::wukong::pb::ForwardOutTarget* Arena::CreateMaybeMessage<::wukong::pb::ForwardOutTarget>(Arena*);
 template<> ::wukong::pb::GSHeartbeatRequest* Arena::CreateMaybeMessage<::wukong::pb::GSHeartbeatRequest>(Arena*);
 template<> ::wukong::pb::KickRequest* Arena::CreateMaybeMessage<::wukong::pb::KickRequest>(Arena*);
-template<> ::wukong::pb::SetGameObjectPosRequest* Arena::CreateMaybeMessage<::wukong::pb::SetGameObjectPosRequest>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace wukong {
 namespace pb {
@@ -606,205 +601,6 @@ class ForwardOutRequest final :
 };
 // -------------------------------------------------------------------
 
-class SetGameObjectPosRequest final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.SetGameObjectPosRequest) */ {
- public:
-  inline SetGameObjectPosRequest() : SetGameObjectPosRequest(nullptr) {}
-  ~SetGameObjectPosRequest() override;
-  explicit constexpr SetGameObjectPosRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  SetGameObjectPosRequest(const SetGameObjectPosRequest& from);
-  SetGameObjectPosRequest(SetGameObjectPosRequest&& from) noexcept
-    : SetGameObjectPosRequest() {
-    *this = ::std::move(from);
-  }
-
-  inline SetGameObjectPosRequest& operator=(const SetGameObjectPosRequest& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline SetGameObjectPosRequest& operator=(SetGameObjectPosRequest&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const SetGameObjectPosRequest& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const SetGameObjectPosRequest* internal_default_instance() {
-    return reinterpret_cast<const SetGameObjectPosRequest*>(
-               &_SetGameObjectPosRequest_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    3;
-
-  friend void swap(SetGameObjectPosRequest& a, SetGameObjectPosRequest& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(SetGameObjectPosRequest* other) {
-    if (other == this) return;
-    if (GetOwningArena() == other->GetOwningArena()) {
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(SetGameObjectPosRequest* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline SetGameObjectPosRequest* New() const final {
-    return new SetGameObjectPosRequest();
-  }
-
-  SetGameObjectPosRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<SetGameObjectPosRequest>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const SetGameObjectPosRequest& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const SetGameObjectPosRequest& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(SetGameObjectPosRequest* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "wukong.pb.SetGameObjectPosRequest";
-  }
-  protected:
-  explicit SetGameObjectPosRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kLTokenFieldNumber = 4,
-    kUserIdFieldNumber = 2,
-    kRoleIdFieldNumber = 3,
-    kServerIdFieldNumber = 1,
-    kGsTypeFieldNumber = 5,
-    kGsIdFieldNumber = 6,
-  };
-  // string lToken = 4;
-  void clear_ltoken();
-  const std::string& ltoken() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_ltoken(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_ltoken();
-  PROTOBUF_MUST_USE_RESULT std::string* release_ltoken();
-  void set_allocated_ltoken(std::string* ltoken);
-  private:
-  const std::string& _internal_ltoken() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ltoken(const std::string& value);
-  std::string* _internal_mutable_ltoken();
-  public:
-
-  // uint64 userId = 2;
-  void clear_userid();
-  ::PROTOBUF_NAMESPACE_ID::uint64 userid() const;
-  void set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_userid() const;
-  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  public:
-
-  // uint64 roleId = 3;
-  void clear_roleid();
-  ::PROTOBUF_NAMESPACE_ID::uint64 roleid() const;
-  void set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_roleid() const;
-  void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  public:
-
-  // uint32 serverId = 1;
-  void clear_serverid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
-  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
-  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 gsType = 5;
-  void clear_gstype();
-  ::PROTOBUF_NAMESPACE_ID::uint32 gstype() const;
-  void set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_gstype() const;
-  void _internal_set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // uint32 gsId = 6;
-  void clear_gsid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 gsid() const;
-  void set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_gsid() const;
-  void _internal_set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:wukong.pb.SetGameObjectPosRequest)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
-  ::PROTOBUF_NAMESPACE_ID::uint64 userid_;
-  ::PROTOBUF_NAMESPACE_ID::uint64 roleid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 gstype_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 gsid_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_gateway_5fservice_2eproto;
-};
-// -------------------------------------------------------------------
-
 class GSHeartbeatRequest final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.GSHeartbeatRequest) */ {
  public:
@@ -849,7 +645,7 @@ class GSHeartbeatRequest final :
                &_GSHeartbeatRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    3;
 
   friend void swap(GSHeartbeatRequest& a, GSHeartbeatRequest& b) {
     a.Swap(&b);
@@ -992,17 +788,9 @@ class GatewayService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        const ::wukong::pb::KickRequest* request,
                        ::wukong::pb::BoolValue* response,
                        ::google::protobuf::Closure* done);
-  virtual void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCount* response,
-                       ::google::protobuf::Closure* done);
   virtual void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardOutRequest* request,
                        ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  virtual void setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::SetGameObjectPosRequest* request,
-                       ::wukong::pb::BoolValue* response,
                        ::google::protobuf::Closure* done);
   virtual void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::GSHeartbeatRequest* request,
@@ -1045,17 +833,9 @@ class GatewayService_Stub : public GatewayService {
                        const ::wukong::pb::KickRequest* request,
                        ::wukong::pb::BoolValue* response,
                        ::google::protobuf::Closure* done);
-  void getOnlineCount(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::corpc::Void* request,
-                       ::wukong::pb::OnlineCount* response,
-                       ::google::protobuf::Closure* done);
   void forwardOut(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::ForwardOutRequest* request,
                        ::corpc::Void* response,
-                       ::google::protobuf::Closure* done);
-  void setGameObjectPos(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
-                       const ::wukong::pb::SetGameObjectPosRequest* request,
-                       ::wukong::pb::BoolValue* response,
                        ::google::protobuf::Closure* done);
   void heartbeat(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::GSHeartbeatRequest* request,
@@ -1387,156 +1167,6 @@ inline void ForwardOutRequest::set_allocated_rawmsg(std::string* rawmsg) {
 
 // -------------------------------------------------------------------
 
-// SetGameObjectPosRequest
-
-// uint32 serverId = 1;
-inline void SetGameObjectPosRequest::clear_serverid() {
-  serverid_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_serverid() const {
-  return serverid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::serverid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.serverId)
-  return _internal_serverid();
-}
-inline void SetGameObjectPosRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  serverid_ = value;
-}
-inline void SetGameObjectPosRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_serverid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.serverId)
-}
-
-// uint64 userId = 2;
-inline void SetGameObjectPosRequest::clear_userid() {
-  userid_ = uint64_t{0u};
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::_internal_userid() const {
-  return userid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::userid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.userId)
-  return _internal_userid();
-}
-inline void SetGameObjectPosRequest::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  
-  userid_ = value;
-}
-inline void SetGameObjectPosRequest::set_userid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.userId)
-}
-
-// uint64 roleId = 3;
-inline void SetGameObjectPosRequest::clear_roleid() {
-  roleid_ = uint64_t{0u};
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::_internal_roleid() const {
-  return roleid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint64 SetGameObjectPosRequest::roleid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.roleId)
-  return _internal_roleid();
-}
-inline void SetGameObjectPosRequest::_internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  
-  roleid_ = value;
-}
-inline void SetGameObjectPosRequest::set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _internal_set_roleid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.roleId)
-}
-
-// string lToken = 4;
-inline void SetGameObjectPosRequest::clear_ltoken() {
-  ltoken_.ClearToEmpty();
-}
-inline const std::string& SetGameObjectPosRequest::ltoken() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.lToken)
-  return _internal_ltoken();
-}
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void SetGameObjectPosRequest::set_ltoken(ArgT0&& arg0, ArgT... args) {
- 
- ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.lToken)
-}
-inline std::string* SetGameObjectPosRequest::mutable_ltoken() {
-  std::string* _s = _internal_mutable_ltoken();
-  // @@protoc_insertion_point(field_mutable:wukong.pb.SetGameObjectPosRequest.lToken)
-  return _s;
-}
-inline const std::string& SetGameObjectPosRequest::_internal_ltoken() const {
-  return ltoken_.Get();
-}
-inline void SetGameObjectPosRequest::_internal_set_ltoken(const std::string& value) {
-  
-  ltoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
-}
-inline std::string* SetGameObjectPosRequest::_internal_mutable_ltoken() {
-  
-  return ltoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
-}
-inline std::string* SetGameObjectPosRequest::release_ltoken() {
-  // @@protoc_insertion_point(field_release:wukong.pb.SetGameObjectPosRequest.lToken)
-  return ltoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
-}
-inline void SetGameObjectPosRequest::set_allocated_ltoken(std::string* ltoken) {
-  if (ltoken != nullptr) {
-    
-  } else {
-    
-  }
-  ltoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ltoken,
-      GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set_allocated:wukong.pb.SetGameObjectPosRequest.lToken)
-}
-
-// uint32 gsType = 5;
-inline void SetGameObjectPosRequest::clear_gstype() {
-  gstype_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_gstype() const {
-  return gstype_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::gstype() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.gsType)
-  return _internal_gstype();
-}
-inline void SetGameObjectPosRequest::_internal_set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  gstype_ = value;
-}
-inline void SetGameObjectPosRequest::set_gstype(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_gstype(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.gsType)
-}
-
-// uint32 gsId = 6;
-inline void SetGameObjectPosRequest::clear_gsid() {
-  gsid_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::_internal_gsid() const {
-  return gsid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 SetGameObjectPosRequest::gsid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.SetGameObjectPosRequest.gsId)
-  return _internal_gsid();
-}
-inline void SetGameObjectPosRequest::_internal_set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  gsid_ = value;
-}
-inline void SetGameObjectPosRequest::set_gsid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_gsid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.SetGameObjectPosRequest.gsId)
-}
-
-// -------------------------------------------------------------------
-
 // GSHeartbeatRequest
 
 // uint32 serverId = 1;
@@ -1628,8 +1258,6 @@ inline void GSHeartbeatRequest::set_allocated_ltoken(std::string* ltoken) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

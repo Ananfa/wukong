@@ -34,6 +34,7 @@ namespace wukong {
         
         bool parse(const char *path);
         
+        uint32_t getId() const { return id_; }
         const std::string& getIp() const { return ip_; }
         uint16_t getPort() const { return port_; }
 
@@ -44,7 +45,11 @@ namespace wukong {
         
         const std::string& getCoreCache() const { return coreCache_; }
 
+        const Address& getNexusAddr() const { return nexusAddr_; }
+        
     private:
+        uint32_t id_;       // 服务号
+
         std::string ip_;    // 提供rpc服务的ip
         uint16_t port_;     // rpc服务端口
 
@@ -54,6 +59,8 @@ namespace wukong {
         std::vector<RedisInfo> redisInfos_; // Redis库配置
 
         std::string coreCache_;  // 用作游戏服务器核心缓存redis库(redis中的一个)
+
+        Address nexusAddr_;     // nexus服务地址
 
     private:
         FrontConfig() = default;                                // ctor hidden

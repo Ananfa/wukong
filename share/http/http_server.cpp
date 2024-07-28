@@ -29,12 +29,12 @@ bool HttpPipeline::upflow(uint8_t *buf, int size) {
         if ( request != NULL )
         {
             // 交由worker处理请求
-            HttpWorkerTask *task = new HttpWorkerTask;
+            HttpWorkerTask *task = HttpWorkerTask::create();
             task->connection = connection;
             task->request = std::shared_ptr<RequestMessage>(request);
             task->response = std::shared_ptr<ResponseMessage>(new ResponseMessage);
             
-            worker_->addMessage(task);
+            worker_->addTask(task);
         }
         
         parser_->reset();
@@ -93,61 +93,50 @@ HttpConnection::HttpConnection(int fd, HttpServer* server): corpc::Connection(fd
 }
 
 HttpConnection::~HttpConnection() {
-    LOG("HttpConnection::~HttpConnection -- fd:%d in thread:%d\n", _fd, GetPid());
+    DEBUG_LOG("HttpConnection::~HttpConnection -- fd:%d in thread:%d\n", fd_, GetPid());
+}
+
+void HttpConnection::onConnect() {
+    DEBUG_LOG("HttpConnection::onConnect -- connection fd:%d is connected\n", fd_);
 }
 
 void HttpConnection::onClose() {
-    std::shared_ptr<corpc::Connection> self = corpc::Connection::shared_from_this();
-    server_->onClose(self);
+    DEBUG_LOG("HttpConnection::onClose -- connection fd:%d is closed\n", fd_);
+    //std::shared_ptr<corpc::Connection> self = corpc::Connection::shared_from_this();
+    //server_->onClose(self);
 }
 
-void *HttpServer::MultiThreadWorker::taskCallRoutine( void * arg ) {
+void *HttpWorkerTask::taskCallRoutine( void * arg ) {
     HttpWorkerTask *task = (HttpWorkerTask *)arg;
     
     task->connection->getServer()->handle(task->connection, task->request, task->response);
     
-    delete task;
+    task->destory();
     
     return NULL;
 }
 
-void HttpServer::MultiThreadWorker::handleMessage(void *msg) {
-    RoutineEnvironment::startCoroutine(taskCallRoutine, msg);
+void HttpWorkerTask::doTask() {
+    RoutineEnvironment::startCoroutine(taskCallRoutine, this);
 }
 
-void *HttpServer::CoroutineWorker::taskCallRoutine( void * arg ) {
-    HttpWorkerTask *task = (HttpWorkerTask *)arg;
-    
-    task->connection->getServer()->handle(task->connection, task->request, task->response);
-    
-    delete task;
-    
-    return NULL;
-}
-
-void HttpServer::CoroutineWorker::handleMessage(void *msg) {
-    RoutineEnvironment::startCoroutine(taskCallRoutine, msg);
-}
-
-
-HttpServer::HttpServer(IO *io, uint16_t workThreadNum, const std::string& ip, uint16_t port): corpc::Server(io) {
+HttpServer::HttpServer(IO *io, Worker *worker, const std::string& ip, uint16_t port): corpc::Server(io) {
     acceptor_ = new TcpAcceptor(this, ip, port);
     
-    // 根据需要创建多线程worker或协程worker
-    if (workThreadNum > 0) {
-        worker_ = new MultiThreadWorker(this, workThreadNum);
+    if (worker) {
+        worker_ = worker;
     } else {
-        worker_ = new CoroutineWorker(this);
+        worker_ = io->getWorker();
     }
     
-    pipelineFactory_ = new HttpPipelineFactory(worker_);
+    pipelineFactory_.reset(new HttpPipelineFactory(worker_));
 }
 
 HttpServer::~HttpServer() {}
 
-HttpServer* HttpServer::create(IO *io, uint16_t workThreadNum, const std::string& ip, uint16_t port) {
+HttpServer* HttpServer::create(IO *io, Worker *worker, const std::string& ip, uint16_t port) {
     assert(io);
-    HttpServer *server = new HttpServer(io, workThreadNum, ip, port);
+    HttpServer *server = new HttpServer(io, worker, ip, port);
 
     // TODO: 注册默认filter
     
@@ -159,9 +148,9 @@ corpc::Connection *HttpServer::buildConnection(int fd) {
     return new HttpConnection(fd, this);
 }
 
-void HttpServer::onClose(std::shared_ptr<corpc::Connection>& connection) {
-    LOG("HttpServer::onClose -- connection fd:%d is closed\n", connection->getfd());
-}
+//void HttpServer::onClose(std::shared_ptr<corpc::Connection>& connection) {
+//    LOG("HttpServer::onClose -- connection fd:%d is closed\n", connection->getfd());
+//}
 
 void HttpServer::registerFilter(HttpFilter filter) {
     filterVec_.push_back(filter);

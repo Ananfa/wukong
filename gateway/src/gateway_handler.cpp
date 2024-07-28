@@ -16,7 +16,9 @@
 
 #include "gateway_handler.h"
 #include "redis_pool.h"
-#include "client_center.h"
+//#include "client_center.h"
+#include "agent_manager.h"
+#include "lobby_agent.h"
 #include "share/const.h"
 #include "string_utils.h"
 #include "redis_utils.h"
@@ -36,7 +38,7 @@ void GatewayHandler::registerMessages(corpc::MessageTerminal *terminal) {
     terminal->setOtherMessageHandle(GatewayHandler::bypassHandle);
 }
 
-void GatewayHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void GatewayHandler::connectHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     // 登记未认证连接
     DEBUG_LOG("GatewayHandler::connectHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
 
@@ -51,7 +53,7 @@ void GatewayHandler::connectHandle(int16_t type, uint16_t tag, std::shared_ptr<g
     }
 }
 
-void GatewayHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void GatewayHandler::closeHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("GatewayHandler::closeHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
     assert(!conn->isOpen());
     if (g_GatewayObjectManager.isUnauth(conn)) {
@@ -62,7 +64,7 @@ void GatewayHandler::closeHandle(int16_t type, uint16_t tag, std::shared_ptr<goo
     }
 }
 
-void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void GatewayHandler::banHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("GatewayHandler::banHandle -- msgType:%d\n", type);
     // 向客户端发屏蔽消息
     std::shared_ptr<pb::BanResponse> response(new pb::BanResponse);
@@ -71,7 +73,7 @@ void GatewayHandler::banHandle(int16_t type, uint16_t tag, std::shared_ptr<googl
     conn->send(S2C_MESSAGE_ID_BAN, false, false, true, tag, response);
 }
 
-void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void GatewayHandler::authHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     DEBUG_LOG("GatewayHandler::authHandle -- conn:%d[%d]\n", conn.get(), conn->getfd());
     if (g_GatewayObjectManager.isShutdown()) {
         ERROR_LOG("GatewayHandler::authHandle -- server shutdown\n");
@@ -200,9 +202,8 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
         //    若没有查到，分配一个大厅服，并通知大厅服加载玩家游戏对象
         //       若返回失败，则登录失败
         std::string lToken;
-        GameServerType gstype;
         ServerId gsid;
-        switch (RedisUtils::GetGameObjectAddress(cache, roleId, gstype, gsid, lToken)) {
+        switch (RedisUtils::GetGameObjectAddress(cache, roleId, gsid, lToken)) {
             case REDIS_DB_ERROR: {
                 g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("GatewayHandler::authHandle -- get location failed for db error\n");
@@ -216,12 +217,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
                 return;
             }
             case REDIS_SUCCESS: {
-                if (!obj->setGameServerStub(gstype, gsid)) {
-                    g_RedisPoolManager.getCoreCache()->put(cache, false);
-                    ERROR_LOG("GatewayHandler::authHandle -- set game server stub failed\n");
-                    conn->close();
-                    return;
-                }
+                obj->setRelateServer(SERVER_TYPE_LOBBY, gsid);
                 obj->setLToken(lToken);
                 success = true;
                 continue;
@@ -235,14 +231,16 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
             leftTryTimes--;
             // 分配一个Lobby服，并通知Lobby服加载玩家游戏对象
             ServerId sid = 0;
-            if (!g_ClientCenter.randomLobbyServer(sid)) {
+
+            LobbyAgent *lobbyAgent = (LobbyAgent*)g_AgentManager.getAgent(SERVER_TYPE_LOBBY);
+            if (!lobbyAgent->randomServer(sid)) {
                 ERROR_LOG("GatewayHandler::authHandle -- random lobby server failed\n");
                 conn->close();
                 return;
             }
 
             // 通知Lobby服加载玩家游戏对象
-            if (!g_LobbyClient.loadRole(sid, roleId, gateId)) {
+            if (!lobbyAgent->loadRole(sid, roleId, gateId)) {
                 // 等待1秒后重新查询
                 sleep(1); // 1秒后重试
             }
@@ -304,7 +302,7 @@ void GatewayHandler::authHandle(int16_t type, uint16_t tag, std::shared_ptr<goog
     obj->enterGame();
 }
 
-void GatewayHandler::bypassHandle(int16_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+void GatewayHandler::bypassHandle(int32_t type, uint16_t tag, std::shared_ptr<std::string> rawMsg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     //ERROR_LOG("GatewayHandler::bypassHandle msg:%d\n", type);
 
     std::shared_ptr<GatewayObject> obj = g_GatewayObjectManager.getConnectedGatewayObject(conn);

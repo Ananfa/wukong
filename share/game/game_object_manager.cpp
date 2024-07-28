@@ -213,7 +213,7 @@ bool GameObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
         }
 
         // 通知gateway更新gameobj地址
-        obj->reportGameObjectPos();
+        //obj->reportGameObjectPos();
     }
 
     if (!obj->setRecordServerStub(recordId)) {

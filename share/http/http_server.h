@@ -23,8 +23,8 @@ namespace wukong {
         HttpPipeline(std::shared_ptr<corpc::Connection> &connection, Worker *worker);
         virtual ~HttpPipeline() {}
         
-        virtual bool upflow(uint8_t *buf, int size);
-        virtual bool downflow(uint8_t *buf, int space, int &size);
+        virtual bool upflow(uint8_t *buf, int size) override;
+        virtual bool downflow(uint8_t *buf, int space, int &size) override;
         
     private:
         std::shared_ptr<HttpParser> parser_;
@@ -38,7 +38,7 @@ namespace wukong {
         HttpPipelineFactory(Worker *worker): PipelineFactory(worker) {}
         ~HttpPipelineFactory() {}
         
-        virtual std::shared_ptr<Pipeline> buildPipeline(std::shared_ptr<corpc::Connection> &connection);
+        virtual std::shared_ptr<Pipeline> buildPipeline(std::shared_ptr<corpc::Connection> &connection) override;
     };
     
     class HttpServer;
@@ -48,7 +48,8 @@ namespace wukong {
         HttpConnection(int fd, HttpServer* server);
         virtual ~HttpConnection();
         
-        virtual void onClose();
+        virtual void onConnect() override;
+        virtual void onClose() override;
         
         HttpServer *getServer() { return server_; }
     private:
@@ -60,7 +61,25 @@ namespace wukong {
         friend class HttpPipeline;
     };
     
-    struct HttpWorkerTask {
+    class HttpWorkerTask: public corpc::WorkerTask {
+    protected:
+        HttpWorkerTask() {}
+        virtual ~HttpWorkerTask() {}
+
+    public:
+        static HttpWorkerTask* create() {
+            return new HttpWorkerTask();
+        }
+
+        void destory() {
+            delete this;
+        }
+
+        static void *taskCallRoutine( void * arg );
+
+        virtual void doTask() override;
+
+    public:
         std::shared_ptr<HttpConnection> connection;
         std::shared_ptr<RequestMessage> request;
         std::shared_ptr<ResponseMessage> response;
@@ -71,53 +90,53 @@ namespace wukong {
     
     class HttpServer: public corpc::Server {
         
-        class MultiThreadWorker: public corpc::MultiThreadWorker {
-        public:
-            MultiThreadWorker(HttpServer *server, uint16_t threadNum): corpc::MultiThreadWorker(threadNum), server_(server) {}
-            virtual ~MultiThreadWorker() {}
-            
-        protected:
-            static void *taskCallRoutine( void * arg );
-            
-            virtual void handleMessage(void *msg); // 注意：处理完消息需要自己删除msg
-            
-        private:
-            HttpServer *server_;
-        };
-        
-        class CoroutineWorker: public corpc::CoroutineWorker {
-        public:
-            CoroutineWorker(HttpServer *server): server_(server) {}
-            virtual ~CoroutineWorker() {}
-            
-        protected:
-            static void *taskCallRoutine( void * arg );
-            
-            virtual void handleMessage(void *msg); // 注意：处理完消息需要自己删除msg
-            
-        private:
-            HttpServer *server_;
-        };
+        //class MultiThreadWorker: public corpc::MultiThreadWorker {
+        //public:
+        //    MultiThreadWorker(HttpServer *server, uint16_t threadNum): corpc::MultiThreadWorker(threadNum), server_(server) {}
+        //    virtual ~MultiThreadWorker() {}
+        //    
+        //protected:
+        //    static void *taskCallRoutine( void * arg );
+        //    
+        //    virtual void handleMessage(void *msg); // 注意：处理完消息需要自己删除msg
+        //    
+        //private:
+        //    HttpServer *server_;
+        //};
+        //
+        //class CoroutineWorker: public corpc::CoroutineWorker {
+        //public:
+        //    CoroutineWorker(HttpServer *server): server_(server) {}
+        //    virtual ~CoroutineWorker() {}
+        //    
+        //protected:
+        //    static void *taskCallRoutine( void * arg );
+        //    
+        //    virtual void handleMessage(void *msg); // 注意：处理完消息需要自己删除msg
+        //    
+        //private:
+        //    HttpServer *server_;
+        //};
         
         
     private:
-        HttpServer(IO *io, uint16_t workThreadNum, const std::string& ip, uint16_t port);
+        HttpServer(IO *io, Worker *worker, const std::string& ip, uint16_t port);
         virtual ~HttpServer();  // 不允许在栈上创建server
         
         void send(std::shared_ptr<HttpConnection>& connection, std::shared_ptr<RequestMessage>& request, std::shared_ptr<ResponseMessage>& response);
         void handle(std::shared_ptr<HttpConnection>& connection, std::shared_ptr<RequestMessage>& request, std::shared_ptr<ResponseMessage>& response);
         
     public:
-        static HttpServer* create(IO *io, uint16_t workThreadNum, const std::string& ip, uint16_t port);
+        static HttpServer* create(IO *io, Worker *worker, const std::string& ip, uint16_t port);
         
         // override
         virtual corpc::Connection * buildConnection(int fd);
         
         // override
-        virtual void onConnect(std::shared_ptr<corpc::Connection>& connection) {}
+        //virtual void onConnect(std::shared_ptr<corpc::Connection>& connection) override {}
         
         // override
-        virtual void onClose(std::shared_ptr<corpc::Connection>& connection);
+        //virtual void onClose(std::shared_ptr<corpc::Connection>& connection) override;
         
         // 注册过滤器
         void registerFilter(HttpFilter filter);
@@ -133,6 +152,7 @@ namespace wukong {
         
     public:
         friend class HttpConnection;
+        friend class HttpWorkerTask;
     };
 }
 

@@ -31,9 +31,7 @@ set(SOURCE_FILES
 
 # Add source files
 aux_source_directory(../../proto SOURCE_FILES)
-aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../nexus/src SOURCE_FILES)
-aux_source_directory(../../share/agent SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -55,10 +53,8 @@ include_directories(/usr/local/include/corpc/proto)
 include_directories(../..)
 include_directories(../../nexus/src)
 include_directories(../../share)
-include_directories(../../share/agent)
 include_directories(../../utils)
 include_directories(../../proto)
-include_directories(../../proto/service)
 include_directories(../../deps/rapidjson/include)
 
 # Add target

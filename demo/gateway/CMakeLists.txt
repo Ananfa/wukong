@@ -41,13 +41,13 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-	../../share/db/redis_pool.cpp
+    ../../share/db/redis_pool.cpp
     ../../utils/utility.cpp
     ../../utils/string_utils.cpp
     ../../utils/redis_utils.cpp)
 
 # Add source files
-aux_source_directory(../../share/client SOURCE_FILES)
+aux_source_directory(../../share/agent SOURCE_FILES)
 aux_source_directory(../../proto SOURCE_FILES)
 aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../proto/game SOURCE_FILES)
@@ -71,11 +71,10 @@ include_directories(/usr/local/include/corpc)
 include_directories(/usr/local/include/corpc/kcp)
 include_directories(/usr/local/include/corpc/proto)
 include_directories(/usr/local/include/hiredis)
-include_directories(/usr/local/include/zookeeper)
 include_directories(../..)
 include_directories(../../gateway/src)
 include_directories(../../share)
-include_directories(../../share/client)
+include_directories(../../share/agent)
 include_directories(../../share/db)
 include_directories(../../share/http)
 include_directories(../../utils)
@@ -87,5 +86,5 @@ include_directories(../../deps/rapidjson/include)
 # Add target
 add_executable(gatewayd ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lzookeeper_st -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
+set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
 target_link_libraries(gatewayd ${MY_LINK_LIBRARIES})

@@ -35,6 +35,12 @@ bool FrontConfig::parse(const char *path) {
     Document doc;
     doc.ParseStream(is);
     
+    if (!doc.HasMember("id")) {
+        ERROR_LOG("config error -- id not define\n");
+        return false;
+    }
+    id_ = doc["id"].GetInt();
+
     if (!doc.HasMember("ip")) {
         ERROR_LOG("config error -- ip not define\n");
         return false;
@@ -118,5 +124,21 @@ bool FrontConfig::parse(const char *path) {
     }
     coreCache_ = doc["coreCache"].GetString();
     
+    if (doc.HasMember("nexus")) {
+        const Value& nexus = doc["nexus"];
+
+        if (!nexus.HasMember("host")) {
+            ERROR_LOG("config error -- nexus.host not define\n");
+            return false;
+        }
+        nexusAddr_.host = nexus["host"].GetString();
+
+        if (!nexus.HasMember("port")) {
+            ERROR_LOG("config error -- nexus.port not define\n");
+            return false;
+        }
+        nexusAddr_.port = nexus["port"].GetUint();
+    }
+
     return true;
 }

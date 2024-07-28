@@ -27,12 +27,6 @@ namespace wukong {
     // 单例模式实现
     class RecordConfig {
     public:
-        struct ServerInfo {
-            uint32_t id;            // 服务号（Record服务唯一标识，与zookeeper注册发现有关）
-            // 目前只有一个id，可以根据需要扩展
-        };
-
-    public:
         static RecordConfig& Instance() {
             static RecordConfig theSingleton;
             return theSingleton;
@@ -40,12 +34,10 @@ namespace wukong {
         
         bool parse(const char *path);
         
+        uint32_t getId() const { return id_; }
         const std::string& getIp() const { return ip_; }
         uint16_t getPort() const { return port_; }
-        const std::vector<ServerInfo>& getServerInfos() const { return serverInfos_; }
-        
-        const std::string& getZookeeper() const { return zookeeper_; }
-        
+
         uint32_t getIoRecvThreadNum() const { return ioRecvThreadNum_; }
         uint32_t getIoSendThreadNum() const { return ioSendThreadNum_; }
 
@@ -55,16 +47,14 @@ namespace wukong {
         const std::string& getCoreCache() const { return coreCache_; }
         const std::string& getCoreRecord() const { return coreRecord_; }
         
-        const std::string& getZooPath() const { return zooPath_; }
-
+        const Address& getNexusAddr() const { return nexusAddr_; }
+        
     private:
+        uint32_t id_;                // 服务号（Gateway服务唯一标识）
+
         std::string ip_;    // 提供rpc服务的ip
         uint16_t port_;     // rpc服务端口
 
-        std::vector<ServerInfo> serverInfos_; // 对外服务的信息列表
-        
-        std::string zookeeper_;
-        
         uint32_t ioRecvThreadNum_;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t ioSendThreadNum_;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
         
@@ -74,7 +64,7 @@ namespace wukong {
         std::string coreCache_;  // 用作游戏服务器核心缓存redis库(redis中的一个)
         std::string coreRecord_;  // 用作游戏服务器核心落地mysql库(mysql中的一个)
 
-        std::string zooPath_;
+        Address nexusAddr_;     // nexus服务地址
 
     private:
         RecordConfig() = default;                                 // ctor hidden

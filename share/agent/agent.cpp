@@ -15,13 +15,66 @@
  */
 
 #include "agent.h"
+#include "agent_manager.h"
 
 using namespace wukong;
 
 Agent::~Agent() {}
 
+void Agent::resetStubs(const std::list<pb::ServerInfo> &serverInfos) {
+    std::list<ServerId> removeServerIds;
+    std::set<ServerId> addedServerIds;
+
+    for (const auto &serverInfo : serverInfos) {
+        addedServerIds.insert(serverInfo.server_id());
+
+        setStub(serverInfo);
+    }
+
+    for (auto &pair : stubInfos_) {
+        if (addedServerIds.find(pair.first) == addedServerIds.end()) {
+            removeServerIds.push_back(pair.first);
+        }
+    }
+
+    for (auto serverId : removeServerIds) {
+        removeStub(serverId);
+    }
+}
+
 void Agent::removeStub(ServerId sid) {
-    stubs_.erase(sid);
+    stubInfos_.erase(sid);
+}
+
+std::shared_ptr<google::protobuf::Service> Agent::getStub(ServerId sid) {
+    auto it = stubInfos_.find(sid);
+
+    if (it == stubInfos_.end()) {
+        return nullptr;
+    }
+
+    return it->second.stub;
+}
+
+pb::ServerInfo* Agent::getServerInfo(ServerId sid) {
+    auto it = stubInfos_.find(sid);
+
+    if (it == stubInfos_.end()) {
+        return nullptr;
+    }
+
+    return &it->second.info;
+}
+
+bool Agent::randomServer(ServerId &serverId) {
+    if (stubInfos_.empty()) {
+        return false;
+    }
+
+    auto it = stubInfos_.begin();
+    std::advance(it, rand() % stubInfos_.size());
+    serverId = it->first;
+    return true;
 }
 
 GameAgent::~GameAgent() {}

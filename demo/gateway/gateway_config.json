@@ -1,26 +1,9 @@
 {
+    "id": 10001,
     "internalIp": "127.0.0.1",
-    "externalIp": "0.0.0.0",
-    "outerAddr": "127.0.0.1",
+    "externalIp": "127.0.0.1",
     "rpcPort": 15001,
-    "servers": [
-        {
-            "id": 10001,
-            "msgPort": 16001,
-            "outerPort": 16001
-        },
-        {
-            "id": 10002,
-            "msgPort": 16002,
-            "outerPort": 16002
-        },
-        {
-            "id": 10003,
-            "msgPort": 16003,
-            "outerPort": 16003
-        }
-    ],
-    "zookeeper": "127.0.0.1:2181",
+    "msgPort": 16001,
     "verifyTimeout": 10,
     "disconnectTimeout": 30,
     "ioRecvThreadNum": 2,
@@ -36,5 +19,8 @@
         }
     ],
     "coreCache": "cache",
-    "enableSceneClient": true
+    "nexus": {
+        "host": "127.0.0.1",
+        "port": 17000
+    }
 }

@@ -182,37 +182,37 @@ void GameObject::send(int32_t type, uint16_t tag, google::protobuf::Message &msg
     send(type, tag, bufStr);
 }
 
-int GameObject::reportGameObjectPos() {
-    if (!gatewayServerStub_) {
-        ERROR_LOG("GameObject::setGameObjectPos -- user[%llu] role[%llu] gateway stub not set\n", userId_, roleId_);
-        return -1;
-    }
-
-    pb::SetGameObjectPosRequest *request = new pb::SetGameObjectPosRequest();
-    pb::BoolValue *response = new pb::BoolValue();
-    Controller *controller = new Controller();
-    request->set_serverid(gatewayId_);
-    request->set_userid(userId_);
-    request->set_roleid(roleId_);
-    request->set_ltoken(lToken_);
-    request->set_gstype(g_GameCenter.getType());
-    request->set_gsid(manager_->getId());
-    gatewayServerStub_->setGameObjectPos(controller, request, response, nullptr);
-    
-    int ret;
-    if (controller->Failed()) {
-        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
-        ret = -2;
-    } else {
-        ret = response->value()?1:0;
-    }
-    
-    delete controller;
-    delete response;
-    delete request;
-
-    return ret;
-}
+//int GameObject::reportGameObjectPos() {
+//    if (!gatewayServerStub_) {
+//        ERROR_LOG("GameObject::setGameObjectPos -- user[%llu] role[%llu] gateway stub not set\n", userId_, roleId_);
+//        return -1;
+//    }
+//
+//    pb::SetGameObjectPosRequest *request = new pb::SetGameObjectPosRequest();
+//    pb::BoolValue *response = new pb::BoolValue();
+//    Controller *controller = new Controller();
+//    request->set_serverid(gatewayId_);
+//    request->set_userid(userId_);
+//    request->set_roleid(roleId_);
+//    request->set_ltoken(lToken_);
+//    request->set_gstype(g_GameCenter.getType());
+//    request->set_gsid(manager_->getId());
+//    gatewayServerStub_->setGameObjectPos(controller, request, response, nullptr);
+//    
+//    int ret;
+//    if (controller->Failed()) {
+//        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+//        ret = -2;
+//    } else {
+//        ret = response->value()?1:0;
+//    }
+//    
+//    delete controller;
+//    delete response;
+//    delete request;
+//
+//    return ret;
+//}
 
 int GameObject::heartbeatToGateway() {
     if (!gatewayServerStub_) {

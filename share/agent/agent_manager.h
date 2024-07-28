@@ -44,19 +44,17 @@ namespace wukong {
             localServerInfoChanged_ = true;
             localServerInfo_ = serverInfo; 
         }
-
         pb::ServerInfo& getLocalServerInfo() { return localServerInfo_; }
-        std::map<ServerId, pb::ServerInfo>& getRemoteServerInfos(ServerType stype);
 
         void registerAgent(Agent *agent);
-        Agent *getAgent(ServerType stype);
+        Agent* getAgent(ServerType stype);
 
     private:
-        static void connectHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
-        static void closeHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
-        static void accessRspHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
-        static void svrInfoHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
-        static void rmSvrHandle(int16_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        void connectHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        void closeHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        void accessRspHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        void svrInfoHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
+        void rmSvrHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn);
 
         static void *updateRoutine(void *arg);
 
@@ -70,13 +68,7 @@ namespace wukong {
         bool localServerInfoChanged_;
         pb::ServerInfo localServerInfo_; // 本地服务信息
         
-        std::map<ServerType, std::map<ServerId, pb::ServerInfo>> remoteServerInfos_; // 远程服务器信息
-
-        // 问题：不同服务器xxx_client有不同实现，但在不同服务器中不是每个client都需要被使用，此时包含这些client实现会是代码体积变大
-        //       最好是提供统一接口给nexus_client调用，通过注册方式而不是直接访问xxx_client的单例
         std::map<ServerType, Agent*> agents_;
-
-        std::map<ServerId, pb::ServerInfo> emptyServerInfoMap_; // 用于找不到时返回
 
     private:
         AgentManager(): inited_(false), started_(false), localServerInfoChanged_(false) {}     // ctor hidden

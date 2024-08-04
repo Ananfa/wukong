@@ -20,7 +20,7 @@ typedef uint64_t UserId;
 typedef uint64_t RoleId;
 
 // 服务器类型
-typedef uint16_t GameServerType;
+//typedef uint16_t GameServerType;
 
 typedef uint16_t ServerType;
 

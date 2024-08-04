@@ -32,7 +32,8 @@ namespace wukong {
         void shutdown() override;
         bool kick(ServerId sid, UserId userId, const std::string &gToken);
         void broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, std::string>> &targets, const std::string &rawMsg);
-
+        void send(ServerId sid, int32_t type, uint16_t tag, UserId userId, const std::string &lToken, const std::string &rawMsg);
+        int heartbeat(ServerId sid, UserId userId, const std::string &lToken);
     };
 }
 

@@ -45,11 +45,6 @@ void GatewayAgent::setStub(const pb::ServerInfo &serverInfo) {
 }
 
 void GatewayAgent::shutdown() {
-    if (!client_) {
-        ERROR_LOG("GatewayAgent::shutdown -- rpc client is NULL.\n");
-        return;
-    }
-
     auto stubInfos = stubInfos_;
     
     for (const auto& kv : stubInfos) {
@@ -61,14 +56,9 @@ void GatewayAgent::shutdown() {
 }
 
 bool GatewayAgent::kick(ServerId sid, UserId userId, const std::string &gToken) {
-    if (!client_) {
-        ERROR_LOG("GatewayAgent::kick -- rpc client is NULL.\n");
-        return false;
-    }
-
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
-        ERROR_LOG("GatewayAgent::kick -- server %d stub not avaliable, waiting.\n", sid);
+        ERROR_LOG("GatewayAgent::kick -- server %d stub not found.\n", sid);
         return false;
     }
 
@@ -97,11 +87,6 @@ bool GatewayAgent::kick(ServerId sid, UserId userId, const std::string &gToken) 
 }
 
 void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, std::string>> &targets, const std::string &msg) {
-    if (!client_) {
-        ERROR_LOG("GatewayAgent::broadcast -- rpc client is NULL.\n");
-        return;
-    }
-
     if (sid == 0) { // 全服广播
         if (targets.size() > 0) { // 全服广播不应设置指定目标
             WARN_LOG("GatewayAgent::broadcast -- targets list not empty when global broadcast\n");
@@ -138,7 +123,7 @@ void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std
     } else { // 单服广播或多播
         auto it = stubInfos_.find(sid);
         if (it == stubInfos_.end()) {
-            ERROR_LOG("GatewayAgent::broadcast -- server %d stub not avaliable, waiting.\n", sid);
+            ERROR_LOG("GatewayAgent::broadcast -- server %d stub not found.\n", sid);
             return;
         }
 
@@ -161,4 +146,63 @@ void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std
         
         stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<google::protobuf::Message *>(callDoneHandle, request));  
     }
+}
+
+void GatewayAgent::send(ServerId sid, int32_t type, uint16_t tag, UserId userId, const std::string &lToken, const std::string &rawMsg) {
+    auto it = stubInfos_.find(sid);
+    if (it == stubInfos_.end()) {
+        ERROR_LOG("GatewayAgent::send -- server %d stub not found.\n", sid);
+        return;
+    }
+
+    auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(it->second.stub);
+
+    pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
+    request->set_serverid(sid);
+    request->set_type(type);
+    request->set_tag(tag);
+
+    ::wukong::pb::ForwardOutTarget* target = request->add_targets();
+    target->set_userid(userId);
+    target->set_ltoken(lToken);
+    
+    if (!rawMsg.empty()) {
+        request->set_rawmsg(rawMsg);
+    }
+
+    DEBUG_LOG("GatewayAgent::send -- type:%d userId:%d\n", type, userId);
+    
+    stub->forwardOut(nullptr, request, nullptr, google::protobuf::NewCallback<::google::protobuf::Message *>(callDoneHandle, request));
+}
+
+int GatewayAgent::heartbeat(ServerId sid, UserId userId, const std::string &lToken) {
+    auto it = stubInfos_.find(sid);
+    if (it == stubInfos_.end()) {
+        ERROR_LOG("GatewayAgent::heartbeat -- server %d stub not found.\n", sid);
+        return -1;
+    }
+
+    auto stub = std::static_pointer_cast<pb::GatewayService_Stub>(it->second.stub);
+
+    pb::GSHeartbeatRequest *request = new pb::GSHeartbeatRequest();
+    pb::BoolValue *response = new pb::BoolValue();
+    Controller *controller = new Controller();
+    request->set_serverid(sid);
+    request->set_userid(userId);
+    request->set_ltoken(lToken);
+    stub->heartbeat(controller, request, response, nullptr);
+    
+    int ret;
+    if (controller->Failed()) {
+        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+        ret = -2;
+    } else {
+        ret = response->value()?1:0;
+    }
+    
+    delete controller;
+    delete response;
+    delete request;
+
+    return ret;
 }

@@ -21,11 +21,17 @@
 
 #include "lobby_config.h"
 #include "lobby_service.h"
-#include "game_service.h"
-#include "game_center.h"
-#include "client_center.h"
+#include "lobby_object_manager.h"
+//#include "game_service.h"
+//#include "game_center.h"
+//#include "client_center.h"
+#include "agent_manager.h"
+#include "gateway_agent.h"
+#include "record_agent.h"
+#include "scene_agent.h"
 #include "redis_pool.h"
 #include "logger.h"
+#include "global_event.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -36,20 +42,20 @@
 using namespace corpc;
 using namespace wukong;
 
-void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
-    // 启动RPC服务
-    server->start(0);
-    
-    GameObjectManager *mgr = new GameObjectManager(GAME_SERVER_TYPE_LOBBY, lbid);
-    mgr->init();
-
-    InnerLobbyServiceImpl *lobbyServiceImpl = new InnerLobbyServiceImpl(mgr);
-    InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(mgr);
-    server->registerService(lobbyServiceImpl);
-    server->registerService(gameServiceImpl);
-
-    RoutineEnvironment::runEventLoop();
-}
+//void LobbyServer::lobbyThread(InnerRpcServer *server, ServerId lbid) {
+//    // 启动RPC服务
+//    server->start(0);
+//    
+//    GameObjectManager *mgr = new GameObjectManager(GAME_SERVER_TYPE_LOBBY, lbid);
+//    mgr->init();
+//
+//    InnerLobbyServiceImpl *lobbyServiceImpl = new InnerLobbyServiceImpl(mgr);
+//    InnerGameServiceImpl *gameServiceImpl = new InnerGameServiceImpl(mgr);
+//    server->registerService(lobbyServiceImpl);
+//    server->registerService(gameServiceImpl);
+//
+//    RoutineEnvironment::runEventLoop();
+//}
 
 bool LobbyServer::init(int argc, char * argv[]) {
     if (inited_) {
@@ -113,10 +119,24 @@ bool LobbyServer::init(int argc, char * argv[]) {
     g_Logger.start();
 
     // create IO layer
-    io_ = IO::create(g_LobbyConfig.getIoRecvThreadNum(), g_LobbyConfig.getIoSendThreadNum());
+    io_ = IO::create(g_LobbyConfig.getIoRecvThreadNum(), g_LobbyConfig.getIoSendThreadNum(), 0);
 
     // 初始化rpc clients
     rpcClient_ = RpcClient::create(io_);
+
+    g_AgentManager.registerAgent(new GatewayAgent(rpcClient_));
+    g_AgentManager.registerAgent(new RecordAgent(rpcClient_));
+    g_AgentManager.registerAgent(new SceneAgent(rpcClient_));
+
+    pb::ServerInfo serverInfo;
+    serverInfo.set_server_type(SERVER_TYPE_LOBBY);
+    serverInfo.set_server_id(g_LobbyConfig.getId());
+    serverInfo.set_rpc_host(g_LobbyConfig.getIp());
+    serverInfo.set_rpc_port(g_LobbyConfig.getPort());
+    if (!g_AgentManager.init(io_, g_LobbyConfig.getNexusAddr().host, g_LobbyConfig.getNexusAddr().port, serverInfo)) {
+        ERROR_LOG("agent manager init failed\n");
+        return false;
+    }
 
     // 数据库初始化
     const std::vector<RedisInfo>& redisInfos = g_LobbyConfig.getRedisInfos();
@@ -133,36 +153,43 @@ bool LobbyServer::init(int argc, char * argv[]) {
     // 初始化发布订阅服务
     PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool());
 
+    g_GlobalEventEmitter.init();
+
+    g_LobbyObjectManager.init();
+
     return true;
 }
 
 void LobbyServer::run() {
-    // 注意：GameCenter要在game object manager之前init，因为跨服事件队列处理协程需要先启动
-    g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod());
-
-    // TODO: 初始化lua环境，监听消息的lua绑定信息
-
-    LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl();
-    GameServiceImpl *gameServiceImpl = new GameServiceImpl();
-
-    // 根据servers配置启动Lobby服务，每线程跑一个服务
-    const std::vector<LobbyConfig::ServerInfo> &lobbyInfos = g_LobbyConfig.getServerInfos();
-    for (auto &info : lobbyInfos) {
-        // 创建内部RPC服务
-        InnerRpcServer *innerServer = new InnerRpcServer();
-
-        lobbyServiceImpl->addInnerStub(info.id, new pb::InnerLobbyService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
-        gameServiceImpl->addInnerStub(info.id, new pb::InnerGameService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
-
-        threads_.push_back(std::thread(lobbyThread, innerServer, info.id));
-    }
+    //// 注意：GameCenter要在game object manager之前init，因为跨服事件队列处理协程需要先启动
+    //g_GameCenter.init(GAME_SERVER_TYPE_LOBBY, g_LobbyConfig.getUpdatePeriod());
+    //
+    //// TODO: 初始化lua环境，监听消息的lua绑定信息
+    //
+    //LobbyServiceImpl *lobbyServiceImpl = new LobbyServiceImpl();
+    //GameServiceImpl *gameServiceImpl = new GameServiceImpl();
+    //
+    //// 根据servers配置启动Lobby服务，每线程跑一个服务
+    //const std::vector<LobbyConfig::ServerInfo> &lobbyInfos = g_LobbyConfig.getServerInfos();
+    //for (auto &info : lobbyInfos) {
+    //    // 创建内部RPC服务
+    //    InnerRpcServer *innerServer = new InnerRpcServer();
+    //
+    //    lobbyServiceImpl->addInnerStub(info.id, new pb::InnerLobbyService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
+    //    gameServiceImpl->addInnerStub(info.id, new pb::InnerGameService_Stub(new InnerRpcChannel(innerServer), ::google::protobuf::Service::STUB_OWNS_CHANNEL));
+    //
+    //    threads_.push_back(std::thread(lobbyThread, innerServer, info.id));
+    //}
 
     // 启动对外的RPC服务
-    RpcServer *server = RpcServer::create(io_, 0, g_LobbyConfig.getIp(), g_LobbyConfig.getPort());
-    server->registerService(lobbyServiceImpl);
-    server->registerService(gameServiceImpl);
+    RpcServer *server = RpcServer::create(io_, nullptr, g_LobbyConfig.getIp(), g_LobbyConfig.getPort());
+    server->registerService(new LobbyServiceImpl());
+    //server->registerService(gameServiceImpl);
+
+    g_AgentManager.start();
 
     // 注意：ClientCenter在最后才init，因为服务器准备好才向zookeeper注册
-    g_ClientCenter.init(rpcClient_, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());
+    //g_ClientCenter.init(rpcClient_, g_LobbyConfig.getZookeeper(), g_LobbyConfig.getZooPath(), true, true, false, g_LobbyConfig.enableSceneClient());
+    
     RoutineEnvironment::runEventLoop();
 }

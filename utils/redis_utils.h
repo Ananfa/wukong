@@ -37,10 +37,10 @@ namespace wukong {
         static RedisAccessResult SetSessionTTL(redisContext *redis, UserId userId, const std::string &gToken);
         static RedisAccessResult RemoveSession(redisContext *redis, UserId userId, const std::string &gToken);
 
-        static RedisAccessResult GetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId &sid, std::string &ltoken);
-        static RedisAccessResult SetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId sid, const std::string &lToken);
-        static RedisAccessResult RemoveGameObjectAddress(redisContext *redis, RoleId roleId, const std::string &lToken);
-        static RedisAccessResult SetGameObjectAddressTTL(redisContext *redis, RoleId roleId, const std::string &lToken);
+        static RedisAccessResult GetLobbyAddress(redisContext *redis, RoleId roleId, ServerId &sid, std::string &ltoken);
+        static RedisAccessResult SetLobbyAddress(redisContext *redis, RoleId roleId, ServerId sid, const std::string &lToken);
+        static RedisAccessResult RemoveLobbyAddress(redisContext *redis, RoleId roleId, const std::string &lToken);
+        static RedisAccessResult SetLobbyAddressTTL(redisContext *redis, RoleId roleId, const std::string &lToken);
 
         static RedisAccessResult GetRecordAddress(redisContext *redis, RoleId roleId, ServerId &recordId);
         static RedisAccessResult SetRecordAddress(redisContext *redis, RoleId roleId, ServerId recordId, const std::string &rToken);

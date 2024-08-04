@@ -42,11 +42,6 @@ if(NOT MYSQLCLIENT_LIB)
     message(FATAL_ERROR "mysqlclient library not found")
 endif()
 
-find_library(ZOOKEEPER_LIB_ST zookeeper_st)
-if(NOT ZOOKEEPER_LIB_ST)
-    message(FATAL_ERROR "zookeeper_st library not found")
-endif()
-
 if (CMAKE_BUILD_TYPE)
 else()
     set(CMAKE_BUILD_TYPE RELEASE)
@@ -62,18 +57,18 @@ set(SOURCE_FILES
     ../../utils/redis_utils.cpp
     ../../utils/mysql_utils.cpp
     ../proto/demo.pb.cc
-    ../generate/demo_game_object.cpp
+    ../generate/demo_lobby_object.cpp
     ../generate/demo_utils.cpp)
 
 # Add source files
 aux_source_directory(../../proto SOURCE_FILES)
 aux_source_directory(../../proto/service SOURCE_FILES)
 aux_source_directory(../../proto/game SOURCE_FILES)
-aux_source_directory(../../share/client SOURCE_FILES)
 aux_source_directory(../../share/db SOURCE_FILES)
-aux_source_directory(../../share/game SOURCE_FILES)
+aux_source_directory(../../share/agent SOURCE_FILES)
 aux_source_directory(../../share/event SOURCE_FILES)
 aux_source_directory(../../share/log SOURCE_FILES)
+aux_source_directory(../../share/msghdl SOURCE_FILES)
 aux_source_directory(../../lobby/src SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
@@ -92,21 +87,21 @@ include_directories(/usr/include/mysql)
 include_directories(/usr/local/include)
 include_directories(/usr/local/include/co)
 include_directories(/usr/local/include/corpc)
+include_directories(/usr/local/include/corpc/kcp)
 include_directories(/usr/local/include/corpc/proto)
 include_directories(/usr/local/include/hiredis)
-include_directories(/usr/local/include/zookeeper)
 include_directories(../proto)
 include_directories(../generate)
 include_directories(../share)
 include_directories(../..)
 include_directories(../../lobby/src)
 include_directories(../../share)
-include_directories(../../share/game)
-include_directories(../../share/client)
+include_directories(../../share/agent)
 include_directories(../../share/db)
 include_directories(../../share/http)
 include_directories(../../share/event)
 include_directories(../../share/log)
+include_directories(../../share/msghdl)
 include_directories(../../utils)
 include_directories(../../proto)
 include_directories(../../proto/game)
@@ -116,5 +111,5 @@ include_directories(../../deps/rapidjson/include)
 # Add target
 add_executable(lobbyd ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -L/usr/lib64/mysql -llua -lhiredis -lmysqlclient -lzookeeper_st -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc_mysql -lcorpc -lco -ldl)
+set(MY_LINK_LIBRARIES -L/usr/local/lib -L/usr/lib64/mysql -llua -lhiredis -lmysqlclient -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc_mysql -lcorpc -lco -ldl)
 target_link_libraries(lobbyd ${MY_LINK_LIBRARIES})

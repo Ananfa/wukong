@@ -20,7 +20,6 @@
 #include "corpc_controller.h"
 #include "lobby_service.pb.h"
 #include "game_service.pb.h"
-#include "game_object_manager.h"
 
 namespace wukong {
 
@@ -30,49 +29,51 @@ namespace wukong {
                               const ::corpc::Void* request,
                               ::corpc::Void* response,
                               ::google::protobuf::Closure* done);
-
-        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
-                                    const ::corpc::Void* request,
-                                    ::wukong::pb::OnlineCounts* response,
-                                    ::google::protobuf::Closure* done);
-
+        virtual void forwardIn(::google::protobuf::RpcController* controller,
+                              const ::wukong::pb::ForwardInRequest* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done);
         virtual void loadRole(::google::protobuf::RpcController* controller,
                               const ::wukong::pb::LoadRoleRequest* request,
                               ::wukong::pb::BoolValue* response,
                               ::google::protobuf::Closure* done);
-
-        void addInnerStub(ServerId sid, pb::InnerLobbyService_Stub* stub);
-
-    private:
-        pb::InnerLobbyService_Stub *getInnerStub(ServerId sid);
-        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerLobbyService_Stub*)> handle);
-
-    private:
-        std::map<ServerId, pb::InnerLobbyService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
-    };
-    
-    class InnerLobbyServiceImpl : public pb::InnerLobbyService {
-    public:
-        InnerLobbyServiceImpl(GameObjectManager *manager): manager_(manager) {}
-
-        virtual void shutdown(::google::protobuf::RpcController* controller,
-                              const ::corpc::Void* request,
+        virtual void enterGame(::google::protobuf::RpcController* controller,
+                              const ::wukong::pb::EnterGameRequest* request,
                               ::corpc::Void* response,
                               ::google::protobuf::Closure* done);
 
-        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
-                                    const ::corpc::Void* request,
-                                    ::wukong::pb::Uint32Value* response,
-                                    ::google::protobuf::Closure* done);
-
-        virtual void loadRole(::google::protobuf::RpcController* controller,
-                              const ::wukong::pb::LoadRoleRequest* request,
-                              ::wukong::pb::BoolValue* response,
-                              ::google::protobuf::Closure* done);
-
-    private:
-        GameObjectManager *manager_;
+    //    void addInnerStub(ServerId sid, pb::InnerLobbyService_Stub* stub);
+    //
+    //private:
+    //    pb::InnerLobbyService_Stub *getInnerStub(ServerId sid);
+    //    void traverseInnerStubs(std::function<bool(ServerId, pb::InnerLobbyService_Stub*)> handle);
+    //
+    //private:
+    //    std::map<ServerId, pb::InnerLobbyService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
+    
+    //class InnerLobbyServiceImpl : public pb::InnerLobbyService {
+    //public:
+    //    InnerLobbyServiceImpl(GameObjectManager *manager): manager_(manager) {}
+    //
+    //    virtual void shutdown(::google::protobuf::RpcController* controller,
+    //                          const ::corpc::Void* request,
+    //                          ::corpc::Void* response,
+    //                          ::google::protobuf::Closure* done);
+    //
+    //    virtual void getOnlineCount(::google::protobuf::RpcController* controller,
+    //                                const ::corpc::Void* request,
+    //                                ::wukong::pb::Uint32Value* response,
+    //                                ::google::protobuf::Closure* done);
+    //
+    //    virtual void loadRole(::google::protobuf::RpcController* controller,
+    //                          const ::wukong::pb::LoadRoleRequest* request,
+    //                          ::wukong::pb::BoolValue* response,
+    //                          ::google::protobuf::Closure* done);
+    //
+    //private:
+    //    GameObjectManager *manager_;
+    //};
     
 }
 

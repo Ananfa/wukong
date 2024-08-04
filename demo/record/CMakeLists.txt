@@ -99,5 +99,5 @@ include_directories(../../deps/rapidjson/include)
 # Add target
 add_executable(recordd ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -L/usr/lib64/mysql -lhiredis -lmysqlclient -lzookeeper_st -lprotobuf -lcorpc_redis -lcorpc_mysql -lcorpc -lco -ldl)
+set(MY_LINK_LIBRARIES -L/usr/local/lib -L/usr/lib64/mysql -lhiredis -lmysqlclient -lprotobuf -lcorpc_redis -lcorpc_mysql -lcorpc -lco -ldl)
 target_link_libraries(recordd ${MY_LINK_LIBRARIES})

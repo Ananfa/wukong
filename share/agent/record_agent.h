@@ -32,7 +32,10 @@ namespace wukong {
         void shutdown() override;
 
         bool loadRoleData(ServerId sid, RoleId roleId, UserId &userId, const std::string &lToken, ServerId &serverId, std::string &roleData); // 加载角色（游戏对象）
+        
+        int heartbeat(ServerId sid, RoleId roleId, const std::string &lToken);
 
+        bool sync(ServerId sid, RoleId roleId, const std::string &lToken, const std::list<std::pair<std::string, std::string>> &datas, const std::list<std::string> &removes);
     };
 }
 

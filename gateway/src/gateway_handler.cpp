@@ -202,8 +202,8 @@ void GatewayHandler::authHandle(int32_t type, uint16_t tag, std::shared_ptr<goog
         //    若没有查到，分配一个大厅服，并通知大厅服加载玩家游戏对象
         //       若返回失败，则登录失败
         std::string lToken;
-        ServerId gsid;
-        switch (RedisUtils::GetGameObjectAddress(cache, roleId, gsid, lToken)) {
+        ServerId lobbyId;
+        switch (RedisUtils::GetLobbyAddress(cache, roleId, lobbyId, lToken)) {
             case REDIS_DB_ERROR: {
                 g_RedisPoolManager.getCoreCache()->put(cache, true);
                 ERROR_LOG("GatewayHandler::authHandle -- get location failed for db error\n");
@@ -217,7 +217,7 @@ void GatewayHandler::authHandle(int32_t type, uint16_t tag, std::shared_ptr<goog
                 return;
             }
             case REDIS_SUCCESS: {
-                obj->setRelateServer(SERVER_TYPE_LOBBY, gsid);
+                obj->setRelateServer(SERVER_TYPE_LOBBY, lobbyId);
                 obj->setLToken(lToken);
                 success = true;
                 continue;

@@ -19,6 +19,7 @@
 
 #include <functional>
 #include "share/define.h"
+#include "lobby_object.h"
 
 using namespace corpc;
 
@@ -28,11 +29,17 @@ namespace wukong {
         typedef std::function<bool (uint32_t)> NeedLoadSceneHandle; // 判断场景（参数为场景实例号）不存在时是否需要加载场景
         typedef std::function<bool (uint32_t)> IsSceneAutoLoadRoleHandle; // 判断场景（参数为场景实例号）是否会自动加载角色
 
+        // 注意：CreateLobbyObjectHandle中不应有产生协程切换的实现
+        typedef std::function<std::shared_ptr<LobbyObject> (UserId, RoleId, ServerId, const std::string &ltoken, const std::string &data)> CreateLobbyObjectHandle;
+
     public:
         static LobbyDelegate& Instance() {
             static LobbyDelegate instance;
             return instance;
         }
+
+        void setCreateLobbyObjectHandle(CreateLobbyObjectHandle handle) { createLobbyObject_ = handle; }
+        CreateLobbyObjectHandle getCreateLobbyObjectHandle() { return createLobbyObject_; }
 
         void setGetTargetSceneIdHandle(GetTargetSceneIdHandle handle) { getTargetSceneId_ = handle; }
         GetTargetSceneIdHandle getGetTargetSceneIdHandle() { return getTargetSceneId_; }
@@ -44,6 +51,7 @@ namespace wukong {
         IsSceneAutoLoadRoleHandle getIsSceneAutoLoadRoleHandle() { return isSceneAutoLoadRole_; }
 
     private:
+        CreateLobbyObjectHandle createLobbyObject_;
         GetTargetSceneIdHandle getTargetSceneId_;
         // 注意：needLoadScene_和isSceneAutoLoadRole_只有当会登录到场景中时才需要设置
         NeedLoadSceneHandle needLoadScene_;

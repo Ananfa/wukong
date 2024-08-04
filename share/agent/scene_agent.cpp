@@ -45,11 +45,6 @@ void SceneAgent::setStub(const pb::ServerInfo &serverInfo) {
 }
 
 void SceneAgent::shutdown() {
-    if (!client_) {
-        ERROR_LOG("SceneAgent::shutdown -- rpc client is NULL.\n");
-        return;
-    }
-
     auto stubInfos = stubInfos_;
     
     for (const auto& kv : stubInfos) {
@@ -61,11 +56,6 @@ void SceneAgent::shutdown() {
 }
 
 void SceneAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) {
-    if (!client_) {
-        ERROR_LOG("SceneAgent::forwardIn -- rpc client is NULL.\n");
-        return;
-    }
-
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
         ERROR_LOG("SceneAgent::forwardIn -- server %d stub not avaliable, waiting.\n", sid);
@@ -95,11 +85,6 @@ void SceneAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId role
 std::string SceneAgent::loadScene(ServerId sid, uint32_t defId, const std::string &sceneId, RoleId roleId, const std::string &teamId) {
     ERROR_LOG("SceneAgent::loadScene : %s\n", sceneId.c_str());
     std::string ret;
-    
-    if (!client_) {
-        ERROR_LOG("SceneAgent::loadScene -- rpc client is NULL.\n");
-        return ret;
-    }
 
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
@@ -137,11 +122,6 @@ std::string SceneAgent::loadScene(ServerId sid, uint32_t defId, const std::strin
 }
 
 void SceneAgent::enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId) {
-    if (!client_) {
-        ERROR_LOG("SceneAgent::enterScene -- rpc client is NULL.\n");
-        return;
-    }
-
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
         ERROR_LOG("SceneAgent::enterScene -- server %d stub not avaliable, waiting.\n", sid);

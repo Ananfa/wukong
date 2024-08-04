@@ -100,18 +100,14 @@ public:
         clear();
     }
 
-    uint32_t addEventHandle(const std::string &name, EventHandle handle); // 注册事件处理并返回事件处理号
-
-    void removeEventHandle(uint32_t id); 
+    void regEventHandle(const std::string &name, EventHandle handle);
 
     void clear();
 
     void fireEvent(const Event &event);
 
 private:
-    uint32_t idGen_ = 0; // 事件处理号生成器
-    std::map<uint32_t, std::string> m1_; // 事件处理号到事件名称的表
-    std::map<std::string, std::map<uint32_t, EventHandle>> m2_; // 事件名称到事件处理表的表，其中事件处理表是事件处理号到事件处理的表
+    std::map<std::string, std::list<EventHandle>> eventHandles_;
 };
 
 #endif /* wukong_event_h */

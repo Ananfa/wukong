@@ -579,7 +579,7 @@ RedisAccessResult RedisUtils::RemoveSession(redisContext *redis, UserId userId, 
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId &sid, std::string &lToken) {
+RedisAccessResult RedisUtils::GetLobbyAddress(redisContext *redis, RoleId roleId, ServerId &sid, std::string &lToken) {
     redisReply *reply = (redisReply *)redisCommand(redis, "HMGET Location:%llu lToken sid", roleId);
     if (!reply) {
         return REDIS_DB_ERROR;
@@ -606,7 +606,7 @@ RedisAccessResult RedisUtils::GetGameObjectAddress(redisContext *redis, RoleId r
     return REDIS_FAIL;
 }
 
-RedisAccessResult RedisUtils::SetGameObjectAddress(redisContext *redis, RoleId roleId, ServerId sid, const std::string &lToken) {
+RedisAccessResult RedisUtils::SetLobbyAddress(redisContext *redis, RoleId roleId, ServerId sid, const std::string &lToken) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_LOCATION_CMD_NAME);
     redisReply *reply;
     if (!cmdSha1) {
@@ -628,7 +628,7 @@ RedisAccessResult RedisUtils::SetGameObjectAddress(redisContext *redis, RoleId r
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::RemoveGameObjectAddress(redisContext *redis, RoleId roleId, const std::string &lToken) {
+RedisAccessResult RedisUtils::RemoveLobbyAddress(redisContext *redis, RoleId roleId, const std::string &lToken) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(REMOVE_LOCATION_CMD_NAME);
     redisReply *reply;
     if (!cmdSha1) {
@@ -645,7 +645,7 @@ RedisAccessResult RedisUtils::RemoveGameObjectAddress(redisContext *redis, RoleI
     return REDIS_SUCCESS;
 }
 
-RedisAccessResult RedisUtils::SetGameObjectAddressTTL(redisContext *redis, RoleId roleId, const std::string &lToken) {
+RedisAccessResult RedisUtils::SetLobbyAddressTTL(redisContext *redis, RoleId roleId, const std::string &lToken) {
     const char *cmdSha1 = g_RedisPoolManager.getCoreCache()->getSha1(SET_LOCATION_EXPIRE_CMD_NAME);
     redisReply *reply;
     if (!cmdSha1) {

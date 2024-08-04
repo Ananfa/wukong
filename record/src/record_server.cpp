@@ -109,6 +109,8 @@ bool RecordServer::init(int argc, char * argv[]) {
     pb::ServerInfo serverInfo;
     serverInfo.set_server_type(SERVER_TYPE_RECORD);
     serverInfo.set_server_id(g_RecordConfig.getId());
+    serverInfo.set_rpc_host(g_RecordConfig.getIp());
+    serverInfo.set_rpc_port(g_RecordConfig.getPort());
     if (!g_AgentManager.init(io_, g_RecordConfig.getNexusAddr().host, g_RecordConfig.getNexusAddr().port, serverInfo)) {
         ERROR_LOG("agent manager init failed\n");
         return false;

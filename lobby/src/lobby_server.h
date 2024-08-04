@@ -18,7 +18,7 @@
 #define wukong_lobby_server_h
 
 #include "corpc_rpc_client.h"
-#include "corpc_inner_rpc.h"
+//#include "corpc_inner_rpc.h"
 #include "share/define.h"
 #include "lobby_service.pb.h"
 #include <map>
@@ -39,15 +39,15 @@ namespace wukong {
         bool init(int argc, char * argv[]);
         void run();
 
-    private:
-        static void lobbyThread(InnerRpcServer *server, ServerId lbid);
+    //private:
+    //    static void lobbyThread(InnerRpcServer *server, ServerId lbid);
 
     private:
         bool inited_ = false;
         IO *io_ = nullptr;
         RpcClient *rpcClient_ = nullptr;
 
-        std::vector<std::thread> threads_;
+        //std::vector<std::thread> threads_;
         
     private:
         LobbyServer() = default;                                // ctor hidden

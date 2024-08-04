@@ -1,6 +1,5 @@
 
 #include "lobby_server.h"
-#include "game_delegate.h"
 #include "lobby_delegate.h"
 #include "message_handler.h"
 
@@ -15,10 +14,10 @@ int main(int argc, char * argv[]) {
 
     // TODO: 这里可以设置上层功能使用的redis lua脚本
 
-    g_GameDelegate.setCreateGameObjectHandle([](UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager* mgr, const std::string &data) -> std::shared_ptr<GameObject> {
-        std::shared_ptr<GameObject> obj(new LobbyGameObject(userId, roleId, serverId, lToken, mgr));
+    g_LobbyDelegate.setCreateLobbyObjectHandle([](UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, const std::string &data) -> std::shared_ptr<LobbyObject> {
+        std::shared_ptr<LobbyObject> obj(new MyLobbyObject(userId, roleId, serverId, lToken));
         if (!obj->initData(data)) {
-            ERROR_LOG("create game object failed because init data failed, role: %d\n", roleId);
+            ERROR_LOG("create lobby object failed because init data failed, role: %d\n", roleId);
             return nullptr;
         }
 

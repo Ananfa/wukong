@@ -21,66 +21,34 @@
 #include "event.h"
 
 namespace wukong {
-    // 注意：此全局事件相关的基础设施（包括GlobalEventListener和GlobalEventDispatcher都不对销毁进行处理，服务器启动时一次性初始化完成，跟随进程一起销毁）
-    // 注意：GlobalEventListener中绑定了发布订阅服务（而且只订阅GEvent一个主题）
-    // GlobalEventListener通过Redis的发布订阅接口来监听全服事件，并通知GlobalEventDispatcher分发事件
-    // GlobalEventListener与GlobalEventDispatcher可在不同的线程中
-    class GlobalEventListener {
+    class GlobalEventEmitter {
     public:
-        GlobalEventListener() {}
-        ~GlobalEventListener() {}
+        static GlobalEventEmitter& Instance() {
+            static GlobalEventEmitter instance;
+            return instance;
+        }
 
         void init();
-    private:
-        std::list<std::shared_ptr<GlobalEventQueue>> eventQueues_; // 全服事件通知队列列表
 
-        GlobalEventRegisterQueue eventRegisterQueue_; // 用于多线程同步注册事件队列时
+        void regEventHandle(const std::string &name, EventHandle handle);
 
-    private:
-        void registerEventQueue(std::shared_ptr<GlobalEventQueue> queue);
-        static void *registerEventQueueRoutine(void * arg);
-    public:
-        friend class GlobalEventDispatcher;
-
-    private:
-        // 禁止在堆中创建对象
-        void* operator new(size_t t) {}
-        void operator delete(void* ptr) {}
-
-        // 禁止拷贝
-        GlobalEventListener(GlobalEventListener const&) = delete;                    // copy ctor delete
-        GlobalEventListener(GlobalEventListener &&) = delete;                        // move ctor delete
-        GlobalEventListener& operator=(GlobalEventListener const&) = delete;         // assign op. delete
-        GlobalEventListener& operator=(GlobalEventListener &&) = delete;             // move assign op. delete
-    };
-
-    // GlobalEventDispatcher分发全服事件
-    class GlobalEventDispatcher {
-    public:
-        GlobalEventDispatcher() {}
-        ~GlobalEventDispatcher() {}
-
-        void init(GlobalEventListener &listener);
-
-        // 全服事件相关接口
-        uint32_t regGlobalEventHandle(const std::string &name, EventHandle handle);
-        void unregGlobalEventHandle(uint32_t refId);
-
-        void fireGlobalEvent(const Event &event); // 注意：全局事件中只能放一个叫"data"的std::string类型数据
+        void fireEvent(const Event &event); // 注意：全局事件中只能放一个叫"data"的std::string类型数据
 
         void clear();
 
     private:
-        // 全服事件相关
-        static void *globalEventHandleRoutine(void * arg);
+        EventEmitter emiter_;
 
     private:
-        EventEmitter emiter_;
-        std::shared_ptr<GlobalEventQueue> eventQueue_;
-
-    public:
-        friend class GlobalEventListener;
+        GlobalEventEmitter() {}                                                    // ctor hidden
+        ~GlobalEventEmitter() = default;                                           // destruct hidden
+        GlobalEventEmitter(GlobalEventEmitter const&) = delete;                    // copy ctor delete
+        GlobalEventEmitter(GlobalEventEmitter &&) = delete;                        // move ctor delete
+        GlobalEventEmitter& operator=(GlobalEventEmitter const&) = delete;         // assign op. delete
+        GlobalEventEmitter& operator=(GlobalEventEmitter &&) = delete;             // move assign op. delete
     };
 }
+
+#define g_GlobalEventEmitter wukong::GlobalEventEmitter::Instance()
 
 #endif /* wukong_global_event_h */

@@ -45,11 +45,6 @@ void LobbyAgent::setStub(const pb::ServerInfo &serverInfo) {
 }
 
 void LobbyAgent::shutdown() {
-    if (!client_) {
-        ERROR_LOG("LobbyAgent::shutdown -- rpc client is NULL.\n");
-        return;
-    }
-
     auto stubInfos = stubInfos_;
     
     for (const auto& kv : stubInfos) {
@@ -61,11 +56,6 @@ void LobbyAgent::shutdown() {
 }
 
 void LobbyAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) {
-    if (!client_) {
-        ERROR_LOG("LobbyAgent::forwardIn -- rpc client is NULL.\n");
-        return;
-    }
-
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
         ERROR_LOG("LobbyAgent::forwardIn -- server %d stub not avaliable, waiting.\n", sid);
@@ -93,11 +83,6 @@ void LobbyAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId role
 }
 
 bool LobbyAgent::loadRole(ServerId sid, RoleId roleId, ServerId gwId) {
-    if (!client_) {
-        ERROR_LOG("LobbyAgent::loadRole -- rpc client is NULL.\n");
-        return false;
-    }
-
     bool ret = false;
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
@@ -129,11 +114,6 @@ bool LobbyAgent::loadRole(ServerId sid, RoleId roleId, ServerId gwId) {
 }
 
 void LobbyAgent::enterGame(ServerId sid, RoleId roleId, const std::string &lToken, ServerId gwId) {
-    if (!client_) {
-        ERROR_LOG("LobbyAgent::enterGame -- rpc client is NULL.\n");
-        return;
-    }
-
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
         ERROR_LOG("LobbyAgent::enterGame -- server %d stub not avaliable, waiting.\n", sid);

@@ -1,3 +1,5 @@
+#if 0
+
 #include "lobby_game_object.h"
 #include "demo_const.h"
 
@@ -98,3 +100,5 @@ void LobbyGameObject::onTestGlobalEvent(const Event &e) {
     e.getParam("data", data);
     DEBUG_LOG("LobbyGameObject::onTestGlobalEvent, data:%s\n", data.c_str());
 }
+
+#endif

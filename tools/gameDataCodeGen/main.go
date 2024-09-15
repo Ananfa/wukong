@@ -51,7 +51,7 @@ func main() {
 
 	//fmt.Printf("game data config: %#v\n", gameDataConfig)
 	genUtils()
-	genGameObject()
+	genLobbyObject()
 	genRecordObject()
 	genRoleBuilder()
 }

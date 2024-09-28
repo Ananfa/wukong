@@ -8,6 +8,7 @@
     "disconnectTimeout": 30,                    // 断线保护时间，客户端可在这段时间内重连
     "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
     "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+    "maxBufMsgNum": 5000,                       // 玩家断线重连时最大缓存消息数量
     "redis": [
         {                                       // 缓存服务器
             "dbName": "cache",

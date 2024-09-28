@@ -184,6 +184,7 @@ int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::s
             }
 
             // 转移消息缓存
+            newConn->setLastSendSerial(it->second->getConn()->getLastSendSerial());
             newConn->setMsgBuffer(it->second->getConn()->getMsgBuffer());
             it->second->setConn(newConn);
             connection2GatewayObjectMap_.insert(std::make_pair(newConn.get(), it->second));
@@ -200,6 +201,7 @@ int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::s
 
         if (it1->second->data->getGToken() == token) {
             // 转移消息缓存
+            newConn->setLastSendSerial(it1->second->data->getConn()->getLastSendSerial());
             newConn->setMsgBuffer(it1->second->data->getConn()->getMsgBuffer());
             it1->second->data->setConn(newConn);
             userId2GatewayObjectMap_.insert(std::make_pair(userId, it1->second->data));
@@ -214,7 +216,7 @@ int GatewayObjectManager::tryChangeGatewayObjectConn(UserId userId, const std::s
     }
 
     // 设置新连接的消息缓存
-    std::shared_ptr<MessageBuffer> msgBuf = std::shared_ptr<MessageBuffer>(new MessageBuffer(true));
+    std::shared_ptr<MessageBuffer> msgBuf = std::shared_ptr<MessageBuffer>(new MessageBuffer(g_GatewayConfig.getMaxBufMsgNum()));
     newConn->setMsgBuffer(msgBuf);
 
     return 0;

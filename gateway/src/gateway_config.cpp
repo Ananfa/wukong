@@ -89,6 +89,12 @@ bool GatewayConfig::parse(const char *path) {
     }
     ioSendThreadNum_ = doc["ioSendThreadNum"].GetUint();
     
+    if (!doc.HasMember("maxBufMsgNum")) {
+        ERROR_LOG("config error -- maxBufMsgNum not define\n");
+        return false;
+    }
+    maxBufMsgNum_ = doc["maxBufMsgNum"].GetUint();
+    
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {
         ERROR_LOG("config error -- redis not array\n");

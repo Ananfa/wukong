@@ -8,6 +8,7 @@
     "disconnectTimeout": 30,
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
+    "maxBufMsgNum": 5000,
     "redis": [
         {
             "dbName": "cache",

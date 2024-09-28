@@ -66,6 +66,7 @@ namespace wukong {
     const uint16_t S2C_MESSAGE_ID_BAN              = 1; // 消息被屏蔽消息
     const uint16_t S2C_MESSAGE_ID_ENTERGAME        = 2; // 进入游戏消息
     const uint16_t S2C_MESSAGE_ID_RECONNECTED      = 3; // 重连确认消息
+    const uint16_t S2C_MESSAGE_ID_RESENDFAIL       = 4; // 重发失败
 
     const char SET_PASSPORT_CMD_NAME[] = "set_pass";
     const char SET_PASSPORT_CMD[] = "\

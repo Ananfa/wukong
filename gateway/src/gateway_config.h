@@ -44,6 +44,7 @@ namespace wukong {
         uint32_t getDisconnectTimeout() const { return disconnectTimeout_; }
         uint32_t getIoRecvThreadNum() const { return ioRecvThreadNum_; }
         uint32_t getIoSendThreadNum() const { return ioSendThreadNum_; }
+        uint32_t getMaxBufMsgNum() const { return maxBufMsgNum_; }
 
         const std::vector<RedisInfo>& getRedisInfos() const { return redisInfos_; }
         const std::string& getCoreCache() const { return coreCache_; }
@@ -62,6 +63,7 @@ namespace wukong {
         uint32_t disconnectTimeout_;    // 断线保护时长（秒）
         uint32_t ioRecvThreadNum_;      // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
         uint32_t ioSendThreadNum_;      // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+        uint32_t maxBufMsgNum_;         // 玩家断线重连时最大缓存消息数量
         
         std::vector<RedisInfo> redisInfos_; // Redis库配置
         std::string coreCache_;  // 用作游戏服务器核心缓存redis库(redis中的一个)

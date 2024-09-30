@@ -4,6 +4,11 @@
     "port": 16000,           // 对外监听端口
     "inflowThreadNum": 2,    // 入流线程数
     "outflowThreadNum": 2,   // 出流线程数
+    "throtle": {          // 限流
+        "open": true,     // 限流开关
+        "avg": 5120,      // 入流限流8秒均值上限
+        "max": 10240      // 入流限流每秒最大值
+    },
     "redis": [
         {                                       // 缓存服务器
             "dbName": "cache",

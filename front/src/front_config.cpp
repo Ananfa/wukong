@@ -65,6 +65,31 @@ bool FrontConfig::parse(const char *path) {
     }
     outflowThreadNum_ = doc["outflowThreadNum"].GetUint();
     
+    if (!doc.HasMember("throtle")) {
+        ERROR_LOG("config error -- throtle not define\n");
+        return false;
+    } else {
+        const Value& throtle = doc["throtle"];
+
+        if (!throtle.HasMember("open")) {
+            ERROR_LOG("config error -- throtle.open not define\n");
+            return false;
+        }
+        throtle_.open = throtle["open"].GetBool();
+
+        if (!throtle.HasMember("avg")) {
+            ERROR_LOG("config error -- throtle.avg not define\n");
+            return false;
+        }
+        throtle_.avg = throtle["avg"].GetUint();
+        
+        if (!throtle.HasMember("max")) {
+            ERROR_LOG("config error -- throtle.max not define\n");
+            return false;
+        }
+        throtle_.max = throtle["max"].GetUint();
+    }
+
     const Value& rediss = doc["redis"];
     if (!rediss.IsArray()) {
         ERROR_LOG("config error -- redis not array\n");
@@ -124,7 +149,10 @@ bool FrontConfig::parse(const char *path) {
     }
     coreCache_ = doc["coreCache"].GetString();
     
-    if (doc.HasMember("nexus")) {
+    if (!doc.HasMember("nexus")) {
+        ERROR_LOG("config error -- nexus not define\n");
+        return false;
+    } else {
         const Value& nexus = doc["nexus"];
 
         if (!nexus.HasMember("host")) {

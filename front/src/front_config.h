@@ -24,6 +24,12 @@
 
 namespace wukong {
 
+    struct Throtle {
+        bool open;      // 限流开关
+        uint32_t avg;   // 入流限流8秒均值上限
+        uint32_t max;   // 入流限流每秒最大值
+    };
+
     // 单例模式实现
     class FrontConfig {
     public:
@@ -40,6 +46,7 @@ namespace wukong {
 
         uint32_t getInflowThreadNum() const { return inflowThreadNum_; }
         uint32_t getOutflowThreadNum() const { return outflowThreadNum_; }
+        const Throtle& getThrotle() const { return throtle_; }
 
         const std::vector<RedisInfo>& getRedisInfos() const { return redisInfos_; }
         
@@ -55,6 +62,8 @@ namespace wukong {
 
         uint32_t inflowThreadNum_; // 入流线程数量
         uint32_t outflowThreadNum_; // 出流线程数量
+
+        Throtle throtle_;   // 限流
 
         std::vector<RedisInfo> redisInfos_; // Redis库配置
 

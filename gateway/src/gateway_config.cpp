@@ -154,7 +154,10 @@ bool GatewayConfig::parse(const char *path) {
     }
     coreCache_ = doc["coreCache"].GetString();
     
-    if (doc.HasMember("nexus")) {
+    if (!doc.HasMember("nexus")) {
+        ERROR_LOG("config error -- nexus not define\n");
+        return false;
+    } else {
         const Value& nexus = doc["nexus"];
 
         if (!nexus.HasMember("host")) {

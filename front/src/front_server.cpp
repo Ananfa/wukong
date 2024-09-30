@@ -40,6 +40,46 @@ using namespace wukong;
 
 #define MAX_AUTH_MESSAGE_SIZE 0x80
 
+ThrotleController::ThrotleController(): lastWinIndex_(0), lastTimestamp_(0) {
+    for (int i = 0; i < 8; i++) {
+        windows_[i] = 0;
+    }
+}
+
+uint32_t ThrotleController::addNum(int64_t ts, uint32_t num) {
+    if (ts <= lastTimestamp_) {
+        windows_[lastWinIndex_] += num;
+    } else if (ts - lastTimestamp_ >= 8) {
+        for (int i = 0; i < 8; i++) {
+            windows_[i] = 0;
+        }
+
+        lastTimestamp_ = ts;
+        lastWinIndex_ = 0;
+        windows_[lastWinIndex_] = num;
+    } else {
+        int i = (lastWinIndex_ + 1) & 7;
+        lastWinIndex_ = (lastWinIndex_ + ts - lastTimestamp_) & 7;
+        while (i != lastWinIndex_) {
+            windows_[i] = 0;
+            i = (i + 1) & 7;
+        }
+
+        windows_[lastWinIndex_] = num;
+    }
+
+    return windows_[lastWinIndex_];
+}
+
+uint32_t ThrotleController::getAvg() {
+    uint32_t total = 0;
+    for (int i = 0; i < 8; i++) {
+        total += windows_[i];
+    }
+
+    return total >> 3;
+}
+
 bool FrontServer::init(int argc, char * argv[]) {
     if (inited_) {
         return false;
@@ -435,6 +475,11 @@ void *FrontServer::outflowQueueConsumeRoutine( void * arg ) {
 void *FrontServer::inflowRoutine( void * arg ) {
     std::shared_ptr<TransportConnection> tCon = ((TransportConnection *)arg)->getPtr();
 
+    std::unique_ptr<ThrotleController> throtle;
+    if (g_FrontConfig.getThrotle().open) {
+        throtle.reset(new ThrotleController());
+    }
+
     std::string buffs(CORPC_MAX_BUFFER_SIZE,0);
     uint8_t *buf = (uint8_t *)buffs.data();
     int retryTimes = 0;
@@ -457,6 +502,24 @@ void *FrontServer::inflowRoutine( void * arg ) {
                    tCon->clientFd, ret, errno, strerror(errno));
             
             break;
+        }
+
+        if (g_FrontConfig.getThrotle().open) {
+            struct timeval tv;
+            gettimeofday(&tv, NULL);
+            if (throtle->addNum(tv.tv_sec, ret) >= g_FrontConfig.getThrotle().max) {
+                ERROR_LOG("FrontServer::inflowRoutine -- client fd %d overflow max\n",
+                       tCon->clientFd);
+                
+                break;
+            }
+
+            if (throtle->getAvg() >= g_FrontConfig.getThrotle().avg) {
+                ERROR_LOG("FrontServer::inflowRoutine -- client fd %d overflow avg\n",
+                       tCon->clientFd);
+                
+                break;
+            }
         }
 
         uint32_t sentNum = 0;

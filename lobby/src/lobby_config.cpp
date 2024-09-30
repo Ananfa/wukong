@@ -136,7 +136,10 @@ bool LobbyConfig::parse(const char *path) {
     }
     logConfigFile_ = doc["logConfigFile"].GetString();
     
-    if (doc.HasMember("nexus")) {
+    if (!doc.HasMember("nexus")) {
+        ERROR_LOG("config error -- nexus not define\n");
+        return false;
+    } else {
         const Value& nexus = doc["nexus"];
 
         if (!nexus.HasMember("host")) {
@@ -151,6 +154,6 @@ bool LobbyConfig::parse(const char *path) {
         }
         nexusAddr_.port = nexus["port"].GetUint();
     }
-    
+
     return true;
 }

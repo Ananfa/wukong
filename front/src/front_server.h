@@ -46,6 +46,20 @@ namespace wukong {
 
     typedef MPMC_NoLockBlockQueue<std::shared_ptr<TransportConnection>> TransportConnectionQueue;
 
+    class ThrotleController {
+    public:
+        ThrotleController();
+        ~ThrotleController() {}
+
+        uint32_t addNum(int64_t ts, uint32_t num);
+        uint32_t getAvg();
+
+    private:
+        uint32_t windows_[8]; // 8个窗口
+        int lastWinIndex_; // 最后一次的窗口下标
+        int64_t lastTimestamp_; // 最后一次的时间戳
+    };
+
     // 单例模式实现
     class FrontServer {
     public:

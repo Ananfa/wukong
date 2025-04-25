@@ -35,7 +35,7 @@ namespace wukong {
 
     class MessageHandleManager
     {
-        typedef std::function<void (std::shared_ptr<MessageTarget>, uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandle;
+        //typedef std::function<void (std::shared_ptr<MessageTarget>, uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandle;
 
         struct RegisterMessageInfo {
             google::protobuf::Message *proto;
@@ -44,19 +44,19 @@ namespace wukong {
             bool needHotfix;
         };
 
-        struct HandleMessageInfo {
-            std::shared_ptr<MessageTarget> obj;
-            std::shared_ptr<google::protobuf::Message> msg;
-            uint16_t tag;
-            MessageHandle handle;
-        };
-
-        struct HotfixMessageInfo {
-            int msgType;
-            std::shared_ptr<MessageTarget> obj;
-            std::shared_ptr<google::protobuf::Message> msg;
-            uint16_t tag;
-        };
+        //struct HandleMessageInfo {
+        //    std::shared_ptr<MessageTarget> obj;
+        //    std::shared_ptr<google::protobuf::Message> msg;
+        //    uint16_t tag;
+        //    MessageHandle handle;
+        //};
+        //
+        //struct HotfixMessageInfo {
+        //    int msgType;
+        //    std::shared_ptr<MessageTarget> obj;
+        //    std::shared_ptr<google::protobuf::Message> msg;
+        //    uint16_t tag;
+        //};
 
     public:
         static MessageHandleManager& Instance() {
@@ -76,12 +76,12 @@ namespace wukong {
         //GlobalEventListener& getGlobalEventListener() { return geventListener_; }
 
     private:
-        static void *handleMessageRoutine(void * arg);
+        //static void *handleMessageRoutine(void * arg);
 
-        static void *hotfixMessageRoutine(void * arg);
+        //static void *hotfixMessageRoutine(void * arg);
 
         void resetHotfix();
-        static void callHotfix(std::shared_ptr<MessageTarget> obj, int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
+        //static void callHotfix(std::shared_ptr<MessageTarget> obj, int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
 
     private:
         std::map<int, RegisterMessageInfo> registerMessageMap_;

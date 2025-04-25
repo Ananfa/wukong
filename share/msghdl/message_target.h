@@ -18,17 +18,45 @@
 #define wukong_message_target_h
 
 #include <memory>
+#include <list>
+#include <string>
+
+#include <google/protobuf/message.h>
 
 namespace wukong {
+    class MessageTarget;
+
+    typedef std::function<void (std::shared_ptr<MessageTarget>, uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandle;
+
     class MessageTarget: public std::enable_shared_from_this<MessageTarget> {
+        struct MessageInfo {
+            int msgType;
+            uint16_t tag;
+            std::shared_ptr<google::protobuf::Message> targetMsg;
+            MessageHandle handle;
+            bool needHotfix;
+        };
+
     public:
-        MessageTarget() {}
+        MessageTarget(): need_wait_(false) {}
         virtual ~MessageTarget() = 0;
 
         std::shared_ptr<MessageTarget> getPtr() {
             return shared_from_this();
         }
 
+        void handleMessage(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> &msg, MessageHandle handle, bool needCoroutine, bool needHotfix);
+
+    private:
+        void needWait(bool need_wait) { need_wait_ = need_wait; }
+        bool needWait() { return need_wait_; }
+
+        static void *handleMessageRoutine(void * arg);
+        void callHotfix(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
+
+    private:
+        std::list<MessageInfo> wait_messages_;
+        bool need_wait_;
     };
 }
 

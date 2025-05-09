@@ -42,6 +42,35 @@ bool Utility::mkdirp(const char * path) {
     return true;
 }
 
+bool Utility::loadFileToString(const char* filename, std::string& str) {
+    FILE* file = fopen(filename, "rb");
+    if (!file) {
+        perror("Failed to open file");
+        str.clear();
+        return false;
+    }
+
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    str.resize(size + 1);
+    char *buffer = (char *)str.data();
+
+    size_t read = fread(buffer, 1, size, file);
+    if (read != size) {
+        perror("Failed to read file");
+        str.clear();
+        fclose(file);
+        return false;
+    }
+
+    buffer[size] = '\0'; // Null-terminate the string
+    fclose(file);
+
+    return true;
+}
+
 bool Utility::isValidIdentifier(const std::string &str) {
     int32_t len = strlen(str.c_str());
     

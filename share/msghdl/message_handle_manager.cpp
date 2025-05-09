@@ -19,6 +19,9 @@
 #include "redis_pool.h"
 #include "redis_utils.h"
 #include "rapidjson/document.h"
+#include "utility.h"
+
+#include <sstream>
 
 using namespace rapidjson;
 using namespace wukong;
@@ -84,6 +87,17 @@ void MessageHandleManager::handleMessage(std::shared_ptr<MessageTarget> obj, int
     obj->handleMessage(msgType, tag, targetMsg, iter->second.handle, iter->second.needCoroutine, iter->second.needHotfix);
 }
 
+bool MessageHandleManager::getHotfixScript(int msgType, const char * &scriptBuf, size_t &bufSize) {
+    auto iter = hotfixMap_.find(msgType);
+    if (iter == hotfixMap_.end()) {
+        return false;
+    }
+
+    scriptBuf = iter->second.c_str();
+    bufSize = iter->second.size();
+    return true;
+}
+
 void MessageHandleManager::resetHotfix() {
     // 从Redis中读取热更消息列表，并刷新注册消息信息中的热更标记
     redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
@@ -118,18 +132,26 @@ void MessageHandleManager::resetHotfix() {
         return;
     }
 
-    std::map<int, bool> hotfixMap;
+    // 加载Lua文件，约定hotfix消息处理的lua文件名为“fix_<消息号>.lua”，并放在相对路径hotfix中
+    hotfixMap_.clear();
     for (SizeType i = 0; i < doc.Size(); i++) {
         int msgType = doc[i].GetInt();
-        if (hotfixMap.find(msgType) == hotfixMap.end()) { // 防重
-            hotfixMap.insert(std::make_pair(msgType, true));
+        if (hotfixMap_.find(msgType) == hotfixMap_.end()) { // 防重
+            std::string content;
+            std::ostringstream oss;
+            oss << "hotfix/fix_" << msgType << ".lua";
+            std::string filename = oss.str();
+
+            Utility::loadFileToString(filename.c_str(), content);
+
+            hotfixMap_.insert(std::make_pair(msgType, std::move(content)));
         }
     }
 
     for (auto &kv : registerMessageMap_) {
-        if (hotfixMap.find(kv.first) != hotfixMap.end()) {
+        if (hotfixMap_.find(kv.first) != hotfixMap_.end()) {
             if (!kv.second.needHotfix) {
-                ERROR_LOG("MessageHandleManager::resetHotfix -- msg:%d\n", kv.first);
+                LOG("MessageHandleManager::resetHotfix -- msg:%d\n", kv.first);
                 kv.second.needHotfix = true;
             }
         } else {

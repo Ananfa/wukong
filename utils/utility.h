@@ -12,6 +12,8 @@ namespace wukong {
         // 建立多级目录
         // 模拟mkdir -p的功能
         static bool mkdirp(const char * p);
+
+        static bool loadFileToString(const char* filename, std::string& str);
         
         // 判断是否合法标识符
         static bool isValidIdentifier(const std::string& str);

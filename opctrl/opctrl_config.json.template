@@ -1,0 +1,22 @@
+{
+    "id": 1,                                    // 服务号（Login服唯一标识，与zookeeper注册发现有关）
+    "serviceIp": "0.0.0.0",                     // 对外提供http服务的IP
+    "servicePort": 12000,                       // 对外提供http服务的端口
+    "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
+    "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+    "redis": [
+        {                                       // 缓存Redis库（不落地，可集群部署，支持发布订阅）
+            "dbName": "cache",
+            "host": "127.0.0.1",
+            "port": 6379,
+            "pwd": "",
+            "maxConnect": 8,                    // 最大连接数
+            "dbIndex": 0                        // 分库索引
+        }
+    ],
+    "coreCache": "cache",                       // 用作游戏服务器核心缓存redis库(redis中的一个)
+    "nexus": {                                  // 服务注册发现服地址
+        "host": "127.0.0.1",
+        "port": 17000
+    }
+}

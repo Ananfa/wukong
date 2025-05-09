@@ -15,8 +15,9 @@
  */
 
 #include "message_target.h"
-
 #include "message_handle_manager.h"
+
+#include <sstream>
 
 extern "C"  
 {  
@@ -71,60 +72,67 @@ void *MessageTarget::handleMessageRoutine(void *arg) {
 }
 
 void MessageTarget::callHotfix(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
-    ERROR_LOG("MessageHandleManager::callHotfix -- 1\n");
-
-    lua_State *L = luaL_newstate();
-    if (L == NULL)  
-    {
-        ERROR_LOG("MessageHandleManager::callHotfix -- luaL_newstate failed\n");
-        return;  
+    const char *scriptBuf = nullptr;
+    size_t bufSize = 0;
+    if (!g_MessageHandleManager.getHotfixScript(msgType, scriptBuf, bufSize)) {
+        ERROR_LOG("hotfix script not found for msgType %d\n", msgType);
+        return;
     }
 
-    luaL_requiref(L, LUA_LOADLIBNAME, luaopen_package, 1);
-    lua_pop(L, 1);
+    std::ostringstream oss;
+    oss << "hotfix/fix_" << msgType << ".lua";
+    std::string filename = oss.str();
 
-    // 加载Lua文件，约定hotfix消息处理的lua文件名为“fix_<消息号>.lua”，并放在相对路径hotfix中
-    // TODO：由于本地文件读写不会产生协程切换，加载脚本文件会卡住当前线程运行，因此需要做个内存脚本缓存，当在缓存中找不到时才将脚本文件内容加载到缓存中
-    //      另外脚本刷新时清理脚本缓存
-    char luaFilePath[32];
-    sprintf(luaFilePath,"hotfix/fix_%d.lua", msgType);
-    int bRet = luaL_loadfile(L, luaFilePath);  
-    if(bRet)
-    {
-        ERROR_LOG("MessageHandleManager::callHotfix -- load %s error: %d\n", luaFilePath, bRet);
+    std::unique_ptr<lua_State, decltype(&lua_close)> L(luaL_newstate(), lua_close);
+    if (!L) {
+        ERROR_LOG("luaL_newstate failed\n");
+        return;
+    }
 
-        lua_close(L);
-        return;  
-    }  
+    luaL_requiref(L.get(), LUA_LOADLIBNAME, luaopen_package, 1);
+    lua_pop(L.get(), 1);
+
+    if (luaL_loadbuffer(L.get(), scriptBuf, bufSize, filename.c_str()) != LUA_OK) {
+        ERROR_LOG("Failed to load Lua script for msgType %d: %s\n", msgType, lua_tostring(L.get(), -1));
+        return;
+    }
    
-    // 运行Lua文件  
-    bRet = lua_pcall(L,0,0,0);  
-    if(bRet)  
-    {  
-        const char *pErrorMsg = lua_tostring(L, -1);
-        ERROR_LOG("MessageHandleManager::callHotfix -- lua_pcall ret:%d error: %s\n", bRet, pErrorMsg);
-
-        lua_close(L);
+    // 运行Lua文件
+    if(lua_pcall(L.get(),0,0,0) != LUA_OK) {
+        ERROR_LOG("lua_pcall error for msgType %d: %s\n", msgType, lua_tostring(L.get(), -1));
         return;  
     }
 
     // 获取lua消息处理，约定的消息处理函数名为“fix_<消息号>”
-    char luaFun[16];
-    sprintf(luaFun,"fix_%d", msgType);
-    lua_getglobal(L, luaFun);     // 获取函数，压入栈中  
-    lua_pushnumber(L, (long)this);          // 压入第一个参数  
-    lua_pushnumber(L, (long)msg.get());          // 压入第二个参数  
-    lua_pushnumber(L, tag);                      // 压入第三个参数 
-    int iRet= lua_pcall(L, 3, 1, 0);// 调用函数，调用完成以后，会将返回值压入栈中，2表示参数个数，1表示返回结果个数。  
-    if (iRet)                       // 调用出错  
-    {
-        const char *pErrorMsg = lua_tostring(L, -1);
-        ERROR_LOG("MessageHandleManager::callHotfix -- call lua failed: %s\n", pErrorMsg);
+    oss.str("");
+    oss << "fix_" << msgType;
+    std::string luaFun = oss.str();
 
-        lua_close(L);
+    lua_getglobal(L.get(), luaFun.c_str());     // 获取函数，压入栈中
+    if (lua_isnil(L.get(), -1)) {
+        ERROR_LOG("Lua function %s not found for msgType %d\n", luaFun.c_str(), msgType);
+        return;
+    }
+
+    lua_pushlightuserdata(L.get(), this);  // 压入第一个参数
+    lua_pushlightuserdata(L.get(), msg.get());  // 压入第二个参数
+    lua_pushnumber(L.get(), tag);                 // 压入第三个参数 
+    int iRet= lua_pcall(L.get(), 3, 1, 0);// 调用函数，调用完成以后，会将返回值压入栈中，3表示参数个数，1表示返回结果个数。  
+    if (iRet) {                     // 调用出错  
+        ERROR_LOG("Call lua failed for msgType %d: %s\n", msgType, lua_tostring(L.get(), -1));
         return;  
     }
 
-    // 关闭state
-    lua_close(L);
+    // 检查返回值
+    if (!lua_isnumber(L.get(), -1)) {
+        ERROR_LOG("Unexpected return type for msgType %d\n", msgType);
+        lua_pop(L.get(), 1);  // 清空栈
+        return;
+    }
+
+    int result = lua_tonumber(L.get(), -1);
+    lua_pop(L.get(), 1);  // 清空栈
+
+    // 确保在调用 lua_close 之前清理栈
+    lua_settop(L.get(), 0);
 }

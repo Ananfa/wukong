@@ -32,6 +32,8 @@ namespace wukong {
     const ServerType SERVER_TYPE_LOBBY             = 5; // 大厅服
     const ServerType SERVER_TYPE_RECORD            = 6; // 记录服
     const ServerType SERVER_TYPE_SCENE             = 7; // 场景服
+    const ServerType SERVER_TYPE_OPCTRL            = 8; // 运营控制服
+    const ServerType SERVER_TYPE_CENTER            = 9; // 中心服（负责全服邮箱、聊天室等功能）
 
     const int LOGIN_LOCK_TIME                      = 0; // 登录锁时长，单位秒
 

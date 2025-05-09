@@ -75,6 +75,8 @@ namespace wukong {
 
         //GlobalEventListener& getGlobalEventListener() { return geventListener_; }
 
+        bool getHotfixScript(int msgType, const char * &scriptBuf, size_t &bufSize);
+
     private:
         //static void *handleMessageRoutine(void * arg);
 
@@ -85,6 +87,7 @@ namespace wukong {
 
     private:
         std::map<int, RegisterMessageInfo> registerMessageMap_;
+        std::map<int, std::string> hotfixMap_;
 
         //GlobalEventListener geventListener_; // 全服事件监听器（通过pubsub服务向redis订阅GEvent主题）
 

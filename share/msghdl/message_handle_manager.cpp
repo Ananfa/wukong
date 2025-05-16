@@ -27,24 +27,22 @@ using namespace rapidjson;
 using namespace wukong;
 
 void MessageHandleManager::init() {
-    //geventListener_.init();
-
     // 从Redis中获取初始的hotfix消息信息
     RoutineEnvironment::startCoroutine([](void * arg) -> void* {
-        g_MessageHandleManager.resetHotfix();
+        MessageHandleManager* manager = static_cast<MessageHandleManager*>(arg);
+        manager->resetHotfix();
         return NULL;
-    }, NULL);
+    }, this);
 
-    // 用订阅主题“热更”，不需要用全服事件
-    PubsubService::Subscribe("WK_Hotfix", true, [](const std::string& topic, const std::string& msg) {
-        g_MessageHandleManager.resetHotfix();
+    // 用订阅主题“热更”
+    PubsubService::Subscribe("WK_Hotfix", true, [this](const std::string& topic, const std::string& msg) {
+        resetHotfix();
     });
+
+    RoutineEnvironment::startCoroutine(updateRoutine, this);
 }
 
-bool MessageHandleManager::registerMessage(int msgType,
-                                    google::protobuf::Message *proto,
-                                    bool needCoroutine,
-                                    MessageHandle handle) {
+bool MessageHandleManager::registerMessage(int msgType, google::protobuf::Message *proto, bool needCoroutine, MessageHandle handle) {
     if (registerMessageMap_.find(msgType) != registerMessageMap_.end()) {
         return false;
     }
@@ -60,41 +58,16 @@ bool MessageHandleManager::registerMessage(int msgType,
     return true;
 }
 
-void MessageHandleManager::handleMessage(std::shared_ptr<MessageTarget> obj, int msgType, uint16_t tag, const std::string &rawMsg) {
-    // 如果有绑定的Lua消息hotfix处理，执行Lua消息处理（是否需要启动协程？既然无法判断要不要开协程就都开协程进行处理，反正与lua的性能相比协程切换那点损耗算不得什么）
-    //DEBUG_LOG("MessageHandleManager::handleMessage\n");
+bool MessageHandleManager::getMessageInfo(int msgType, google::protobuf::Message *&proto, bool &needCoroutine, bool &needHotfix, MessageHandle &handle) {
     auto iter = registerMessageMap_.find(msgType);
     if (iter == registerMessageMap_.end()) {
-        ERROR_LOG("MessageHandleManager::handleMessage -- unknown message type: %d\n", msgType);
-        return;
-    }
-
-    google::protobuf::Message *msg = nullptr;
-    if (iter->second.proto) {
-        msg = iter->second.proto->New();
-        if (!msg->ParseFromString(rawMsg)) {
-            // 出错处理
-            ERROR_LOG("MessageHandleManager::handleMessage -- parse fail for message: %d\n", msgType);
-            delete msg;
-            return;
-        } else {
-            assert(!rawMsg.empty());
-        }
-    }
-
-    std::shared_ptr<google::protobuf::Message> targetMsg = std::shared_ptr<google::protobuf::Message>(msg);
-
-    obj->handleMessage(msgType, tag, targetMsg, iter->second.handle, iter->second.needCoroutine, iter->second.needHotfix);
-}
-
-bool MessageHandleManager::getHotfixScript(int msgType, const char * &scriptBuf, size_t &bufSize) {
-    auto iter = hotfixMap_.find(msgType);
-    if (iter == hotfixMap_.end()) {
         return false;
     }
 
-    scriptBuf = iter->second.c_str();
-    bufSize = iter->second.size();
+    proto = iter->second.proto;
+    needCoroutine = iter->second.needCoroutine;
+    needHotfix = iter->second.needHotfix;
+    handle = iter->second.handle;
     return true;
 }
 
@@ -160,4 +133,87 @@ void MessageHandleManager::resetHotfix() {
             }
         }
     }
+
+    hotfixVersion_++;
+    for (auto info : luaStates_) {
+        lua_close(info.L);
+    }
+    luaStates_.clear();
+}
+
+bool MessageHandleManager::getLuaStateInfo(LuaStateInfo &info) {
+    if (luaStates_.empty()) {
+        std::unique_ptr<lua_State, decltype(&lua_close)> L(luaL_newstate(), lua_close);
+        if (!L) {
+            ERROR_LOG("luaL_newstate failed\n");
+            return false;
+        }
+
+        luaL_requiref(L.get(), LUA_LOADLIBNAME, luaopen_package, 1);
+        lua_pop(L.get(), 1);
+
+        for (auto &pair : hotfixMap_) {
+            std::ostringstream oss;
+            oss << "hotfix/fix_" << pair.first << ".lua";
+            std::string filename = oss.str();
+
+            if (luaL_loadbuffer(L.get(), pair.second.c_str(), pair.second.size(), filename.c_str()) != LUA_OK) {
+                ERROR_LOG("Failed to load Lua script for msgType %d: %s\n", pair.first, lua_tostring(L.get(), -1));
+                lua_pop(L.get(), 1);
+                continue;
+                //return false;
+            }
+           
+            // 运行Lua文件
+            if(lua_pcall(L.get(),0,0,0) != LUA_OK) {
+                ERROR_LOG("lua_pcall error for msgType %d: %s\n", pair.first, lua_tostring(L.get(), -1));
+                lua_pop(L.get(), 1);
+                continue;
+                //return false;
+            }
+        }
+
+        info.L = L.release();
+        info.lastUsedAt = time(NULL);
+        info.version = hotfixVersion_;
+
+        return true;
+    }
+
+    info = luaStates_.back();
+    luaStates_.pop_back();
+    return true;
+}
+
+void MessageHandleManager::backLuaStateInfo(LuaStateInfo info) {
+    if (info.version != hotfixVersion_) {
+        lua_close(info.L);
+        return;
+    }
+
+    info.lastUsedAt = time(NULL);
+    luaStates_.push_back(info);
+}
+
+void *MessageHandleManager::updateRoutine(void * arg) {
+    MessageHandleManager *self = (MessageHandleManager *)arg;
+
+    // 每分钟清理一次1分钟内未被使用的lua状态
+    while (true) {
+        sleep(60);
+
+        time_t expire = time(NULL) - 60;
+        // 最少保留10个状态
+        while (self->luaStates_.size() > 10) {
+            auto &info = self->luaStates_.front();
+            if (info.lastUsedAt > expire) {
+                break;
+            }
+
+            lua_close(info.L);
+            self->luaStates_.pop_front();
+        }
+    }
+
+    return nullptr;
 }

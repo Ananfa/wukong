@@ -22,6 +22,7 @@
 #include "lobby_config.h"
 #include "lobby_service.h"
 #include "lobby_object_manager.h"
+#include "message_handle_manager.h"
 //#include "game_service.h"
 //#include "game_center.h"
 //#include "client_center.h"
@@ -154,6 +155,8 @@ bool LobbyServer::init(int argc, char * argv[]) {
     PubsubService::StartPubsubService(g_RedisPoolManager.getCoreCache()->getPool());
 
     g_GlobalEventEmitter.init();
+
+    g_MessageHandleManager.init();
 
     g_LobbyObjectManager.init();
 

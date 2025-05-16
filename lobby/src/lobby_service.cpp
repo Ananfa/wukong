@@ -63,7 +63,7 @@ void LobbyServiceImpl::forwardIn(::google::protobuf::RpcController* controller,
         return;
     }
 
-    g_MessageHandleManager.handleMessage(obj, request->type(), request->tag(), request->rawmsg());
+    obj->handleMessage(request->type(), request->tag(), request->rawmsg());
 }
         
 void LobbyServiceImpl::enterGame(::google::protobuf::RpcController* controller,

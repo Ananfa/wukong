@@ -29,34 +29,31 @@
 #include <atomic>
 #include <functional>
 
+extern "C"  
+{  
+    #include "lua.h"  
+    #include "lauxlib.h"  
+    #include "lualib.h"  
+}
+
 using namespace corpc;
 
 namespace wukong {
 
+    struct LuaStateInfo {
+        lua_State *L;
+        time_t lastUsedAt;
+        int32_t version;
+    };
+
     class MessageHandleManager
     {
-        //typedef std::function<void (std::shared_ptr<MessageTarget>, uint16_t, std::shared_ptr<google::protobuf::Message>)> MessageHandle;
-
         struct RegisterMessageInfo {
             google::protobuf::Message *proto;
             MessageHandle handle;
             bool needCoroutine;
             bool needHotfix;
         };
-
-        //struct HandleMessageInfo {
-        //    std::shared_ptr<MessageTarget> obj;
-        //    std::shared_ptr<google::protobuf::Message> msg;
-        //    uint16_t tag;
-        //    MessageHandle handle;
-        //};
-        //
-        //struct HotfixMessageInfo {
-        //    int msgType;
-        //    std::shared_ptr<MessageTarget> obj;
-        //    std::shared_ptr<google::protobuf::Message> msg;
-        //    uint16_t tag;
-        //};
 
     public:
         static MessageHandleManager& Instance() {
@@ -71,28 +68,26 @@ namespace wukong {
                              bool needCoroutine,
                              MessageHandle handle);
 
-        void handleMessage(std::shared_ptr<MessageTarget>, int msgType, uint16_t tag, const std::string &rawMsg);
+        bool getMessageInfo(int msgType, google::protobuf::Message *&proto, bool &needCoroutine, bool &needHotfix, MessageHandle &handle);
 
-        //GlobalEventListener& getGlobalEventListener() { return geventListener_; }
-
-        bool getHotfixScript(int msgType, const char * &scriptBuf, size_t &bufSize);
+        bool getLuaStateInfo(LuaStateInfo &info);
+        void backLuaStateInfo(LuaStateInfo info);
 
     private:
-        //static void *handleMessageRoutine(void * arg);
-
-        //static void *hotfixMessageRoutine(void * arg);
-
         void resetHotfix();
-        //static void callHotfix(std::shared_ptr<MessageTarget> obj, int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
+
+        static void *updateRoutine(void * arg);
 
     private:
         std::map<int, RegisterMessageInfo> registerMessageMap_;
         std::map<int, std::string> hotfixMap_;
 
-        //GlobalEventListener geventListener_; // 全服事件监听器（通过pubsub服务向redis订阅GEvent主题）
+        std::list<LuaStateInfo> luaStates_;
+
+        int32_t hotfixVersion_;
 
     private:
-        MessageHandleManager() {}                                                      // ctor hidden
+        MessageHandleManager(): hotfixVersion_(0) {}                                   // ctor hidden
         ~MessageHandleManager() = default;                                             // destruct hidden
         MessageHandleManager(MessageHandleManager const&) = delete;                    // copy ctor delete
         MessageHandleManager(MessageHandleManager &&) = delete;                        // move ctor delete

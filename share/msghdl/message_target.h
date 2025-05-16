@@ -45,7 +45,7 @@ namespace wukong {
             return shared_from_this();
         }
 
-        void handleMessage(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> &msg, MessageHandle handle, bool needCoroutine, bool needHotfix);
+        void handleMessage(int msgType, uint16_t tag, const std::string &rawMsg);
 
     private:
         void needWait(bool need_wait) { need_wait_ = need_wait; }

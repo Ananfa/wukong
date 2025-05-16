@@ -19,33 +19,50 @@
 
 #include <sstream>
 
-extern "C"  
-{  
-    #include "lua.h"  
-    #include "lauxlib.h"  
-    #include "lualib.h"  
-}
-
 using namespace wukong;
 
 MessageTarget::~MessageTarget() {}
 
-void MessageTarget::handleMessage(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> &msg, MessageHandle handle, bool needCoroutine, bool needHotfix) {
+void MessageTarget::handleMessage(int msgType, uint16_t tag, const std::string &rawMsg) {
+    google::protobuf::Message *proto;
+    bool needCoroutine;
+    bool needHotfix;
+    MessageHandle handle;
+    if (!g_MessageHandleManager.getMessageInfo(msgType, proto, needCoroutine, needHotfix, handle)) {
+        ERROR_LOG("MessageTarget::handleMessage -- unknown message type: %d\n", msgType);
+        return;
+    }
+
+    google::protobuf::Message *msg = nullptr;
+    if (proto) {
+        msg = proto->New();
+        if (!msg->ParseFromString(rawMsg)) {
+            // 出错处理
+            ERROR_LOG("MessageTarget::handleMessage -- parse fail for message: %d\n", msgType);
+            delete msg;
+            return;
+        } else {
+            assert(!rawMsg.empty());
+        }
+    }
+
+    std::shared_ptr<google::protobuf::Message> targetMsg = std::shared_ptr<google::protobuf::Message>(msg);
+
     if (need_wait_ || wait_messages_.size() > 0) {
-        wait_messages_.push_back({msgType, tag, msg, handle, needHotfix});
+        wait_messages_.push_back({msgType, tag, targetMsg, handle, needHotfix});
         return;
     }
 
     if (needCoroutine) {
-        wait_messages_.push_back({msgType, tag, msg, handle, needHotfix});
+        wait_messages_.push_back({msgType, tag, targetMsg, handle, needHotfix});
         RoutineEnvironment::startCoroutine(handleMessageRoutine, this);
         return;
     }
 
     if (needHotfix) {
-        callHotfix(msgType, tag, msg);
+        callHotfix(msgType, tag, targetMsg);
     } else {
-        handle(getPtr(), tag, msg);
+        handle(getPtr(), tag, targetMsg);
     }
 }
 
@@ -72,39 +89,20 @@ void *MessageTarget::handleMessageRoutine(void *arg) {
 }
 
 void MessageTarget::callHotfix(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
-    const char *scriptBuf = nullptr;
-    size_t bufSize = 0;
-    if (!g_MessageHandleManager.getHotfixScript(msgType, scriptBuf, bufSize)) {
-        ERROR_LOG("hotfix script not found for msgType %d\n", msgType);
+    LuaStateInfo lsInfo;
+    if (!g_MessageHandleManager.getLuaStateInfo(lsInfo)) {
+        ERROR_LOG("getLuaStateInfo failed\n");
         return;
     }
 
-    std::ostringstream oss;
-    oss << "hotfix/fix_" << msgType << ".lua";
-    std::string filename = oss.str();
-
-    std::unique_ptr<lua_State, decltype(&lua_close)> L(luaL_newstate(), lua_close);
+    std::unique_ptr<lua_State, decltype(&lua_close)> L(lsInfo.L, lua_close);
     if (!L) {
         ERROR_LOG("luaL_newstate failed\n");
         return;
     }
 
-    luaL_requiref(L.get(), LUA_LOADLIBNAME, luaopen_package, 1);
-    lua_pop(L.get(), 1);
-
-    if (luaL_loadbuffer(L.get(), scriptBuf, bufSize, filename.c_str()) != LUA_OK) {
-        ERROR_LOG("Failed to load Lua script for msgType %d: %s\n", msgType, lua_tostring(L.get(), -1));
-        return;
-    }
-   
-    // 运行Lua文件
-    if(lua_pcall(L.get(),0,0,0) != LUA_OK) {
-        ERROR_LOG("lua_pcall error for msgType %d: %s\n", msgType, lua_tostring(L.get(), -1));
-        return;  
-    }
-
     // 获取lua消息处理，约定的消息处理函数名为“fix_<消息号>”
-    oss.str("");
+    std::ostringstream oss;
     oss << "fix_" << msgType;
     std::string luaFun = oss.str();
 
@@ -117,8 +115,7 @@ void MessageTarget::callHotfix(int msgType, uint16_t tag, std::shared_ptr<google
     lua_pushlightuserdata(L.get(), this);  // 压入第一个参数
     lua_pushlightuserdata(L.get(), msg.get());  // 压入第二个参数
     lua_pushnumber(L.get(), tag);                 // 压入第三个参数 
-    int iRet= lua_pcall(L.get(), 3, 1, 0);// 调用函数，调用完成以后，会将返回值压入栈中，3表示参数个数，1表示返回结果个数。  
-    if (iRet) {                     // 调用出错  
+    if (lua_pcall(L.get(), 3, 1, 0) != LUA_OK) {  // 调用函数，调用完成以后，会将返回值压入栈中，3表示参数个数，1表示返回结果个数
         ERROR_LOG("Call lua failed for msgType %d: %s\n", msgType, lua_tostring(L.get(), -1));
         return;  
     }
@@ -135,4 +132,7 @@ void MessageTarget::callHotfix(int msgType, uint16_t tag, std::shared_ptr<google
 
     // 确保在调用 lua_close 之前清理栈
     lua_settop(L.get(), 0);
+
+    L.release();
+    g_MessageHandleManager.backLuaStateInfo(lsInfo);
 }

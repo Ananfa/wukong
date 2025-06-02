@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "gateway_client.h"
 #include "corpc_controller.h"
 #include "string_utils.h"
@@ -287,3 +287,4 @@ bool GatewayClient::parseAddress(const std::string &input, AddressInfo &addressI
 
     return true;
 }
+#endif

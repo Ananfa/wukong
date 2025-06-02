@@ -16,17 +16,36 @@
 
 #include "corpc_routine_env.h"
 #include "record_object.h"
+#include "record_object_manager.h"
 #include "redis_pool.h"
-#include "record_delegate.h"
+//#include "record_delegate.h"
 #include "redis_utils.h"
 #include "share/const.h"
+#include "demo_utils.h"
 
 #include <sys/time.h>
 
 using namespace wukong;
+using namespace demo;
 
 RecordObject::~RecordObject() {
     DEBUG_LOG("RecordObject::~RecordObject -- role[%d]\n", roleId_);
+}
+
+void RecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
+    data_->syncIn(request);
+}
+
+void RecordObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) {
+    data_->buildSyncDatas(datas);
+}
+
+void RecordObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
+    data_->buildAllDatas(datas);
+}
+
+void RecordObject::clearDirty() {
+    data_->clearDirty();
 }
 
 void RecordObject::start() {
@@ -132,7 +151,7 @@ void *RecordObject::heartbeatRoutine( void *arg ) {
         // 若设置超时不成功，销毁记录对象
         if (!success) {
             if (obj->running_) {
-                if (!obj->manager_->remove(obj->roleId_)) {
+                if (!g_RecordObjectManager.remove(obj->roleId_)) {
                     assert(false);
                     ERROR_LOG("RecordObject::heartbeatRoutine -- role %d remove record object failed\n", obj->roleId_);
                 }
@@ -166,21 +185,21 @@ void *RecordObject::syncRoutine(void *arg) {
         obj->buildSyncDatas(syncDatas);
         if (!syncDatas.empty()) {
             if (obj->cacheData(syncDatas)) {
-                obj->dirty_map_.clear();
+                obj->clearDirty();
                 obj->cacheFailNum_ = 0;
             } else {
                 // 增加失败计数，若连续3次失败则销毁记录对象，防止长时间回档
                 ERROR_LOG("RecordObject::syncRoutine -- role %d cache data failed\n", obj->roleId_);
                 ++obj->cacheFailNum_;
                 if (obj->cacheFailNum_ > 3) {
-                    obj->manager_->remove(obj->roleId_);
+                    g_RecordObjectManager.remove(obj->roleId_);
                 }
             }
 
             syncDatas.clear();
         }
 
-        g_RecordDelegate.getMakeProfileHandle()(syncDatas, profileDatas);
+        obj->makeProfile(syncDatas, profileDatas);
         if (!profileDatas.empty()) {
             if (!obj->cacheProfile(profileDatas)) {
                 ERROR_LOG("RecordObject::syncRoutine -- role %d save profile failed\n", obj->roleId_);
@@ -266,4 +285,8 @@ bool RecordObject::cacheProfile(std::list<std::pair<std::string, std::string>> &
 
     g_RedisPoolManager.getCoreCache()->put(cache, false);
     return true;
+}
+
+void RecordObject::makeProfile(const std::list<std::pair<std::string, std::string>> &syncDatas, std::list<std::pair<std::string, std::string>> &profileDatas) {
+    DemoUtils::MakeProfile(syncDatas, profileDatas);
 }

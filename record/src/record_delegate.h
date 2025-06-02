@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_record_delegate_h
 #define wukong_record_delegate_h
 
@@ -56,3 +56,4 @@ namespace wukong {
 #define g_RecordDelegate wukong::RecordDelegate::Instance()
 
 #endif /* wukong_record_delegate_h */
+#endif

@@ -137,7 +137,7 @@ bool GatewayServer::init(int argc, char * argv[]) {
     rpcClient_ = RpcClient::create(io_);
 
     g_AgentManager.registerAgent(new LobbyAgent(rpcClient_));
-    g_AgentManager.registerAgent(new SceneAgent(rpcClient_));
+    //g_AgentManager.registerAgent(new SceneAgent(rpcClient_));
 
     pb::ServerInfo serverInfo;
     serverInfo.set_server_type(SERVER_TYPE_GATE);

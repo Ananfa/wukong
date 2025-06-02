@@ -1,7 +1,7 @@
 #ifndef message_handle_h
 #define message_handle_h
 
-#include "my_lobby_object.h"
+#include "message_target.h"
 #include "common.pb.h"
 
 using namespace wukong;
@@ -14,7 +14,7 @@ namespace demo {
 
         static void EchoHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
 
-        static void EnterSceneHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
+        //static void EnterSceneHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
     };
 }
 

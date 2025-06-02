@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "corpc_routine_env.h"
 #include "corpc_pubsub.h"
 #include "game_object_manager.h"
@@ -253,3 +253,4 @@ void GameObjectManager::unregGlobalEventHandle(uint32_t refId) {
 void GameObjectManager::fireGlobalEvent(const Event &event) {
     geventDispatcher_.fireGlobalEvent(event);
 }
+#endif

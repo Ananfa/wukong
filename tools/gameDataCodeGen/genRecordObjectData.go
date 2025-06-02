@@ -5,25 +5,25 @@ import (
 	"strconv"
 )
 
-func genRecordObject() {
-	hFile, _ := os.Create(targetPath + pkgName + "_record_object.h")
+func genRecordObjectData() {
+	hFile, _ := os.Create(targetPath + pkgName + "_record_object_data.h")
 	defer hFile.Close()
 
-	genRecordObjectHeadFile(hFile)
+	genRecordObjectDataHeadFile(hFile)
 
-	cppFile, _ := os.Create(targetPath + pkgName + "_record_object.cpp")
+	cppFile, _ := os.Create(targetPath + pkgName + "_record_object_data.cpp")
 	defer cppFile.Close()
 
-	genRecordObjectCppFile(cppFile)
+	genRecordObjectDataCppFile(cppFile)
 }
 
-func genRecordObjectHeadFile(dstFile *os.File) {
+func genRecordObjectDataHeadFile(dstFile *os.File) {
 	dstFile.WriteString("// This file is generated. Don't edit it\n" +
 		"\n" +
-		"#ifndef " + pkgName + "_record_object_h\n" +
-		"#define " + pkgName + "_record_object_h\n" +
+		"#ifndef " + pkgName + "_record_object_data_h\n" +
+		"#define " + pkgName + "_record_object_data_h\n" +
 		"\n" +
-		"#include \"record_object.h\"\n" +
+		"#include \"record_object_data.h\"\n" +
 		"#include \"common.pb.h\"\n" +
 		"#include \"" + pkgName + ".pb.h\"\n" +
 		"#include <map>\n" +
@@ -33,10 +33,10 @@ func genRecordObjectHeadFile(dstFile *os.File) {
 		"\n" +
 		"namespace " + pkgName + " {\n" +
 		"        \n" +
-		"    class " + pkgNameCapFirst + "RecordObject: public wukong::RecordObject {\n" +
+		"    class " + pkgNameCapFirst + "RecordObjectData: public wukong::RecordObjectData {\n" +
 		"    public:\n" +
-		"        " + pkgNameCapFirst + "RecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager);\n" +
-		"        virtual ~" + pkgNameCapFirst + "RecordObject() {}\n" +
+		"        " + pkgNameCapFirst + "RecordObjectData();\n" +
+		"        virtual ~" + pkgNameCapFirst + "RecordObjectData() {}\n" +
 		"\n" +
 		"        virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas);\n" +
 		"        virtual void syncIn(const ::wukong::pb::SyncRequest* request);\n" +
@@ -72,18 +72,18 @@ func genRecordObjectHeadFile(dstFile *os.File) {
 		"\n" +
 		"}\n" +
 		"\n" +
-		"#endif /* " + pkgName + "_record_object_h */\n")
+		"#endif /* " + pkgName + "_record_object_data_h */\n")
 }
 
-func genRecordObjectCppFile(dstFile *os.File) {
+func genRecordObjectDataCppFile(dstFile *os.File) {
 	dstFile.WriteString("// This file is generated. Don't edit it\n" +
 		"\n" +
-		"#include \"" + pkgName + "_record_object.h\"\n" +
+		"#include \"" + pkgName + "_record_object_data.h\"\n" +
 		"#include \"corpc_utils.h\"\n" +
 		"\n" +
 		"using namespace " + pkgName + ";\n" +
 		"\n" +
-		pkgNameCapFirst + "RecordObject::" + pkgNameCapFirst + "RecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): wukong::RecordObject(userId, roleId, serverId, rToken, manager) {\n")
+		pkgNameCapFirst + "RecordObjectData::" + pkgNameCapFirst + "RecordObjectData() {\n")
 
 	for _, member := range gameDataConfig.Member {
 		if member.Type == "string" {
@@ -102,13 +102,13 @@ func genRecordObjectCppFile(dstFile *os.File) {
 
 	dstFile.WriteString("}\n" +
 		"\n" +
-		"bool " + pkgNameCapFirst + "RecordObject::initData(const std::list<std::pair<std::string, std::string>> &datas) {\n" +
+		"bool " + pkgNameCapFirst + "RecordObjectData::initData(const std::list<std::pair<std::string, std::string>> &datas) {\n" +
 		"    for (auto &pair : datas) {\n")
 
 	fun1 := func(memberName, memberType string) {
 		dstFile.WriteString("            auto msg = new " + memberType + ";\n" +
 			"            if (!msg->ParseFromString(pair.second)) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg;\n" +
 			"                return false;\n" +
 			"            }\n" +
@@ -120,7 +120,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 	fun2 := func(memberName, memberType string) {
 		dstFile.WriteString("            auto msg = new " + memberType + ";\n" +
 			"            if (!msg->ParseFromString(pair.second)) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg;\n" +
 			"                return false;\n" +
 			"            }\n" +
@@ -132,7 +132,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 	fun3 := func(memberName, memberType, listName, itemType, itemId string) {
 		dstFile.WriteString("            auto msg = new " + memberType + ";\n" +
 			"            if (!msg->ParseFromString(pair.second)) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg;\n" +
 			"                return false;\n" +
 			"            }\n" +
@@ -181,7 +181,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 		"    return true;\n" +
 		"}\n" +
 		"\n" +
-		"void " + pkgNameCapFirst + "RecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {\n" +
+		"void " + pkgNameCapFirst + "RecordObjectData::syncIn(const ::wukong::pb::SyncRequest* request) {\n" +
 		"    int dataNum = request->datas_size();\n" +
 		"\n" +
 		"    for (int i = 0; i < dataNum; ++i) {\n" +
@@ -192,7 +192,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 		dstFile.WriteString("(data.key().compare(\"" + memberName + "\") == 0) {\n" +
 			"            auto msg = new " + memberType + ";\n" +
 			"            if (!msg->ParseFromString(data.value())) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "RecordObject::syncIn -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "RecordObjectData::syncIn -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg;\n" +
 			"                continue;\n" +
 			"            }\n" +
@@ -206,7 +206,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 		dstFile.WriteString("(data.key().compare(\"" + memberName + "\") == 0) {\n" +
 			"            auto msg = new " + memberType + ";\n" +
 			"            if (!msg->ParseFromString(data.value())) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "RecordObject::syncIn -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "RecordObjectData::syncIn -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg;\n" +
 			"                continue;\n" +
 			"            }\n" +
@@ -223,7 +223,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 			"\n" +
 			"            auto msg = new " + itemType + ";\n" +
 			"            if (!msg->ParseFromString(data.value())) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "RecordObject::syncIn -- parse role:%d data--" + memberName + ":%d failed\\n\", roleId_, id);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "RecordObjectData::syncIn -- parse role data--" + memberName + ":%d failed\\n\", id);\n" +
 			"                delete msg;\n" +
 			"                continue;\n" +
 			"            }\n" +
@@ -261,7 +261,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 	}
 
 	dstFile.WriteString("        } else {\n" +
-		"            ERROR_LOG(\"" + pkgNameCapFirst + "RecordObject::syncIn -- parse role:%d data--unknown data: %s\\n\", roleId_, data.key().c_str());\n" +
+		"            ERROR_LOG(\"" + pkgNameCapFirst + "RecordObjectData::syncIn -- parse role data--unknown data: %s\\n\", data.key().c_str());\n" +
 		"        }\n" +
 		"    }\n" +
 		"\n" +
@@ -282,19 +282,19 @@ func genRecordObjectCppFile(dstFile *os.File) {
 				"                " + member.Attr + "_map_.erase(it);\n" +
 				"                dirty_map_[\"" + member.Attr + "\"] = true;\n" +
 				"            } else {\n" +
-				"                WARN_LOG(\"" + pkgNameCapFirst + "RecordObject::syncIn -- remove role:%d data--" + member.Attr + " %d not exist\\n\", roleId_, id);\n" +
+				"                WARN_LOG(\"" + pkgNameCapFirst + "RecordObjectData::syncIn -- remove role data--" + member.Attr + " %d not exist\\n\", id);\n" +
 				"            }\n" +
 				"        } else ")
 		}
 	}
 
 	dstFile.WriteString("{\n" +
-		"            ERROR_LOG(\"" + pkgNameCapFirst + "RecordObject::syncIn -- remove role:%d data--unknown data: %s\\n\", roleId_, remove.c_str());\n" +
+		"            ERROR_LOG(\"" + pkgNameCapFirst + "RecordObjectData::syncIn -- remove role data--unknown data: %s\\n\", remove.c_str());\n" +
 		"        }\n" +
 		"    }\n" +
 		"}\n" +
 		"\n" +
-		"void " + pkgNameCapFirst + "RecordObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) {\n" +
+		"void " + pkgNameCapFirst + "RecordObjectData::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) {\n" +
 		"    for (auto &pair : dirty_map_) {\n")
 
 	fun7 := func(memberName, memberType string) {
@@ -367,7 +367,7 @@ func genRecordObjectCppFile(dstFile *os.File) {
 		"    }\n" +
 		"}\n" +
 		"\n" +
-		"void " + pkgNameCapFirst + "RecordObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {\n")
+		"void " + pkgNameCapFirst + "RecordObjectData::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {\n")
 
 	fun10 := func(memberName, memberType string) {
 		dstFile.WriteString("    {\n" +

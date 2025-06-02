@@ -55,7 +55,7 @@ void LobbyAgent::shutdown() {
     }
 }
 
-void LobbyAgent::forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) {
+void LobbyAgent::forwardIn(ServerId sid, int32_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) {
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
         ERROR_LOG("LobbyAgent::forwardIn -- server %d stub not avaliable, waiting.\n", sid);

@@ -504,6 +504,7 @@ void *FrontServer::inflowRoutine( void * arg ) {
             break;
         }
 
+        // 限流处理
         if (g_FrontConfig.getThrotle().open) {
             struct timeval tv;
             gettimeofday(&tv, NULL);

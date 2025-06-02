@@ -22,29 +22,29 @@
 #include "share/define.h"
 //#include "global_event.h"
 
-#include <google/protobuf/message.h>
+//#include <google/protobuf/message.h>
 
-#include <list>
+#include <map>
 //#include <mutex>
-#include <atomic>
-#include <functional>
+//#include <atomic>
+//#include <functional>
 
-extern "C"  
-{  
-    #include "lua.h"  
-    #include "lauxlib.h"  
-    #include "lualib.h"  
-}
+//extern "C"  
+//{  
+//    #include "lua.h"  
+//    #include "lauxlib.h"  
+//    #include "lualib.h"  
+//}
 
 using namespace corpc;
 
 namespace wukong {
 
-    struct LuaStateInfo {
-        lua_State *L;
-        time_t lastUsedAt;
-        int32_t version;
-    };
+    //struct LuaStateInfo {
+    //    lua_State *L;
+    //    time_t lastUsedAt;
+    //    int32_t version;
+    //};
 
     class MessageHandleManager
     {
@@ -61,33 +61,36 @@ namespace wukong {
             return instance;
         }
 
-        void init();
+        //void init();
         
-        bool registerMessage(int msgType,
+        bool registerMessage(int32_t msgType,
                              google::protobuf::Message *proto,
                              bool needCoroutine,
                              MessageHandle handle);
+        bool isRegistedMessage(int32_t msgType);
+        bool getMessageInfo(int32_t msgType, google::protobuf::Message *&proto, bool &needCoroutine, bool &needHotfix, MessageHandle &handle);
 
-        bool getMessageInfo(int msgType, google::protobuf::Message *&proto, bool &needCoroutine, bool &needHotfix, MessageHandle &handle);
+        void clearNeedHotfix();
+        void setNeedHotfix(int32_t msgType);
 
-        bool getLuaStateInfo(LuaStateInfo &info);
-        void backLuaStateInfo(LuaStateInfo info);
+        //bool getLuaStateInfo(LuaStateInfo &info);
+        //void backLuaStateInfo(LuaStateInfo info);
 
-    private:
-        void resetHotfix();
-
-        static void *updateRoutine(void * arg);
-
-    private:
-        std::map<int, RegisterMessageInfo> registerMessageMap_;
-        std::map<int, std::string> hotfixMap_;
-
-        std::list<LuaStateInfo> luaStates_;
-
-        int32_t hotfixVersion_;
+    //private:
+    //    void resetHotfix();
+    //
+    //    static void *updateRoutine(void * arg);
 
     private:
-        MessageHandleManager(): hotfixVersion_(0) {}                                   // ctor hidden
+        std::map<int32_t, RegisterMessageInfo> registerMessageMap_;
+        //std::map<int, std::string> hotfixMap_;
+        //
+        //std::list<LuaStateInfo> luaStates_;
+        //
+        //int32_t hotfixVersion_;
+
+    private:
+        MessageHandleManager() {}                                                      // ctor hidden
         ~MessageHandleManager() = default;                                             // destruct hidden
         MessageHandleManager(MessageHandleManager const&) = delete;                    // copy ctor delete
         MessageHandleManager(MessageHandleManager &&) = delete;                        // move ctor delete

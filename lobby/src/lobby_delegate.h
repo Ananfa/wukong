@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if 0
+
 #ifndef wukong_lobby_delegate_h
 #define wukong_lobby_delegate_h
 
@@ -25,7 +27,7 @@ using namespace corpc;
 
 namespace wukong {
     class LobbyDelegate {
-        typedef std::function<std::string (RoleId)> GetTargetSceneIdHandle; // 获取登录时角色应进入的场景实例号，返回0表示在大厅登录
+        //typedef std::function<std::string (RoleId)> GetTargetSceneIdHandle; // 获取登录时角色应进入的场景实例号，返回0表示在大厅登录
         typedef std::function<bool (uint32_t)> NeedLoadSceneHandle; // 判断场景（参数为场景实例号）不存在时是否需要加载场景
         typedef std::function<bool (uint32_t)> IsSceneAutoLoadRoleHandle; // 判断场景（参数为场景实例号）是否会自动加载角色
 
@@ -41,8 +43,8 @@ namespace wukong {
         void setCreateLobbyObjectHandle(CreateLobbyObjectHandle handle) { createLobbyObject_ = handle; }
         CreateLobbyObjectHandle getCreateLobbyObjectHandle() { return createLobbyObject_; }
 
-        void setGetTargetSceneIdHandle(GetTargetSceneIdHandle handle) { getTargetSceneId_ = handle; }
-        GetTargetSceneIdHandle getGetTargetSceneIdHandle() { return getTargetSceneId_; }
+        //void setGetTargetSceneIdHandle(GetTargetSceneIdHandle handle) { getTargetSceneId_ = handle; }
+        //GetTargetSceneIdHandle getGetTargetSceneIdHandle() { return getTargetSceneId_; }
 
         void setNeedLoadSceneHandle(NeedLoadSceneHandle handle) { needLoadScene_ = handle; }
         NeedLoadSceneHandle getNeedLoadSceneHandle() { return needLoadScene_; }
@@ -52,7 +54,7 @@ namespace wukong {
 
     private:
         CreateLobbyObjectHandle createLobbyObject_;
-        GetTargetSceneIdHandle getTargetSceneId_;
+        //GetTargetSceneIdHandle getTargetSceneId_;
         // 注意：needLoadScene_和isSceneAutoLoadRole_只有当会登录到场景中时才需要设置
         NeedLoadSceneHandle needLoadScene_;
         IsSceneAutoLoadRoleHandle isSceneAutoLoadRole_;
@@ -62,3 +64,5 @@ namespace wukong {
 #define g_LobbyDelegate wukong::LobbyDelegate::Instance()
 
 #endif /* wukong_lobby_delegate_h */
+
+#endif

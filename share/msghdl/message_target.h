@@ -20,6 +20,7 @@
 #include <memory>
 #include <list>
 #include <string>
+#include <functional>
 
 #include <google/protobuf/message.h>
 
@@ -30,7 +31,7 @@ namespace wukong {
 
     class MessageTarget: public std::enable_shared_from_this<MessageTarget> {
         struct MessageInfo {
-            int msgType;
+            int32_t msgType;
             uint16_t tag;
             std::shared_ptr<google::protobuf::Message> targetMsg;
             MessageHandle handle;
@@ -45,14 +46,17 @@ namespace wukong {
             return shared_from_this();
         }
 
-        void handleMessage(int msgType, uint16_t tag, const std::string &rawMsg);
+        void handleMessage(int32_t msgType, uint16_t tag, const std::string &rawMsg);
 
     private:
         void needWait(bool need_wait) { need_wait_ = need_wait; }
         bool needWait() { return need_wait_; }
 
         static void *handleMessageRoutine(void * arg);
-        void callHotfix(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
+
+#ifdef USE_MESSAGE_HOTFIX
+        void callHotfix(int32_t msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg);
+#endif
 
     private:
         std::list<MessageInfo> wait_messages_;

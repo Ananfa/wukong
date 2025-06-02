@@ -46,6 +46,9 @@ namespace wukong {
 
         // TODO: 实现广播和多播接口
 
+    private:
+        std::shared_ptr<LobbyObject> createLobbyObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &ltoken, const std::string &data);
+
     protected:
         bool shutdown_;
 

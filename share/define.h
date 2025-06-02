@@ -24,6 +24,8 @@ typedef uint64_t RoleId;
 
 typedef uint16_t ServerType;
 
+typedef int32_t ErrorCode;
+
 enum ServerStatus {
     SERVER_STATUS_NORMAL = 1,
     SERVER_STATUS_FULL = 2,

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_game_object_manager_h
 #define wukong_game_object_manager_h
 
@@ -68,3 +68,4 @@ namespace wukong {
 }
 
 #endif /* wukong_game_object_manager_h */
+#endif

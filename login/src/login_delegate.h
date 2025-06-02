@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_login_delegate_h
 #define wukong_login_delegate_h
 
@@ -42,3 +42,4 @@ namespace wukong {
 }
 
 #endif /* wukong_login_delegate_h */
+#endif

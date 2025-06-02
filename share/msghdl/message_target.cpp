@@ -17,13 +17,17 @@
 #include "message_target.h"
 #include "message_handle_manager.h"
 
+#ifdef USE_MESSAGE_HOTFIX
+#include "message_hotfix_manager.h"
+#endif
+
 #include <sstream>
 
 using namespace wukong;
 
 MessageTarget::~MessageTarget() {}
 
-void MessageTarget::handleMessage(int msgType, uint16_t tag, const std::string &rawMsg) {
+void MessageTarget::handleMessage(int32_t msgType, uint16_t tag, const std::string &rawMsg) {
     google::protobuf::Message *proto;
     bool needCoroutine;
     bool needHotfix;
@@ -59,11 +63,15 @@ void MessageTarget::handleMessage(int msgType, uint16_t tag, const std::string &
         return;
     }
 
+#ifdef USE_MESSAGE_HOTFIX
     if (needHotfix) {
         callHotfix(msgType, tag, targetMsg);
     } else {
         handle(getPtr(), tag, targetMsg);
     }
+#else
+    handle(getPtr(), tag, targetMsg);
+#endif
 }
 
 void *MessageTarget::handleMessageRoutine(void *arg) {
@@ -74,11 +82,15 @@ void *MessageTarget::handleMessageRoutine(void *arg) {
     do {
         auto &msgInfo = self->wait_messages_.front();
 
+#ifdef USE_MESSAGE_HOTFIX
         if (msgInfo.needHotfix) {
             self->callHotfix(msgInfo.msgType, msgInfo.tag, msgInfo.targetMsg);
         } else {
             msgInfo.handle(self, msgInfo.tag, msgInfo.targetMsg);
         }
+#else
+        msgInfo.handle(self, msgInfo.tag, msgInfo.targetMsg);
+#endif
 
         self->wait_messages_.pop_front();
     } while (self->wait_messages_.size() > 0);
@@ -88,9 +100,10 @@ void *MessageTarget::handleMessageRoutine(void *arg) {
     return nullptr;
 }
 
-void MessageTarget::callHotfix(int msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
+#ifdef USE_MESSAGE_HOTFIX
+void MessageTarget::callHotfix(int32_t msgType, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
     LuaStateInfo lsInfo;
-    if (!g_MessageHandleManager.getLuaStateInfo(lsInfo)) {
+    if (!g_MessageHotfixManager.getLuaStateInfo(lsInfo)) {
         ERROR_LOG("getLuaStateInfo failed\n");
         return;
     }
@@ -134,5 +147,6 @@ void MessageTarget::callHotfix(int msgType, uint16_t tag, std::shared_ptr<google
     lua_settop(L.get(), 0);
 
     L.release();
-    g_MessageHandleManager.backLuaStateInfo(lsInfo);
+    g_MessageHotfixManager.backLuaStateInfo(lsInfo);
 }
+#endif

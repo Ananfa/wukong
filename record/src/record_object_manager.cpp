@@ -16,11 +16,13 @@
 
 #include "corpc_routine_env.h"
 #include "record_object_manager.h"
-#include "record_delegate.h"
+//#include "record_delegate.h"
+#include "demo_record_object_data.h"
 
 #include <sys/time.h>
 
 using namespace wukong;
+using namespace demo;
 
 void RecordObjectManager::init() {
     
@@ -68,13 +70,17 @@ std::shared_ptr<RecordObject> RecordObjectManager::create(UserId userId, RoleId 
         return nullptr;
     }
 
-    if (!g_RecordDelegate.getCreateRecordObjectHandle()) {
-        ERROR_LOG("RecordObjectManager::create -- not set CreateRecordObjectHandle\n");
-        return nullptr;
-    }
+    //if (!g_RecordDelegate.getCreateRecordObjectHandle()) {
+    //    ERROR_LOG("RecordObjectManager::create -- not set CreateRecordObjectHandle\n");
+    //    return nullptr;
+    //}
 
     // 创建RecordObject
-    auto obj = g_RecordDelegate.getCreateRecordObjectHandle()(userId, roleId, serverId, rToken, this, datas);
+    auto obj = createRecordObject(userId, roleId, serverId, rToken, datas);
+    if (!obj) {
+        ERROR_LOG("RecordObjectManager::create -- create record object failed\n");
+        return nullptr;
+    }
 
     roleId2RecordObjectMap_.insert(std::make_pair(roleId, obj));
     obj->start();
@@ -91,4 +97,19 @@ bool RecordObjectManager::remove(RoleId roleId) {
     it->second->stop();
     roleId2RecordObjectMap_.erase(it);
     return true;
+}
+
+std::shared_ptr<RecordObject> RecordObjectManager::createRecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, std::list<std::pair<std::string, std::string>> &datas) {
+    std::shared_ptr<RecordObject> obj(new RecordObject(userId, roleId, serverId, rToken));
+
+    std::unique_ptr<RecordObjectData> objData(new demo::DemoRecordObjectData());
+
+    if (!objData->initData(datas)) {
+        ERROR_LOG("create record object failed because init data failed, role: %d\n", roleId);
+        return nullptr;
+    }
+
+    obj->setObjectData(std::move(objData));
+
+    return obj;
 }

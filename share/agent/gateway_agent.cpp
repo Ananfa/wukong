@@ -86,7 +86,7 @@ bool GatewayAgent::kick(ServerId sid, UserId userId, const std::string &gToken) 
     return result;
 }
 
-void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std::vector<std::pair<UserId, std::string>> &targets, const std::string &msg) {
+void GatewayAgent::broadcast(ServerId sid, int32_t type, const std::vector<std::pair<UserId, std::string>> &targets, const std::string &msg) {
     if (sid == 0) { // 全服广播
         if (targets.size() > 0) { // 全服广播不应设置指定目标
             WARN_LOG("GatewayAgent::broadcast -- targets list not empty when global broadcast\n");
@@ -99,7 +99,6 @@ void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std
             pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
             request->set_serverid(sid);
             request->set_type(type);
-            request->set_tag(tag);
             for (auto &t : targets) {
                 ::wukong::pb::ForwardOutTarget* target = request->add_targets();
 
@@ -132,7 +131,6 @@ void GatewayAgent::broadcast(ServerId sid, int32_t type, uint16_t tag, const std
         pb::ForwardOutRequest *request = new pb::ForwardOutRequest();
         request->set_serverid(sid);
         request->set_type(type);
-        request->set_tag(tag);
         for (auto &t : targets) {
             ::wukong::pb::ForwardOutTarget* target = request->add_targets();
 

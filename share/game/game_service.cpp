@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "game_service.h"
 #include "game_center.h"
 
@@ -99,3 +99,4 @@ void InnerGameServiceImpl::enterGame(::google::protobuf::RpcController* controll
 
     obj->enterGame();
 }
+#endif

@@ -1,10 +1,10 @@
 // This file is generated. Don't edit it
 
-#ifndef demo_lobby_object_h
-#define demo_lobby_object_h
+#ifndef demo_lobby_object_data_h
+#define demo_lobby_object_data_h
 
 #include "demo.pb.h"
-#include "lobby_object.h"
+#include "lobby_object_data.h"
 #include "common.pb.h"
 #include <map>
 #include <string>
@@ -13,16 +13,16 @@
 using namespace wukong;
 
 namespace demo {
-    class DemoLobbyObject: public wukong::LobbyObject {
+    class DemoLobbyObjectData: public wukong::LobbyObjectData {
     public:
-        DemoLobbyObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken);
-        virtual ~DemoLobbyObject();
+        DemoLobbyObjectData();
+        virtual ~DemoLobbyObjectData();
 
         virtual bool initData(const std::string &data);
 
         virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes);
         virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
-        virtual void onEnterGame();
+
         const std::string& getName();
         void setName(const std::string& name);
         uint32_t getExp();
@@ -59,4 +59,4 @@ namespace demo {
     };
 }
 
-#endif /* demo_lobby_object_h */
+#endif /* demo_lobby_object_data_h */

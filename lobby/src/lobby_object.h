@@ -23,6 +23,9 @@
 #include "record_service.pb.h"
 #include "event.h"
 #include "message_target.h"
+#include "lobby_object_data.h"
+#include "corpc_timer.h"
+
 #include <list>
 #include <map>
 #include <sys/time.h>
@@ -36,9 +39,10 @@ namespace wukong {
     class LobbyObject: public MessageTarget {
     public:
         LobbyObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken): userId_(userId), roleId_(roleId), serverId_(serverId), lToken_(lToken) {}
-        virtual ~LobbyObject() = 0;
+        virtual ~LobbyObject();
 
-        virtual bool initData(const std::string &data) = 0;
+        void setObjectData(std::unique_ptr<LobbyObjectData> &&data) { data_ = std::move(data); }
+        LobbyObjectData *getObjectData() { return data_.get(); }
 
         UserId getUserId() { return userId_; }
         RoleId getRoleId() { return roleId_; }
@@ -53,14 +57,8 @@ namespace wukong {
         ServerId getGatewayServerId() { return gatewayId_; }
         ServerId getRecordServerId() { return recordId_; }
 
-        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) = 0;
-        virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
-
-        virtual void update(timeval now) = 0; // 周期处理逻辑（注意：不要有产生协程切换的逻辑）
-        virtual void onStart() = 0;
-        virtual void onDestory() = 0;
-        virtual void onEnterGame() = 0; // 客户端登录进入游戏（gateObj与gameObj建立连接）
-        virtual void onOffline() = 0; // 客户端断线（gameObj失去gateObj关联）
+        void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes);
+        void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
 
         bool isOnline() { return gatewayId_ != 0; }
 
@@ -90,6 +88,18 @@ namespace wukong {
 
         static void *updateRoutine(void *arg); // 逻辑协程（周期逻辑更新）
 
+        // 以下方法需要根据项目需求实现
+        void onUpdate(timeval now); // 周期处理逻辑（注意：不要有产生协程切换的逻辑）
+        void onStart();
+        void onDestory();
+        void onEnterGame(); // 客户端登录进入游戏（gateObj与gameObj建立连接）
+        void onOffline(); // 客户端断线（gameObj失去gateObj关联）
+
+        // 【测试代码】
+        void onTestLocalEvent(const Event &e);
+        void onTestLocalEvent1(uint32_t testValue);
+        //void onTestGlobalEvent(const Event &e);
+
     private:
         ServerId gatewayId_; // 网关对象所在服务器id
         ServerId recordId_; // 记录对象所在服务器id
@@ -105,13 +115,15 @@ namespace wukong {
 
         EventEmitter emiter_; // 本地事件分派器
 
+        std::shared_ptr<Timer> leaveGameTimer_;
+
     protected:
         UserId userId_;
         RoleId roleId_;
         ServerId serverId_;
-        
-        std::map<std::string, bool> dirty_map_;
 
+        std::unique_ptr<LobbyObjectData> data_;
+        
     public:
         friend class LobbyObjectManager;
     };

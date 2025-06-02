@@ -1,6 +1,7 @@
 
 #include "message_handler.h"
 #include "message_handle_manager.h"
+#include "lobby_object.h"
 #include "redis_pool.h"
 #include "redis_utils.h"
 //#include "client_center.h"
@@ -9,30 +10,33 @@
 #include "common.pb.h"
 #include "demo_const.h"
 #include "demo_errdef.h"
+#include "demo_lobby_object_data.h"
 
 using namespace demo;
 
 void MessageHandler::registerMessages() {
     g_MessageHandleManager.registerMessage(C2S_MESSAGE_ID_ECHO, new wukong::pb::StringValue, false, EchoHandle);
-    g_MessageHandleManager.registerMessage(C2S_MESSAGE_ID_ENTERSCENE, new wukong::pb::Int32Value, true, EnterSceneHandle);
+    //g_MessageHandleManager.registerMessage(C2S_MESSAGE_ID_ENTERSCENE, new wukong::pb::Int32Value, true, EnterSceneHandle);
 }
 
 void MessageHandler::EchoHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
     DEBUG_LOG("MessageHandler::EchoHandle\n");
-    std::shared_ptr<MyLobbyObject> realObj = std::dynamic_pointer_cast<MyLobbyObject>(obj);
+    std::shared_ptr<LobbyObject> realObj = std::dynamic_pointer_cast<LobbyObject>(obj);
     std::shared_ptr<wukong::pb::StringValue> realMsg = std::dynamic_pointer_cast<wukong::pb::StringValue>(msg);
 
     DEBUG_LOG("MessageHandler::EchoHandle -- receive msg: %s\n", realMsg->value().c_str());
 
+    DemoLobbyObjectData *objData = (DemoLobbyObjectData *)realObj->getObjectData();
     // 加1点经验值
-    realObj->setExp(realObj->getExp()+1);
+    objData->setExp(objData->getExp()+1);
 
     realObj->send(S2C_MESSAGE_ID_ECHO, tag, *realMsg);
 }
 
+/*
 void MessageHandler::EnterSceneHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
     ERROR_LOG("MessageHandler::EnterSceneHandle\n");
-    std::shared_ptr<MyLobbyObject> realObj = std::dynamic_pointer_cast<MyLobbyObject>(obj);
+    std::shared_ptr<LobbyObject> realObj = std::dynamic_pointer_cast<LobbyObject>(obj);
     std::shared_ptr<wukong::pb::Int32Value> realMsg = std::dynamic_pointer_cast<wukong::pb::Int32Value>(msg);
 
     // 校验场景定义号（假设目前只支持世界场景，定义号小于100）
@@ -45,13 +49,44 @@ void MessageHandler::EnterSceneHandle(std::shared_ptr<MessageTarget> obj, uint16
         return;
     }
 
+    // 判断是否允许进入目标场景
+    if (!realObj->canEnterScene(defId)) {
+        ERROR_LOG("MessageHandler::EnterSceneHandle -- forbit enter scene id: %d\n", defId);
+        wukong::pb::Int32Value errMsg;
+        errMsg.set_value(ERR_FORBIT_SCENE);
+        realObj->send(S2C_MESSAGE_ID_ERROR, tag, errMsg);
+        return;
+    }
+
+    // 离开原场景，进入新场景
+    ServerId orgSceneServerId = 0;
+    std::string orgSceneId;
+
+    realObj->getSceneAddr(orgSceneServerId, orgSceneId);
+
     // 查找场景所在
     char *buf = new char[10];
     sprintf(buf, "GS_%d", defId);
     std::string sceneId = buf;
-    ServerId sceneServerId;
+
+    if (orgSceneId == sceneId) {
+        WARN_LOG("MessageHandler::EnterSceneHandle already in scene:%s\n", sceneId.c_str());
+        wukong::pb::Int32Value errMsg;
+        errMsg.set_value(ERR_ALREADY_IN_SCENE);
+        realObj->send(S2C_MESSAGE_ID_ERROR, tag, errMsg);
+        return;
+    }
 
     SceneAgent *sceneAgent = (SceneAgent*)g_AgentManager.getAgent(SERVER_TYPE_SCENE);
+    if (!orgSceneId.empty()) {
+        // 离开原场景
+        int32_t err = sceneAgent->leaveScene(orgSceneServerId, orgSceneId, realObj->getRoleId());
+        if (err != 0) {
+            WARN_LOG("MessageHandler::EnterSceneHandle leave origin scene:%s error:%d\n", orgSceneId.c_str(), err);
+        }
+    }
+
+    ServerId sceneServerId;
     // 加载场景失败时等待1秒重新尝试，3次失败才返回失败
     for (int i = 0; i < 3; i++) {
         redisContext *cache = g_RedisPoolManager.getCoreCache()->take();
@@ -86,8 +121,6 @@ void MessageHandler::EnterSceneHandle(std::shared_ptr<MessageTarget> obj, uint16
             }
 
             // 通知Scene服加载场景对象
-
-
             std::string tmpId = sceneAgent->loadScene(sceneServerId, defId, sceneId, 0, "");
             if (tmpId.empty()) {
                 // 加载失败，可能有其他玩家在同时加载场景，等待1秒后重新查询
@@ -101,10 +134,11 @@ void MessageHandler::EnterSceneHandle(std::shared_ptr<MessageTarget> obj, uint16
         break;
     }
 
+    // 注意：进入场景不需要离开大厅服
     // 离开大厅服（注意：这里将gameobj销毁后其中的_gatewayServerStub还存在，因此在出错时还能发消息给客户端）
-    realObj->leaveGame();
+    //realObj->leaveGame();
 
-    ERROR_LOG("MessageHandler::EnterSceneHandle 1\n");
     // 进入场景
     sceneAgent->enterScene(sceneServerId, sceneId, realObj->getRoleId(), realObj->getGatewayServerId());
 }
+*/

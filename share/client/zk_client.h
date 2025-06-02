@@ -5,7 +5,7 @@
 //  Created by Shizan Lou on 2018/8/23.
 //  Copyright © 2018年 Shizan Lou. All rights reserved.
 //
-
+#if 0
 #ifndef wukong_zk_client_h
 #define wukong_zk_client_h
 
@@ -189,3 +189,4 @@ namespace wukong {
 #define g_ZkClient wukong::ZkClient::Instance()
 
 #endif /* wukong_zk_client_h */
+#endif

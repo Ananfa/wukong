@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_client_center_h
 #define wukong_client_center_h
 
@@ -117,3 +117,4 @@ namespace wukong {
 #define g_ClientCenter wukong::ClientCenter::Instance()
 
 #endif /* wukong_client_center_h */
+#endif

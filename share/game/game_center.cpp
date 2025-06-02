@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "game_center.h"
 #include "corpc_pubsub.h"
 #include "redis_pool.h"
@@ -254,3 +254,4 @@ void GameCenter::callHotfix(std::shared_ptr<GameObject> obj, int msgType, uint16
     // 关闭state
     lua_close(L);
 }
+#endif

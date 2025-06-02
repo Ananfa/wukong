@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_game_center_h
 #define wukong_game_center_h
 
@@ -106,3 +106,4 @@ namespace wukong {
 #define g_GameCenter wukong::GameCenter::Instance()
 
 #endif /* wukong_game_center_h */
+#endif

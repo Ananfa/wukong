@@ -22,6 +22,7 @@
 #include "message_handle_manager.h"
 #include "redis_pool.h"
 #include "redis_utils.h"
+#include "proto_utils.h"
 #include "agent_manager.h"
 #include "gateway_agent.h"
 #include "record_agent.h"
@@ -37,6 +38,14 @@ void LobbyObject::setGatewayServerId(ServerId sid) {
 
 void LobbyObject::setRecordServerId(ServerId sid) {
     recordId_ = sid;
+}
+
+void LobbyObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {
+    data_->buildSyncDatas(datas, removes);
+}
+
+void LobbyObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
+    data_->buildAllDatas(datas);
 }
 
 void LobbyObject::start() {
@@ -332,8 +341,99 @@ void *LobbyObject::updateRoutine(void *arg) {
         }
 
         gettimeofday(&t, NULL);
-        obj->update(t);
+        obj->onUpdate(t);
     }
 
     return nullptr;
 }
+
+// 注意: 根据项目需求实现玩家对象的onUpdate方法
+void LobbyObject::onUpdate(timeval now) {
+    // 【测试代码】：测试发事件（每秒发一次事件）
+    uint32_t testValue = 1;
+    Event e("test_local_event");
+    e.setParam("testValue", testValue);
+    fireEvent(e);
+
+    //std::string data = "hello world";
+    //Event ge("test_global_event");
+    //ge.setParam("data", data);
+    //fireGlobalEvent(ge);
+}
+
+// 注意: 根据项目需求实现玩家对象的onUpdate方法
+void LobbyObject::onStart() {
+    // TODO: 这里应该初始化游戏对象中的各种组件模块，绑定各模块的事件处理
+
+    // 【测试代码】：事件处理测试（以下是两种注册事件处理的方式，第一种是用bind，第二种是用lamda）
+    regEventHandle("test_local_event", std::bind(&LobbyObject::onTestLocalEvent, std::static_pointer_cast<LobbyObject>(shared_from_this()), std::placeholders::_1));
+
+    regEventHandle("test_local_event", [self = std::static_pointer_cast<LobbyObject>(shared_from_this())](const Event &e) {
+        uint32_t testValue;
+        e.getParam("testValue", testValue);
+        self->onTestLocalEvent1(testValue);
+    });
+
+}
+
+void LobbyObject::onDestory() {
+    // 若不清timer，会导致shared_ptr循环引用问题
+    if (leaveGameTimer_) {
+        leaveGameTimer_->stop();
+        leaveGameTimer_ = nullptr;
+    }
+
+    // TODO: 各种模块销毁
+}
+
+void LobbyObject::onEnterGame() { // 重登了
+    std::list<std::pair<std::string, std::string>> datas;
+    buildAllDatas(datas);
+    std::string msgData = ProtoUtils::marshalDataFragments(datas);
+    send(wukong::S2C_MESSAGE_ID_ENTERGAME, 0, msgData);
+
+    // 取消离开游戏计时器
+    if (leaveGameTimer_) {
+        //DEBUG_LOG("LobbyObject::onEnterGame -- user[%llu] role[%llu] cancel leave-game-timer:%llu\n", _userId, _roleId, leaveGameTimer_.get());
+        leaveGameTimer_->stop();
+        leaveGameTimer_ = nullptr;
+    }
+
+    // TODO: 其他进入游戏逻辑
+
+    // 发送进入大厅消息给客户端
+    wukong::pb::Int32Value resp;
+    resp.set_value(1);
+    send(S2C_MESSAGE_ID_ENTERLOBBY, 0, resp);
+}
+
+void LobbyObject::onOffline() { // 断线了
+    // 离线处理（这里通过timer等待5秒后离开游戏，5秒内如果重新登录了就不离开游戏了）
+    leaveGameTimer_ = Timer::create(5000, [self = std::static_pointer_cast<LobbyObject>(shared_from_this())]() {
+        self->leaveGame();
+    });
+    //DEBUG_LOG("LobbyObject::onOffline -- user[%llu] role[%llu] start leave-game-timer:%llu\n", _userId, _roleId, leaveGameTimer_.get());
+    
+    // TODO: 其他离线逻辑
+}
+
+// 【测试代码】：
+void LobbyObject::onTestLocalEvent(const Event &e) {
+    uint32_t testValue;
+    e.getParam("testValue", testValue);
+    DEBUG_LOG("LobbyObject::onTestLocalEvent, value:%d\n", testValue);
+
+    wukong::pb::StringValue resp;
+    resp.set_value("hello");
+    send(S2C_MESSAGE_ID_ECHO, 0, resp);
+}
+
+void LobbyObject::onTestLocalEvent1(uint32_t testValue) {
+    DEBUG_LOG("LobbyObject::onTestLocalEvent1, value:%d\n", testValue);
+}
+
+//void LobbyObject::onTestGlobalEvent(const Event &e) {
+//    std::string data;
+//    e.getParam("data", data);
+//    DEBUG_LOG("LobbyObject::onTestGlobalEvent, data:%s\n", data.c_str());
+//}

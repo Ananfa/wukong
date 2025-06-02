@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(wukong_demo)
+project(example_redis)
 
 # Check dependency libraries
 find_library(PROTOBUF_LIB protobuf)
@@ -41,19 +41,16 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-    ../../share/agent/agent.cpp
-    ../../share/agent/agent_manager.cpp
-    ../../share/agent/gateway_agent.cpp
-    ../../share/db/redis_pool.cpp
-    ../../proto/service/gateway_service.pb.cc
-    ../../utils/utility.cpp
-    ../../utils/string_utils.cpp
-    ../../utils/redis_utils.cpp)
+    ../share/db/redis_pool.cpp
+    ../utils/utility.cpp
+    ../utils/string_utils.cpp
+    ../utils/redis_utils.cpp)
 
 # Add source files
-aux_source_directory(../../proto SOURCE_FILES)
-aux_source_directory(../../proto/game SOURCE_FILES)
-aux_source_directory(../../front/src SOURCE_FILES)
+aux_source_directory(../share/agent SOURCE_FILES)
+aux_source_directory(../proto SOURCE_FILES)
+aux_source_directory(../proto/service SOURCE_FILES)
+aux_source_directory(../proto/game SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -64,7 +61,7 @@ set(CMAKE_MACOSX_RPATH 0)
 # Set cflags
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=gnu++11 -fPIC -Wall -Wno-reorder -pthread")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -pg -O0 -DDEBUG=1 ${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 -DLOG_LEVEL=3 ${CMAKE_CXX_FLAGS}")
 
 # Add include directories
 include_directories(/usr/local/include)
@@ -73,19 +70,21 @@ include_directories(/usr/local/include/corpc)
 include_directories(/usr/local/include/corpc/kcp)
 include_directories(/usr/local/include/corpc/proto)
 include_directories(/usr/local/include/hiredis)
-include_directories(../..)
-include_directories(../../front/src)
-include_directories(../../share)
-include_directories(../../share/agent)
-include_directories(../../share/db)
-include_directories(../../utils)
-include_directories(../../proto)
-include_directories(../../proto/game)
-include_directories(../../proto/service)
-include_directories(../../deps/rapidjson/include)
+include_directories(./src)
+include_directories(..)
+include_directories(../gateway/src)
+include_directories(../share)
+include_directories(../share/agent)
+include_directories(../share/db)
+include_directories(../share/http)
+include_directories(../utils)
+include_directories(../proto)
+include_directories(../proto/game)
+include_directories(../proto/service)
+include_directories(../deps/rapidjson/include)
 
 # Add target
-add_executable(frontd ${SOURCE_FILES})
+add_executable(gatewayd ${SOURCE_FILES})
 
 set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
-target_link_libraries(frontd ${MY_LINK_LIBRARIES})
+target_link_libraries(gatewayd ${MY_LINK_LIBRARIES})

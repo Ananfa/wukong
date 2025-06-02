@@ -89,34 +89,18 @@ void LobbyServiceImpl::enterGame(::google::protobuf::RpcController* controller,
 }
 
 void LobbyServiceImpl::loadRole(::google::protobuf::RpcController* controller,
-                              const ::wukong::pb::LoadRoleRequest* request,
-                              ::wukong::pb::BoolValue* response,
-                              ::google::protobuf::Closure* done) {
+                                const ::wukong::pb::LoadRoleRequest* request,
+                                ::wukong::pb::BoolValue* response,
+                                ::google::protobuf::Closure* done) {
     RoleId roleId = request->roleid();
     ServerId gwId = request->gatewayid();
 
-    // TODO: 在大厅中加载角色或在场景中加载角色
-    if (!g_LobbyDelegate.getGetTargetSceneIdHandle()) {
-        ERROR_LOG("LobbyServiceImpl::loadRole -- lobby delegate not init\n");
+    if (!g_LobbyObjectManager.loadRole(roleId, gwId)) {
+        ERROR_LOG("LobbyServiceImpl::loadRole -- role %d load failed\n", roleId);
         return;
     }
 
-    std::string targetSceneId = g_LobbyDelegate.getGetTargetSceneIdHandle()(roleId);
-
-    if (targetSceneId.empty()) {
-        if (!g_LobbyObjectManager.loadRole(roleId, gwId)) {
-            ERROR_LOG("LobbyServiceImpl::loadRole -- role %d load failed\n", roleId);
-            return;
-        }
-
-        response->set_value(true);
-    } else {
-        // TODO：查找场景（redis）
-
-        // TODO: 判断场景不存在时是否加载场景（delegate）
-
-        // TODO: 判断场景是否会自动加载角色（delegate）
-    }
+    response->set_value(true);
 }
 
 //void LobbyServiceImpl::addInnerStub(ServerId sid, pb::InnerLobbyService_Stub* stub) {

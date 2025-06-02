@@ -31,6 +31,9 @@
 #include "rapidjson/document.h"
 #include "share/const.h"
 
+#include "demo_utils.h"
+#include "demo_role_builder.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -40,6 +43,7 @@
 using namespace rapidjson;
 using namespace corpc;
 using namespace wukong;
+using namespace demo;
 
 // 注意：这里是g++编译器的一个bug导致需要用namespace大括号括住模板特化
 namespace wukong {
@@ -145,7 +149,7 @@ void LoginHandlerMgr::login(std::shared_ptr<RequestMessage> &request, std::share
     }
 
     // 校验玩家身份
-    if (!delegate_.loginCheck(request)) {
+    if (!checkLogin(request)) {
         return setErrorResponse(response, "login check failed");
     }
 
@@ -246,7 +250,7 @@ void LoginHandlerMgr::getProfile(std::shared_ptr<RequestMessage> &request, std::
     UserId uid = 0;
     ServerId sid = 0;
     std::list<std::pair<std::string, std::string>> pDatas;
-    if (!delegate_.loadProfile(info.roleId, uid, info.serverId, pDatas)) {
+    if (!loadProfile(info.roleId, uid, info.serverId, pDatas)) {
         return setErrorResponse(response, "load role profile failed");
     }
 
@@ -314,7 +318,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
 
     // 创建角色数据
     std::list<std::pair<std::string, std::string>> roleDatas;
-    if (!delegate_.createRole(request, roleDatas)) {
+    if (!makeRoleData(request, roleDatas)) {
         return setErrorResponse(response, "create role failed");
     }
 
@@ -428,7 +432,7 @@ void LoginHandlerMgr::createRole(std::shared_ptr<RequestMessage> &request, std::
 
     // 缓存profile
     std::list<std::pair<std::string, std::string>> profileDatas;
-    delegate_.makeProfile(roleDatas, profileDatas);
+    makeProfile(roleDatas, profileDatas);
     switch (RedisUtils::SaveProfile(cache, roleId, userId, serverId, profileDatas)) {
         case REDIS_DB_ERROR: {
             g_RedisPoolManager.getCoreCache()->put(cache, true);
@@ -844,3 +848,32 @@ void LoginHandlerMgr::setErrorResponse(std::shared_ptr<ResponseMessage>& respons
     response->setCapacity((uint32_t)json.length());
     response->appendContent(json.content());
 }
+
+bool LoginHandlerMgr::checkLogin(std::shared_ptr<RequestMessage> &request) {
+    // TODO: 进行登录账号校验
+    return true;
+}
+
+bool LoginHandlerMgr::makeRoleData(std::shared_ptr<RequestMessage> &request, std::list<std::pair<std::string, std::string>> &roleDatas) {
+    DemoRoleBuilder builder;
+
+    if (!request->has("name")) {
+        ERROR_LOG("Can't create role for no name\n");
+        return false;
+    }
+
+    std::string name = (*request)["name"];
+    builder.setName(name);
+
+    builder.buildDatas(roleDatas);
+    return true;
+}
+
+bool LoginHandlerMgr::loadProfile(RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &profileDatas) {
+    return DemoUtils::LoadProfile(roleId, userId, serverId, profileDatas);
+}
+
+void LoginHandlerMgr::makeProfile(const std::list<std::pair<std::string, std::string>> &roleDatas, std::list<std::pair<std::string, std::string>> &profileDatas) {
+    DemoUtils::MakeProfile(roleDatas, profileDatas);
+}
+

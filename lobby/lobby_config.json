@@ -18,7 +18,7 @@
     "redis": [
         {
             "dbName": "cache",
-            "host": "192.168.32.1",
+            "host": "172.23.144.1",
             "port": 6379,
             "pwd": "",
             "maxConnect": 8,
@@ -27,6 +27,6 @@
     ],
     "coreCache": "cache",
     "updatePeriod": 1000,
-    "enableSceneClient": true
+    "enableSceneClient": false,
     "logConfigFile": "../log_config.json"
 }

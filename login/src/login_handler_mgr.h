@@ -17,7 +17,8 @@
 #ifndef wukong_login_handler_mgr_h
 #define wukong_login_handler_mgr_h
 
-#include "login_delegate.h"
+#include "share/define.h"
+//#include "login_delegate.h"
 #include "http_server.h"
 //#include "gateway_client.h"
 //#include "corpc_mutex.h"
@@ -54,7 +55,7 @@ namespace wukong {
         
         void init(HttpServer *server);
         
-        void setDelegate(LoginDelegate delegate) { delegate_ = delegate; }
+        //void setDelegate(LoginDelegate delegate) { delegate_ = delegate; }
 
         bool randomGatewayServer(ServerId &serverId);
     private:
@@ -79,6 +80,12 @@ namespace wukong {
 
         static void *saveUserRoutine(void *arg); // 将account-userid对应关系信息存盘的协程
 
+        // 以下方法需要根据项目需求实现
+        bool checkLogin(std::shared_ptr<RequestMessage> &request);
+        bool makeRoleData(std::shared_ptr<RequestMessage> &request, std::list<std::pair<std::string, std::string>> &roleDatas);
+        bool loadProfile(RoleId roleId, UserId &userId, ServerId &serverId, std::list<std::pair<std::string, std::string>> &profileDatas);
+        void makeProfile(const std::list<std::pair<std::string, std::string>> &roleDatas, std::list<std::pair<std::string, std::string>> &profileDatas);
+
     private:
         std::string serverGroupData_;
         std::map<GroupId, uint32_t> groupStatusMap_;
@@ -94,7 +101,7 @@ namespace wukong {
         //static thread_local std::map<GroupId, uint32_t> t_groupStatusMap_;
         //static thread_local std::map<ServerId, GroupId> t_serverId2groupIdMap_;
 
-        LoginDelegate delegate_;
+        //LoginDelegate delegate_;
 
     private:
         LoginHandlerMgr() = default;                                     // ctor hidden

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "game_client.h"
 #include "string_utils.h"
 
@@ -43,3 +43,4 @@ bool GameClient::parseAddress(const std::string &input, AddressInfo &addressInfo
 
     return true;
 }
+#endif

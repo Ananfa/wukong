@@ -20,6 +20,7 @@
 #include "corpc_cond.h"
 #include "record_service.pb.h"
 #include "share/define.h"
+#include "record_object_data.h"
 #include <list>
 #include <map>
 
@@ -35,12 +36,17 @@ namespace wukong {
 
     class RecordObject: public std::enable_shared_from_this<RecordObject> {
     public:
-        RecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): userId_(userId), roleId_(roleId), serverId_(serverId), rToken_(rToken), manager_(manager), running_(false), saveTM_(0), cacheFailNum_(0) {}
-        virtual ~RecordObject() = 0;
+        RecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken/*, RecordObjectManager *manager*/): userId_(userId), roleId_(roleId), serverId_(serverId), rToken_(rToken)/*, manager_(manager)*/, running_(false), saveTM_(0), cacheFailNum_(0) {}
+        virtual ~RecordObject();
 
-        virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas) = 0;
+        void setObjectData(std::unique_ptr<RecordObjectData> &&data) { data_ = std::move(data); }
+        RecordObjectData *getObjectData() { return data_.get(); }
 
-        virtual void syncIn(const ::wukong::pb::SyncRequest* request) = 0;
+        //bool initData(const std::list<std::pair<std::string, std::string>> &datas);
+        void syncIn(const ::wukong::pb::SyncRequest* request);
+        void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas);
+        void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);
+        void clearDirty();
 
         UserId getUserId() { return userId_; }
         RoleId getRoleId() { return roleId_; }
@@ -51,9 +57,6 @@ namespace wukong {
         void start(); // 开始心跳，启动心跳协程
         void stop(); // 停止心跳
 
-        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
-        virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) = 0;
-
     private:
         static void *heartbeatRoutine(void *arg);  // 心跳协程，周期对record key重设超时时间，如果一段时间没收到游戏对象的心跳时可销毁存储对象
 
@@ -63,12 +66,17 @@ namespace wukong {
         
         bool cacheProfile(std::list<std::pair<std::string, std::string>> &profileDatas);
 
+        // 以下方法需要根据项目需求实现
+        void makeProfile(const std::list<std::pair<std::string, std::string>> &syncDatas, std::list<std::pair<std::string, std::string>> &profileDatas);
+
     protected:
         UserId userId_;
         RoleId roleId_;
         ServerId serverId_; // 角色所属区服ID
-        std::map<std::string, bool> dirty_map_;
+        //std::map<std::string, bool> dirty_map_;
 
+        std::unique_ptr<RecordObjectData> data_;
+        
     private:
         std::string lToken_; // 游戏对象唯一标识
         std::string rToken_; // 记录对象唯一标识
@@ -80,7 +88,7 @@ namespace wukong {
         
         Cond cond_;
 
-        RecordObjectManager *manager_; // 关联的manager
+        //RecordObjectManager *manager_; // 关联的manager
 
     public:
         friend class RecordServiceImpl;

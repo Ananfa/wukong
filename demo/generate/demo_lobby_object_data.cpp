@@ -1,13 +1,12 @@
 // This file is generated. Don't edit it
 
-#include "demo_game_object.h"
-#include "proto_utils.h"
+#include "demo_lobby_object_data.h"
 #include "share/const.h"
 
 using namespace wukong;
 using namespace demo;
 
-DemoGameObject::DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): wukong::GameObject(userId, roleId, serverId, lToken, manager) {
+DemoLobbyObjectData::DemoLobbyObjectData() {
     name_ = "";
     exp_ = 0;
     lv_ = 0;
@@ -15,7 +14,7 @@ DemoGameObject::DemoGameObject(UserId userId, RoleId roleId, ServerId serverId, 
     signinactivity_ = new demo::pb::SignInActivity;
 }
 
-DemoGameObject::~DemoGameObject() {
+DemoLobbyObjectData::~DemoLobbyObjectData() {
     delete currency_;
     for (auto &pair : card_map_) {
         delete pair.second;
@@ -26,10 +25,10 @@ DemoGameObject::~DemoGameObject() {
     delete signinactivity_;
 }
 
-bool DemoGameObject::initData(const std::string &data) {
+bool DemoLobbyObjectData::initData(const std::string &data) {
     auto msg = new wukong::pb::DataFragments;
     if (!msg->ParseFromString(data)) {
-        ERROR_LOG("DemoGameObject::initData -- parse role:%d data failed\n", roleId_);
+        ERROR_LOG("DemoLobbyObjectData::initData -- parse role data failed\n");
         delete msg;
         return false;
     }
@@ -40,7 +39,7 @@ bool DemoGameObject::initData(const std::string &data) {
         if (fragment.fragname().compare("name") == 0) {
             auto msg1 = new wukong::pb::StringValue;
             if (!msg1->ParseFromString(fragment.fragdata())) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--name failed\n", roleId_);
+                ERROR_LOG("DemoLobbyObjectData::initData -- parse role data--name failed\n");
                 delete msg1;
                 delete msg;
                 return false;
@@ -51,7 +50,7 @@ bool DemoGameObject::initData(const std::string &data) {
         } else if (fragment.fragname().compare("exp") == 0) {
             auto msg1 = new wukong::pb::Uint32Value;
             if (!msg1->ParseFromString(fragment.fragdata())) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--exp failed\n", roleId_);
+                ERROR_LOG("DemoLobbyObjectData::initData -- parse role data--exp failed\n");
                 delete msg1;
                 delete msg;
                 return false;
@@ -62,7 +61,7 @@ bool DemoGameObject::initData(const std::string &data) {
         } else if (fragment.fragname().compare("lv") == 0) {
             auto msg1 = new wukong::pb::Uint32Value;
             if (!msg1->ParseFromString(fragment.fragdata())) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--lv failed\n", roleId_);
+                ERROR_LOG("DemoLobbyObjectData::initData -- parse role data--lv failed\n");
                 delete msg1;
                 delete msg;
                 return false;
@@ -73,7 +72,7 @@ bool DemoGameObject::initData(const std::string &data) {
         } else if (fragment.fragname().compare("currency") == 0) {
             auto msg1 = new demo::pb::Currency;
             if (!msg1->ParseFromString(fragment.fragdata())) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--currency failed\n", roleId_);
+                ERROR_LOG("DemoLobbyObjectData::initData -- parse role data--currency failed\n");
                 delete msg1;
                 delete msg;
                 return false;
@@ -84,7 +83,7 @@ bool DemoGameObject::initData(const std::string &data) {
         } else if (fragment.fragname().compare("card") == 0) {
             auto msg1 = new demo::pb::Cards;
             if (!msg1->ParseFromString(fragment.fragdata())) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--card failed\n", roleId_);
+                ERROR_LOG("DemoLobbyObjectData::initData -- parse role data--card failed\n");
                 delete msg1;
                 delete msg;
                 return false;
@@ -100,7 +99,7 @@ bool DemoGameObject::initData(const std::string &data) {
         } else if (fragment.fragname().compare("pet") == 0) {
             auto msg1 = new demo::pb::Pets;
             if (!msg1->ParseFromString(fragment.fragdata())) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--pet failed\n", roleId_);
+                ERROR_LOG("DemoLobbyObjectData::initData -- parse role data--pet failed\n");
                 delete msg1;
                 delete msg;
                 return false;
@@ -116,7 +115,7 @@ bool DemoGameObject::initData(const std::string &data) {
         } else if (fragment.fragname().compare("signinactivity") == 0) {
             auto msg1 = new demo::pb::SignInActivity;
             if (!msg1->ParseFromString(fragment.fragdata())) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--signinactivity failed\n", roleId_);
+                ERROR_LOG("DemoLobbyObjectData::initData -- parse role data--signinactivity failed\n");
                 delete msg1;
                 delete msg;
                 return false;
@@ -131,7 +130,7 @@ bool DemoGameObject::initData(const std::string &data) {
     return true;
 }
 
-void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {
+void DemoLobbyObjectData::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {
     for (auto &pair : dirty_map_) {
         if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
@@ -207,7 +206,7 @@ void DemoGameObject::buildSyncDatas(std::list<std::pair<std::string, std::string
     dirty_map_.clear();
 }
 
-void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
+void DemoLobbyObjectData::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
     {
         auto msg = new wukong::pb::StringValue;
         msg->set_value(name_);
@@ -285,49 +284,42 @@ void DemoGameObject::buildAllDatas(std::list<std::pair<std::string, std::string>
     }
 }
 
-void DemoGameObject::onEnterGame() {
-    std::list<std::pair<std::string, std::string>> datas;
-    buildAllDatas(datas);
-    std::string msgData = ProtoUtils::marshalDataFragments(datas);
-    send(wukong::S2C_MESSAGE_ID_ENTERGAME, 0, msgData);
-}
-
-const std::string& DemoGameObject::getName() {
+const std::string& DemoLobbyObjectData::getName() {
     return name_;
 }
 
-void DemoGameObject::setName(const std::string& name) {
+void DemoLobbyObjectData::setName(const std::string& name) {
     name_ = name;
     dirty_map_["name"] = true;
 }
 
-uint32_t DemoGameObject::getExp() {
+uint32_t DemoLobbyObjectData::getExp() {
     return exp_;
 }
 
-void DemoGameObject::setExp(uint32_t exp) {
+void DemoLobbyObjectData::setExp(uint32_t exp) {
     exp_ = exp;
     dirty_map_["exp"] = true;
 }
 
-uint32_t DemoGameObject::getLv() {
+uint32_t DemoLobbyObjectData::getLv() {
     return lv_;
 }
 
-void DemoGameObject::setLv(uint32_t lv) {
+void DemoLobbyObjectData::setLv(uint32_t lv) {
     lv_ = lv;
     dirty_map_["lv"] = true;
 }
 
-demo::pb::Currency* DemoGameObject::getCurrency() {
+demo::pb::Currency* DemoLobbyObjectData::getCurrency() {
     return currency_;
 }
 
-void DemoGameObject::setCurrencyDirty() {
+void DemoLobbyObjectData::setCurrencyDirty() {
     dirty_map_["currency"] = true;
 }
 
-std::vector<uint32_t> DemoGameObject::getAllCardKeys() {
+std::vector<uint32_t> DemoLobbyObjectData::getAllCardKeys() {
     std::vector<uint32_t> keys;
     keys.reserve(card_map_.size());
 
@@ -338,15 +330,15 @@ std::vector<uint32_t> DemoGameObject::getAllCardKeys() {
     return keys;
 }
 
-bool DemoGameObject::hasCard(uint32_t cardid) {
+bool DemoLobbyObjectData::hasCard(uint32_t cardid) {
     return card_map_.count(cardid) > 0;
 }
 
-uint32_t DemoGameObject::getCardNum() {
+uint32_t DemoLobbyObjectData::getCardNum() {
     return card_map_.size();
 }
 
-demo::pb::Card* DemoGameObject::getCard(uint32_t cardid) {
+demo::pb::Card* DemoLobbyObjectData::getCard(uint32_t cardid) {
     auto it = card_map_.find(cardid);
     if (it != card_map_.end()) {
         return it->second;
@@ -355,18 +347,18 @@ demo::pb::Card* DemoGameObject::getCard(uint32_t cardid) {
     return nullptr;
 }
 
-void DemoGameObject::setCardDirty(uint32_t cardid) {
+void DemoLobbyObjectData::setCardDirty(uint32_t cardid) {
     char dirtykey[50];
     sprintf(dirtykey,"card.%d",cardid);
     dirty_map_[dirtykey] = true;
 }
 
-void DemoGameObject::addCard(demo::pb::Card* card) {
+void DemoLobbyObjectData::addCard(demo::pb::Card* card) {
     card_map_.insert(std::make_pair(card->cardid(), card));
     setCardDirty(card->cardid());
 }
 
-void DemoGameObject::removeCard(uint32_t cardid) {
+void DemoLobbyObjectData::removeCard(uint32_t cardid) {
     auto it = card_map_.find(cardid);
     if (it != card_map_.end()) {
         delete it->second;
@@ -375,7 +367,7 @@ void DemoGameObject::removeCard(uint32_t cardid) {
     }
 }
 
-std::vector<uint32_t> DemoGameObject::getAllPetKeys() {
+std::vector<uint32_t> DemoLobbyObjectData::getAllPetKeys() {
     std::vector<uint32_t> keys;
     keys.reserve(pet_map_.size());
 
@@ -386,15 +378,15 @@ std::vector<uint32_t> DemoGameObject::getAllPetKeys() {
     return keys;
 }
 
-bool DemoGameObject::hasPet(uint32_t petid) {
+bool DemoLobbyObjectData::hasPet(uint32_t petid) {
     return pet_map_.count(petid) > 0;
 }
 
-uint32_t DemoGameObject::getPetNum() {
+uint32_t DemoLobbyObjectData::getPetNum() {
     return pet_map_.size();
 }
 
-demo::pb::Pet* DemoGameObject::getPet(uint32_t petid) {
+demo::pb::Pet* DemoLobbyObjectData::getPet(uint32_t petid) {
     auto it = pet_map_.find(petid);
     if (it != pet_map_.end()) {
         return it->second;
@@ -403,18 +395,18 @@ demo::pb::Pet* DemoGameObject::getPet(uint32_t petid) {
     return nullptr;
 }
 
-void DemoGameObject::setPetDirty(uint32_t petid) {
+void DemoLobbyObjectData::setPetDirty(uint32_t petid) {
     char dirtykey[50];
     sprintf(dirtykey,"pet.%d",petid);
     dirty_map_[dirtykey] = true;
 }
 
-void DemoGameObject::addPet(demo::pb::Pet* pet) {
+void DemoLobbyObjectData::addPet(demo::pb::Pet* pet) {
     pet_map_.insert(std::make_pair(pet->petid(), pet));
     setPetDirty(pet->petid());
 }
 
-void DemoGameObject::removePet(uint32_t petid) {
+void DemoLobbyObjectData::removePet(uint32_t petid) {
     auto it = pet_map_.find(petid);
     if (it != pet_map_.end()) {
         delete it->second;
@@ -423,11 +415,11 @@ void DemoGameObject::removePet(uint32_t petid) {
     }
 }
 
-demo::pb::SignInActivity* DemoGameObject::getSigninactivity() {
+demo::pb::SignInActivity* DemoLobbyObjectData::getSigninactivity() {
     return signinactivity_;
 }
 
-void DemoGameObject::setSigninactivityDirty() {
+void DemoLobbyObjectData::setSigninactivityDirty() {
     dirty_map_["signinactivity"] = true;
 }
 

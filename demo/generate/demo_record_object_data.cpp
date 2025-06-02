@@ -1,11 +1,11 @@
 // This file is generated. Don't edit it
 
-#include "demo_record_object.h"
+#include "demo_record_object_data.h"
 #include "corpc_utils.h"
 
 using namespace demo;
 
-DemoRecordObject::DemoRecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager): wukong::RecordObject(userId, roleId, serverId, rToken, manager) {
+DemoRecordObjectData::DemoRecordObjectData() {
     name_ = "";
     exp_ = 0;
     lv_ = 0;
@@ -13,12 +13,12 @@ DemoRecordObject::DemoRecordObject(UserId userId, RoleId roleId, ServerId server
     signinactivity_ = new demo::pb::SignInActivity;
 }
 
-bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::string>> &datas) {
+bool DemoRecordObjectData::initData(const std::list<std::pair<std::string, std::string>> &datas) {
     for (auto &pair : datas) {
         if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
             if (!msg->ParseFromString(pair.second)) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--name failed\n", roleId_);
+                ERROR_LOG("DemoGameObject::initData -- parse role data--name failed\n");
                 delete msg;
                 return false;
             }
@@ -28,7 +28,7 @@ bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::stri
         } else if (pair.first.compare("exp") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             if (!msg->ParseFromString(pair.second)) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--exp failed\n", roleId_);
+                ERROR_LOG("DemoGameObject::initData -- parse role data--exp failed\n");
                 delete msg;
                 return false;
             }
@@ -38,7 +38,7 @@ bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::stri
         } else if (pair.first.compare("lv") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             if (!msg->ParseFromString(pair.second)) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--lv failed\n", roleId_);
+                ERROR_LOG("DemoGameObject::initData -- parse role data--lv failed\n");
                 delete msg;
                 return false;
             }
@@ -48,7 +48,7 @@ bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::stri
         } else if (pair.first.compare("currency") == 0) {
             auto msg = new demo::pb::Currency;
             if (!msg->ParseFromString(pair.second)) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--currency failed\n", roleId_);
+                ERROR_LOG("DemoGameObject::initData -- parse role data--currency failed\n");
                 delete msg;
                 return false;
             }
@@ -58,7 +58,7 @@ bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::stri
         } else if (pair.first.compare("card") == 0) {
             auto msg = new demo::pb::Cards;
             if (!msg->ParseFromString(pair.second)) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--card failed\n", roleId_);
+                ERROR_LOG("DemoGameObject::initData -- parse role data--card failed\n");
                 delete msg;
                 return false;
             }
@@ -73,7 +73,7 @@ bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::stri
         } else if (pair.first.compare("pet") == 0) {
             auto msg = new demo::pb::Pets;
             if (!msg->ParseFromString(pair.second)) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--pet failed\n", roleId_);
+                ERROR_LOG("DemoGameObject::initData -- parse role data--pet failed\n");
                 delete msg;
                 return false;
             }
@@ -88,7 +88,7 @@ bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::stri
         } else if (pair.first.compare("signinactivity") == 0) {
             auto msg = new demo::pb::SignInActivity;
             if (!msg->ParseFromString(pair.second)) {
-                ERROR_LOG("DemoGameObject::initData -- parse role:%d data--signinactivity failed\n", roleId_);
+                ERROR_LOG("DemoGameObject::initData -- parse role data--signinactivity failed\n");
                 delete msg;
                 return false;
             }
@@ -101,7 +101,7 @@ bool DemoRecordObject::initData(const std::list<std::pair<std::string, std::stri
     return true;
 }
 
-void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
+void DemoRecordObjectData::syncIn(const ::wukong::pb::SyncRequest* request) {
     int dataNum = request->datas_size();
 
     for (int i = 0; i < dataNum; ++i) {
@@ -110,7 +110,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
         if (data.key().compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
             if (!msg->ParseFromString(data.value())) {
-                ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--name failed\n", roleId_);
+                ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--name failed\n");
                 delete msg;
                 continue;
             }
@@ -121,7 +121,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
         } else if (data.key().compare("exp") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             if (!msg->ParseFromString(data.value())) {
-                ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--exp failed\n", roleId_);
+                ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--exp failed\n");
                 delete msg;
                 continue;
             }
@@ -132,7 +132,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
         } else if (data.key().compare("lv") == 0) {
             auto msg = new wukong::pb::Uint32Value;
             if (!msg->ParseFromString(data.value())) {
-                ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--lv failed\n", roleId_);
+                ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--lv failed\n");
                 delete msg;
                 continue;
             }
@@ -143,7 +143,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
         } else if (data.key().compare("currency") == 0) {
             auto msg = new demo::pb::Currency;
             if (!msg->ParseFromString(data.value())) {
-                ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--currency failed\n", roleId_);
+                ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--currency failed\n");
                 delete msg;
                 continue;
             }
@@ -157,7 +157,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
 
             auto msg = new demo::pb::Card;
             if (!msg->ParseFromString(data.value())) {
-                ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--card:%d failed\n", roleId_, id);
+                ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--card:%d failed\n", id);
                 delete msg;
                 continue;
             }
@@ -170,7 +170,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
 
             auto msg = new demo::pb::Pet;
             if (!msg->ParseFromString(data.value())) {
-                ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--pet:%d failed\n", roleId_, id);
+                ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--pet:%d failed\n", id);
                 delete msg;
                 continue;
             }
@@ -180,7 +180,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
         } else if (data.key().compare("signinactivity") == 0) {
             auto msg = new demo::pb::SignInActivity;
             if (!msg->ParseFromString(data.value())) {
-                ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--signinactivity failed\n", roleId_);
+                ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--signinactivity failed\n");
                 delete msg;
                 continue;
             }
@@ -189,7 +189,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
             signinactivity_ = msg;
             dirty_map_["signinactivity"] = true;
         } else {
-            ERROR_LOG("DemoRecordObject::syncIn -- parse role:%d data--unknown data: %s\n", roleId_, data.key().c_str());
+            ERROR_LOG("DemoRecordObjectData::syncIn -- parse role data--unknown data: %s\n", data.key().c_str());
         }
     }
 
@@ -206,7 +206,7 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
                 card_map_.erase(it);
                 dirty_map_["card"] = true;
             } else {
-                WARN_LOG("DemoRecordObject::syncIn -- remove role:%d data--card %d not exist\n", roleId_, id);
+                WARN_LOG("DemoRecordObjectData::syncIn -- remove role data--card %d not exist\n", id);
             }
         } else if (remove.compare(0, 4, "pet.") == 0) {
             std::string idStr = remove.substr(4);
@@ -218,15 +218,15 @@ void DemoRecordObject::syncIn(const ::wukong::pb::SyncRequest* request) {
                 pet_map_.erase(it);
                 dirty_map_["pet"] = true;
             } else {
-                WARN_LOG("DemoRecordObject::syncIn -- remove role:%d data--pet %d not exist\n", roleId_, id);
+                WARN_LOG("DemoRecordObjectData::syncIn -- remove role data--pet %d not exist\n", id);
             }
         } else {
-            ERROR_LOG("DemoRecordObject::syncIn -- remove role:%d data--unknown data: %s\n", roleId_, remove.c_str());
+            ERROR_LOG("DemoRecordObjectData::syncIn -- remove role data--unknown data: %s\n", remove.c_str());
         }
     }
 }
 
-void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) {
+void DemoRecordObjectData::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas) {
     for (auto &pair : dirty_map_) {
         if (pair.first.compare("name") == 0) {
             auto msg = new wukong::pb::StringValue;
@@ -300,7 +300,7 @@ void DemoRecordObject::buildSyncDatas(std::list<std::pair<std::string, std::stri
     }
 }
 
-void DemoRecordObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
+void DemoRecordObjectData::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {
     {
         auto msg = new wukong::pb::StringValue;
         msg->set_value(name_);

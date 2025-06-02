@@ -18,12 +18,13 @@
 #include "corpc_routine_env.h"
 #include "corpc_pubsub.h"
 #include "lobby_config.h"
-#include "lobby_delegate.h"
+//#include "lobby_delegate.h"
 #include "redis_pool.h"
 #include "redis_utils.h"
 //#include "game_delegate.h"
 //#include "game_center.h"
 //#include "client_center.h"
+#include "demo_lobby_object_data.h"
 #include "message_handle_manager.h"
 #include "agent_manager.h"
 #include "record_agent.h"
@@ -158,14 +159,15 @@ bool LobbyObjectManager::loadRole(RoleId roleId, ServerId gatewayId) {
         return false;
     }
 
-    if (!g_LobbyDelegate.getCreateLobbyObjectHandle()) {
-        ERROR_LOG("LobbyObjectManager::loadRole -- user[%llu] role[%llu] not set CreateLobbyObjectHandle\n", userId, roleId);
-        return false;
-    }
-
-    // 创建LobbyObject
-    auto obj = g_LobbyDelegate.getCreateLobbyObjectHandle()(userId, roleId, serverId, lToken, roleData);
-
+    //if (!g_LobbyDelegate.getCreateLobbyObjectHandle()) {
+    //    ERROR_LOG("LobbyObjectManager::loadRole -- user[%llu] role[%llu] not set CreateLobbyObjectHandle\n", userId, roleId);
+    //    return false;
+    //}
+    //
+    //// 创建LobbyObject
+    //auto obj = g_LobbyDelegate.getCreateLobbyObjectHandle()(userId, roleId, serverId, lToken, roleData);
+    
+    auto obj = createLobbyObject(userId, roleId, serverId, lToken, roleData);
     if (!obj) {
         ERROR_LOG("LobbyObjectManager::loadRole -- user[%llu] role[%llu] create game object failed\n", userId, roleId);
         return false;
@@ -221,4 +223,19 @@ void LobbyObjectManager::leaveGame(RoleId roleId) {
 
     it->second->stop();
     roleId2LobbyObjectMap_.erase(it);
+}
+
+std::shared_ptr<LobbyObject> LobbyObjectManager::createLobbyObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &ltoken, const std::string &data) {
+    std::shared_ptr<LobbyObject> obj(new LobbyObject(userId, roleId, serverId, ltoken));
+
+    std::unique_ptr<LobbyObjectData> objData(new demo::DemoLobbyObjectData());
+
+    if (!objData->initData(data)) {
+        ERROR_LOG("create lobby object failed because init data failed, role: %d\n", roleId);
+        return nullptr;
+    }
+
+    obj->setObjectData(std::move(objData));
+
+    return obj;
 }

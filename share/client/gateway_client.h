@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_gateway_client_h
 #define wukong_gateway_client_h
 
@@ -102,3 +102,4 @@ namespace wukong {
 #define g_GatewayClient wukong::GatewayClient::Instance()
 
 #endif /* wukong_gateway_client_h */
+#endif

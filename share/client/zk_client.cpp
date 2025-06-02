@@ -5,7 +5,7 @@
 //  Created by Shizan Lou on 2018/8/23.
 //  Copyright © 2018年 Shizan Lou. All rights reserved.
 //
-
+#if 0
 #include "corpc_routine_env.h"
 #include "zk_client.h"
 
@@ -436,3 +436,4 @@ void ZkClient::ChildrenWatch::set() const {
         ERROR_LOG("ChildrenWatch aget_children failed, ret = %s, path = %s\n", zoo_error_str(ret), path_.c_str());
     }
 }
+#endif

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "record_client.h"
 #include "corpc_controller.h"
 #include "string_utils.h"
@@ -208,3 +208,4 @@ bool RecordClient::parseAddress(const std::string &input, AddressInfo &addressIn
 
     return true;
 }
+#endif

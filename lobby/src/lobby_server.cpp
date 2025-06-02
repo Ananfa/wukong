@@ -22,7 +22,7 @@
 #include "lobby_config.h"
 #include "lobby_service.h"
 #include "lobby_object_manager.h"
-#include "message_handle_manager.h"
+#include "message_hotfix_manager.h"
 //#include "game_service.h"
 //#include "game_center.h"
 //#include "client_center.h"
@@ -127,7 +127,7 @@ bool LobbyServer::init(int argc, char * argv[]) {
 
     g_AgentManager.registerAgent(new GatewayAgent(rpcClient_));
     g_AgentManager.registerAgent(new RecordAgent(rpcClient_));
-    g_AgentManager.registerAgent(new SceneAgent(rpcClient_));
+    //g_AgentManager.registerAgent(new SceneAgent(rpcClient_));
 
     pb::ServerInfo serverInfo;
     serverInfo.set_server_type(SERVER_TYPE_LOBBY);
@@ -156,7 +156,7 @@ bool LobbyServer::init(int argc, char * argv[]) {
 
     g_GlobalEventEmitter.init();
 
-    g_MessageHandleManager.init();
+    g_MessageHotfixManager.init();
 
     g_LobbyObjectManager.init();
 

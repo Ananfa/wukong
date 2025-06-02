@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "scene_client.h"
 #include "corpc_controller.h"
 
@@ -261,3 +261,4 @@ void SceneClient::refreshStubs() {
         }
     }
 }
+#endif

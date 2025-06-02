@@ -52,6 +52,10 @@ namespace wukong {
         bool remove(RoleId roleId); // 删除玩家记录对象
 
     private:
+        // 以下方法需要根据项目需求实现
+        std::shared_ptr<RecordObject> createRecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, std::list<std::pair<std::string, std::string>> &datas);
+
+    private:
         //ServerId id_;
         bool shutdown_;
 

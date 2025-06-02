@@ -61,14 +61,24 @@ namespace wukong {
     const uint16_t N2S_MESSAGE_ID_SVRINFO          = 2; // 服务器信息更新消息
     const uint16_t N2S_MESSAGE_ID_RMSVR            = 3; // 删除服务器信息消息
 
-    // 客户端向服务器发的消息ID定义
+    // 客户端向服务器发的消息ID定义(基础消息)
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息
 
-    // 服务器向客户端发的消息ID定义
+    // 客户端向服务器发的消息ID定义(游戏功能消息)
+    const uint16_t C2S_MESSAGE_ID_ECHO             = 1000; // 回声测试消息
+    const uint16_t C2S_MESSAGE_ID_ENTERSCENE       = 1100; // 进入场景消息
+
+    // 服务器向客户端发的消息ID定义(基础消息)
     const uint16_t S2C_MESSAGE_ID_BAN              = 1; // 消息被屏蔽消息
     const uint16_t S2C_MESSAGE_ID_ENTERGAME        = 2; // 进入游戏消息
     const uint16_t S2C_MESSAGE_ID_RECONNECTED      = 3; // 重连确认消息
     const uint16_t S2C_MESSAGE_ID_RESENDFAIL       = 4; // 重发失败
+
+    // 服务器向客户端发的消息ID定义(游戏功能消息)
+    const uint16_t S2C_MESSAGE_ID_ECHO             = 1000; // 回声测试消息
+    const uint16_t S2C_MESSAGE_ID_ERROR            = 1001; // 错误信息
+    const uint16_t S2C_MESSAGE_ID_ENTERSCENE       = 1100; // 进入场景消息
+    const uint16_t S2C_MESSAGE_ID_ENTERLOBBY       = 1101; // 进入大厅消息
 
     const char SET_PASSPORT_CMD_NAME[] = "set_pass";
     const char SET_PASSPORT_CMD[] = "\

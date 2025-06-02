@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #include "corpc_routine_env.h"
 #include "game_object.h"
 #include "game_center.h"
@@ -465,3 +465,4 @@ void *GameObject::updateRoutine(void *arg) {
 
     return nullptr;
 }
+#endif

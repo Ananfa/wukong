@@ -6,27 +6,26 @@ import (
 	"strings"
 )
 
-func genGameObject() {
-	hFile, _ := os.Create(targetPath + pkgName + "_game_object.h")
+func genLobbyObjectData() {
+	hFile, _ := os.Create(targetPath + pkgName + "_lobby_object_data.h")
 	defer hFile.Close()
 
-	genGameObjectHeadFile(hFile)
+	genLobbyObjectDataHeadFile(hFile)
 
-	cppFile, _ := os.Create(targetPath + pkgName + "_game_object.cpp")
+	cppFile, _ := os.Create(targetPath + pkgName + "_lobby_object_data.cpp")
 	defer cppFile.Close()
 
-	genGameObjectCppFile(cppFile)
+	genLobbyObjectDataCppFile(cppFile)
 }
 
-func genGameObjectHeadFile(dstFile *os.File) {
+func genLobbyObjectDataHeadFile(dstFile *os.File) {
 	dstFile.WriteString("// This file is generated. Don't edit it\n" +
 		"\n" +
-		"#ifndef " + pkgName + "_game_object_h\n" +
-		"#define " + pkgName + "_game_object_h\n\n" +
+		"#ifndef " + pkgName + "_lobby_object_data_h\n" +
+		"#define " + pkgName + "_lobby_object_data_h\n\n" +
 		"#include \"" + pkgName +  ".pb.h\"\n" +
-		"#include \"game_object.h\"\n" +
+		"#include \"lobby_object_data.h\"\n" +
 		"#include \"common.pb.h\"\n" +
-		"#include \"game_object_manager.h\"\n" +
 		"#include <map>\n" +
 		"#include <string>\n" +
 		"#include <vector>\n" +
@@ -34,16 +33,16 @@ func genGameObjectHeadFile(dstFile *os.File) {
 		"using namespace wukong;\n" +
 		"\n" +
 		"namespace " + pkgName +  " {\n" +
-		"    class " + pkgNameCapFirst + "GameObject: public wukong::GameObject {\n" +
+		"    class " + pkgNameCapFirst + "LobbyObjectData: public wukong::LobbyObjectData {\n" +
 		"    public:\n" +
-		"        " + pkgNameCapFirst + "GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager);\n" +
-		"        virtual ~" + pkgNameCapFirst + "GameObject();\n" +
+		"        " + pkgNameCapFirst + "LobbyObjectData();\n" +
+		"        virtual ~" + pkgNameCapFirst + "LobbyObjectData();\n" +
 		"\n" +
 		"        virtual bool initData(const std::string &data);\n" +
 		"\n" +
 		"        virtual void buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes);\n" +
 		"        virtual void buildAllDatas(std::list<std::pair<std::string, std::string>> &datas);\n" +
-		"        virtual void onEnterGame();\n")
+		"\n")
 
 	for _, member := range gameDataConfig.Member {
 		mName := member.Attr
@@ -112,20 +111,19 @@ func genGameObjectHeadFile(dstFile *os.File) {
 	dstFile.WriteString("    };\n" +
 		"}\n" +
 		"\n" +
-		"#endif /* " + pkgName + "_game_object_h */\n")
+		"#endif /* " + pkgName + "_lobby_object_data_h */\n")
 }
 
-func genGameObjectCppFile(dstFile *os.File) {
+func genLobbyObjectDataCppFile(dstFile *os.File) {
 	dstFile.WriteString("// This file is generated. Don't edit it\n" +
 		"\n" +
-		"#include \"" + pkgName + "_game_object.h\"\n" +
-		"#include \"proto_utils.h\"\n" +
+		"#include \"" + pkgName + "_lobby_object_data.h\"\n" +
 		"#include \"share/const.h\"\n" +
 		"\n" +
 		"using namespace wukong;\n" +
 		"using namespace " + pkgName + ";\n" +
 		"\n" +
-		pkgNameCapFirst + "GameObject::" + pkgNameCapFirst + "GameObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &lToken, GameObjectManager *manager): wukong::GameObject(userId, roleId, serverId, lToken, manager) {\n")
+		pkgNameCapFirst + "LobbyObjectData::" + pkgNameCapFirst + "LobbyObjectData() {\n")
 
 	for _, member := range gameDataConfig.Member {
 		if member.Type == "string" {
@@ -144,7 +142,7 @@ func genGameObjectCppFile(dstFile *os.File) {
 
 	dstFile.WriteString("}\n" +
 		"\n" +
-		pkgNameCapFirst + "GameObject::~" + pkgNameCapFirst + "GameObject() {\n")
+		pkgNameCapFirst + "LobbyObjectData::~" + pkgNameCapFirst + "LobbyObjectData() {\n")
 
 	for _, member := range gameDataConfig.Member {
 		if member.Type == "string" ||
@@ -168,10 +166,10 @@ func genGameObjectCppFile(dstFile *os.File) {
 	dstFile.WriteString("}\n")
 
 	dstFile.WriteString("\n" +
-		"bool " + pkgNameCapFirst + "GameObject::initData(const std::string &data) {\n" +
+		"bool " + pkgNameCapFirst + "LobbyObjectData::initData(const std::string &data) {\n" +
 		"    auto msg = new wukong::pb::DataFragments;\n" +
 		"    if (!msg->ParseFromString(data)) {\n" +
-		"        ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role:%d data failed\\n\", roleId_);\n" +
+		"        ERROR_LOG(\"" + pkgNameCapFirst + "LobbyObjectData::initData -- parse role data failed\\n\");\n" +
 		"        delete msg;\n" +
 		"        return false;\n" +
 		"    }\n" +
@@ -184,7 +182,7 @@ func genGameObjectCppFile(dstFile *os.File) {
 	fun1 := func(memberName, memberType string) {
 		dstFile.WriteString("            auto msg1 = new " + memberType + ";\n" +
 			"            if (!msg1->ParseFromString(fragment.fragdata())) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "LobbyObjectData::initData -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg1;\n" +
 			"                delete msg;\n" +
 			"                return false;\n" +
@@ -197,7 +195,7 @@ func genGameObjectCppFile(dstFile *os.File) {
 	fun2 := func(memberName, memberType string) {
 		dstFile.WriteString("            auto msg1 = new " + memberType + ";\n" +
 			"            if (!msg1->ParseFromString(fragment.fragdata())) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "LobbyObjectData::initData -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg1;\n" +
 			"                delete msg;\n" +
 			"                return false;\n" +
@@ -210,7 +208,7 @@ func genGameObjectCppFile(dstFile *os.File) {
 	fun3 := func(memberName, memberType, listName, itemType, itemId string) {
 		dstFile.WriteString("            auto msg1 = new " + memberType + ";\n" +
 			"            if (!msg1->ParseFromString(fragment.fragdata())) {\n" +
-			"                ERROR_LOG(\"" + pkgNameCapFirst + "GameObject::initData -- parse role:%d data--" + memberName + " failed\\n\", roleId_);\n" +
+			"                ERROR_LOG(\"" + pkgNameCapFirst + "LobbyObjectData::initData -- parse role data--" + memberName + " failed\\n\");\n" +
 			"                delete msg1;\n" +
 			"                delete msg;\n" +
 			"                return false;\n" +
@@ -262,7 +260,7 @@ func genGameObjectCppFile(dstFile *os.File) {
 		"}\n" +
 		"\n")
 
-	dstFile.WriteString("void " + pkgNameCapFirst + "GameObject::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {\n" +
+	dstFile.WriteString("void " + pkgNameCapFirst + "LobbyObjectData::buildSyncDatas(std::list<std::pair<std::string, std::string>> &datas, std::list<std::string> &removes) {\n" +
 		"    for (auto &pair : dirty_map_) {\n")
 
 	fun4 := func(memberName, memberType string) {
@@ -338,7 +336,7 @@ func genGameObjectCppFile(dstFile *os.File) {
 		"}\n" +
 		"\n")
 
-	dstFile.WriteString("void " + pkgNameCapFirst + "GameObject::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {\n")
+	dstFile.WriteString("void " + pkgNameCapFirst + "LobbyObjectData::buildAllDatas(std::list<std::pair<std::string, std::string>> &datas) {\n")
 
 	fun7 := func(memberName, memberType string) {
 		dstFile.WriteString("        auto msg = new " + memberType + ";\n" +
@@ -404,21 +402,13 @@ func genGameObjectCppFile(dstFile *os.File) {
 	dstFile.WriteString("}\n" +
 		"\n")
 
-	dstFile.WriteString("void " + pkgNameCapFirst + "GameObject::onEnterGame() {\n" +
-		"    std::list<std::pair<std::string, std::string>> datas;\n" +
-		"    buildAllDatas(datas);\n" +
-		"    std::string msgData = ProtoUtils::marshalDataFragments(datas);\n" +
-		"    send(wukong::S2C_MESSAGE_ID_ENTERGAME, 0, msgData);\n" +
-		"}\n" +
-		"\n")
-
 	fun10 := func(memberName, memberType string) {
 		mNameCapFirst := strings.Title(memberName)
-		dstFile.WriteString(memberType + " " + pkgNameCapFirst + "GameObject::get" + mNameCapFirst + "() {\n" +
+		dstFile.WriteString(memberType + " " + pkgNameCapFirst + "LobbyObjectData::get" + mNameCapFirst + "() {\n" +
 			"    return " + memberName + "_;\n" +
 			"}\n" +
 			"\n" +
-			"void " + pkgNameCapFirst + "GameObject::set" + mNameCapFirst + "(" + memberType + " " + memberName + ") {\n" +
+			"void " + pkgNameCapFirst + "LobbyObjectData::set" + mNameCapFirst + "(" + memberType + " " + memberName + ") {\n" +
 			"    " + memberName + "_ = " + memberName + ";\n" +
 			"    dirty_map_[\"" + memberName + "\"] = true;\n" +
 			"}\n" +
@@ -427,11 +417,11 @@ func genGameObjectCppFile(dstFile *os.File) {
 
 	fun11 := func(memberName, memberType string) {
 		mNameCapFirst := strings.Title(memberName)
-		dstFile.WriteString(memberType + "* " + pkgNameCapFirst + "GameObject::get" + mNameCapFirst + "() {\n" +
+		dstFile.WriteString(memberType + "* " + pkgNameCapFirst + "LobbyObjectData::get" + mNameCapFirst + "() {\n" +
 			"    return " + memberName + "_;\n" +
 			"}\n" +
 			"\n" +
-			"void " + pkgNameCapFirst + "GameObject::set" + mNameCapFirst + "Dirty() {\n" +
+			"void " + pkgNameCapFirst + "LobbyObjectData::set" + mNameCapFirst + "Dirty() {\n" +
 			"    dirty_map_[\"" + memberName + "\"] = true;\n" +
 			"}\n" +
 			"\n")
@@ -439,7 +429,7 @@ func genGameObjectCppFile(dstFile *os.File) {
 
 	fun12 := func(memberName, memberType, itemType, itemId string) {
 		mNameCapFirst := strings.Title(memberName)
-		dstFile.WriteString("std::vector<uint32_t> " + pkgNameCapFirst + "GameObject::getAll" + mNameCapFirst + "Keys() {\n" +
+		dstFile.WriteString("std::vector<uint32_t> " + pkgNameCapFirst + "LobbyObjectData::getAll" + mNameCapFirst + "Keys() {\n" +
 			"    std::vector<uint32_t> keys;\n" +
 			"    keys.reserve(" + memberName + "_map_.size());\n" +
 			"\n" +
@@ -450,15 +440,15 @@ func genGameObjectCppFile(dstFile *os.File) {
 			"    return keys;\n" +
 			"}\n" +
 			"\n" +
-			"bool " + pkgNameCapFirst + "GameObject::has" + mNameCapFirst + "(uint32_t " + itemId + ") {\n" +
+			"bool " + pkgNameCapFirst + "LobbyObjectData::has" + mNameCapFirst + "(uint32_t " + itemId + ") {\n" +
 			"    return " + memberName + "_map_.count(" + itemId + ") > 0;\n" +
 			"}\n" +
 			"\n" +
-			"uint32_t " + pkgNameCapFirst + "GameObject::get" + mNameCapFirst + "Num() {\n" +
+			"uint32_t " + pkgNameCapFirst + "LobbyObjectData::get" + mNameCapFirst + "Num() {\n" +
 			"    return " + memberName + "_map_.size();\n" +
 			"}\n" +
 			"\n" +
-			itemType + "* " + pkgNameCapFirst + "GameObject::get" + mNameCapFirst + "(uint32_t " + itemId + ") {\n" +
+			itemType + "* " + pkgNameCapFirst + "LobbyObjectData::get" + mNameCapFirst + "(uint32_t " + itemId + ") {\n" +
 			"    auto it = " + memberName + "_map_.find(" + itemId + ");\n" +
 			"    if (it != " + memberName + "_map_.end()) {\n" +
 			"        return it->second;\n" +
@@ -467,18 +457,18 @@ func genGameObjectCppFile(dstFile *os.File) {
 			"    return nullptr;\n" +
 			"}\n" +
 			"\n" +
-			"void " + pkgNameCapFirst + "GameObject::set" + mNameCapFirst + "Dirty(uint32_t " + itemId + ") {\n" +
+			"void " + pkgNameCapFirst + "LobbyObjectData::set" + mNameCapFirst + "Dirty(uint32_t " + itemId + ") {\n" +
 			"    char dirtykey[50];\n" +
 			"    sprintf(dirtykey,\"" + memberName + ".%d\"," + itemId + ");\n" +
 			"    dirty_map_[dirtykey] = true;\n" +
 			"}\n" +
 			"\n" +
-			"void " + pkgNameCapFirst + "GameObject::add" + mNameCapFirst + "(" + itemType + "* " + memberName + ") {\n" +
+			"void " + pkgNameCapFirst + "LobbyObjectData::add" + mNameCapFirst + "(" + itemType + "* " + memberName + ") {\n" +
 			"    " + memberName + "_map_.insert(std::make_pair(" + memberName + "->" + itemId + "(), " + memberName + "));\n" +
 			"    set" + mNameCapFirst + "Dirty(" + memberName + "->" + itemId + "());\n" +
 			"}\n" +
 			"\n" +
-			"void " + pkgNameCapFirst + "GameObject::remove" + mNameCapFirst + "(uint32_t " + itemId + ") {\n" +
+			"void " + pkgNameCapFirst + "LobbyObjectData::remove" + mNameCapFirst + "(uint32_t " + itemId + ") {\n" +
 			"    auto it = " + memberName + "_map_.find(" + itemId + ");\n" +
 			"    if (it != " + memberName + "_map_.end()) {\n" +
 			"        delete it->second;\n" +

@@ -26,12 +26,11 @@ message("------------ Options -------------")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 set(SOURCE_FILES
-    ../../utils/utility.cpp
-    ../../utils/string_utils.cpp)
+    ../utils/utility.cpp
+    ../utils/string_utils.cpp)
 
 # Add source files
-aux_source_directory(../../proto SOURCE_FILES)
-aux_source_directory(../../nexus/src SOURCE_FILES)
+aux_source_directory(../proto SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -50,12 +49,12 @@ include_directories(/usr/local/include/co)
 include_directories(/usr/local/include/corpc)
 include_directories(/usr/local/include/corpc/kcp)
 include_directories(/usr/local/include/corpc/proto)
-include_directories(../..)
-include_directories(../../nexus/src)
-include_directories(../../share)
-include_directories(../../utils)
-include_directories(../../proto)
-include_directories(../../deps/rapidjson/include)
+include_directories(./src)
+include_directories(..)
+include_directories(../share)
+include_directories(../utils)
+include_directories(../proto)
+include_directories(../deps/rapidjson/include)
 
 # Add target
 add_executable(nexusd ${SOURCE_FILES})

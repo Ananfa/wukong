@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_lobby_client_h
 #define wukong_lobby_client_h
 
@@ -84,3 +84,4 @@ namespace wukong {
 #define g_LobbyClient wukong::LobbyClient::Instance()
 
 #endif /* wukong_lobby_client_h */
+#endif

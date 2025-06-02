@@ -72,7 +72,10 @@ bool Agent::randomServer(ServerId &serverId) {
     }
 
     auto it = stubInfos_.begin();
-    std::advance(it, rand() % stubInfos_.size());
+    if (stubInfos_.size() > 1) {
+        std::advance(it, rand() % stubInfos_.size());
+    }
+    
     serverId = it->first;
     return true;
 }

@@ -1,9 +1,9 @@
 // This file is generated. Don't edit it
 
-#ifndef demo_record_object_h
-#define demo_record_object_h
+#ifndef demo_record_object_data_h
+#define demo_record_object_data_h
 
-#include "record_object.h"
+#include "record_object_data.h"
 #include "common.pb.h"
 #include "demo.pb.h"
 #include <map>
@@ -13,10 +13,10 @@ using namespace wukong;
 
 namespace demo {
         
-    class DemoRecordObject: public wukong::RecordObject {
+    class DemoRecordObjectData: public wukong::RecordObjectData {
     public:
-        DemoRecordObject(UserId userId, RoleId roleId, ServerId serverId, const std::string &rToken, RecordObjectManager *manager);
-        virtual ~DemoRecordObject() {}
+        DemoRecordObjectData();
+        virtual ~DemoRecordObjectData() {}
 
         virtual bool initData(const std::list<std::pair<std::string, std::string>> &datas);
         virtual void syncIn(const ::wukong::pb::SyncRequest* request);
@@ -36,4 +36,4 @@ namespace demo {
 
 }
 
-#endif /* demo_record_object_h */
+#endif /* demo_record_object_data_h */

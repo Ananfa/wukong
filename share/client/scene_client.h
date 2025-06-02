@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if 0
 #ifndef wukong_scene_client_h
 #define wukong_scene_client_h
 
@@ -87,3 +87,4 @@ namespace wukong {
 #define g_SceneClient wukong::SceneClient::Instance()
 
 #endif /* wukong_scene_client_h */
+#endif

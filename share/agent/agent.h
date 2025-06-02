@@ -61,7 +61,7 @@ namespace wukong {
         GameAgent(ServerType serverType, RpcClient *client): Agent(serverType, client) {}
         virtual ~GameAgent() = 0;
 
-        virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) = 0;
+        virtual void forwardIn(ServerId sid, int32_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) = 0;
     };
 }
     

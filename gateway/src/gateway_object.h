@@ -20,7 +20,7 @@
 #include "corpc_message_terminal.h"
 #include "corpc_cond.h"
 #include "share/define.h"
-#include "game_service.pb.h"
+//#include "game_service.pb.h"
 
 using namespace corpc;
 

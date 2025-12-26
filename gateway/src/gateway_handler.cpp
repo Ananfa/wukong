@@ -124,9 +124,10 @@ void GatewayHandler::authHandle(int32_t type, uint16_t tag, std::shared_ptr<goog
     if (ret == 1) {
         // 此处是断线重连
         // 在新连接下补发未收到的消息
-        if (conn->getMsgBuffer()->broken()) {
+        if (conn->getMsgBuffer()->broken() ||
+            request->recvserial() < conn->getMsgBuffer()->getLastScrapSerial()) {
             conn->setLastSendSerial(request->recvserial());
-            conn->getMsgBuffer()->reset();
+            conn->resetMsgBuffer();
 
             // 通知客户端补发消息失败，客户端应重新向服务器获取并同步数据
             conn->send(S2C_MESSAGE_ID_RESENDFAIL, true, false, false, 0, nullptr);

@@ -34,6 +34,8 @@ namespace wukong {
         bool loadRole(ServerId sid, RoleId roleId, ServerId gwId); // 加载角色（游戏对象）
         void enterGame(ServerId sid, RoleId roleId, const std::string &lToken, ServerId gwId);
 
+        void notifyPlayerBattleState(ServerId sid, const pb::PlayerBattleStateNotify &msg);
+
     };
 }
 

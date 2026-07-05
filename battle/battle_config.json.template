@@ -1,0 +1,18 @@
+{
+    "id": 1,                                    // 服务号（Battle服务唯一标识）
+    "internalIp": "127.0.0.1",                  // 内网ip
+    "externalIp": "127.0.0.1",                  // 外网ip
+    "rpcPort": 18001,                           // rpc服务端口
+    "msgPort": 19001,                           // udp消息服务端口
+    "verifyTimeout": 60,                        // RPC 登记后进房：该秒内未完成 KCP 鉴权则移除席位并通知 Lobby
+    "disconnectTimeout": 60,                    // 已鉴权玩家掉线后该秒内未重连则踢出并通知 Lobby
+    "roomEmptyDestroySec": 60,                  // 房间内无任何玩家席位后持续该秒数则销毁房间
+    "syncFrameRate": 20,                        // 帧同步逻辑帧率；至少一名已鉴权玩家在线时推进，全员离线时暂停
+    "ioRecvThreadNum": 2,                       // IO接收线程数（为0表示在主线程中进行IO接收，注意：接收和发送不能都在主线程中）
+    "ioSendThreadNum": 2,                       // IO发送线程数（为0表示在主线程中进行IO发送，注意：接收和发送不能都在主线程中）
+    "nexus": {                                  // 服务注册发现服地址
+        "host": "127.0.0.1",
+        "port": 17000
+    },
+    "designConfigManifest": "design/design_config_index.json"
+}

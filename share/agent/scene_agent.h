@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if 0
 
 #ifndef wukong_scene_agent_h
 #define wukong_scene_agent_h
@@ -33,9 +34,12 @@ namespace wukong {
         virtual void forwardIn(ServerId sid, int16_t type, uint16_t tag, RoleId roleId, std::shared_ptr<std::string> &rawMsg) override;
         
         std::string loadScene(ServerId sid, uint32_t defId, const std::string &sceneId, RoleId roleId, const std::string &teamId);
-        void enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId);
+        int32_t enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId);
+        int32_t leaveScene(ServerId sid, const std::string &sceneId, RoleId roleId);
         
     };
 }
 
 #endif /* wukong_scene_agent_h */
+
+#endif

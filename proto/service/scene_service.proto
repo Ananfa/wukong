@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "corpc_option.proto";
-import "common.proto";
 import "inner_common.proto";
 
 option cc_generic_services = true;
@@ -17,7 +16,6 @@ message LoadSceneRequest {
 }
 
 message LoadSceneResponse {
-    uint32 errCode = 1;
     string sceneId = 2;
 }
 
@@ -26,6 +24,12 @@ message EnterSceneRequest {
     uint64 roleId = 2;
     uint32 gatewayId = 3;
     string sceneId = 4;
+    bytes roleData = 5;
+}
+
+message LeaveSceneRequest {
+    uint64 roleId = 1;
+    string sceneId = 2;
 }
 
 // 玩家游戏对象所在服务器需要实现GameService服务
@@ -63,7 +67,12 @@ service SceneService {
     // 进入场景
     rpc enterScene(EnterSceneRequest) returns(corpc.Void)
     {
-        option (corpc.not_care_response) = true;
+        option (corpc.need_coroutine) = true;
+    }
+
+    // 离开场景
+    rpc leaveScene(LeaveSceneRequest) returns(corpc.Void)
+    {
         option (corpc.need_coroutine) = true;
     }
 

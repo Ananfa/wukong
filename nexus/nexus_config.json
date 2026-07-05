@@ -20,11 +20,15 @@
         },
         {
             "serverType": 5,
-            "concernServerTypes": [4, 6, 7]
+            "concernServerTypes": [4, 6, 7, 13]
         },
         {
             "serverType": 7,
             "concernServerTypes": [4, 5, 7]
+        },
+        {
+            "serverType": 13,
+            "concernServerTypes": [5]
         }
     ]
 }

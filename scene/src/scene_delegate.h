@@ -26,8 +26,8 @@ using namespace corpc;
 namespace wukong {
     class SceneDelegate {
     	typedef std::function<std::shared_ptr<Scene> (uint32_t defId, SceneType sType, const std::string& sceneId, const std::string &stoken, SceneManager *manager)> CreateSceneHandle; // 参数1.场景配置ID，参数2.场景实例ID（为0表示需要产生实例ID），返回.场景实例shared_ptr对象
-        typedef std::function<std::list<RoleId> (const std::string&)> GetMembersHandle; // 参数为队伍ID，返回队伍成员ID列表（乌拉拉类型游戏）
-        typedef std::function<SceneType (uint32_t)> GetSceneTypeHandle; // 参数为场景配置ID
+        //typedef std::function<std::list<RoleId> (const std::string&)> GetMembersHandle; // 参数为队伍ID，返回队伍成员ID列表（乌拉拉类型游戏）
+        //typedef std::function<SceneType (uint32_t)> GetSceneTypeHandle; // 参数为场景配置ID
 
     public:
         static SceneDelegate& Instance() {
@@ -38,16 +38,16 @@ namespace wukong {
         void setCreateSceneHandle(CreateSceneHandle handle) { createScene_ = handle; }
         CreateSceneHandle getCreateSceneHandle() { return createScene_; }
 
-        void setGetMembersHandle(GetMembersHandle handle) { getMembers_ = handle; }
-        GetMembersHandle getGetMembersHandle() { return getMembers_; }
-
-        void setGetSceneTypeHandle(GetSceneTypeHandle handle) { getSceneType_ = handle; }
-        GetSceneTypeHandle getGetSceneTypeHandle() { return getSceneType_; }
+        //void setGetMembersHandle(GetMembersHandle handle) { getMembers_ = handle; }
+        //GetMembersHandle getGetMembersHandle() { return getMembers_; }
+        //
+        //void setGetSceneTypeHandle(GetSceneTypeHandle handle) { getSceneType_ = handle; }
+        //GetSceneTypeHandle getGetSceneTypeHandle() { return getSceneType_; }
 
     private:
         CreateSceneHandle createScene_;
-        GetMembersHandle getMembers_;
-        GetSceneTypeHandle getSceneType_;
+        //GetMembersHandle getMembers_;
+        //GetSceneTypeHandle getSceneType_;
     };
 }
 

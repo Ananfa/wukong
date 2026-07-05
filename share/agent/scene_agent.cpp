@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+#if 0
+
 #include "scene_agent.h"
+#include "share/errcode.h"
 
 using namespace corpc;
 using namespace wukong;
@@ -105,12 +108,8 @@ std::string SceneAgent::loadScene(ServerId sid, uint32_t defId, const std::strin
     stub->loadScene(controller, request, response, nullptr);
 
     if (controller->Failed()) {
-        ERROR_LOG("Rpc Call Failed : %s\n", controller->ErrorText().c_str());
+        ERROR_LOG("Rpc Call Failed : errcode:%d errmsg: %s\n", controller->GetErrorCode(), controller->ErrorText().c_str());
     } else {
-        if (response->errcode()) {
-            ERROR_LOG("SceneAgent::loadScene -- rpc return errCode:%d.\n", response->errcode());
-        }
-
         ret = response->sceneid();
     }
 
@@ -121,19 +120,39 @@ std::string SceneAgent::loadScene(ServerId sid, uint32_t defId, const std::strin
     return ret;
 }
 
-void SceneAgent::enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId) {
+int32_t SceneAgent::enterScene(ServerId sid, const std::string &sceneId, RoleId roleId, ServerId gwId) {
     auto it = stubInfos_.find(sid);
     if (it == stubInfos_.end()) {
         ERROR_LOG("SceneAgent::enterScene -- server %d stub not avaliable, waiting.\n", sid);
-        return;
+        return STUB_NOT_AVALIABLE;
     }
 
     auto stub = std::static_pointer_cast<pb::SceneService_Stub>(it->second.stub);
 
     pb::EnterSceneRequest *request = new pb::EnterSceneRequest();
+    corpc::Void *response = new corpc::Void();
+    Controller *controller = new Controller();
     request->set_serverid(sid);
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
     request->set_sceneid(sceneId);
-    stub->enterScene(nullptr, request, nullptr, google::protobuf::NewCallback<google::protobuf::Message *>(callDoneHandle, request));
+
+    int32_t ret = 0;
+    stub->enterScene(controller, request, response, nullptr);
+    if (controller->Failed()) {
+        ERROR_LOG("Rpc Call Failed : errcode:%d errmsg: %s\n", controller->GetErrorCode(), controller->ErrorText().c_str());
+        ret = controller->GetErrorCode();
+    }
+
+    delete controller;
+    delete response;
+    delete request;
+
+    return ret;
 }
+
+int32_t SceneAgent::leaveScene(ServerId sid, const std::string &sceneId, RoleId roleId) {
+    // TODO:
+}
+
+#endif

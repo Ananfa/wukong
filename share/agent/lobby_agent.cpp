@@ -40,7 +40,7 @@ void LobbyAgent::setStub(const pb::ServerInfo &serverInfo) {
     if (client_) {
         stubInfos_.insert(std::make_pair(serverInfo.server_id(), StubInfo{serverInfo, std::make_shared<pb::LobbyService_Stub>(new RpcClient::Channel(client_, serverInfo.rpc_host(), serverInfo.rpc_port(), 1), google::protobuf::Service::STUB_OWNS_CHANNEL)}));
     } else {
-        stubInfos_.insert(std::make_pair(serverInfo.server_id(), StubInfo{info:serverInfo}));
+        stubInfos_.insert(std::make_pair(serverInfo.server_id(), StubInfo{serverInfo, nullptr}));
     }
 }
 
@@ -66,7 +66,7 @@ void LobbyAgent::forwardIn(ServerId sid, int32_t type, uint16_t tag, RoleId role
 
     pb::ForwardInRequest *request = new pb::ForwardInRequest();
     Controller *controller = new Controller();
-    request->set_serverid(sid);
+    //request->set_serverid(sid);
     request->set_type(type);
 
     if (tag != 0) {
@@ -95,7 +95,7 @@ bool LobbyAgent::loadRole(ServerId sid, RoleId roleId, ServerId gwId) {
     pb::LoadRoleRequest *request = new pb::LoadRoleRequest();
     pb::BoolValue *response = new pb::BoolValue();
     Controller *controller = new Controller();
-    request->set_serverid(sid);
+    //request->set_serverid(sid);
     request->set_roleid(roleId);
     request->set_gatewayid(gwId);
     stub->loadRole(controller, request, response, nullptr);
@@ -111,6 +111,22 @@ bool LobbyAgent::loadRole(ServerId sid, RoleId roleId, ServerId gwId) {
     delete request;
 
     return ret;
+}
+
+void LobbyAgent::notifyPlayerBattleState(ServerId sid, const pb::PlayerBattleStateNotify &msg) {
+    auto it = stubInfos_.find(sid);
+    if (it == stubInfos_.end() || !it->second.stub) {
+        WARN_LOG("LobbyAgent::notifyPlayerBattleState -- lobby stub %u not ready\n", sid);
+        return;
+    }
+
+    auto stub = std::static_pointer_cast<pb::LobbyService_Stub>(it->second.stub);
+
+    pb::PlayerBattleStateNotify *request = new pb::PlayerBattleStateNotify();
+    request->CopyFrom(msg);
+    Controller *controller = new Controller();
+    stub->notifyPlayerBattleState(controller, request, nullptr,
+                                  google::protobuf::NewCallback<google::protobuf::Message *>(callDoneHandle, request, controller));
 }
 
 void LobbyAgent::enterGame(ServerId sid, RoleId roleId, const std::string &lToken, ServerId gwId) {

@@ -1,18 +1,7 @@
 {
+    "id": 1,
     "ip": "127.0.0.1",
     "port": 10001,
-    "servers": [
-        {
-            "id": 10001
-        },
-        {
-            "id": 10002
-        },
-        {
-            "id": 10003
-        }
-    ],
-    "zookeeper": "127.0.0.1:2181",
     "ioRecvThreadNum": 2,
     "ioSendThreadNum": 2,
     "redis": [
@@ -27,6 +16,9 @@
     ],
     "coreCache": "cache",
     "updatePeriod": 1000,
-    "enableSceneClient": false,
-    "logConfigFile": "../log_config.json"
+    "logConfigFile": "../log_config.json",
+    "nexus": {
+        "host": "127.0.0.1",
+        "port": 17000
+    }
 }

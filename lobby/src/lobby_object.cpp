@@ -24,6 +24,7 @@
 #include "redis_utils.h"
 #include "proto_utils.h"
 #include "agent_manager.h"
+#include "battle_agent.h"
 #include "gateway_agent.h"
 #include "record_agent.h"
 #include "share/const.h"
@@ -69,6 +70,8 @@ void LobbyObject::stop() {
         DEBUG_LOG("LobbyObject::stop user[%llu] role[%llu] token:%s\n", userId_, roleId_, lToken_.c_str());
         running_ = false;
 
+        clearBattleStateFromBattleServer();
+
         // 若不清emiter，会导致shared_ptr循环引用问题
         emiter_.clear();
 
@@ -100,7 +103,62 @@ void LobbyObject::enterGame() {
 }
 
 void LobbyObject::leaveGame() {
+    notifyBattleLeaveIfNeeded();
     g_LobbyObjectManager.leaveGame(roleId_);
+}
+
+void LobbyObject::notifyBattleLeaveIfNeeded() {
+    if (!(isInBattle() || isWaitingBattleKcp())) {
+        return;
+    }
+    if (battleServerId_ == 0 || battleRoomId_ == 0) {
+        return;
+    }
+    auto *battleAgent = static_cast<BattleAgent *>(g_AgentManager.getAgent(SERVER_TYPE_BATTLE));
+    if (!battleAgent) {
+        return;
+    }
+    pb::RemoveBattlePlayerRequest req;
+    req.set_room_id(battleRoomId_);
+    req.set_role_id(roleId_);
+    battleAgent->removeBattlePlayer(battleServerId_, req);
+}
+
+void LobbyObject::setWaitingEnterBattle(ServerId battleServerId, uint64_t roomId, uint32_t battleDefId,
+                                        const std::string &kcpHost, int32_t kcpPort) {
+    battleLobbyPhase_ = BattleLobbyPhase::WaitingBattleKcp;
+    battleServerId_ = battleServerId;
+    battleRoomId_ = roomId;
+    battleDefId_ = battleDefId;
+    battleKcpHost_ = kcpHost;
+    battleKcpPort_ = kcpPort;
+    DEBUG_LOG("LobbyObject::setWaitingEnterBattle role[%llu] battleSid:%u room:%llu\n",
+              (unsigned long long)roleId_, (unsigned)battleServerId_, (unsigned long long)battleRoomId_);
+}
+
+void LobbyObject::applyBattleStateFromBattleServer(ServerId battleServerId, uint64_t roomId, uint32_t battleDefId,
+                                                   const std::string &kcpHost, int32_t kcpPort) {
+    battleLobbyPhase_ = BattleLobbyPhase::InBattle;
+    battleServerId_ = battleServerId;
+    battleRoomId_ = roomId;
+    battleDefId_ = battleDefId;
+    battleKcpHost_ = kcpHost;
+    battleKcpPort_ = kcpPort;
+    DEBUG_LOG("LobbyObject::applyBattleStateFromBattleServer role[%llu] battleSid:%u room:%llu\n",
+              (unsigned long long)roleId_, (unsigned)battleServerId_, (unsigned long long)battleRoomId_);
+}
+
+void LobbyObject::clearBattleStateFromBattleServer() {
+    if (battleLobbyPhase_ == BattleLobbyPhase::InHall) {
+        return;
+    }
+    battleLobbyPhase_ = BattleLobbyPhase::InHall;
+    battleServerId_ = 0;
+    battleRoomId_ = 0;
+    battleDefId_ = 0;
+    battleKcpHost_.clear();
+    battleKcpPort_ = 0;
+    DEBUG_LOG("LobbyObject::clearBattleStateFromBattleServer role[%llu]\n", (unsigned long long)roleId_);
 }
 
 void LobbyObject::regEventHandle(const std::string &name, EventHandle handle) {

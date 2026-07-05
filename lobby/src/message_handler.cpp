@@ -2,12 +2,18 @@
 #include "message_handler.h"
 #include "message_handle_manager.h"
 #include "lobby_object.h"
+#include "lobby_config.h"
+#include "share/const.h"
 #include "redis_pool.h"
 #include "redis_utils.h"
 //#include "client_center.h"
 #include "agent_manager.h"
 #include "scene_agent.h"
+#include "battle_agent.h"
 #include "common.pb.h"
+#include "game.pb.h"
+#include "battle_sync.pb.h"
+#include "battle_service.pb.h"
 #include "demo_const.h"
 #include "demo_errdef.h"
 #include "demo_lobby_object_data.h"
@@ -16,6 +22,8 @@ using namespace demo;
 
 void MessageHandler::registerMessages() {
     g_MessageHandleManager.registerMessage(C2S_MESSAGE_ID_ECHO, new wukong::pb::StringValue, false, EchoHandle);
+    g_MessageHandleManager.registerMessage(C2S_MESSAGE_ID_START_BATTLE, new wukong::pb::StartBattleRequest, false, StartBattleHandle);
+    g_MessageHandleManager.registerMessage(C2S_MESSAGE_ID_LEAVE_GAME, new wukong::pb::LeaveGameRequest, false, LeaveGameHandle);
     //g_MessageHandleManager.registerMessage(C2S_MESSAGE_ID_ENTERSCENE, new wukong::pb::Int32Value, true, EnterSceneHandle);
 }
 
@@ -31,6 +39,86 @@ void MessageHandler::EchoHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag
     objData->setExp(objData->getExp()+1);
 
     realObj->send(S2C_MESSAGE_ID_ECHO, tag, *realMsg);
+}
+
+void MessageHandler::StartBattleHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
+    std::shared_ptr<LobbyObject> realObj = std::dynamic_pointer_cast<LobbyObject>(obj);
+    std::shared_ptr<wukong::pb::StartBattleRequest> realMsg = std::dynamic_pointer_cast<wukong::pb::StartBattleRequest>(msg);
+    if (!realObj || !realMsg) {
+        return;
+    }
+
+    auto *battleAgent = static_cast<BattleAgent *>(g_AgentManager.getAgent(SERVER_TYPE_BATTLE));
+    if (!battleAgent) {
+        ERROR_LOG("MessageHandler::StartBattleHandle -- no battle agent\n");
+        wukong::pb::Int32Value err;
+        err.set_value(ERR_SERVER_ERROR);
+        realObj->send(S2C_MESSAGE_ID_ERROR, tag, err);
+        return;
+    }
+
+    // 若玩家仍处于旧战斗状态（已在战斗/等待进战斗），先通知旧 battle 服清场，避免重复占位。
+    if (realObj->isInBattle() || realObj->isWaitingBattleKcp()) {
+        if (realObj->getBattleServerId() != 0 && realObj->getBattleRoomId() != 0) {
+            wukong::pb::RemoveBattlePlayerRequest rmReq;
+            rmReq.set_room_id(realObj->getBattleRoomId());
+            rmReq.set_role_id(realObj->getRoleId());
+            battleAgent->removeBattlePlayer(realObj->getBattleServerId(), rmReq);
+        }
+        realObj->clearBattleStateFromBattleServer();
+    }
+
+    ServerId battleSid = 0;
+    if (!battleAgent->randomServer(battleSid)) {
+        wukong::pb::Int32Value err;
+        err.set_value(ERR_NO_BATTLE_SERVER);
+        realObj->send(S2C_MESSAGE_ID_ERROR, tag, err);
+        return;
+    }
+
+    wukong::pb::RequestBattleAssignmentRequest req;
+    req.set_mode(wukong::pb::BATTLE_ROOM_MODE_SINGLE);
+    req.set_battle_def_id(realMsg->battle_def_id());
+    req.set_lobby_server_id(static_cast<int32_t>(g_LobbyConfig.getId()));
+    wukong::pb::BattlePlayerInitData *pd = req.mutable_player();
+    pd->set_role_id(realObj->getRoleId());
+    // combat_payload 由业务序列化角色战斗属性后填入
+
+    wukong::pb::RequestBattleAssignmentResponse rsp;
+    if (!battleAgent->requestBattleAssignment(battleSid, req, &rsp)) {
+        wukong::pb::Int32Value err;
+        err.set_value(ERR_BATTLE_CREATE_FAILED);
+        realObj->send(S2C_MESSAGE_ID_ERROR, tag, err);
+        return;
+    }
+
+    if (rsp.access().session_token().empty() || rsp.access().role_id() != realObj->getRoleId()) {
+        wukong::pb::Int32Value err;
+        err.set_value(ERR_BATTLE_CREATE_FAILED);
+        realObj->send(S2C_MESSAGE_ID_ERROR, tag, err);
+        return;
+    }
+
+    realObj->setWaitingEnterBattle(battleSid, rsp.room_id(), realMsg->battle_def_id(), rsp.kcp_host(), rsp.kcp_port());
+
+    wukong::pb::BattleEnterInfo enter;
+    enter.set_kcp_host(rsp.kcp_host());
+    enter.set_kcp_port(rsp.kcp_port());
+    enter.set_room_id(rsp.room_id());
+    enter.set_battle_server_id(battleSid);
+    enter.set_session_token(rsp.access().session_token());
+
+    realObj->send(S2C_MESSAGE_ID_BATTLE_ENTER, tag, enter);
+}
+
+void MessageHandler::LeaveGameHandle(std::shared_ptr<MessageTarget> obj, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg) {
+    (void)tag;
+    std::shared_ptr<LobbyObject> realObj = std::dynamic_pointer_cast<LobbyObject>(obj);
+    std::shared_ptr<wukong::pb::LeaveGameRequest> realMsg = std::dynamic_pointer_cast<wukong::pb::LeaveGameRequest>(msg);
+    if (!realObj || !realMsg) {
+        return;
+    }
+    realObj->leaveGame();
 }
 
 /*

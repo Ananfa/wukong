@@ -19,12 +19,12 @@
             "concernServerTypes": [5, 7]
         },
         {
-            "serverType": 5,    // Lobby服关注Gate、Record和Scene服
-            "concernServerTypes": [4, 6, 7]
+            "serverType": 5,    // Lobby服关注Gate、Record和Battle服
+            "concernServerTypes": [4, 6, 13]
         },
         {
-            "serverType": 7,    // Scene服关注Gate、Lobby和Scene服
-            "concernServerTypes": [4, 5, 7]
+            "serverType": 13,    // Battle服关注Lobby服
+            "concernServerTypes": [5]
         }
     ]
 }

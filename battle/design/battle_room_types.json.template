@@ -1,0 +1,9 @@
+[
+    {
+        "battleDefId": 1,
+        "maxPlayers": 1,
+        "minPlayers": 1,
+        "displayName": "单人副本示例",
+        "frameRateOverride": 0
+    }
+]

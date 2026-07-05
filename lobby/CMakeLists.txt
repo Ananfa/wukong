@@ -69,6 +69,7 @@ aux_source_directory(../share/agent SOURCE_FILES)
 aux_source_directory(../share/event SOURCE_FILES)
 aux_source_directory(../share/log SOURCE_FILES)
 aux_source_directory(../share/msghdl SOURCE_FILES)
+aux_source_directory(../share/design_config SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)

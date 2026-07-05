@@ -147,6 +147,22 @@ std::string SceneManager::loadScene(uint32_t defId, const std::string &sceneId, 
         g_RedisPoolManager.getCoreCache()->put(cache, false);
     }
 
+    // TODO: 不再在场景服中加载玩家游戏对象，改为向lobby服获取玩家的场景角色信息
+    // 场景服逻辑设计如下：
+    // 1. 场景服加载场景后，对于非长期场景，当没有玩家在线时，启动销毁定时器，定时时间到时销毁
+    // 2. 场景加载后，由lobby服通知场景服进入场景的玩家数据(带玩家的在线状态)，场景根据玩家数据创建或更新玩家对象
+    //    可在lobby服加载玩家对象后，根据玩家场景状态通知场景服玩家数据
+    // 3. 由lobby服通知玩家所在的gate服设置场景服地址，玩家发给场景服的消息由gate服转发给场景服
+    // 4. 何时通知场景服玩家离线？由lobby服通知玩家所在的场景服
+    //    lobby对象何时销毁？不同游戏处理不一样
+    //    有的玩家离线后销毁
+    //    有的要等队伍所有玩家都离线后才销毁（如：乌拉拉），此时玩家离线需要通知所在场景
+    // 5. 在场景服中发生的需要落地存盘的玩家数据需要同步给玩家所在的lobby服
+    // 6. 
+
+
+    
+
     // 应该在这里(上了锁之后)获取成员列表
     // 获取场景需预载入的玩家ID列表（对于单人场景就算场景拥有者玩家ID，对于W3L类型队伍场景就是队伍成员列表）
     //       对于个人场景（预加载玩家ID为request参数中的roleid）
@@ -241,4 +257,13 @@ void SceneManager::leaveScene(RoleId roleId) {
     assert(it1 != sceneId2SceneMap_.end());  // 不应该找不到场景
 
     it1->second->leave(roleId);
+}
+
+std::shared_ptr<SceneRole> SceneManager::getRole(RoleId roleId) {
+    auto it = sceneRoleMap_.find(roleId);
+    if (it == sceneRoleMap_.end()) {
+        return nullptr;
+    }
+
+    return it->second;
 }

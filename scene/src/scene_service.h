@@ -19,7 +19,6 @@
 
 #include "corpc_controller.h"
 #include "scene_service.pb.h"
-#include "scene_manager.h"
 
 namespace wukong {
 
@@ -29,9 +28,9 @@ namespace wukong {
                              const ::corpc::Void* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
-        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
-                             const ::corpc::Void* request,
-                             ::wukong::pb::OnlineCounts* response,
+        virtual void forwardIn(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::ForwardInRequest* request,
+                             ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
         virtual void loadScene(::google::protobuf::RpcController* controller,
                              const ::wukong::pb::LoadSceneRequest* request,
@@ -41,41 +40,45 @@ namespace wukong {
                              const ::wukong::pb::EnterSceneRequest* request,
                              ::corpc::Void* response,
                              ::google::protobuf::Closure* done);
+        virtual void leaveScene(::google::protobuf::RpcController* controller,
+                             const ::wukong::pb::LeaveSceneRequest* request,
+                             ::wukong::pb::BoolValue* response,
+                             ::google::protobuf::Closure* done);
 
-        void addInnerStub(ServerId sid, pb::InnerSceneService_Stub* stub);
-
-    private:
-        pb::InnerSceneService_Stub *getInnerStub(ServerId sid);
-        void traverseInnerStubs(std::function<bool(ServerId, pb::InnerSceneService_Stub*)> handle);
-
-    private:
-        std::map<ServerId, pb::InnerSceneService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
+    //    void addInnerStub(ServerId sid, pb::InnerSceneService_Stub* stub);
+    //
+    //private:
+    //    pb::InnerSceneService_Stub *getInnerStub(ServerId sid);
+    //    void traverseInnerStubs(std::function<bool(ServerId, pb::InnerSceneService_Stub*)> handle);
+    //
+    //private:
+    //    std::map<ServerId, pb::InnerSceneService_Stub*> innerStubs_; // 注意：该map只在系统启动时初始化，启动后不再修改
     };
     
-    class InnerSceneServiceImpl : public pb::InnerSceneService {
-    public:
-        InnerSceneServiceImpl(SceneManager *manager): manager_(manager) {}
-
-        virtual void shutdown(::google::protobuf::RpcController* controller,
-                             const ::corpc::Void* request,
-                             ::corpc::Void* response,
-                             ::google::protobuf::Closure* done);
-        virtual void getOnlineCount(::google::protobuf::RpcController* controller,
-                             const ::corpc::Void* request,
-                             ::wukong::pb::Uint32Value* response,
-                             ::google::protobuf::Closure* done);
-        virtual void loadScene(::google::protobuf::RpcController* controller,
-                             const ::wukong::pb::LoadSceneRequest* request,
-                             ::wukong::pb::LoadSceneResponse* response,
-                             ::google::protobuf::Closure* done);
-        virtual void enterScene(::google::protobuf::RpcController* controller,
-                             const ::wukong::pb::EnterSceneRequest* request,
-                             ::corpc::Void* response,
-                             ::google::protobuf::Closure* done);
-
-    private:
-        SceneManager *manager_;
-    };
+    //class InnerSceneServiceImpl : public pb::InnerSceneService {
+    //public:
+    //    InnerSceneServiceImpl(SceneManager *manager): manager_(manager) {}
+    //
+    //    virtual void shutdown(::google::protobuf::RpcController* controller,
+    //                         const ::corpc::Void* request,
+    //                         ::corpc::Void* response,
+    //                         ::google::protobuf::Closure* done);
+    //    virtual void getOnlineCount(::google::protobuf::RpcController* controller,
+    //                         const ::corpc::Void* request,
+    //                         ::wukong::pb::Uint32Value* response,
+    //                         ::google::protobuf::Closure* done);
+    //    virtual void loadScene(::google::protobuf::RpcController* controller,
+    //                         const ::wukong::pb::LoadSceneRequest* request,
+    //                         ::wukong::pb::LoadSceneResponse* response,
+    //                         ::google::protobuf::Closure* done);
+    //    virtual void enterScene(::google::protobuf::RpcController* controller,
+    //                         const ::wukong::pb::EnterSceneRequest* request,
+    //                         ::corpc::Void* response,
+    //                         ::google::protobuf::Closure* done);
+    //
+    //private:
+    //    SceneManager *manager_;
+    //};
     
 }
 

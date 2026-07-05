@@ -21,18 +21,20 @@
 #include <map>
 #include <string>
 
-#include "game_object_manager.h"
 #include "scene.h"
 #include "share/const.h"
 
 using namespace corpc;
 
 namespace wukong {
-    class SceneManager: public GameObjectManager {
+    class SceneManager {
     public:
-        SceneManager(ServerId id): GameObjectManager(GAME_SERVER_TYPE_SCENE, id) {}
-        virtual ~SceneManager() {}
+        static SceneManager& Instance() {
+            static SceneManager theSingleton;
+            return theSingleton;
+        }
 
+    public:
         virtual void shutdown(); // 关闭（重载）
 
         size_t sceneCount(); // 获取当前场景对象数
@@ -44,13 +46,28 @@ namespace wukong {
         virtual void leaveGame(RoleId roleId); // 角色离开游戏（重载）
         void leaveScene(RoleId roleId); // 角色离开场景（切换场景和离队时也调用此方法）
 
+        std::shared_ptr<SceneRole> getRole(RoleId roleId);
+
     private:
+        ServerId id_;
         uint64_t incSceneNo_ = 0; // 场景自增计数
 
         // 场景列表
         std::map<std::string, std::shared_ptr<Scene>> sceneId2SceneMap_;
+
+        std::map<RoleId, std::shared_ptr<SceneRole>> sceneRoleMap_;
+
+    private:
+        SceneManager(): shutdown_(false) {}                             // ctor hidden
+        SceneManager(SceneManager const&) = delete;                     // copy ctor hidden
+        SceneManager(SceneManager &&) = delete;                         // move ctor hidden
+        SceneManager& operator=(SceneManager const&) = delete;          // assign op. hidden
+        SceneManager& operator=(SceneManager &&) = delete;              // move assign op. hidden
+        ~SceneManager() = default;                                      // dtor hidden
     };
 
 }
+
+#define g_SceneManager wukong::SceneManager::Instance()
 
 #endif /* wukong_scene_manager_h */

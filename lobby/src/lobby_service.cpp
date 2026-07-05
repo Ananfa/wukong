@@ -15,8 +15,8 @@
  */
 
 #include "lobby_service.h"
-#include "lobby_config.h"
 #include "lobby_delegate.h"
+#include "lobby_object.h"
 #include "lobby_object_manager.h"
 #include "message_handle_manager.h"
 
@@ -88,6 +88,25 @@ void LobbyServiceImpl::enterGame(::google::protobuf::RpcController* controller,
     obj->enterGame();
 }
 
+// not_care_response：ctl/response 可空；非 delete_in_done 则无需调用 done（常用于进程内转发时延后释放 request 才打开 delete_in_done）。
+void LobbyServiceImpl::notifyPlayerBattleState(::google::protobuf::RpcController* controller,
+                               const ::wukong::pb::PlayerBattleStateNotify* request,
+                               ::corpc::Void* response,
+                               ::google::protobuf::Closure* done) {
+    auto obj = g_LobbyObjectManager.getLobbyObject(request->role_id());
+    if (!obj) {
+        WARN_LOG("LobbyServiceImpl::notifyPlayerBattleState -- role[%llu] not found\n", (unsigned long long)request->role_id());
+        return;
+    }
+
+    if (request->in_battle()) {
+        obj->applyBattleStateFromBattleServer(static_cast<ServerId>(request->battle_server_id()), request->room_id(),
+                                              request->battle_def_id(), request->kcp_host(), request->kcp_port());
+    } else {
+        obj->clearBattleStateFromBattleServer();
+    }
+}
+
 void LobbyServiceImpl::loadRole(::google::protobuf::RpcController* controller,
                                 const ::wukong::pb::LoadRoleRequest* request,
                                 ::wukong::pb::BoolValue* response,
@@ -95,8 +114,10 @@ void LobbyServiceImpl::loadRole(::google::protobuf::RpcController* controller,
     RoleId roleId = request->roleid();
     ServerId gwId = request->gatewayid();
 
+    corpc::Controller *ctl = static_cast<corpc::Controller *>(controller);
     if (!g_LobbyObjectManager.loadRole(roleId, gwId)) {
         ERROR_LOG("LobbyServiceImpl::loadRole -- role %d load failed\n", roleId);
+        ctl->SetFailed("loadRole failed");
         return;
     }
 

@@ -29,6 +29,7 @@
 #include "agent_manager.h"
 #include "gateway_agent.h"
 #include "record_agent.h"
+#include "battle_agent.h"
 #include "scene_agent.h"
 #include "redis_pool.h"
 #include "logger.h"
@@ -127,6 +128,7 @@ bool LobbyServer::init(int argc, char * argv[]) {
 
     g_AgentManager.registerAgent(new GatewayAgent(rpcClient_));
     g_AgentManager.registerAgent(new RecordAgent(rpcClient_));
+    g_AgentManager.registerAgent(new BattleAgent(rpcClient_));
     //g_AgentManager.registerAgent(new SceneAgent(rpcClient_));
 
     pb::ServerInfo serverInfo;

@@ -71,6 +71,19 @@ namespace wukong {
         void enterGame();
         void leaveGame();
 
+        // RPC 已登记、等待客户端 KCP 鉴权
+        void setWaitingEnterBattle(ServerId battleServerId, uint64_t roomId, uint32_t battleDefId,
+                                   const std::string &kcpHost, int32_t kcpPort);
+        // Battle 通知 KCP 鉴权成功
+        void applyBattleStateFromBattleServer(ServerId battleServerId, uint64_t roomId, uint32_t battleDefId,
+                                              const std::string &kcpHost, int32_t kcpPort);
+        // Battle 通知回大厅（离开/踢出/房间销毁等）
+        void clearBattleStateFromBattleServer();
+        bool isWaitingBattleKcp() const { return battleLobbyPhase_ == BattleLobbyPhase::WaitingBattleKcp; }
+        bool isInBattle() const { return battleLobbyPhase_ == BattleLobbyPhase::InBattle; }
+        ServerId getBattleServerId() const { return battleServerId_; }
+        uint64_t getBattleRoomId() const { return battleRoomId_; }
+
         // 玩家lobby_object内部事件处理
         void regEventHandle(const std::string &name, EventHandle handle);
         void fireEvent(const Event &event);
@@ -81,6 +94,7 @@ namespace wukong {
         int heartbeatToRecord();
 
         bool sync(const std::list<std::pair<std::string, std::string>> &datas, const std::list<std::string> &removes);
+        void notifyBattleLeaveIfNeeded();
 
         static void *heartbeatRoutine(void *arg);  // 心跳协程，周期对location重设超时时间，心跳失败时需通知Manager销毁游戏对象
 
@@ -116,6 +130,15 @@ namespace wukong {
         EventEmitter emiter_; // 本地事件分派器
 
         std::shared_ptr<Timer> leaveGameTimer_;
+
+        enum class BattleLobbyPhase { InHall, WaitingBattleKcp, InBattle };
+        BattleLobbyPhase battleLobbyPhase_ = BattleLobbyPhase::InHall;
+
+        ServerId battleServerId_ = 0;
+        uint64_t battleRoomId_ = 0;
+        uint32_t battleDefId_ = 0;
+        std::string battleKcpHost_;
+        int32_t battleKcpPort_ = 0;
 
     protected:
         UserId userId_;

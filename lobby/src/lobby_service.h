@@ -19,7 +19,7 @@
 
 #include "corpc_controller.h"
 #include "lobby_service.pb.h"
-#include "game_service.pb.h"
+//#include "game_service.pb.h"
 
 namespace wukong {
 
@@ -39,6 +39,10 @@ namespace wukong {
                               ::google::protobuf::Closure* done);
         virtual void enterGame(::google::protobuf::RpcController* controller,
                               const ::wukong::pb::EnterGameRequest* request,
+                              ::corpc::Void* response,
+                              ::google::protobuf::Closure* done);
+        virtual void notifyPlayerBattleState(::google::protobuf::RpcController* controller,
+                              const ::wukong::pb::PlayerBattleStateNotify* request,
                               ::corpc::Void* response,
                               ::google::protobuf::Closure* done);
 

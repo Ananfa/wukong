@@ -1,5 +1,5 @@
 {
-    "id": 10001,                                // 服务号（Gateway服务唯一标识）
+    "id": 1,                                    // 服务号（Gateway服务唯一标识）
     "internalIp": "127.0.0.1",                  // 内网ip
     "externalIp": "127.0.0.1",                  // 外网ip
     "rpcPort": 15001,                           // rpc服务端口

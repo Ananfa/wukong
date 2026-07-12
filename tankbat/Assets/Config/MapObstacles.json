@@ -1,0 +1,20 @@
+﻿{
+  "worldWidth": 64000,
+  "worldHeight": 64000,
+  "walls": [
+    { "x": 9600, "y": 32000, "width": 19200, "height": 1152, "rotation": 0 },
+    { "x": 54400, "y": 32000, "width": 19200, "height": 1152, "rotation": 0 },
+    { "x": 32000, "y": 9600, "width": 1152, "height": 19200, "rotation": 0 },
+    { "x": 32000, "y": 54400, "width": 1152, "height": 19200, "rotation": 0 },
+    { "x": 32000, "y": 44800, "width": 12800, "height": 1152, "rotation": 0 },
+    { "x": 32000, "y": 19200, "width": 12800, "height": 1152, "rotation": 0 },
+    { "x": 44800, "y": 32000, "width": 1152, "height": 12800, "rotation": 0 },
+    { "x": 19200, "y": 32000, "width": 1152, "height": 12800, "rotation": 0 }
+  ],
+  "spawnZones": [
+    { "faction": "soviet", "minX": 5120, "maxX": 14080, "minY": 5120, "maxY": 14080 },
+    { "faction": "usa", "minX": 49920, "maxX": 58880, "minY": 5120, "maxY": 14080 },
+    { "faction": "germany", "minX": 5120, "maxX": 14080, "minY": 49920, "maxY": 58880 },
+    { "faction": "italy", "minX": 49920, "maxX": 58880, "minY": 49920, "maxY": 58880 }
+  ]
+}

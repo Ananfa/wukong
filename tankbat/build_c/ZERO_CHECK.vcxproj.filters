@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="F:\linux_dev\ananfa\wukong\tankbat\build_c\CMakeFiles\ac6a0b60f285014b6d15b35d1ae7fd25\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{420B3DBB-E9DC-3CF7-9BD9-87A7637D2C9A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,151 @@
+{
+  "tankConfigs": {
+    "soviet": {
+      "types": [
+        {
+          "name": "T34",
+          "prefabPath": "Prefabs/Tanks/Soviet/T34",
+          "maxHealth": 220,
+          "speed": 3.2,
+          "size": 2.5,
+          "reloadTime": 1.0,
+          "bulletSpeed": 9,
+          "damage": 35,
+          "ability": "heal",
+          "abilityDesc": "恢复150生命值",
+          "color": "#DC143C"
+        },
+        {
+          "name": "KV1",
+          "prefabPath": "Prefabs/Tanks/Soviet/KV1",
+          "maxHealth": 300,
+          "speed": 2.0,
+          "size": 3.0,
+          "reloadTime": 1.2,
+          "bulletSpeed": 8,
+          "damage": 45,
+          "ability": "shield",
+          "abilityDesc": "获得临时护盾",
+          "color": "#B22222"
+        },
+        {
+          "name": "KV2",
+          "prefabPath": "Prefabs/Tanks/Soviet/KV2",
+          "maxHealth": 500,
+          "speed": 1.5,
+          "size": 3.5,
+          "reloadTime": 1.5,
+          "bulletSpeed": 7,
+          "damage": 60,
+          "ability": "aoe",
+          "abilityDesc": "范围爆炸攻击",
+          "color": "#8B0000"
+        }
+      ]
+    },
+    "usa": {
+      "types": [
+        {
+          "name": "M3",
+          "prefabPath": "Prefabs/Tanks/USA/M3",
+          "maxHealth": 180,
+          "speed": 3.8,
+          "size": 2.4,
+          "reloadTime": 0.8,
+          "bulletSpeed": 10,
+          "damage": 25,
+          "ability": "speed",
+          "abilityDesc": "临时加速",
+          "color": "#1E90FF"
+        },
+        {
+          "name": "M4",
+          "prefabPath": "Prefabs/Tanks/USA/M4",
+          "maxHealth": 250,
+          "speed": 3.0,
+          "size": 2.8,
+          "reloadTime": 0.9,
+          "bulletSpeed": 9,
+          "damage": 30,
+          "ability": "rapid",
+          "abilityDesc": "快速射击",
+          "color": "#4169E1"
+        }
+      ]
+    },
+    "germany": {
+      "types": [
+        {
+          "name": "Panther",
+          "prefabPath": "Prefabs/Tanks/Germany/Panther",
+          "maxHealth": 200,
+          "speed": 3.5,
+          "size": 2.8,
+          "reloadTime": 1.1,
+          "bulletSpeed": 11,
+          "damage": 38,
+          "ability": "penetrate",
+          "abilityDesc": "下一发穿透弹，可贯穿多辆敌方坦克",
+          "color": "#696969"
+        },
+        {
+          "name": "Tiger",
+          "prefabPath": "Prefabs/Tanks/Germany/Tiger",
+          "maxHealth": 400,
+          "speed": 2.0,
+          "size": 3.5,
+          "reloadTime": 1.3,
+          "bulletSpeed": 8,
+          "damage": 50,
+          "ability": "snipe",
+          "abilityDesc": "下一发狙击弹，伤害提升且射程更远",
+          "color": "#2F4F4F"
+        }
+      ]
+    },
+    "italy": {
+      "types": [
+        {
+          "name": "L6_40",
+          "prefabPath": "Prefabs/Tanks/Italy/L6_40",
+          "maxHealth": 170,
+          "speed": 3.6,
+          "size": 2.3,
+          "reloadTime": 0.9,
+          "bulletSpeed": 9.5,
+          "damage": 28,
+          "ability": "speed",
+          "abilityDesc": "临时加速",
+          "color": "#009246"
+        },
+        {
+          "name": "P40",
+          "prefabPath": "Prefabs/Tanks/Italy/P40",
+          "maxHealth": 230,
+          "speed": 3.1,
+          "size": 2.7,
+          "reloadTime": 1.0,
+          "bulletSpeed": 9.2,
+          "damage": 32,
+          "ability": "rapid",
+          "abilityDesc": "快速射击",
+          "color": "#006400"
+        }
+      ]
+    }
+  },
+  "gameSettings": {
+    "worldWidth": 1000,
+    "worldHeight": 1000,
+    "maxPlayers": 8,
+    "aiPerFaction": 2,
+    "gameDuration": 300,
+    "respawnTime": 5
+  },
+  "networkSettings": {
+    "serverAddress": "127.0.0.1",
+    "serverPort": 8888,
+    "updateRate": 60,
+    "interpolationTime": 0.1
+  }
+}

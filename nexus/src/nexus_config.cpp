@@ -101,7 +101,7 @@ bool NexusConfig::parse(const char *path) {
             return false;
         }
 
-        const Value& concernServerTypes = doc["concernServerTypes"];
+        const Value& concernServerTypes = concernItem["concernServerTypes"];
         if (!concernServerTypes.IsArray()) {
             ERROR_LOG("config error -- concern[%d] concernServerTypes not array\n", i);
             return false;

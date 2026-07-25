@@ -33,6 +33,27 @@ extern "C"
     #include "lualib.h"  
 }
 
+// ===== Lua 5.1 兼容层 =====
+#if LUA_VERSION_NUM == 501
+
+#ifndef LUA_OK
+#define LUA_OK 0
+#endif
+
+static inline void luaL_requiref(
+    lua_State* L,
+    const char* modname,
+    lua_CFunction openf,
+    int /*glb*/
+) {
+    lua_pushcfunction(L, openf);
+    lua_pushstring(L, modname);
+    lua_call(L, 1, 1);
+    lua_setglobal(L, modname);
+}
+
+#endif
+
 using namespace corpc;
 
 namespace wukong {

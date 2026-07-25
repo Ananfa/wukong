@@ -27,8 +27,8 @@ using namespace wukong;
 void NexusHandler::registerMessages(corpc::MessageTerminal *terminal) {
     terminal->registerMessage(CORPC_MSG_TYPE_CONNECT, nullptr, false, NexusHandler::connectHandle);
     terminal->registerMessage(CORPC_MSG_TYPE_CLOSE, nullptr, false, NexusHandler::closeHandle);
-    terminal->registerMessage(S2N_MESSAGE_ID_ACCESS, nullptr, false, NexusHandler::accessHandle);
-    terminal->registerMessage(S2N_MESSAGE_ID_UPDATE, nullptr, false, NexusHandler::updateHandle);
+    terminal->registerMessage(S2N_MESSAGE_ID_ACCESS, new pb::ServerAccessRequest, false, NexusHandler::accessHandle);
+    terminal->registerMessage(S2N_MESSAGE_ID_UPDATE, new pb::ServerInfoNtf, false, NexusHandler::updateHandle);
 }
 
 void NexusHandler::connectHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {

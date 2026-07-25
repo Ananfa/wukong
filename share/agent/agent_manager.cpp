@@ -33,9 +33,9 @@ bool AgentManager::init(IO *io, const std::string& nexusHost, uint16_t nexusPort
 
     terminal_->registerMessage(CORPC_MSG_TYPE_CONNECT, nullptr, false, std::bind(&AgentManager::connectHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
     terminal_->registerMessage(CORPC_MSG_TYPE_CLOSE, nullptr, true, std::bind(&AgentManager::closeHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    terminal_->registerMessage(N2S_MESSAGE_ID_ACCESS_RSP, nullptr, true, std::bind(&AgentManager::accessRspHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    terminal_->registerMessage(N2S_MESSAGE_ID_SVRINFO, nullptr, true, std::bind(&AgentManager::svrInfoHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    terminal_->registerMessage(N2S_MESSAGE_ID_RMSVR, nullptr, true, std::bind(&AgentManager::rmSvrHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal_->registerMessage(N2S_MESSAGE_ID_ACCESS_RSP, new pb::ServerAccessResponse, true, std::bind(&AgentManager::accessRspHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal_->registerMessage(N2S_MESSAGE_ID_SVRINFO, new pb::ServerInfoNtf, true, std::bind(&AgentManager::svrInfoHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    terminal_->registerMessage(N2S_MESSAGE_ID_RMSVR, new pb::RemoveServerNtf, true, std::bind(&AgentManager::rmSvrHandle, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 
     inited_ = true;
     return true;

@@ -69,11 +69,12 @@ namespace wukong {
     const uint16_t C2S_MESSAGE_ID_AUTH             = 1; // 客户端认证消息
 
     // 客户端向服务器发的消息ID定义(游戏功能消息)
-    const uint16_t C2S_MESSAGE_ID_ECHO             = SERVER_TYPE_LOBBY << 16 | 1; // 回声测试消息
-    const uint16_t C2S_MESSAGE_ID_ENTERSCENE       = SERVER_TYPE_LOBBY << 16 | 2; // 进入场景消息
-    const uint16_t C2S_MESSAGE_ID_CHAT             = SERVER_TYPE_LOBBY << 16 | 3; // 聊天消息
-    const uint16_t C2S_MESSAGE_ID_START_BATTLE     = SERVER_TYPE_LOBBY << 16 | 10; // 请求创建/进入帧同步战斗（Lobby 转发 Battle RPC）
-    const uint16_t C2S_MESSAGE_ID_LEAVE_GAME       = SERVER_TYPE_LOBBY << 16 | 11; // 主动退出游戏（Lobby 立即销毁玩家对象）
+    // 高 16 位 = 目标 ServerType，低 16 位 = 功能消息号（Gateway::forwardIn 按 >>16 路由）
+    const int32_t C2S_MESSAGE_ID_ECHO             = SERVER_TYPE_LOBBY << 16 | 1; // 回声测试消息
+    const int32_t C2S_MESSAGE_ID_ENTERSCENE       = SERVER_TYPE_LOBBY << 16 | 2; // 进入场景消息
+    const int32_t C2S_MESSAGE_ID_CHAT             = SERVER_TYPE_LOBBY << 16 | 3; // 聊天消息
+    const int32_t C2S_MESSAGE_ID_START_BATTLE     = SERVER_TYPE_LOBBY << 16 | 10; // 请求创建/进入帧同步战斗（Lobby 转发 Battle RPC）
+    const int32_t C2S_MESSAGE_ID_LEAVE_GAME       = SERVER_TYPE_LOBBY << 16 | 11; // 主动退出游戏（Lobby 立即销毁玩家对象）
 
     // 服务器向客户端发的消息ID定义(基础消息)
     const uint16_t S2C_MESSAGE_ID_BAN              = 1; // 消息被屏蔽消息

@@ -32,6 +32,7 @@ public:
     bool onKcpAuth(const std::shared_ptr<pb::BattleKcpAuth> &auth,
                    const std::shared_ptr<corpc::MessageTerminal::Connection> &conn);
     bool onKcpLeaveRoom(const std::shared_ptr<pb::BattleKcpLeaveRoom> &req);
+    bool onKcpInputUpload(const std::shared_ptr<pb::BattleKcpInputUpload> &msg);
 
     void onAuthSucceeded(uint64_t roleId, uint64_t roomId, const std::shared_ptr<corpc::MessageTerminal::Connection> &conn);
     void onRoleRemoved(uint64_t roleId);

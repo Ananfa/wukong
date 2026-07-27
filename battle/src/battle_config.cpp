@@ -104,10 +104,10 @@ bool BattleConfig::parse(const char *path) {
     if (doc.HasMember("syncFrameRate")) {
         syncFrameRate_ = doc["syncFrameRate"].GetUint();
     } else {
-        syncFrameRate_ = 20;
+        syncFrameRate_ = 30;
     }
     if (syncFrameRate_ == 0) {
-        syncFrameRate_ = 20;
+        syncFrameRate_ = 30;
     }
     
     if (!doc.HasMember("ioRecvThreadNum")) {

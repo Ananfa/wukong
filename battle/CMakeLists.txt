@@ -37,6 +37,21 @@ aux_source_directory(../proto/service SOURCE_FILES)
 aux_source_directory(../proto/game SOURCE_FILES)
 aux_source_directory(./src SOURCE_FILES)
 
+set(TANKBAT_CORE_DIR ../tankbat)
+set(TANKBAT_SOURCE_FILES
+    ${TANKBAT_CORE_DIR}/Common/AngleLUT.cpp
+    ${TANKBAT_CORE_DIR}/Core/GameCore.cpp
+    ${TANKBAT_CORE_DIR}/Core/Tank.cpp
+    ${TANKBAT_CORE_DIR}/Core/ObstacleWall.cpp
+    ${TANKBAT_CORE_DIR}/Core/MapObstacleLoader.cpp
+    ${TANKBAT_CORE_DIR}/Core/Ai/AiController.cpp
+    ${TANKBAT_CORE_DIR}/Core/Ai/AiPerception.cpp
+    ${TANKBAT_CORE_DIR}/Core/Ai/AiSteering.cpp
+    ${TANKBAT_CORE_DIR}/Core/Ai/AiPathFollower.cpp
+    ${TANKBAT_CORE_DIR}/Core/Ai/NavigationGrid.cpp
+    ${TANKBAT_CORE_DIR}/Core/Ai/bt/TankBehaviorTree.cpp)
+list(APPEND SOURCE_FILES ${TANKBAT_SOURCE_FILES})
+
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # This for mac osx only
@@ -66,6 +81,10 @@ include_directories(../proto)
 include_directories(../proto/game)
 include_directories(../proto/service)
 include_directories(../deps/rapidjson/include)
+include_directories(../tankbat/Common)
+include_directories(../tankbat/Core)
+include_directories(../tankbat/Core/Ai)
+include_directories(../tankbat/Core/Ai/bt)
 
 # Add target
 add_executable(battled ${SOURCE_FILES})

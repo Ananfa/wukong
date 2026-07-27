@@ -7,6 +7,7 @@
 #include "battle_config.h"
 #include "battle_room_types_table.h"
 #include "battle_role_manager.h"
+#include "battle_sync.pb.h"
 
 #include "agent_manager.h"
 #include "lobby_agent.h"
@@ -212,6 +213,15 @@ void BattleRoomManager::onPlayerKcpDisconnected(uint64_t roleId, uint64_t roomId
     it->second->detachConnectionForRole(roleId, conn);
 }
 
+bool BattleRoomManager::submitInputUpload(uint64_t roomId, uint64_t roleId, const pb::BattleKcpInputUpload &msg) {
+    auto it = rooms_.find(roomId);
+    if (it == rooms_.end()) {
+        return false;
+    }
+    it->second->submitInputUpload(roleId, msg);
+    return true;
+}
+
 void BattleRoomManager::tickAllRoomsFrameSync() {
     if (!inited_) {
         return;
@@ -225,7 +235,7 @@ void *BattleRoomManager::frameSyncTickRoutine(void *arg) {
     (void)arg;
     uint32_t r = g_BattleConfig.getSyncFrameRate();
     if (r == 0) {
-        r = 20;
+        r = 30;
     }
     int64_t intervalNs = 1000000000LL / static_cast<int64_t>(r);
     if (intervalNs < 10000000LL) {

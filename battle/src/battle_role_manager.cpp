@@ -128,6 +128,17 @@ bool BattleRoleManager::onKcpLeaveRoom(const std::shared_ptr<pb::BattleKcpLeaveR
     return ok;
 }
 
+bool BattleRoleManager::onKcpInputUpload(const std::shared_ptr<pb::BattleKcpInputUpload> &msg) {
+    if (!msg || msg->room_id() == 0 || msg->role_id() == 0) {
+        return false;
+    }
+    uint64_t boundRoomId = 0;
+    if (!getRoleRoom(msg->role_id(), &boundRoomId) || boundRoomId != msg->room_id()) {
+        return false;
+    }
+    return g_BattleRoomManager.submitInputUpload(msg->room_id(), msg->role_id(), *msg);
+}
+
 void BattleRoleManager::onAuthSucceeded(uint64_t roleId, uint64_t roomId,
                                         const std::shared_ptr<corpc::MessageTerminal::Connection> &conn) {
     if (!conn) {

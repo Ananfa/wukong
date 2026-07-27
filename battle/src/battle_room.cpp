@@ -7,13 +7,42 @@
 #include "battle_const.h"
 #include "battle_sync.pb.h"
 
+#include "GameCore.h"
+#include "Types.h"
+#include "Constants.h"
+
 #include "corpc_utils.h"
 
+#include <algorithm>
+#include <cstdio>
+
 namespace wukong {
+
+namespace {
+
+TankBattle::PlayerInput buildPlayerInput(uint32_t playerId, uint32_t frame, const pb::BattleKcpInputUpload &msg) {
+    TankBattle::PlayerInput input;
+    input.playerId = playerId;
+    input.frame = frame;
+    input.moveX = static_cast<int16_t>(msg.move_x());
+    input.moveY = static_cast<int16_t>(msg.move_y());
+    input.aimX = static_cast<int16_t>(msg.aim_x());
+    input.aimY = static_cast<int16_t>(msg.aim_y());
+    input.fire = msg.fire();
+    input.useAbility = msg.use_ability();
+    input.timestamp = msg.timestamp();
+    return input;
+}
+
+} // namespace
 
 BattleRoom::BattleRoom(uint64_t roomId, pb::BattleRoomMode mode, uint32_t battleDefId, uint32_t maxPlayers,
                        std::vector<PlayerSlot> &&players)
     : roomId_(roomId), mode_(mode), battleDefId_(battleDefId), maxPlayers_(maxPlayers > 0 ? maxPlayers : 1) {
+    randomSeed_ = static_cast<uint32_t>(roomId_ ^ (roomId_ >> 32));
+    if (randomSeed_ == 0) {
+        randomSeed_ = 1;
+    }
     for (auto &p : players) {
         players_[p.roleId] = std::move(p);
     }
@@ -22,6 +51,8 @@ BattleRoom::BattleRoom(uint64_t roomId, pb::BattleRoomMode mode, uint32_t battle
     }
     noteNoPlayersSince();
 }
+
+BattleRoom::~BattleRoom() = default;
 
 ServerId BattleRoom::getPlayerLobbyServerId(uint64_t roleId) const {
     auto it = players_.find(roleId);
@@ -57,26 +88,193 @@ void BattleRoom::noteNoPlayersSince() {
     }
 }
 
+void BattleRoom::ensureSimulationInitialized() {
+    if (gameCore_) {
+        return;
+    }
+    gameCore_.reset(new TankBattle::GameCore());
+    if (!gameCore_->Initialize(maxPlayers_)) {
+        gameCore_.reset();
+        ERROR_LOG("BattleRoom::ensureSimulationInitialized -- GameCore init failed room:%llu\n",
+                  (unsigned long long)roomId_);
+        return;
+    }
+    gameCore_->SetRandomSeed(randomSeed_);
+}
+
+TankBattle::Faction BattleRoom::resolveFactionForRole(uint64_t roleId) const {
+    static const TankBattle::Faction kOrder[] = {
+        TankBattle::Faction::Soviet,
+        TankBattle::Faction::USA,
+        TankBattle::Faction::Germany,
+        TankBattle::Faction::Italy
+    };
+    return kOrder[roleId % 4];
+}
+
+bool BattleRoom::addPlayerToSimulation(uint64_t roleId) {
+    ensureSimulationInitialized();
+    if (!gameCore_) {
+        return false;
+    }
+
+    auto it = players_.find(roleId);
+    if (it == players_.end()) {
+        return false;
+    }
+    PlayerSlot &slot = it->second;
+    if (slot.gamePlayerId != 0) {
+        return true;
+    }
+
+    char nameBuf[64];
+    std::snprintf(nameBuf, sizeof(nameBuf), "role_%llu", (unsigned long long)roleId);
+    const TankBattle::Faction faction = resolveFactionForRole(roleId);
+    const uint32_t playerId = gameCore_->AddPlayer(nameBuf, faction);
+    if (playerId == 0) {
+        WARN_LOG("BattleRoom::addPlayerToSimulation -- AddPlayer failed role:%llu room:%llu\n",
+                 (unsigned long long)roleId, (unsigned long long)roomId_);
+        return false;
+    }
+    slot.gamePlayerId = playerId;
+    slot.gameFaction = static_cast<int>(faction);
+
+    if (!simulationStarted_) {
+        gameCore_->StartGame();
+        simulationStarted_ = true;
+        syncFrameIndex_ = gameCore_->GetFrame();
+        LOG("BattleRoom::addPlayerToSimulation -- StartGame room:%llu seed:%u frame:%u\n",
+            (unsigned long long)roomId_, (unsigned)randomSeed_, (unsigned)syncFrameIndex_);
+    }
+    return true;
+}
+
+void BattleRoom::removePlayerFromSimulation(uint64_t roleId) {
+    if (!gameCore_) {
+        return;
+    }
+    auto it = players_.find(roleId);
+    if (it == players_.end() || it->second.gamePlayerId == 0) {
+        return;
+    }
+    const uint32_t playerId = it->second.gamePlayerId;
+    gameCore_->RemovePlayer(playerId);
+    pendingFrameInputs_.erase(playerId);
+    it->second.gamePlayerId = 0;
+}
+
 void BattleRoom::sendSnapshotTo(const std::shared_ptr<corpc::MessageTerminal::Connection> &conn) {
     if (!conn) {
         return;
     }
     auto snap = std::make_shared<pb::BattleRoomSnapshot>();
     snap->set_room_id(roomId_);
-    snap->set_logic_frame(syncFrameIndex_);
+    snap->set_logic_frame(simulationStarted_ && gameCore_ ? gameCore_->GetFrame() : syncFrameIndex_);
     snap->set_frame_rate(g_BattleConfig.getSyncFrameRate());
-    snap->set_room_state(pb::BATTLE_ROOM_STATE_RUNNING);
+    snap->set_random_seed(randomSeed_);
+    if (simulationStarted_ && gameCore_ && gameCore_->IsGameOver()) {
+        snap->set_room_state(pb::BATTLE_ROOM_STATE_ENDED);
+    } else if (simulationStarted_) {
+        snap->set_room_state(pb::BATTLE_ROOM_STATE_RUNNING);
+    } else {
+        snap->set_room_state(pb::BATTLE_ROOM_STATE_WAITING);
+    }
+    for (const auto &kv : players_) {
+        const PlayerSlot &slot = kv.second;
+        if (slot.gamePlayerId == 0) {
+            continue;
+        }
+        pb::BattleSnapshotPlayer *p = snap->add_players();
+        p->set_role_id(slot.roleId);
+        p->set_player_id(slot.gamePlayerId);
+        p->set_faction(slot.gameFaction);
+    }
     conn->send(BATTLE_KCP_MSG_SNAPSHOT, false, false, false, 0, snap);
+}
+
+void BattleRoom::fillProtoInput(const TankBattle::PlayerInput &src, pb::BattlePlayerFrameInput *dst, uint64_t roleId) {
+    if (!dst) {
+        return;
+    }
+    dst->set_player_id(src.playerId);
+    dst->set_role_id(roleId);
+    dst->set_frame(src.frame);
+    dst->set_move_x(src.moveX);
+    dst->set_move_y(src.moveY);
+    dst->set_aim_x(src.aimX);
+    dst->set_aim_y(src.aimY);
+    dst->set_fire(src.fire);
+    dst->set_use_ability(src.useAbility);
+    dst->set_timestamp(src.timestamp);
+}
+
+void BattleRoom::submitInputUpload(uint64_t roleId, const pb::BattleKcpInputUpload &msg) {
+    if (!simulationStarted_ || !gameCore_ || gameCore_->IsGameOver()) {
+        return;
+    }
+
+    auto it = players_.find(roleId);
+    if (it == players_.end() || !it->second.hasAuthed) {
+        return;
+    }
+    PlayerSlot &slot = it->second;
+    if (slot.gamePlayerId == 0) {
+        if (!addPlayerToSimulation(roleId)) {
+            return;
+        }
+    }
+
+    const uint32_t expectedFrame = gameCore_->GetFrame() + 1;
+    const uint32_t frame = msg.frame() != 0 ? msg.frame() : expectedFrame;
+    if (frame != expectedFrame) {
+        return;
+    }
+
+    pendingFrameInputs_[slot.gamePlayerId] = buildPlayerInput(slot.gamePlayerId, frame, msg);
 }
 
 void BattleRoom::tickFrameSync() {
     if (!hasAnyOnlineAuthedPlayer()) {
         return;
     }
-    ++syncFrameIndex_;
+    if (!simulationStarted_ || !gameCore_) {
+        return;
+    }
+    if (gameCore_->IsGameOver()) {
+        return;
+    }
+
+    const uint32_t nextFrame = gameCore_->GetFrame() + 1;
+    std::vector<TankBattle::PlayerInput> frameInputs;
+    frameInputs.reserve(pendingFrameInputs_.size());
+    for (const auto &entry : pendingFrameInputs_) {
+        frameInputs.push_back(entry.second);
+    }
+
+    if (!gameCore_->SetFrameInputs(nextFrame, frameInputs.empty() ? nullptr : frameInputs.data(), frameInputs.size())) {
+        WARN_LOG("BattleRoom::tickFrameSync -- SetFrameInputs failed room:%llu frame:%u\n",
+                 (unsigned long long)roomId_, (unsigned)nextFrame);
+        return;
+    }
+
+    gameCore_->AdvanceSimulation();
+    syncFrameIndex_ = gameCore_->GetFrame();
+    pendingFrameInputs_.clear();
+
     auto fr = std::make_shared<pb::BattleFrameSync>();
     fr->set_room_id(roomId_);
     fr->set_frame_index(syncFrameIndex_);
+    for (const auto &entry : players_) {
+        const PlayerSlot &slot = entry.second;
+        auto inputIt = std::find_if(frameInputs.begin(), frameInputs.end(),
+            [&slot](const TankBattle::PlayerInput &input) {
+                return input.playerId == slot.gamePlayerId;
+            });
+        if (inputIt != frameInputs.end()) {
+            fillProtoInput(*inputIt, fr->add_inputs(), slot.roleId);
+        }
+    }
+
     for (auto &kv : players_) {
         auto &p = kv.second;
         if (p.hasAuthed && p.conn) {
@@ -101,6 +299,8 @@ bool BattleRoom::tryAuth(uint64_t roleId, const std::string &token, const std::s
     p.offlineSince_ = 0;
     p.assignedAt_ = 0;
     LOG("BattleRoom::tryAuth -- ok role:%llu room:%llu\n", (unsigned long long)roleId, (unsigned long long)roomId_);
+
+    addPlayerToSimulation(roleId);
     sendSnapshotTo(conn);
     return true;
 }
@@ -125,6 +325,7 @@ void BattleRoom::detachConnectionForRole(uint64_t roleId, const std::shared_ptr<
 bool BattleRoom::leaveBattle(uint64_t roleId, const std::string &token) {
     auto it = players_.find(roleId);
     if (it != players_.end() && it->second.sessionToken == token) {
+        removePlayerFromSimulation(roleId);
         players_.erase(it);
         LOG("BattleRoom::leaveBattle -- role:%llu left room:%llu\n", (unsigned long long)roleId, (unsigned long long)roomId_);
         noteNoPlayersSince();
@@ -139,6 +340,7 @@ bool BattleRoom::forceRemovePlayer(uint64_t roleId) {
         if (it->second.conn) {
             it->second.conn->close();
         }
+        removePlayerFromSimulation(roleId);
         players_.erase(it);
         LOG("BattleRoom::forceRemovePlayer -- role:%llu room:%llu\n", (unsigned long long)roleId, (unsigned long long)roomId_);
         noteNoPlayersSince();
@@ -188,6 +390,7 @@ void BattleRoom::expireOfflinePlayers(std::time_t now, uint32_t offlineKickSec, 
             if (removed) {
                 removed->push_back(std::make_pair(p.roleId, p.lobbyServerId));
             }
+            removePlayerFromSimulation(p.roleId);
             it = players_.erase(it);
             continue;
         }

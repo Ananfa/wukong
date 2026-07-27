@@ -66,6 +66,22 @@ void BattleHandler::registerMessages(corpc::KcpMessageTerminal *terminal) {
                     (unsigned long long)leave->room_id(), (unsigned long long)leave->role_id());
             }
         });
+
+    terminal->registerMessage(BATTLE_KCP_MSG_INPUT_UPLOAD, new pb::BattleKcpInputUpload, false,
+        [](int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg,
+           std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
+            (void)type;
+            (void)tag;
+            (void)conn;
+            auto upload = std::dynamic_pointer_cast<pb::BattleKcpInputUpload>(msg);
+            if (!upload) {
+                return;
+            }
+            if (!g_BattleRoleManager.onKcpInputUpload(upload)) {
+                WARN_LOG("BattleHandler -- input upload rejected room:%llu role:%llu\n",
+                    (unsigned long long)upload->room_id(), (unsigned long long)upload->role_id());
+            }
+        });
 }
 
 }

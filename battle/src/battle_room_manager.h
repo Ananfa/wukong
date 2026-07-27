@@ -38,6 +38,8 @@ public:
     bool leavePlayerByClient(uint64_t roomId, uint64_t roleId, const std::string &sessionToken);
     bool removePlayer(uint64_t roomId, uint64_t roleId);
 
+    bool submitInputUpload(uint64_t roomId, uint64_t roleId, const pb::BattleKcpInputUpload &msg);
+
     void tickIdleRooms();
 
     void tickAllRoomsFrameSync();

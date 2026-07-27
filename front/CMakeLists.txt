@@ -17,21 +17,6 @@ if(NOT CORPC_LIB)
     message(FATAL_ERROR "corpc library not found")
 endif()
 
-find_library(CORPC_REDIS_LIB corpc_redis)
-if(NOT CORPC_REDIS_LIB)
-    message(FATAL_ERROR "corpc_redis library not found")
-endif()
-
-find_library(CORPC_PUBSUB_LIB corpc_pubsub)
-if(NOT CORPC_PUBSUB_LIB)
-    message(FATAL_ERROR "corpc_pubsub library not found")
-endif()
-
-find_library(HIREDIS_LIB hiredis)
-if(NOT HIREDIS_LIB)
-    message(FATAL_ERROR "hiredis library not found")
-endif()
-
 if (CMAKE_BUILD_TYPE)
 else()
     set(CMAKE_BUILD_TYPE RELEASE)
@@ -44,11 +29,9 @@ set(SOURCE_FILES
     ../share/agent/agent.cpp
     ../share/agent/agent_manager.cpp
     ../share/agent/gateway_agent.cpp
-    ../share/db/redis_pool.cpp
     ../proto/service/gateway_service.pb.cc
     ../utils/utility.cpp
-    ../utils/string_utils.cpp
-    ../utils/redis_utils.cpp)
+    ../utils/string_utils.cpp)
 
 # Add source files
 aux_source_directory(../proto SOURCE_FILES)
@@ -71,12 +54,10 @@ include_directories(/usr/local/include/co)
 include_directories(/usr/local/include/corpc)
 include_directories(/usr/local/include/corpc/kcp)
 include_directories(/usr/local/include/corpc/proto)
-include_directories(/usr/local/include/hiredis)
 include_directories(./src)
 include_directories(..)
 include_directories(../share)
 include_directories(../share/agent)
-include_directories(../share/db)
 include_directories(../utils)
 include_directories(../proto)
 include_directories(../proto/game)
@@ -86,5 +67,5 @@ include_directories(../deps/rapidjson/include)
 # Add target
 add_executable(frontd ${SOURCE_FILES})
 
-set(MY_LINK_LIBRARIES -L/usr/local/lib -lhiredis -lprotobuf -lcorpc_pubsub -lcorpc_redis -lcorpc -lco -ldl)
+set(MY_LINK_LIBRARIES -L/usr/local/lib -lprotobuf -lcorpc -lco -ldl)
 target_link_libraries(frontd ${MY_LINK_LIBRARIES})

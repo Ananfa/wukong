@@ -48,10 +48,6 @@ namespace wukong {
         uint32_t getOutflowThreadNum() const { return outflowThreadNum_; }
         const Throtle& getThrotle() const { return throtle_; }
 
-        const std::vector<RedisInfo>& getRedisInfos() const { return redisInfos_; }
-        
-        const std::string& getCoreCache() const { return coreCache_; }
-
         const Address& getNexusAddr() const { return nexusAddr_; }
         
     private:
@@ -64,10 +60,6 @@ namespace wukong {
         uint32_t outflowThreadNum_; // 出流线程数量
 
         Throtle throtle_;   // 限流
-
-        std::vector<RedisInfo> redisInfos_; // Redis库配置
-
-        std::string coreCache_;  // 用作游戏服务器核心缓存redis库(redis中的一个)
 
         Address nexusAddr_;     // nexus服务地址
 

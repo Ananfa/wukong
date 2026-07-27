@@ -4,15 +4,13 @@
     "port": 16000,
     "inflowThreadNum": 2,
     "outflowThreadNum": 2,
-    "redis": [
-        {
-            "dbName": "cache",
-            "host": "127.0.0.1",
-            "port": 6379,
-            "pwd": "",
-            "maxConnect": 8,
-            "dbIndex": 0
-        }
-    ],
-    "coreCache": "cache"
+    "throtle": {
+        "open": true,
+        "avg": 5120,
+        "max": 10240
+    },
+    "nexus": {
+        "host": "127.0.0.1",
+        "port": 17000
+    }
 }

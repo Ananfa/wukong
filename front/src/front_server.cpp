@@ -22,8 +22,8 @@
 #include "agent_manager.h"
 #include "gateway_agent.h"
 
-#include "redis_pool.h"
-#include "redis_utils.h"
+//#include "redis_pool.h"
+//#include "redis_utils.h"
 
 #include "utility.h"
 #include "share/const.h"
@@ -149,16 +149,16 @@ bool FrontServer::init(int argc, char * argv[]) {
     }
 
     // 数据库初始化
-    const std::vector<RedisInfo>& redisInfos = g_FrontConfig.getRedisInfos();
-    for (auto &info : redisInfos) {
-        RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnect);
-        if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
-            ERROR_LOG("FrontServer::init -- addPool[%s] failed\n", info.dbName.c_str());
-            return false;
-        }
-    }
-
-    g_RedisPoolManager.setCoreCache(g_FrontConfig.getCoreCache());
+    //const std::vector<RedisInfo>& redisInfos = g_FrontConfig.getRedisInfos();
+    //for (auto &info : redisInfos) {
+    //    RedisPool *pool = RedisPool::create(info.host.c_str(), info.pwd.c_str(), info.port, info.dbIndex, info.maxConnect);
+    //    if (!g_RedisPoolManager.addPool(info.dbName, pool)) {
+    //        ERROR_LOG("FrontServer::init -- addPool[%s] failed\n", info.dbName.c_str());
+    //        return false;
+    //    }
+    //}
+    //
+    //g_RedisPoolManager.setCoreCache(g_FrontConfig.getCoreCache());
 
     ip_ = g_FrontConfig.getIp();
     port_ = g_FrontConfig.getPort();

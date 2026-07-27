@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using UnityEngine;
+using TankBattle.Network;
 
 namespace TankBattle
 {
@@ -148,6 +150,16 @@ namespace TankBattle
         
         [DllImport("TankBattleNative")]
         private static extern void TB_Update(IntPtr game, float deltaTime);
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_GetFrame(IntPtr game);
+
+        [DllImport("TankBattleNative")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool TB_SetFrameInputs(IntPtr game, uint frame, IntPtr inputs, uint count);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_AdvanceSimulation(IntPtr game);
         
         [DllImport("TankBattleNative")]
         private static extern uint TB_AddPlayer(IntPtr game, string name, int faction);
@@ -214,7 +226,40 @@ namespace TankBattle
             
             public void Update()
             {
-                TB_Update(nativeHandle, 0f);
+                TB_AdvanceSimulation(nativeHandle);
+            }
+
+            public uint GetFrame()
+            {
+                return TB_GetFrame(nativeHandle);
+            }
+
+            public bool SetFrameInputs(uint frame, PlayerInput[] inputs)
+            {
+                if (inputs == null || inputs.Length == 0)
+                    return TB_SetFrameInputs(nativeHandle, frame, IntPtr.Zero, 0);
+
+                int elemSize = Marshal.SizeOf<TB_PlayerInput>();
+                IntPtr buffer = Marshal.AllocHGlobal(elemSize * inputs.Length);
+                try
+                {
+                    for (int i = 0; i < inputs.Length; i++)
+                    {
+                        TB_PlayerInput nativeInput = ToNativeInput(inputs[i]);
+                        Marshal.StructureToPtr(nativeInput, buffer + i * elemSize, false);
+                    }
+
+                    return TB_SetFrameInputs(nativeHandle, frame, buffer, (uint)inputs.Length);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buffer);
+                }
+            }
+
+            public void AdvanceSimulation()
+            {
+                TB_AdvanceSimulation(nativeHandle);
             }
             
             public uint AddPlayer(string name, Faction faction)
@@ -229,7 +274,13 @@ namespace TankBattle
             
             public void ProcessPlayerInput(PlayerInput input)
             {
-                TB_PlayerInput nativeInput = new TB_PlayerInput
+                TB_PlayerInput nativeInput = ToNativeInput(input);
+                TB_ProcessPlayerInput(nativeHandle, ref nativeInput);
+            }
+
+            private static TB_PlayerInput ToNativeInput(PlayerInput input)
+            {
+                return new TB_PlayerInput
                 {
                     playerId = input.playerId,
                     frame = input.frame,
@@ -241,8 +292,6 @@ namespace TankBattle
                     useAbility = input.useAbility,
                     timestamp = input.timestamp
                 };
-                
-                TB_ProcessPlayerInput(nativeHandle, ref nativeInput);
             }
             
             public void StartGame()
@@ -620,7 +669,7 @@ namespace TankBattle
         public uint deaths;
     }
     
-    // Unity 客户端：默认由本机键盘/鼠标驱动 C++ GameCore；勾选 useNetworkTransport 可走占位网络（未实现）
+    // Unity 客户端：本地 LocalFrameDriver；在线 = HTTP登录→TCP进Lobby→StartBattle→KCP帧同步
     public class TankBattleClient : MonoBehaviour
     {
         private TankBattleNative.GameCore gameCore;
@@ -628,22 +677,35 @@ namespace TankBattle
         private string playerName = "Player";
         private Faction selectedFaction = Faction.Soviet;
 
-        [Tooltip("启用后使用 NetworkManager（当前为空实现）；关闭则每帧把输入直接写入本机 Native")]
-        [SerializeField] private bool useNetworkTransport = false;
+        [Tooltip("启用后走完整 wukong 在线流程：Login→创角/选角→进游戏→开战斗房间→KCP")]
+        [SerializeField] private bool useNetworkTransport = true;
+
+        [Header("Online Login (HTTP)")]
+        [SerializeField] private string loginBaseUrl = "http://127.0.0.1:11000";
+        [SerializeField] private string openId = "tankbat_player";
+        [SerializeField] private uint gameServerId = 1;
+        [SerializeField] private uint battleDefId = 1;
+
+        [Header("Online Battle fallback (skip Lobby, direct KCP — debug only)")]
+        [SerializeField] private bool useDirectKcpBypass = false;
+        [SerializeField] private string battleKcpHost = "127.0.0.1";
+        [SerializeField] private int battleKcpPort = 19001;
+        [SerializeField] private ulong battleRoomId = 1;
+        [SerializeField] private ulong battleRoleId = 1;
+        [SerializeField] private string battleSessionToken = "";
 
         private bool allowLocalInput;
         private bool gameOverNotified;
         private Vector2 cachedPlayerTankPlanarPos;
         private Vector2 cachedAimDirection = new Vector2(1f, 0f);
 
-        private NetworkManager networkManager;
-        private float fixedUpdateTimer;
-        private const float fixedDeltaTime = LogicTiming.FixedDeltaTime;
-        private const int maxCatchUpStepsPerFrame = LogicTiming.MaxCatchUpStepsPerFrame;
+        private LocalFrameDriver localFrameDriver;
+        private KcpBattleClient kcpBattleClient;
+        private NetworkFrameDriver networkFrameDriver;
+        private GatewaySession gatewaySession;
+        private ulong onlineRoleId;
+        private bool onlineLobbyReady;
 
-        private readonly Queue<PlayerInput> inputQueue = new Queue<PlayerInput>();
-        private uint currentFrame;
-        
         // 事件委托
         public delegate void GameStateChangedHandler(GameSnapshot snapshot);
         public delegate void PlayerJoinedHandler(PlayerInfo player);
@@ -656,15 +718,37 @@ namespace TankBattle
         public event PlayerLeftHandler OnPlayerLeft;
         public event GameStartedHandler OnGameStarted;
         public event GameEndedHandler OnGameEnded;
+
+        public bool UseNetworkTransport => useNetworkTransport;
+        public bool UseDirectKcpBypass => useDirectKcpBypass;
+
+        /// <summary>由 GameManager 在启动时设置；场景里旧序列化值会被覆盖。</summary>
+        public void SetUseNetworkTransport(bool enabled)
+        {
+            useNetworkTransport = enabled;
+        }
+        /// <summary>已完成 HTTP 登录并进入 Lobby（Gateway 仍保持连接）。</summary>
+        public bool IsOnlineLoggedIn =>
+            useNetworkTransport && onlineLobbyReady &&
+            (useDirectKcpBypass || (gatewaySession != null && gatewaySession.IsRunning));
+        public bool IsInBattle =>
+            useNetworkTransport && kcpBattleClient != null && kcpBattleClient.IsRunning;
+        public string LoginOpenId => openId;
         
         private void Awake()
         {
             gameCore = new TankBattleNative.GameCore();
             gameCore.Initialize(8);
-
-            networkManager = GetComponent<NetworkManager>();
-            if (networkManager == null)
-                networkManager = gameObject.AddComponent<NetworkManager>();
+            localFrameDriver = new LocalFrameDriver(gameCore);
+            kcpBattleClient = new KcpBattleClient();
+            networkFrameDriver = new NetworkFrameDriver(gameCore, kcpBattleClient, BuildLocalPlayerInput);
+            networkFrameDriver.OnSimulationStarted += OnNetworkSimulationStarted;
+            networkFrameDriver.OnSimulationEnded += OnNetworkSimulationEnded;
+            gatewaySession = new GatewaySession();
+            gatewaySession.OnDisconnected += () =>
+            {
+                onlineLobbyReady = false;
+            };
         }
 
         /// <summary>供 GameManager 调用，与 Awake 中的初始化兼容。</summary>
@@ -675,6 +759,13 @@ namespace TankBattle
         /// <summary>本地模式：在 Native 中注册玩家并返回 playerId。</summary>
         public uint ConnectToServer(string name, Faction faction)
         {
+            if (useNetworkTransport)
+            {
+                playerName = string.IsNullOrEmpty(name) ? "Player" : name;
+                selectedFaction = faction;
+                return 0; // online: playerId assigned after Snapshot
+            }
+
             if (gameCore == null) return 0;
             playerName = string.IsNullOrEmpty(name) ? "Player" : name;
             selectedFaction = faction;
@@ -695,15 +786,283 @@ namespace TankBattle
 
         public void RequestStartGame()
         {
+            if (useNetworkTransport)
+            {
+                if (useDirectKcpBypass)
+                {
+                    _ = EnterBattleAsync(BuildInspectorSession());
+                    return;
+                }
+
+                if (!IsOnlineLoggedIn)
+                {
+                    Debug.LogError("TankBattleClient: 尚未登录 Lobby，请先登录再开始游戏");
+                    return;
+                }
+
+                _ = StartOnlineBattleAsync();
+                return;
+            }
+
             if (gameCore == null) return;
             gameOverNotified = false;
             uint seed = (uint)(DateTime.UtcNow.Ticks & 0xFFFFFFFF);
             gameCore.SetRandomSeed(seed);
             gameCore.StartGame();
             allowLocalInput = true;
-            fixedUpdateTimer = 0f;
-            currentFrame = 0;
+            localFrameDriver.Reset();
             OnGameStarted?.Invoke();
+        }
+
+        /// <summary>
+        /// HTTP login/createRole/enterGame → Gateway Auth → ENTERLOBBY。
+        /// 只做一次；之后开始游戏只开战斗房间。
+        /// </summary>
+        public async Task<bool> LoginAndEnterLobbyAsync(string accountOpenId = null)
+        {
+            if (!useNetworkTransport)
+            {
+                Debug.LogWarning("TankBattleClient: 本地模式无需登录");
+                return true;
+            }
+
+            if (useDirectKcpBypass)
+            {
+                onlineLobbyReady = true;
+                Debug.LogWarning("TankBattleClient: direct KCP bypass，跳过 Login/Lobby");
+                return true;
+            }
+
+            if (IsOnlineLoggedIn)
+                return true;
+
+            try
+            {
+                onlineLobbyReady = false;
+                if (!string.IsNullOrEmpty(accountOpenId))
+                    openId = accountOpenId.Trim();
+
+                string accountName = string.IsNullOrEmpty(openId) ? playerName : openId;
+                if (string.IsNullOrEmpty(playerName) || playerName == "Player")
+                    playerName = accountName;
+
+                Debug.Log($"TankBattleClient: login openId={accountName}");
+
+                var account = await LoginHttpClient.LoginAsync(loginBaseUrl, accountName);
+                if (account.RoleId == 0)
+                {
+                    Debug.Log("TankBattleClient: no role, createRole...");
+                    account.RoleId = await LoginHttpClient.CreateRoleAsync(
+                        loginBaseUrl, account.UserId, account.Token, gameServerId, accountName);
+                }
+
+                onlineRoleId = account.RoleId;
+                Debug.Log($"TankBattleClient: enterGame userId={account.UserId} roleId={account.RoleId}");
+
+                var enter = await LoginHttpClient.EnterGameAsync(
+                    loginBaseUrl, account.UserId, account.RoleId, account.Token, gameServerId);
+
+                string cipher = Guid.NewGuid().ToString("N");
+                bool authOk = await gatewaySession.ConnectAndAuthAsync(
+                    enter.Host, enter.Port, account.UserId, enter.GToken, enter.GateId, cipher);
+                if (!authOk)
+                {
+                    Debug.LogError("TankBattleClient: gateway auth connect failed");
+                    return false;
+                }
+
+                if (!await WaitTaskWithTimeout(gatewaySession.WaitEnterLobbyAsync(), 15f, "ENTERLOBBY"))
+                {
+                    gatewaySession.Disconnect();
+                    return false;
+                }
+
+                onlineLobbyReady = true;
+                Debug.Log("TankBattleClient: entered Lobby (ready to StartBattle)");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                onlineLobbyReady = false;
+                Debug.LogError("TankBattleClient login failed: " + ex);
+                return false;
+            }
+        }
+
+        /// <summary>已在 Lobby：StartBattle → 拿房间地址 → KCP 开战。</summary>
+        public async Task<bool> StartOnlineBattleAsync()
+        {
+            try
+            {
+                gameOverNotified = false;
+                allowLocalInput = false;
+                networkFrameDriver.Reset();
+
+                if (useDirectKcpBypass)
+                    return await EnterBattleAsync(BuildInspectorSession());
+
+                if (!IsOnlineLoggedIn)
+                {
+                    Debug.LogError("TankBattleClient: StartOnlineBattle requires Lobby session");
+                    return false;
+                }
+
+                // 若上一局 KCP 未清干净，先退房间
+                if (kcpBattleClient != null && kcpBattleClient.IsRunning)
+                    LeaveBattle();
+
+                Debug.Log($"TankBattleClient: request StartBattle battleDefId={battleDefId}");
+                var battleTask = gatewaySession.RequestStartBattleAsync(battleDefId);
+                if (!await WaitTaskWithTimeout(battleTask, 15f, "BATTLE_ENTER"))
+                    return false;
+
+                if (battleTask.IsFaulted)
+                {
+                    Debug.LogError("TankBattleClient: StartBattle failed: " +
+                                   battleTask.Exception?.GetBaseException().Message);
+                    return false;
+                }
+
+                var info = battleTask.Result;
+                var session = new BattleEnterSession
+                {
+                    KcpHost = info.KcpHost,
+                    KcpPort = info.KcpPort,
+                    RoomId = info.RoomId,
+                    RoleId = onlineRoleId,
+                    BattleServerId = info.BattleServerId,
+                    SessionToken = info.SessionToken
+                };
+                return await EnterBattleAsync(session);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("TankBattleClient StartOnlineBattle failed: " + ex);
+                return false;
+            }
+        }
+
+        /// <summary>兼容旧调用：未登录则先登录再开战（一般由 UI 分步调用）。</summary>
+        public async Task<bool> StartOnlineFlowAsync()
+        {
+            if (!IsOnlineLoggedIn && !await LoginAndEnterLobbyAsync())
+                return false;
+            return await StartOnlineBattleAsync();
+        }
+
+        /// <summary>Online: connect Battle KCP with Lobby-issued enter info (or inspector bypass).</summary>
+        public async Task<bool> EnterBattleAsync(BattleEnterSession session)
+        {
+            if (gameCore == null || session == null)
+                return false;
+
+            useNetworkTransport = true;
+            gameOverNotified = false;
+            allowLocalInput = false;
+            networkFrameDriver.Reset();
+
+            bool ok = await kcpBattleClient.ConnectAndAuthAsync(session);
+            if (!ok)
+            {
+                Debug.LogError("TankBattleClient: Battle KCP connect failed");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>退出战斗房间（KCP），保留 Gateway/Lobby 登录态。</summary>
+        public void LeaveBattle()
+        {
+            allowLocalInput = false;
+            if (kcpBattleClient != null)
+            {
+                try
+                {
+                    if (kcpBattleClient.IsRunning)
+                        kcpBattleClient.LeaveRoom();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning("LeaveBattle LeaveRoom: " + ex.Message);
+                }
+                kcpBattleClient.Disconnect();
+            }
+
+            networkFrameDriver?.Reset();
+            gameCore?.Reset();
+            playerId = 0;
+            gameOverNotified = false;
+        }
+
+        /// <summary>退出战斗并断开 Gateway（需重新登录）。</summary>
+        public void Logout()
+        {
+            LeaveBattle();
+            onlineLobbyReady = false;
+            onlineRoleId = 0;
+            gatewaySession?.Disconnect();
+        }
+
+        private static async Task<bool> WaitTaskWithTimeout(Task task, float timeoutSeconds, string label)
+        {
+            float start = Time.realtimeSinceStartup;
+            while (!task.IsCompleted)
+            {
+                if (Time.realtimeSinceStartup - start > timeoutSeconds)
+                {
+                    Debug.LogError($"TankBattleClient: wait {label} timeout");
+                    return false;
+                }
+                await Task.Yield();
+            }
+
+            if (task.IsCanceled)
+            {
+                Debug.LogError($"TankBattleClient: {label} canceled");
+                return false;
+            }
+
+            return true;
+        }
+
+        private BattleEnterSession BuildInspectorSession()
+        {
+            return new BattleEnterSession
+            {
+                KcpHost = battleKcpHost,
+                KcpPort = battleKcpPort,
+                RoomId = battleRoomId,
+                RoleId = battleRoleId != 0 ? battleRoleId : onlineRoleId,
+                SessionToken = battleSessionToken
+            };
+        }
+
+        private void OnNetworkSimulationStarted()
+        {
+            playerId = networkFrameDriver.LocalPlayerId;
+            allowLocalInput = true;
+            gameOverNotified = false;
+            OnPlayerJoined?.Invoke(new PlayerInfo
+            {
+                id = playerId,
+                name = playerName,
+                faction = selectedFaction,
+                kills = 0,
+                score = 0,
+                isConnected = true
+            });
+            OnGameStarted?.Invoke();
+        }
+
+        private void OnNetworkSimulationEnded()
+        {
+            allowLocalInput = false;
+            CheckGameState();
+        }
+
+        public uint GetCurrentFrame()
+        {
+            return gameCore != null ? gameCore.GetFrame() : 0;
         }
 
         public bool LoadMapObstacles(string json)
@@ -721,18 +1080,27 @@ namespace TankBattle
             return snapshot?.obstacles;
         }
 
+        /// <summary>
+        /// 完全断开：退战斗 + 断 Gateway。返回选阵营菜单请用 <see cref="LeaveBattle"/>。
+        /// </summary>
         public void Disconnect(bool notifyPlayerLeft = true)
         {
-            allowLocalInput = false;
-            if (gameCore != null && playerId != 0)
+            uint left = playerId;
+            if (useNetworkTransport)
             {
-                uint left = playerId;
-                gameCore.RemovePlayer(playerId);
-                if (notifyPlayerLeft)
-                    OnPlayerLeft?.Invoke(left);
+                Logout();
             }
-            playerId = 0;
-            gameOverNotified = false;
+            else
+            {
+                allowLocalInput = false;
+                if (gameCore != null && playerId != 0)
+                    gameCore.RemovePlayer(playerId);
+                playerId = 0;
+                gameOverNotified = false;
+            }
+
+            if (notifyPlayerLeft && left != 0)
+                OnPlayerLeft?.Invoke(left);
         }
 
         public List<PlayerInfo> GetPlayersInfo()
@@ -759,12 +1127,19 @@ namespace TankBattle
 
         private void Start()
         {
-            if (useNetworkTransport)
-                networkManager.Connect("127.0.0.1", 8888, OnConnected, OnDisconnected, OnMessageReceived);
         }
         
         private void OnDestroy()
         {
+            if (networkFrameDriver != null)
+            {
+                networkFrameDriver.OnSimulationStarted -= OnNetworkSimulationStarted;
+                networkFrameDriver.OnSimulationEnded -= OnNetworkSimulationEnded;
+                networkFrameDriver.Dispose();
+                networkFrameDriver = null;
+            }
+            gatewaySession?.Disconnect();
+            kcpBattleClient?.Disconnect();
             if (gameCore != null)
             {
                 gameCore.Dispose();
@@ -774,48 +1149,33 @@ namespace TankBattle
         
         private void Update()
         {
-            fixedUpdateTimer += Time.deltaTime;
-            int steps = 0;
-            while (fixedUpdateTimer >= fixedDeltaTime && steps < maxCatchUpStepsPerFrame)
-            {
-                FixedUpdateGame(fixedDeltaTime);
-                fixedUpdateTimer -= fixedDeltaTime;
-                steps++;
-            }
-
             if (useNetworkTransport)
-                SendInputsToServer();
+            {
+                gatewaySession?.Update();
+                networkFrameDriver?.Tick();
+            }
+            else
+            {
+                localFrameDriver.Tick(Time.deltaTime, BuildLocalPlayerInput);
+            }
 
             UpdateGameState();
         }
 
-        private void FixedUpdateGame(float deltaTime)
+        private PlayerInput? BuildLocalPlayerInput()
         {
-            if (gameCore == null) return;
+            if (!allowLocalInput || playerId == 0)
+                return null;
 
-            ApplyNetworkInputs();
-
-            if (!useNetworkTransport && allowLocalInput && playerId != 0)
-                SubmitKeyboardInputForFixedStep();
-
-            gameCore.Update();
-            currentFrame++;
-            CheckGameState();
-        }
-
-        /// <summary>每个固定步送一条输入到 C++（与 GameCore::Update 内消费 pending 一致）。</summary>
-        private void SubmitKeyboardInputForFixedStep()
-        {
             Vector2 move = ReadMoveAxes();
             Vector2 aim = ReadAimDirection();
 
             bool fire = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.F) || Input.GetMouseButton(0);
             bool useAbility = Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.LeftShift);
 
-            gameCore.ProcessPlayerInput(new PlayerInput
+            return new PlayerInput
             {
                 playerId = playerId,
-                frame = currentFrame + 1,
                 moveX = PlayerInput.QuantizeDirection(move.x),
                 moveY = PlayerInput.QuantizeDirection(move.y),
                 aimX = PlayerInput.QuantizeDirection(aim.x),
@@ -823,7 +1183,7 @@ namespace TankBattle
                 fire = fire,
                 useAbility = useAbility,
                 timestamp = (ulong)(Time.time * 1000.0)
-            });
+            };
         }
 
         private static Vector2 TransformCameraPlanarInput(float strafe, float forward)
@@ -902,76 +1262,6 @@ namespace TankBattle
 
             return cachedAimDirection;
         }
-        
-        private void OnConnected()
-        {
-            Debug.Log("Connected to game server");
-            
-            // 发送加入游戏请求
-            var joinMessage = new JoinGameMessage
-            {
-                playerName = playerName,
-                faction = (int)selectedFaction
-            };
-            
-            networkManager.Send(SerializeMessage(joinMessage));
-        }
-        
-        private void OnDisconnected()
-        {
-            Debug.Log("Disconnected from game server");
-        }
-        
-        private void OnMessageReceived(byte[] data)
-        {
-            // 解析消息
-            var message = DeserializeMessage(data);
-            if (message == null) return;
-            
-            switch (message.type)
-            {
-                case MessageType.PlayerJoined:
-                    HandlePlayerJoined(message as PlayerJoinedMessage);
-                    break;
-                    
-                case MessageType.PlayerLeft:
-                    HandlePlayerLeft(message as PlayerLeftMessage);
-                    break;
-                    
-                case MessageType.GameStart:
-                    HandleGameStart(message as GameStartMessage);
-                    break;
-                    
-                case MessageType.GameEnd:
-                    HandleGameEnd(message as GameEndMessage);
-                    break;
-                    
-                case MessageType.GameStateUpdate:
-                    HandleGameStateUpdate(message as GameStateUpdateMessage);
-                    break;
-            }
-        }
-        
-        private void SendInputsToServer()
-        {
-            if (inputQueue.Count == 0) return;
-
-            var inputs = inputQueue.ToArray();
-            inputQueue.Clear();
-
-            var message = new PlayerInputMessage
-            {
-                type = MessageType.PlayerInput,
-                playerId = playerId,
-                inputs = inputs
-            };
-
-            networkManager.Send(SerializeMessage(message));
-        }
-
-        private void ApplyNetworkInputs()
-        {
-        }
 
         private void UpdateGameState()
         {
@@ -982,6 +1272,7 @@ namespace TankBattle
 
             RefreshCachedPlayerPlanarPosition(snapshot);
             OnGameStateChanged?.Invoke(snapshot);
+            CheckGameState();
         }
 
         private void RefreshCachedPlayerPlanarPosition(GameSnapshot snapshot)
@@ -1013,154 +1304,6 @@ namespace TankBattle
             Faction winner = gameCore.GetWinner();
             Debug.Log($"Game Over! Winner: {winner}");
             OnGameEnded?.Invoke(winner);
-        }
-        
-        // 消息处理
-        private void HandlePlayerJoined(PlayerJoinedMessage message)
-        {
-            if (message.playerId == playerId)
-            {
-                // 这是自己加入游戏
-                playerId = message.playerId;
-                Debug.Log($"Joined game as Player {playerId}");
-            }
-            
-            var playerInfo = new PlayerInfo
-            {
-                id = message.playerId,
-                name = message.playerName,
-                faction = (Faction)message.faction
-            };
-            
-            OnPlayerJoined?.Invoke(playerInfo);
-        }
-        
-        private void HandlePlayerLeft(PlayerLeftMessage message)
-        {
-            OnPlayerLeft?.Invoke(message.playerId);
-        }
-        
-        private void HandleGameStart(GameStartMessage message)
-        {
-            gameCore.SetRandomSeed(message.randomSeed);
-            gameCore.StartGame();
-            allowLocalInput = true;
-            gameOverNotified = false;
-            OnGameStarted?.Invoke();
-        }
-        
-        private void HandleGameEnd(GameEndMessage message)
-        {
-            Faction winner = (Faction)message.winnerFaction;
-            OnGameEnded?.Invoke(winner);
-        }
-        
-        private void HandleGameStateUpdate(GameStateUpdateMessage message)
-        {
-            // 服务器权威状态更新
-            // 这里可以应用服务器校正
-            
-            // 应用输入
-            foreach (var input in message.inputs)
-            {
-                gameCore.ProcessPlayerInput(input);
-            }
-            
-            // 获取并应用状态
-            UpdateGameState();
-        }
-        
-        // 序列化/反序列化
-        private byte[] SerializeMessage(BaseMessage message)
-        {
-            // 实现消息序列化
-            return new byte[0]; // 简化实现
-        }
-        
-        private BaseMessage DeserializeMessage(byte[] data)
-        {
-            // 实现消息反序列化
-            return null; // 简化实现
-        }
-    }
-    
-    // 网络消息定义
-    public enum MessageType
-    {
-        Connect = 0,
-        PlayerInput = 1,
-        GameStateUpdate = 2,
-        PlayerJoined = 3,
-        PlayerLeft = 4,
-        GameStart = 5,
-        GameEnd = 6,
-        AbilityUsed = 7
-    }
-    
-    public abstract class BaseMessage
-    {
-        public MessageType type;
-    }
-    
-    public class JoinGameMessage : BaseMessage
-    {
-        public string playerName;
-        public int faction;
-    }
-    
-    public class PlayerInputMessage : BaseMessage
-    {
-        public uint playerId;
-        public PlayerInput[] inputs;
-    }
-    
-    public class GameStateUpdateMessage : BaseMessage
-    {
-        public uint frame;
-        public PlayerInput[] inputs;
-        // 可以包含完整状态或差异状态
-    }
-    
-    public class PlayerJoinedMessage : BaseMessage
-    {
-        public uint playerId;
-        public string playerName;
-        public int faction;
-    }
-    
-    public class PlayerLeftMessage : BaseMessage
-    {
-        public uint playerId;
-    }
-    
-    public class GameStartMessage : BaseMessage
-    {
-        public uint randomSeed;
-    }
-    
-    public class GameEndMessage : BaseMessage
-    {
-        public int winnerFaction;
-    }
-    
-    // 简化的网络管理器
-    public class NetworkManager : MonoBehaviour
-    {
-        public void Connect(string address, int port, 
-            Action onConnected, Action onDisconnected, 
-            Action<byte[]> onMessageReceived)
-        {
-            // 实现网络连接逻辑
-        }
-        
-        public void Send(byte[] data)
-        {
-            // 实现发送逻辑
-        }
-        
-        public void Disconnect()
-        {
-            // 实现断开连接逻辑
         }
     }
 }

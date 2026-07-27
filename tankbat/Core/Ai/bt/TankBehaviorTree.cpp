@@ -4,6 +4,7 @@
 #include "../AiPerception.h"
 #include "../../Common/AngleLUT.h"
 #include "../../Common/Constants.h"
+#include "../../Common/CppCompat.h"
 #include "../../Common/FixedMath.h"
 #include "../../TankLogicView.h"
 
@@ -239,39 +240,41 @@ namespace TankBattle
 
     std::unique_ptr<BTNode> BuildDefaultTankBehaviorTree()
     {
-        auto root = std::make_unique<BTSelector>();
+        // 用 BTNode 类型持有，避免 GCC 4.8 无法把 unique_ptr<BTSelector> 左值隐式转成 unique_ptr<BTNode>
+        std::unique_ptr<BTNode> root = MakeUnique<BTSelector>();
+        BTSelector* rootSel = static_cast<BTSelector*>(root.get());
 
         {
-            auto emergency = std::make_unique<BTSequence>();
-            emergency->AddChild(std::make_unique<BTCondition>(CondHpLow));
-            emergency->AddChild(std::make_unique<BTAction>(ActUseAbility));
-            root->AddChild(std::move(emergency));
+            auto emergency = MakeUnique<BTSequence>();
+            emergency->AddChild(MakeUnique<BTCondition>(CondHpLow));
+            emergency->AddChild(MakeUnique<BTAction>(ActUseAbility));
+            rootSel->AddChild(std::move(emergency));
         }
 
         {
-            auto combat = std::make_unique<BTSequence>();
-            combat->AddChild(std::make_unique<BTAction>(ActSelectTarget));
+            auto combat = MakeUnique<BTSequence>();
+            combat->AddChild(MakeUnique<BTAction>(ActSelectTarget));
 
-            auto positioning = std::make_unique<BTSelector>();
+            auto positioning = MakeUnique<BTSelector>();
             {
-                auto approach = std::make_unique<BTSequence>();
-                approach->AddChild(std::make_unique<BTCondition>(CondTooFar));
-                approach->AddChild(std::make_unique<BTAction>(ActApproach));
+                auto approach = MakeUnique<BTSequence>();
+                approach->AddChild(MakeUnique<BTCondition>(CondTooFar));
+                approach->AddChild(MakeUnique<BTAction>(ActApproach));
                 positioning->AddChild(std::move(approach));
             }
             {
-                auto retreat = std::make_unique<BTSequence>();
-                retreat->AddChild(std::make_unique<BTCondition>(CondTooClose));
-                retreat->AddChild(std::make_unique<BTAction>(ActRetreat));
+                auto retreat = MakeUnique<BTSequence>();
+                retreat->AddChild(MakeUnique<BTCondition>(CondTooClose));
+                retreat->AddChild(MakeUnique<BTAction>(ActRetreat));
                 positioning->AddChild(std::move(retreat));
             }
-            positioning->AddChild(std::make_unique<BTAction>(ActStrafe));
+            positioning->AddChild(MakeUnique<BTAction>(ActStrafe));
             combat->AddChild(std::move(positioning));
-            combat->AddChild(std::make_unique<BTAction>(ActFireIfReady));
-            root->AddChild(std::move(combat));
+            combat->AddChild(MakeUnique<BTAction>(ActFireIfReady));
+            rootSel->AddChild(std::move(combat));
         }
 
-        root->AddChild(std::make_unique<BTAction>(ActWander));
+        rootSel->AddChild(MakeUnique<BTAction>(ActWander));
         return root;
     }
 }

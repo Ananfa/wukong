@@ -16,12 +16,16 @@ namespace TankBattle
     {
         Pos x = 0;
         Pos y = 0;
+        FixedVec2() = default;
+        FixedVec2(Pos x_, Pos y_) : x(x_), y(y_) {}
     };
 
     struct FixedVel2
     {
         Vel x = 0;
         Vel y = 0;
+        FixedVel2() = default;
+        FixedVel2(Vel x_, Vel y_) : x(x_), y(y_) {}
     };
 
     inline float PosToWorld(Pos pos)
@@ -80,11 +84,11 @@ namespace TankBattle
     inline FixedVel2 ScaleVelPerFrame(FixedVel2 vel, int numerator, int denominator)
     {
         if (denominator == 0)
-            return {0, 0};
-        return {
+            return FixedVel2(Vel(0), Vel(0));
+        return FixedVel2(
             static_cast<Vel>((static_cast<int64_t>(vel.x) * numerator) / denominator),
             static_cast<Vel>((static_cast<int64_t>(vel.y) * numerator) / denominator)
-        };
+        );
     }
 
     inline void ApplyRecoilDecay(FixedVel2& recoilVel)

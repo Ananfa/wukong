@@ -128,12 +128,21 @@ TANKBATTLE_API void TB_DestroyGame(TankBattleGame game);
 // 初始化游戏
 TANKBATTLE_API unsigned char TB_Initialize(TankBattleGame game, unsigned int maxPlayers);
 
-// 更新游戏逻辑
-    // deltaTime 保留兼容 Unity 调用，Core 固定 30Hz 每帧一步，参数忽略
-    TANKBATTLE_API void TB_Update(TankBattleGame game, float deltaTime);
+// 更新游戏逻辑（等价于 TB_AdvanceSimulation；须先 TB_SetFrameInputs）
+TANKBATTLE_API void TB_Update(TankBattleGame game, float deltaTime);
 
-    // 返回权威逻辑帧固定步长（秒），与 kFixedLogicDeltaTime 一致
-    TANKBATTLE_API float TB_GetFixedLogicDeltaTime();
+TANKBATTLE_API unsigned int TB_GetFrame(TankBattleGame game);
+
+TANKBATTLE_API unsigned char TB_SetFrameInputs(
+    TankBattleGame game,
+    unsigned int frame,
+    const TB_PlayerInput* inputs,
+    unsigned int count);
+
+TANKBATTLE_API void TB_AdvanceSimulation(TankBattleGame game);
+
+// 返回权威逻辑帧固定步长（秒），与 kFixedLogicDeltaTime 一致
+TANKBATTLE_API float TB_GetFixedLogicDeltaTime();
 
 // 添加玩家
 TANKBATTLE_API unsigned int TB_AddPlayer(TankBattleGame game, const char* name, int faction);

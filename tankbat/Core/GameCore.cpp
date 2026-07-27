@@ -35,61 +35,89 @@ namespace TankBattle
     
     void GameCore::Update()
     {
+        AdvanceSimulation();
+    }
+
+    uint32_t GameCore::GetFrame() const
+    {
         std::lock_guard<std::mutex> lock(m_mutex);
-        
-        if (m_state != GameState::Playing) return;
+        return m_frame;
+    }
+
+    bool GameCore::SetFrameInputs(uint32_t frame, const PlayerInput* inputs, size_t count)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (m_state != GameState::Playing)
+            return false;
+        if (frame != m_frame + 1)
+            return false;
+
+        m_frameInputs.clear();
+        if (inputs != nullptr)
+        {
+            for (size_t i = 0; i < count; ++i)
+            {
+                const PlayerInput& src = inputs[i];
+                if (m_players.find(src.playerId) == m_players.end())
+                    continue;
+                if (!m_players[src.playerId].isConnected)
+                    continue;
+
+                PlayerInput stored = src;
+                stored.frame = frame;
+                m_frameInputs[src.playerId] = stored;
+            }
+        }
+        return true;
+    }
+
+    void GameCore::ApplyPlayerFrameInputs()
+    {
+        for (const auto& entry : m_frameInputs)
+        {
+            const uint32_t playerId = entry.first;
+            const PlayerInput& input = entry.second;
+
+            auto tankIt = std::find_if(m_tanks.begin(), m_tanks.end(),
+                [playerId](const std::pair<uint32_t, std::shared_ptr<Tank>>& pair) {
+                    return pair.second->GetPlayerId() == playerId;
+                });
+
+            if (tankIt == m_tanks.end() || !tankIt->second->IsAlive())
+                continue;
+
+            tankIt->second->Update({}, input.moveX, input.moveY);
+
+            const int64_t aimLenSq =
+                static_cast<int64_t>(input.aimX) * input.aimX
+                + static_cast<int64_t>(input.aimY) * input.aimY;
+            if (aimLenSq > kAngleSinCosScale)
+                tankIt->second->SetTurretAim(input.aimX, input.aimY);
+
+            if (input.fire)
+            {
+                auto bullet = tankIt->second->Fire();
+                if (bullet)
+                    m_bullets.push_back(bullet);
+            }
+
+            if (input.useAbility)
+                tankIt->second->UseAbility();
+        }
+    }
+
+    void GameCore::AdvanceSimulation()
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (m_state != GameState::Playing)
+            return;
 
         ++m_frame;
-        
-        // 处理玩家输入
-        for (auto& entry : m_pendingInputs)
-        {
-            auto& playerId = entry.first;   // 或者使用 .key/.value
-            auto& inputs = entry.second;
-            for (const auto& input : inputs)
-            {
-                // 查找玩家的坦克
-                //auto tankIt = std::find_if(m_tanks.begin(), m_tanks.end(),
-                //    [playerId](const auto& pair) {
-                //        return pair.second->GetPlayerId() == playerId;
-                //    });
-                auto tankIt = std::find_if(m_tanks.begin(), m_tanks.end(),
-                    [playerId](const std::pair<uint32_t, std::shared_ptr<Tank>>& pair) {
-                        return pair.second->GetPlayerId() == playerId;
-                    });
-                
-                if (tankIt != m_tanks.end() && tankIt->second->IsAlive())
-                {
-                    // 应用移动输入
-                    tankIt->second->Update({}, input.moveX, input.moveY);
+        ApplyPlayerFrameInputs();
+        m_frameInputs.clear();
 
-                    const int64_t aimLenSq =
-                        static_cast<int64_t>(input.aimX) * input.aimX
-                        + static_cast<int64_t>(input.aimY) * input.aimY;
-                    if (aimLenSq > kAngleSinCosScale)
-                        tankIt->second->SetTurretAim(input.aimX, input.aimY);
-                    
-                    // 处理开火
-                    if (input.fire)
-                    {
-                        auto bullet = tankIt->second->Fire();
-                        if (bullet)
-                        {
-                            m_bullets.push_back(bullet);
-                        }
-                    }
-                    
-                    // 处理技能
-                    if (input.useAbility)
-                    {
-                        tankIt->second->UseAbility();
-                    }
-                }
-            }
-            inputs.clear();
-        }
-        
-        // 更新游戏逻辑
         UpdateTanks();
         ResolveTankOverlaps();
         ResolveObstacleCollisions();
@@ -98,10 +126,9 @@ namespace TankBattle
 
         CheckCollisions();
         CleanupDeadUnits();
-        
-        // AI 缺员补位（无限补员模式）
+
         GenerateAITanks();
-        
+
         CheckGameEnd();
     }
     
@@ -118,8 +145,8 @@ namespace TankBattle
         
         m_players[playerId] = player;
         
-        // 如果游戏正在进行中，为玩家创建坦克
-        if (m_state == GameState::Playing)
+            // 如果游戏正在进行中，为玩家创建坦克
+            if (m_state == GameState::Playing)
         {
             uint32_t tankId = m_nextTankId++;
             auto tank = CreateTankInstance(tankId, playerId, faction, true);
@@ -152,7 +179,7 @@ namespace TankBattle
             }
             
             // 移除待处理的输入
-            m_pendingInputs.erase(playerId);
+            m_frameInputs.erase(playerId);
         }
     }
     
@@ -162,8 +189,15 @@ namespace TankBattle
         
         if (m_players.find(input.playerId) == m_players.end()) return;
         if (!m_players[input.playerId].isConnected) return;
-        
-        m_pendingInputs[input.playerId].push_back(input);
+        if (m_state != GameState::Playing) return;
+
+        const uint32_t targetFrame = input.frame != 0 ? input.frame : (m_frame + 1);
+        if (targetFrame != m_frame + 1)
+            return;
+
+        PlayerInput stored = input;
+        stored.frame = targetFrame;
+        m_frameInputs[input.playerId] = stored;
     }
     
     void GameCore::StartGame()
@@ -173,6 +207,8 @@ namespace TankBattle
         if (m_state != GameState::Waiting) return;
 
         m_frame = 0;
+        m_frameInputs.clear();
+        Tank::ResetBulletIdCounter();
 
         for (const auto& entry : m_players)
         {
@@ -202,12 +238,13 @@ namespace TankBattle
         m_tanks.clear();
         m_bullets.clear();
         m_players.clear();
-        m_pendingInputs.clear();
+        m_frameInputs.clear();
         
         m_frame = 0;
         m_state = GameState::Waiting;
         m_nextPlayerId = 1;
         m_nextTankId = 1;
+        Tank::ResetBulletIdCounter();
         m_aiController.Clear();
         m_factionKills[0] = m_factionKills[1] = m_factionKills[2] = m_factionKills[3] = 0;
         m_factionDeaths[0] = m_factionDeaths[1] = m_factionDeaths[2] = m_factionDeaths[3] = 0;
@@ -333,7 +370,7 @@ namespace TankBattle
             m_frame, purpose, entityId, minX, maxX + 1, salt);
         const int ySub = m_rng.UniformWorldSubunits(
             m_frame, purpose, entityId, minY, maxY + 1, salt + 1);
-        return {static_cast<Pos>(xSub), static_cast<Pos>(ySub)};
+        return FixedVec2(static_cast<Pos>(xSub), static_cast<Pos>(ySub));
     }
 
     std::shared_ptr<Tank> GameCore::CreateTankInstance(

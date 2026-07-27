@@ -16,11 +16,11 @@ namespace TankBattle
 
         std::vector<FixedVec2> pathWaypoints;
         size_t pathWaypointIndex = 0;
-        FixedVec2 pathGoal{};
+        FixedVec2 pathGoal;
         uint32_t pathTargetId = 0;
         AiMoveMode pathMoveMode = AiMoveMode::None;
         int pathRecalcFramesRemaining = 0;
-        FixedVec2 wanderPathGoal{};
+        FixedVec2 wanderPathGoal;
         int wanderPathFramesRemaining = 0;
     };
 }

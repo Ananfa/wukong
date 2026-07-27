@@ -36,7 +36,53 @@ extern "C"
     TANKBATTLE_API void TB_Update(TankBattleGame game, float /*deltaTime*/)
     {
         auto wrapper = static_cast<GameCoreWrapper*>(game);
-        wrapper->gameCore.Update();
+        wrapper->gameCore.AdvanceSimulation();
+    }
+
+    TANKBATTLE_API unsigned int TB_GetFrame(TankBattleGame game)
+    {
+        auto wrapper = static_cast<GameCoreWrapper*>(game);
+        return wrapper->gameCore.GetFrame();
+    }
+
+    TANKBATTLE_API unsigned char TB_SetFrameInputs(
+        TankBattleGame game,
+        unsigned int frame,
+        const TB_PlayerInput* inputs,
+        unsigned int count)
+    {
+        if (!game)
+            return 0;
+
+        auto wrapper = static_cast<GameCoreWrapper*>(game);
+        if (count == 0 || inputs == nullptr)
+            return wrapper->gameCore.SetFrameInputs(frame, nullptr, 0) ? 1 : 0;
+
+        std::vector<PlayerInput> nativeInputs;
+        nativeInputs.reserve(count);
+        for (unsigned int i = 0; i < count; ++i)
+        {
+            const TB_PlayerInput& src = inputs[i];
+            PlayerInput dst;
+            dst.playerId = src.playerId;
+            dst.frame = src.frame;
+            dst.moveX = src.moveX;
+            dst.moveY = src.moveY;
+            dst.aimX = src.aimX;
+            dst.aimY = src.aimY;
+            dst.fire = src.fire != 0;
+            dst.useAbility = src.useAbility != 0;
+            dst.timestamp = src.timestamp;
+            nativeInputs.push_back(dst);
+        }
+
+        return wrapper->gameCore.SetFrameInputs(frame, nativeInputs.data(), nativeInputs.size()) ? 1 : 0;
+    }
+
+    TANKBATTLE_API void TB_AdvanceSimulation(TankBattleGame game)
+    {
+        auto wrapper = static_cast<GameCoreWrapper*>(game);
+        wrapper->gameCore.AdvanceSimulation();
     }
 
     TANKBATTLE_API float TB_GetFixedLogicDeltaTime()

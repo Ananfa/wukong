@@ -66,7 +66,8 @@ namespace TankBattle
             uint32_t salt = 0) const
         {
             std::uniform_int_distribution<int> dist(minInclusive, maxExclusive - 1);
-            return dist(MakeEngine(frameIndex, purpose, entityId, salt));
+            auto engine = MakeEngine(frameIndex, purpose, entityId, salt);
+            return dist(engine);
         }
 
         // [0, kRngAngleUnits) 离散角度单元，用 AngleUnitsToRadians 转弧度

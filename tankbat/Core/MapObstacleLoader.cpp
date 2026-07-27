@@ -306,15 +306,26 @@ namespace TankBattle
         const Pos worldWidth = static_cast<Pos>(kDefaultWorldSizePosValue);
         const Pos worldHeight = static_cast<Pos>(kDefaultWorldSizePosValue);
 
-        outSpawnZones[0] = {margin, margin + spread, margin, margin + spread};
-        outSpawnZones[1] = {worldWidth - margin - spread, worldWidth - margin, margin, margin + spread};
-        outSpawnZones[2] = {margin, margin + spread, worldHeight - margin - spread, worldHeight - margin};
-        outSpawnZones[3] = {
-            worldWidth - margin - spread,
-            worldWidth - margin,
-            worldHeight - margin - spread,
-            worldHeight - margin
-        };
+        // GCC 4.8 / C++11：带 NSDMI 的结构体非 aggregate，不能用 = {..} 赋值
+        outSpawnZones[0].minX = margin;
+        outSpawnZones[0].maxX = margin + spread;
+        outSpawnZones[0].minY = margin;
+        outSpawnZones[0].maxY = margin + spread;
+
+        outSpawnZones[1].minX = worldWidth - margin - spread;
+        outSpawnZones[1].maxX = worldWidth - margin;
+        outSpawnZones[1].minY = margin;
+        outSpawnZones[1].maxY = margin + spread;
+
+        outSpawnZones[2].minX = margin;
+        outSpawnZones[2].maxX = margin + spread;
+        outSpawnZones[2].minY = worldHeight - margin - spread;
+        outSpawnZones[2].maxY = worldHeight - margin;
+
+        outSpawnZones[3].minX = worldWidth - margin - spread;
+        outSpawnZones[3].maxX = worldWidth - margin;
+        outSpawnZones[3].minY = worldHeight - margin - spread;
+        outSpawnZones[3].maxY = worldHeight - margin;
     }
 
     bool ParseMapConfigFromJson(

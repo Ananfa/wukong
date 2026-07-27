@@ -22,8 +22,16 @@ namespace TankBattle
         // 初始化游戏
         bool Initialize(uint32_t maxPlayers = 8);
         
-        // 更新游戏逻辑（固定 30Hz，每帧一步）
+        // 更新游戏逻辑（固定 30Hz，每帧一步；等价于 AdvanceSimulation，需先 SetFrameInputs）
         void Update();
+
+        uint32_t GetFrame() const;
+
+        // 设置下一逻辑帧的玩家输入（frame 必须等于 GetFrame()+1；无输入的玩家本帧不移动/不开火）
+        bool SetFrameInputs(uint32_t frame, const PlayerInput* inputs, size_t count);
+
+        // 推进一帧模拟（应用已设置的帧输入后执行物理/AI/碰撞）
+        void AdvanceSimulation();
         
         // 添加玩家
         uint32_t AddPlayer(const std::string& name, Faction faction);
@@ -131,6 +139,8 @@ namespace TankBattle
 
         // 检查游戏结束条件
         void CheckGameEnd();
+
+        void ApplyPlayerFrameInputs();
         
     private:
         mutable std::mutex m_mutex;
@@ -141,7 +151,7 @@ namespace TankBattle
         std::vector<std::shared_ptr<BulletState>> m_bullets;
         
         std::map<uint32_t, PlayerInfo> m_players;
-        std::map<uint32_t, std::vector<PlayerInput>> m_pendingInputs;
+        std::map<uint32_t, PlayerInput> m_frameInputs;
         
         uint32_t m_nextPlayerId = 1;
         uint32_t m_nextTankId = 1;

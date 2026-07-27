@@ -5,6 +5,11 @@
 namespace TankBattle
 {
     uint32_t Tank::s_nextBulletId = 1;
+
+    void Tank::ResetBulletIdCounter()
+    {
+        s_nextBulletId = 1;
+    }
     
 Tank::Tank(uint32_t id, uint32_t playerId, Faction faction, TankType type, 
            const FixedVec2& position, bool isPlayer, Angle initialRotation)

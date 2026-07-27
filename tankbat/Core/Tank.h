@@ -58,6 +58,8 @@ namespace TankBattle
 
         // 玩家在复活点重生（GameCore 调用）
         void RespawnAt(const FixedVec2& position, Angle initialRotation = 0);
+
+        static void ResetBulletIdCounter();
         
     private:
         // 坦克配置

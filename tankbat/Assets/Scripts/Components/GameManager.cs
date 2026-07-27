@@ -9,6 +9,8 @@ using TankBattle;
 public class GameManager : MonoBehaviour
 {
     [Header("UI引用")]
+    [SerializeField] private GameObject modeSelectUI;
+    [SerializeField] private GameObject loginUI;
     [SerializeField] private GameObject mainMenuUI;
     [SerializeField] private GameObject gameUI;
     [SerializeField] private GameObject gameOverUI;
@@ -22,6 +24,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button quitButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button menuButton;
+
+    [Header("模式选择")]
+    [SerializeField] private Button offlineModeButton;
+    [SerializeField] private Button onlineModeButton;
+
+    [Header("登录UI")]
+    [SerializeField] private InputField accountInput;
+    [SerializeField] private Button loginButton;
+    [SerializeField] private Button loginBackButton;
+    [SerializeField] private Text loginStatusText;
     
     [Header("UI组件")]
     [SerializeField] private Text scoreText;
@@ -104,6 +116,7 @@ public class GameManager : MonoBehaviour
     
     // 网络
     private uint playerId = 0;
+    private bool loginInProgress;
 
     /// <summary>战场在 Unity 中的 XZ 尺寸（由 mapSize × worldDisplayScale 得到）。</summary>
     private UnityEngine.Vector2 UnityMapSize => new UnityEngine.Vector2(mapSize.x * worldDisplayScale, mapSize.y * worldDisplayScale);
@@ -166,13 +179,15 @@ public class GameManager : MonoBehaviour
             1.5f,
             bgmCrossfadeSeconds);
         
-        // 初始化网络客户端
+        // 初始化；单机/联网由模式选择界面决定
         tankBattleClient.Initialize();
+        tankBattleClient.SetUseNetworkTransport(false);
     }
     
     private void Start()
     {
         EnsureItalyMenuButton();
+        EnsureModeSelectUI();
 
         // 绑定UI事件
         if (sovietButton != null) sovietButton.onClick.AddListener(() => SelectFaction(Faction.Soviet));
@@ -183,9 +198,11 @@ public class GameManager : MonoBehaviour
         if (quitButton != null) quitButton.onClick.AddListener(QuitGame);
         if (restartButton != null) restartButton.onClick.AddListener(RestartGame);
         if (menuButton != null) menuButton.onClick.AddListener(ReturnToMenu);
+        if (offlineModeButton != null) offlineModeButton.onClick.AddListener(OnSelectOfflineMode);
+        if (onlineModeButton != null) onlineModeButton.onClick.AddListener(OnSelectOnlineMode);
         
-        // 显示主菜单
-        ShowMainMenu();
+        Debug.Log("GameManager: ShowModeSelectUI");
+        ShowModeSelectUI();
         
         // 初始化小地图
         if (minimapCamera != null)
@@ -283,6 +300,319 @@ public class GameManager : MonoBehaviour
             insertIndex);
     }
 
+    /// <summary>无场景引用时，在 Canvas 下运行时生成「单机 / 联网」选择面板。</summary>
+    private void EnsureModeSelectUI()
+    {
+        if (modeSelectUI != null && offlineModeButton != null && onlineModeButton != null)
+            return;
+
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas == null && mainMenuUI != null)
+            canvas = mainMenuUI.GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("GameManager: 找不到 Canvas，无法创建模式选择界面");
+            return;
+        }
+
+        if (modeSelectUI == null)
+        {
+            modeSelectUI = new GameObject("ModeSelectUI");
+            modeSelectUI.transform.SetParent(canvas.transform, false);
+            modeSelectUI.transform.SetAsLastSibling();
+            RectTransform rootRt = modeSelectUI.AddComponent<RectTransform>();
+            StretchFull(rootRt);
+
+            Image bg = modeSelectUI.AddComponent<Image>();
+            bg.color = new Color(0.06f, 0.08f, 0.12f, 0.94f);
+
+            GameObject panel = new GameObject("ModePanel");
+            panel.transform.SetParent(modeSelectUI.transform, false);
+            RectTransform panelRt = panel.AddComponent<RectTransform>();
+            panelRt.sizeDelta = new UnityEngine.Vector2(420f, 280f);
+            panelRt.anchoredPosition = UnityEngine.Vector2.zero;
+            Image panelBg = panel.AddComponent<Image>();
+            panelBg.color = new Color(0.16f, 0.18f, 0.22f, 1f);
+
+            VerticalLayoutGroup layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(28, 28, 28, 28);
+            layout.spacing = 16f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlHeight = true;
+            layout.childControlWidth = true;
+            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = true;
+
+            CreateLoginLabel(panel.transform, "坦克大战", 32, FontStyle.Bold);
+            CreateLoginLabel(panel.transform, "请选择游戏模式", 16, FontStyle.Normal);
+
+            offlineModeButton = CreateRuntimeMenuButton(
+                panel.transform, "OfflineModeButton", "单机游戏",
+                new Color(0.25f, 0.55f, 0.35f), panel.transform.childCount);
+            onlineModeButton = CreateRuntimeMenuButton(
+                panel.transform, "OnlineModeButton", "联网对战",
+                new Color(0.2f, 0.45f, 0.75f), panel.transform.childCount);
+        }
+        else
+        {
+            if (offlineModeButton == null)
+            {
+                Transform t = modeSelectUI.transform.Find("ModePanel/OfflineModeButton");
+                if (t != null) offlineModeButton = t.GetComponent<Button>();
+            }
+            if (onlineModeButton == null)
+            {
+                Transform t = modeSelectUI.transform.Find("ModePanel/OnlineModeButton");
+                if (t != null) onlineModeButton = t.GetComponent<Button>();
+            }
+        }
+    }
+
+    private void OnSelectOfflineMode()
+    {
+        if (tankBattleClient != null)
+        {
+            if (tankBattleClient.IsOnlineLoggedIn || tankBattleClient.IsInBattle)
+                tankBattleClient.Logout();
+            tankBattleClient.SetUseNetworkTransport(false);
+        }
+
+        Debug.Log("GameManager: 选择单机模式");
+        ShowMainMenu();
+    }
+
+    private void OnSelectOnlineMode()
+    {
+        if (tankBattleClient == null)
+            return;
+
+        tankBattleClient.SetUseNetworkTransport(true);
+        EnsureLoginUI();
+        BindLoginButtonsIfNeeded();
+
+        if (tankBattleClient.UseDirectKcpBypass || tankBattleClient.IsOnlineLoggedIn)
+        {
+            Debug.Log("GameManager: 联网（已登录或直连调试）→ 选阵营");
+            ShowMainMenu();
+            return;
+        }
+
+        Debug.Log("GameManager: 选择联网模式 → 登录");
+        ShowLoginUI();
+    }
+
+    private void BindLoginButtonsIfNeeded()
+    {
+        if (loginButton != null)
+        {
+            loginButton.onClick.RemoveListener(OnLoginClicked);
+            loginButton.onClick.AddListener(OnLoginClicked);
+        }
+        if (loginBackButton != null)
+        {
+            loginBackButton.onClick.RemoveListener(OnLoginBackClicked);
+            loginBackButton.onClick.AddListener(OnLoginBackClicked);
+        }
+    }
+
+    private void OnLoginBackClicked()
+    {
+        if (loginInProgress)
+            return;
+
+        if (tankBattleClient != null)
+        {
+            tankBattleClient.Logout();
+            tankBattleClient.SetUseNetworkTransport(false);
+        }
+        SetLoginStatus("");
+        ShowModeSelectUI();
+    }
+
+    /// <summary>无场景引用时，在 Canvas 下运行时生成简单登录面板。</summary>
+    private void EnsureLoginUI()
+    {
+        if (loginUI != null && loginButton != null && accountInput != null)
+            return;
+
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas == null && mainMenuUI != null)
+            canvas = mainMenuUI.GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("GameManager: 找不到 Canvas，无法创建登录界面");
+            return;
+        }
+
+        if (loginUI == null)
+        {
+            loginUI = new GameObject("LoginUI");
+            loginUI.transform.SetParent(canvas.transform, false);
+            loginUI.transform.SetAsLastSibling();
+            RectTransform rootRt = loginUI.AddComponent<RectTransform>();
+            StretchFull(rootRt);
+
+            Image bg = loginUI.AddComponent<Image>();
+            bg.color = new Color(0.08f, 0.1f, 0.14f, 0.92f);
+
+            GameObject panel = new GameObject("LoginPanel");
+            panel.transform.SetParent(loginUI.transform, false);
+            RectTransform panelRt = panel.AddComponent<RectTransform>();
+            panelRt.sizeDelta = new UnityEngine.Vector2(420f, 300f);
+            panelRt.anchoredPosition = UnityEngine.Vector2.zero;
+            Image panelBg = panel.AddComponent<Image>();
+            panelBg.color = new Color(0.16f, 0.18f, 0.22f, 1f);
+
+            VerticalLayoutGroup layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.padding = new RectOffset(24, 24, 24, 24);
+            layout.spacing = 14f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlHeight = true;
+            layout.childControlWidth = true;
+            layout.childForceExpandHeight = false;
+            layout.childForceExpandWidth = true;
+
+            CreateLoginLabel(panel.transform, "账号登录", 28, FontStyle.Bold);
+            CreateLoginLabel(panel.transform, "输入账号（密码稍后支持）", 16, FontStyle.Normal);
+
+            string defaultAccount = tankBattleClient != null ? tankBattleClient.LoginOpenId : "";
+            accountInput = CreateLoginInput(panel.transform, defaultAccount);
+            loginButton = CreateRuntimeMenuButton(panel.transform, "LoginButton", "登录", new Color(0.2f, 0.45f, 0.75f), panel.transform.childCount);
+            loginBackButton = CreateRuntimeMenuButton(panel.transform, "LoginBackButton", "返回", new Color(0.35f, 0.35f, 0.4f), panel.transform.childCount);
+            loginStatusText = CreateLoginLabel(panel.transform, "", 14, FontStyle.Normal);
+            loginStatusText.color = new Color(0.85f, 0.75f, 0.4f);
+        }
+        else
+        {
+            if (accountInput == null)
+                accountInput = loginUI.GetComponentInChildren<InputField>(true);
+            if (loginButton == null)
+            {
+                Transform t = loginUI.transform.Find("LoginPanel/LoginButton");
+                if (t != null) loginButton = t.GetComponent<Button>();
+            }
+            if (loginBackButton == null)
+            {
+                Transform t = loginUI.transform.Find("LoginPanel/LoginBackButton");
+                if (t != null) loginBackButton = t.GetComponent<Button>();
+            }
+            if (loginStatusText == null)
+            {
+                Text[] texts = loginUI.GetComponentsInChildren<Text>(true);
+                if (texts != null && texts.Length > 0)
+                    loginStatusText = texts[texts.Length - 1];
+            }
+        }
+    }
+
+    private static void StretchFull(RectTransform rt)
+    {
+        rt.anchorMin = UnityEngine.Vector2.zero;
+        rt.anchorMax = UnityEngine.Vector2.one;
+        rt.offsetMin = UnityEngine.Vector2.zero;
+        rt.offsetMax = UnityEngine.Vector2.zero;
+    }
+
+    private static Text CreateLoginLabel(Transform parent, string text, int fontSize, FontStyle style)
+    {
+        GameObject go = new GameObject("Label");
+        go.transform.SetParent(parent, false);
+        LayoutElement le = go.AddComponent<LayoutElement>();
+        le.minHeight = fontSize + 10;
+        le.preferredHeight = fontSize + 12;
+        Text t = go.AddComponent<Text>();
+        t.text = text;
+        t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        t.fontSize = fontSize;
+        t.fontStyle = style;
+        t.alignment = TextAnchor.MiddleCenter;
+        t.color = Color.white;
+        return t;
+    }
+
+    private static InputField CreateLoginInput(Transform parent, string defaultText)
+    {
+        GameObject go = new GameObject("AccountInput");
+        go.transform.SetParent(parent, false);
+        LayoutElement le = go.AddComponent<LayoutElement>();
+        le.minHeight = 40f;
+        le.preferredHeight = 40f;
+        Image img = go.AddComponent<Image>();
+        img.color = new Color(0.95f, 0.95f, 0.95f, 1f);
+
+        GameObject textGo = new GameObject("Text");
+        textGo.transform.SetParent(go.transform, false);
+        RectTransform textRt = textGo.AddComponent<RectTransform>();
+        StretchFull(textRt);
+        textRt.offsetMin = new UnityEngine.Vector2(10f, 4f);
+        textRt.offsetMax = new UnityEngine.Vector2(-10f, -4f);
+        Text text = textGo.AddComponent<Text>();
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = 18;
+        text.color = Color.black;
+        text.supportRichText = false;
+        text.alignment = TextAnchor.MiddleLeft;
+
+        GameObject placeholderGo = new GameObject("Placeholder");
+        placeholderGo.transform.SetParent(go.transform, false);
+        RectTransform phRt = placeholderGo.AddComponent<RectTransform>();
+        StretchFull(phRt);
+        phRt.offsetMin = new UnityEngine.Vector2(10f, 4f);
+        phRt.offsetMax = new UnityEngine.Vector2(-10f, -4f);
+        Text placeholder = placeholderGo.AddComponent<Text>();
+        placeholder.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        placeholder.fontSize = 18;
+        placeholder.fontStyle = FontStyle.Italic;
+        placeholder.color = new Color(0.4f, 0.4f, 0.4f, 0.75f);
+        placeholder.text = "账号 / openId";
+        placeholder.alignment = TextAnchor.MiddleLeft;
+
+        InputField input = go.AddComponent<InputField>();
+        input.textComponent = text;
+        input.placeholder = placeholder;
+        input.text = defaultText ?? "";
+        input.characterLimit = 64;
+        return input;
+    }
+
+    private async void OnLoginClicked()
+    {
+        if (loginInProgress || tankBattleClient == null)
+            return;
+
+        string account = accountInput != null ? accountInput.text.Trim() : "";
+        if (string.IsNullOrEmpty(account))
+        {
+            SetLoginStatus("请输入账号");
+            return;
+        }
+
+        loginInProgress = true;
+        if (loginButton != null) loginButton.interactable = false;
+        SetLoginStatus("登录中...");
+
+        bool ok = await tankBattleClient.LoginAndEnterLobbyAsync(account);
+        loginInProgress = false;
+        if (loginButton != null) loginButton.interactable = true;
+
+        if (!ok)
+        {
+            SetLoginStatus("登录失败，请检查服务器与账号");
+            return;
+        }
+
+        SetLoginStatus("登录成功");
+        ShowMainMenu();
+    }
+
+    private void SetLoginStatus(string message)
+    {
+        if (loginStatusText != null)
+            loginStatusText.text = message ?? "";
+        else if (!string.IsNullOrEmpty(message))
+            Debug.Log("Login: " + message);
+    }
+
     private static Button CreateRuntimeMenuButton(
         Transform parent,
         string name,
@@ -325,12 +655,23 @@ public class GameManager : MonoBehaviour
     
     private void StartGame()
     {
+        if (tankBattleClient != null && tankBattleClient.UseNetworkTransport
+            && !tankBattleClient.UseDirectKcpBypass
+            && !tankBattleClient.IsOnlineLoggedIn)
+        {
+            SetLoginStatus("请先登录");
+            ShowLoginUI();
+            return;
+        }
+
         if (playerId == 0)
         {
-            // 连接到服务器并加入游戏
-            playerId = tankBattleClient.ConnectToServer("Player", selectedFaction);
+            // 本地：立即拿到 playerId；在线：Snapshot 后再由 OnPlayerJoined 写入
+            playerId = tankBattleClient.ConnectToServer(
+                string.IsNullOrEmpty(tankBattleClient.LoginOpenId) ? "Player" : tankBattleClient.LoginOpenId,
+                selectedFaction);
             Debug.Log($"创建玩家ID: {playerId}");
-            if (playerId == 0)
+            if (playerId == 0 && !tankBattleClient.UseNetworkTransport)
             {
                 Debug.LogError("无法连接到服务器");
                 return;
@@ -349,17 +690,18 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("GameManager: 未指定 MapObstacles 配置，将使用 C++ 内置默认阻挡墙。");
         }
         
-        // 请求开始游戏
+        // 请求开始游戏（在线：仅开房间→KCP，不再登录）
         tankBattleClient.RequestStartGame();
     }
     
     private void HandlePlayerJoined(PlayerInfo player)
     {
         Debug.Log($"玩家加入: {player.name} ({player.faction})");
-        
-        if (player.id == playerId)
+
+        if (playerId == 0 || player.id == playerId)
         {
-            Debug.Log("您已加入游戏！");
+            playerId = player.id;
+            Debug.Log($"您已加入游戏！playerId={playerId}");
         }
     }
     
@@ -1164,35 +1506,62 @@ public class GameManager : MonoBehaviour
     }
     
     // UI控制
-    private void ShowMainMenu()
+    private void HideAllScreens()
     {
-        SetUIState(mainMenuUI, true);
+        SetUIState(modeSelectUI, false);
+        SetUIState(loginUI, false);
+        SetUIState(mainMenuUI, false);
         SetUIState(gameUI, false);
         SetUIState(gameOverUI, false);
         SetUIState(loadingUI, false);
+    }
+
+    private void ShowModeSelectUI()
+    {
+        if (modeSelectUI == null)
+            EnsureModeSelectUI();
+        if (modeSelectUI == null)
+            Debug.LogError("GameManager: modeSelectUI 为空，无法显示模式选择。请确认场景有 Canvas。");
+
+        HideAllScreens();
+        SetUIState(modeSelectUI, true);
+    }
+
+    private void ShowLoginUI()
+    {
+        if (loginUI == null)
+            EnsureLoginUI();
+        if (loginUI == null)
+        {
+            Debug.LogError(
+                "GameManager: loginUI 为空，无法显示登录界面。请确认场景有 Canvas，" +
+                "或在 GameManager 上手动指定 Login UI。");
+        }
+        HideAllScreens();
+        SetUIState(loginUI, true);
+    }
+
+    private void ShowMainMenu()
+    {
+        HideAllScreens();
+        SetUIState(mainMenuUI, true);
     }
     
     private void ShowGameUI()
     {
-        SetUIState(mainMenuUI, false);
+        HideAllScreens();
         SetUIState(gameUI, true);
-        SetUIState(gameOverUI, false);
-        SetUIState(loadingUI, false);
     }
     
     private void ShowGameOverUI()
     {
-        SetUIState(mainMenuUI, false);
-        SetUIState(gameUI, false);
+        HideAllScreens();
         SetUIState(gameOverUI, true);
-        SetUIState(loadingUI, false);
     }
     
     private void ShowLoadingScreen()
     {
-        SetUIState(mainMenuUI, false);
-        SetUIState(gameUI, false);
-        SetUIState(gameOverUI, false);
+        HideAllScreens();
         SetUIState(loadingUI, true);
     }
     
@@ -1203,26 +1572,63 @@ public class GameManager : MonoBehaviour
             uiObject.SetActive(active);
         }
     }
+
+    private void ClearBattlePresentation()
+    {
+        ClearBulletVisuals();
+        foreach (var kvp in tankInstances)
+        {
+            if (kvp.Value != null)
+                Destroy(kvp.Value.gameObject);
+        }
+        tankInstances.Clear();
+        DestroyBattlefieldEnvironment();
+        battleVfx?.ResetTracks();
+        battleAudio?.StopBattleMusic();
+    }
     
     // 按钮事件
     private void RestartGame()
     {
+        // 在线：退房间回到选阵营，不重载场景以免丢掉登录态
+        if (tankBattleClient != null && tankBattleClient.UseNetworkTransport)
+        {
+            ReturnToMenu();
+            return;
+        }
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     
     private void ReturnToMenu()
     {
         if (tankBattleClient != null)
-            tankBattleClient.Disconnect(notifyPlayerLeft: false);
+        {
+            if (tankBattleClient.UseNetworkTransport)
+                tankBattleClient.LeaveBattle(); // 只退战斗房间，保持 Lobby
+            else
+                tankBattleClient.Disconnect(notifyPlayerLeft: false);
+        }
 
+        ClearBattlePresentation();
         playerId = 0;
         isGameActive = false;
         isGameOver = false;
-        ShowMainMenu();
+        battleCameraFramed = false;
+
+        // 战斗结束回到选阵营；会话丢失则回登录；单机也回选阵营
+        if (tankBattleClient != null && tankBattleClient.UseNetworkTransport
+            && !tankBattleClient.UseDirectKcpBypass
+            && !tankBattleClient.IsOnlineLoggedIn)
+            ShowLoginUI();
+        else
+            ShowMainMenu();
     }
     
     private void QuitGame()
     {
+        if (tankBattleClient != null && tankBattleClient.UseNetworkTransport)
+            tankBattleClient.Logout();
+
         Application.Quit();
         
         #if UNITY_EDITOR

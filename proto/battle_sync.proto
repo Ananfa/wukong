@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package wukong.pb;
+
+enum BattleRoomMode {
+    BATTLE_ROOM_MODE_UNSPECIFIED = 0;
+    BATTLE_ROOM_MODE_SINGLE = 1;
+    BATTLE_ROOM_MODE_MULTI = 2;
+}
+
+enum BattleRoomState {
+    BATTLE_ROOM_STATE_UNSPECIFIED = 0;
+    BATTLE_ROOM_STATE_WAITING = 1;
+    BATTLE_ROOM_STATE_RUNNING = 2;
+    BATTLE_ROOM_STATE_ENDED = 3;
+}
+
+message BattlePlayerInitData {
+    uint64 role_id = 1;
+    bytes combat_payload = 2;
+}
+
+message BattleAssignmentAccess {
+    uint64 role_id = 1;
+    string session_token = 2;
+}
+
+message RequestBattleAssignmentRequest {
+    BattleRoomMode mode = 1;
+    uint32 battle_def_id = 2;
+    int32 lobby_server_id = 3;
+    BattlePlayerInitData player = 4;
+}
+
+message RequestBattleAssignmentResponse {
+    uint64 room_id = 1;
+    string kcp_host = 2;
+    int32 kcp_port = 3;
+    BattleAssignmentAccess access = 4;
+}
+
+message RemoveBattlePlayerRequest {
+    uint64 room_id = 1;
+    uint64 role_id = 2;
+}
+
+message BattleKcpAuth {
+    uint64 room_id = 1;
+    uint64 role_id = 2;
+    string session_token = 3;
+}
+
+message BattleKcpLeaveRoom {
+    uint64 room_id = 1;
+    uint64 role_id = 2;
+    string session_token = 3;
+}
+
+// 与 tankbat PlayerInput 字段对齐（Q15 int16 方向分量）
+message BattlePlayerFrameInput {
+    uint32 player_id = 1;
+    uint64 role_id = 2;
+    uint32 frame = 3;
+    int32 move_x = 4;
+    int32 move_y = 5;
+    int32 aim_x = 6;
+    int32 aim_y = 7;
+    bool fire = 8;
+    bool use_ability = 9;
+    uint64 timestamp = 10;
+}
+
+message BattleKcpInputUpload {
+    uint64 room_id = 1;
+    uint64 role_id = 2;
+    uint32 frame = 3;
+    int32 move_x = 4;
+    int32 move_y = 5;
+    int32 aim_x = 6;
+    int32 aim_y = 7;
+    bool fire = 8;
+    bool use_ability = 9;
+    uint64 timestamp = 10;
+}
+
+message BattleRoomSnapshot {
+    uint64 room_id = 1;
+    uint32 logic_frame = 2;
+    uint32 frame_rate = 3;
+    BattleRoomState room_state = 4;
+    uint32 random_seed = 5;
+    repeated BattleSnapshotPlayer players = 6;
+}
+
+message BattleSnapshotPlayer {
+    uint64 role_id = 1;
+    uint32 player_id = 2;
+    int32 faction = 3;
+}
+
+message BattleFrameSync {
+    uint64 room_id = 1;
+    uint32 frame_index = 2;
+    repeated BattlePlayerFrameInput inputs = 3;
+}
+
+message PlayerBattleStateNotify {
+    uint64 role_id = 1;
+    bool in_battle = 2;
+    int32 battle_server_id = 3;
+    uint64 room_id = 4;
+    string kcp_host = 5;
+    int32 kcp_port = 6;
+    uint32 battle_def_id = 7;
+}
+
+message BattleEnterInfo {
+    string kcp_host = 1;
+    int32 kcp_port = 2;
+    uint64 room_id = 3;
+    int32 battle_server_id = 4;
+    string session_token = 5;
+}
+
+message StartBattleRequest {
+    uint32 battle_def_id = 1;
+}
+
+message LeaveGameRequest {
+}

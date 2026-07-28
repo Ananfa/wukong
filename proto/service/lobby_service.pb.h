@@ -35,6 +35,7 @@
 #include "corpc_option.pb.h"
 #include "common.pb.h"
 #include "inner_common.pb.h"
+#include "battle_sync.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_lobby_5fservice_2eproto
@@ -192,7 +193,6 @@ class LoadRoleRequest final :
 
   enum : int {
     kRoleIdFieldNumber = 2,
-    kServerIdFieldNumber = 1,
     kGatewayIdFieldNumber = 3,
   };
   // uint64 roleId = 2;
@@ -202,15 +202,6 @@ class LoadRoleRequest final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint64 _internal_roleid() const;
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  public:
-
-  // uint32 serverId = 1;
-  void clear_serverid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
-  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
-  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
   // uint32 gatewayId = 3;
@@ -230,7 +221,6 @@ class LoadRoleRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::uint64 roleid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_lobby_5fservice_2eproto;
@@ -354,7 +344,6 @@ class EnterGameRequest final :
   enum : int {
     kLTokenFieldNumber = 3,
     kRoleIdFieldNumber = 2,
-    kServerIdFieldNumber = 1,
     kGatewayIdFieldNumber = 4,
   };
   // string lToken = 3;
@@ -380,15 +369,6 @@ class EnterGameRequest final :
   void _internal_set_roleid(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
-  // uint32 serverId = 1;
-  void clear_serverid();
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid() const;
-  void set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_serverid() const;
-  void _internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
   // uint32 gatewayId = 4;
   void clear_gatewayid();
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid() const;
@@ -407,7 +387,6 @@ class EnterGameRequest final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr ltoken_;
   ::PROTOBUF_NAMESPACE_ID::uint64 roleid_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 serverid_;
   ::PROTOBUF_NAMESPACE_ID::uint32 gatewayid_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_lobby_5fservice_2eproto;
@@ -441,6 +420,10 @@ class LobbyService : public ::PROTOBUF_NAMESPACE_ID::Service {
                        ::google::protobuf::Closure* done);
   virtual void enterGame(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
                        const ::wukong::pb::EnterGameRequest* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
+  virtual void notifyPlayerBattleState(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::PlayerBattleStateNotify* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
 
@@ -488,6 +471,10 @@ class LobbyService_Stub : public LobbyService {
                        const ::wukong::pb::EnterGameRequest* request,
                        ::corpc::Void* response,
                        ::google::protobuf::Closure* done);
+  void notifyPlayerBattleState(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::wukong::pb::PlayerBattleStateNotify* request,
+                       ::corpc::Void* response,
+                       ::google::protobuf::Closure* done);
  private:
   ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
   bool owns_channel_;
@@ -505,26 +492,6 @@ class LobbyService_Stub : public LobbyService {
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
 // LoadRoleRequest
-
-// uint32 serverId = 1;
-inline void LoadRoleRequest::clear_serverid() {
-  serverid_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::_internal_serverid() const {
-  return serverid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 LoadRoleRequest::serverid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.LoadRoleRequest.serverId)
-  return _internal_serverid();
-}
-inline void LoadRoleRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  serverid_ = value;
-}
-inline void LoadRoleRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_serverid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.LoadRoleRequest.serverId)
-}
 
 // uint64 roleId = 2;
 inline void LoadRoleRequest::clear_roleid() {
@@ -569,26 +536,6 @@ inline void LoadRoleRequest::set_gatewayid(::PROTOBUF_NAMESPACE_ID::uint32 value
 // -------------------------------------------------------------------
 
 // EnterGameRequest
-
-// uint32 serverId = 1;
-inline void EnterGameRequest::clear_serverid() {
-  serverid_ = 0u;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::_internal_serverid() const {
-  return serverid_;
-}
-inline ::PROTOBUF_NAMESPACE_ID::uint32 EnterGameRequest::serverid() const {
-  // @@protoc_insertion_point(field_get:wukong.pb.EnterGameRequest.serverId)
-  return _internal_serverid();
-}
-inline void EnterGameRequest::_internal_set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  
-  serverid_ = value;
-}
-inline void EnterGameRequest::set_serverid(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _internal_set_serverid(value);
-  // @@protoc_insertion_point(field_set:wukong.pb.EnterGameRequest.serverId)
-}
 
 // uint64 roleId = 2;
 inline void EnterGameRequest::clear_roleid() {

@@ -1,36 +1,19 @@
 syntax = "proto3";
 
 import "corpc_option.proto";
-import "inner_common.proto";
+import "battle_sync.proto";
 
 option cc_generic_services = true;
 
 package wukong.pb;
 
-message EnterBattleRequest {
-	uint64 role_id = 1;
-	string token = 2;
-	bytes role_data = 3;
-}
-
-message EnterBattleResponse {
-	uint32 room_id = 1;
-}
-
-message LeaveBattleRequest {
-	uint64 role_id = 1;
-}
-
-message LeaveBattleResponse {
-	
-}
-
 service BattleService {
     option (corpc.global_service_id) = 6;
 
-    rpc EnterBattle(EnterBattleRequest) returns(EnterBattleResponse);
-    
-    rpc LeaveBattle(LeaveBattleRequest) returns(LeaveBattleResponse);
+    rpc requestBattleAssignment(RequestBattleAssignmentRequest) returns(RequestBattleAssignmentResponse);
 
-
+    rpc removeBattlePlayer(RemoveBattlePlayerRequest) returns(corpc.Void)
+    {
+        option (corpc.not_care_response) = true;
+    }
 }

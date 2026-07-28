@@ -345,10 +345,12 @@ void *FrontServer::authRoutine( void * arg ) {
             continue;
         }
 
-        bodySize = *(uint32_t*)buf;
+        std::memcpy(&bodySize, buf, sizeof(bodySize));
         bodySize = be32toh(bodySize);
-        int16_t msgType = *(int16_t *)(buf + 4);
-        msgType = be16toh(msgType);
+
+        int32_t msgType;
+        std::memcpy(&msgType, buf + 4, sizeof(msgType));
+        msgType = be32toh(msgType);
 
         if (msgType != C2S_MESSAGE_ID_AUTH) {
             ERROR_LOG("FrontServer::authRoutine -- not auth message, %d\n", msgType);

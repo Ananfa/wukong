@@ -79,6 +79,8 @@ namespace wukong {
 //thread_local std::map<ServerId, GroupId> LoginHandlerMgr::t_serverId2groupIdMap_;
 
 void LoginHandlerMgr::init(HttpServer *server) {
+    serverGroupData_ = "[]";
+
     // 获取并订阅服务器组列表信息
     RoutineEnvironment::startCoroutine([](void * arg) -> void* {
         LoginHandlerMgr *self = (LoginHandlerMgr *)arg;

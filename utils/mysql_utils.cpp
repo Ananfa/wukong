@@ -1,5 +1,6 @@
 #include "mysql_utils.h"
 
+// MySQL 8+ 移除了 my_bool；绑定结果用 bool（与 MYSQL_BIND::is_null 一致）
 using namespace wukong;
 
 bool MysqlUtils::LoadOrCreateUser(MYSQL *mysql, const std::string &account, UserId &userId, std::string &roleListStr) {
@@ -43,7 +44,7 @@ bool MysqlUtils::LoadOrCreateUser(MYSQL *mysql, const std::string &account, User
     uint64_t rolesStrLen = 0;
     
     MYSQL_BIND rs_bind[2];
-    my_bool    is_null[2];
+    bool       is_null[2];
     memset(rs_bind, 0, sizeof(rs_bind));
 
     rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
@@ -124,7 +125,7 @@ bool MysqlUtils::LoadRoleIds(MYSQL *mysql, UserId userId, std::string &roleListS
     uint64_t rolesStrLen = 0;
 
     MYSQL_BIND rs_bind[1];
-    my_bool    is_null[1];
+    bool       is_null[1];
     memset(rs_bind, 0, sizeof(rs_bind));
 
     rs_bind[0].buffer_type = MYSQL_TYPE_STRING;
@@ -265,7 +266,7 @@ bool MysqlUtils::LoadRole(MYSQL *mysql, RoleId roleId, UserId &userId, ServerId 
     }
 
     MYSQL_BIND rs_bind[3];
-    my_bool    is_null[3];
+    bool       is_null[3];
     memset(rs_bind, 0, sizeof(rs_bind));
 
     userId = 0;
@@ -374,7 +375,7 @@ bool MysqlUtils::CreateRole(MYSQL *mysql, RoleId &roleId, UserId userId, ServerI
 
     roleId = 0;
     MYSQL_BIND rs_bind[1];
-    my_bool    is_null[1];
+    bool       is_null[1];
     memset(rs_bind, 0, sizeof(rs_bind));
 
     rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
@@ -528,7 +529,7 @@ bool MysqlUtils::CheckRole(MYSQL *mysql, RoleId roleId, UserId userId, ServerId 
 
     uint32_t count = 0;
     MYSQL_BIND rs_bind[1];
-    my_bool    is_null[1];
+    bool       is_null[1];
     memset(rs_bind, 0, sizeof(rs_bind));
 
     rs_bind[0].buffer_type = MYSQL_TYPE_LONG;

@@ -48,8 +48,15 @@ bool AgentManager::start() {
     started_ = true;
     localServerInfoChanged_ = false;
 
-    nexusClient_->connect();
-    RoutineEnvironment::startCoroutine(updateRoutine, this);
+    // 在主线程runEventLoop之前非协程中创建的socket是阻塞型的，因此要用协程包装一下才会是非阻塞的
+    RoutineEnvironment::startCoroutine([](void * arg) -> void* {
+        AgentManager *self = (AgentManager *)arg;
+        
+        self->nexusClient_->connect(); // 这里会创建socket并connect
+        RoutineEnvironment::startCoroutine(updateRoutine, self);
+        return NULL;
+    }, this);
+
     return true;
 }
 
@@ -142,6 +149,8 @@ void AgentManager::accessRspHandle(int32_t type, uint16_t tag, std::shared_ptr<g
 void AgentManager::svrInfoHandle(int32_t type, uint16_t tag, std::shared_ptr<google::protobuf::Message> msg, std::shared_ptr<corpc::MessageTerminal::Connection> conn) {
     pb::ServerInfoNtf *ntf = static_cast<pb::ServerInfoNtf*>(msg.get());
 
+    LOG("svrInfoHandle: %s\n", ntf->server_info().DebugString().c_str());
+    
     auto it = agents_.find(ntf->server_info().server_type());
     if (it == agents_.end()) {
         ERROR_LOG("agent not exist\n");

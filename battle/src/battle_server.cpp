@@ -96,6 +96,19 @@ bool BattleServer::init(int argc, char * argv[]) {
         ERROR_LOG("Parse config error\n");
         return false;
     }
+
+    // 注册并加载策划表（BattleRoomTypes 等）；未加载时 g_BattleRoomTypesTable 为空指针会在开房 RPC 中崩溃
+    registerBattleDesignTables();
+    {
+        std::string manifestPath = design_config::resolveDataPath(
+            configFileName, g_BattleConfig.getDesignConfigManifest().c_str());
+        if (manifestPath.empty() || !g_DesignConfigHub.loadFromManifest(manifestPath.c_str())) {
+            ERROR_LOG("BattleServer::init -- load design config failed: %s\n",
+                      manifestPath.empty() ? "(empty path)" : manifestPath.c_str());
+            return false;
+        }
+        LOG("BattleServer::init -- design config loaded from %s\n", manifestPath.c_str());
+    }
     
     // create IO layer
     io_ = IO::create(g_BattleConfig.getIoRecvThreadNum(), g_BattleConfig.getIoSendThreadNum(), 0);

@@ -104,6 +104,12 @@ void registerBattleDesignTables() {
 }
 
 BattleRoomTypesTable &getBattleRoomTypesTable() {
+    if (!g_roomTypes) {
+        ERROR_LOG("getBattleRoomTypesTable -- not registered; call registerBattleDesignTables + loadFromManifest in BattleServer::init\n");
+        // 避免空指针解引用崩溃；调用方仍可能因表为空得到 maxPlayers=0
+        static BattleRoomTypesTable emptyFallback;
+        return emptyFallback;
+    }
     return *g_roomTypes;
 }
 

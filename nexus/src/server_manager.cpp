@@ -252,14 +252,17 @@ void *ServerManager::clearExpiredDisconnectedRoutine( void *arg ) {
         
         ServerObjectTimeLink::Node *node = self->disconnectedLink_.getHead();
         while (node && node->time + g_NexusConfig.getDisconnectTimeout() < now) {
-            self->removeServerObject(node->data->getType(), node->data->getId());
+            ServerType stype = node->data->getType();
+            ServerId sid = node->data->getId();
+
+            self->removeServerObject(stype, sid);
 
             // 向关注新接入服务器的服务器发移除服务器信息
-            auto& beConcerns = g_NexusConfig.getBeConcerns(node->data->getType());
+            auto& beConcerns = g_NexusConfig.getBeConcerns(stype);
             if (!beConcerns.empty()) {
                 std::shared_ptr<pb::RemoveServerNtf> ntf(new pb::RemoveServerNtf);
-                ntf->set_server_type(node->data->getType());
-                ntf->set_server_id(node->data->getId());
+                ntf->set_server_type(stype);
+                ntf->set_server_id(sid);
 
                 for (auto beConcernType : beConcerns) {
                     auto &objMap = self->getServerObjects(beConcernType);

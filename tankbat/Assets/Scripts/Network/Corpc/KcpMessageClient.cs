@@ -108,13 +108,14 @@ namespace Corpc
                 lastSendSerial_ = 0;
                 lastRecvSerial_ = 0;
     
+                running_ = true; // 注意：这句话不能放在HandleMessage语句后面
+
                 HandleMessage(Constants.CORPC_MSG_TYPE_CONNECT, null);
     
                 // 启动收发任务
                 _ = Task.Run(() => RecvMsgLoop(cts_.Token));
                 _ = Task.Run(() => SendMsgLoop(cts_.Token));
 
-                running_ = true;
                 return true;
             } else {
                 return false;

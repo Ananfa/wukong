@@ -1,0 +1,18 @@
+{
+    "id": 1,
+    "internalIp": "127.0.0.1",
+    "externalIp": "172.18.192.1",
+    "rpcPort": 18001,
+    "msgPort": 16100,
+    "verifyTimeout": 60,
+    "disconnectTimeout": 60,
+    "roomEmptyDestroySec": 60,
+    "syncFrameRate": 30,
+    "ioRecvThreadNum": 2,
+    "ioSendThreadNum": 2,
+    "nexus": {
+        "host": "127.0.0.1",
+        "port": 17000
+    },
+    "designConfigManifest": "design/design_config_index.json"
+}

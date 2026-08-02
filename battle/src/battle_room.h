@@ -49,7 +49,8 @@ public:
         std::time_t offlineSince_ = 0;
         std::time_t assignedAt_ = 0;
         uint32_t gamePlayerId = 0;
-        int gameFaction = 0; // TankBattle::Faction as int
+        int preferredFaction = -1; // 客户端所选；<0 表示未指定
+        int gameFaction = 0; // TankBattle::Faction as int（进模拟后最终值）
     };
 
     BattleRoom(uint64_t roomId, pb::BattleRoomMode mode, uint32_t battleDefId, uint32_t maxPlayers,

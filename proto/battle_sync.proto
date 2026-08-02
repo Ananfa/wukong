@@ -18,6 +18,8 @@ enum BattleRoomState {
 message BattlePlayerInitData {
     uint64 role_id = 1;
     bytes combat_payload = 2;
+    // 与 tankbat Faction 一致：0 Soviet / 1 USA / 2 Germany / 3 Italy
+    int32 faction = 3;
 }
 
 message BattleAssignmentAccess {
@@ -124,6 +126,8 @@ message BattleEnterInfo {
 
 message StartBattleRequest {
     uint32 battle_def_id = 1;
+    // 客户端所选阵营（透传至 BattlePlayerInitData.faction）
+    int32 faction = 2;
 }
 
 message LeaveGameRequest {

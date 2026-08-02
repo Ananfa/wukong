@@ -24,57 +24,57 @@ namespace Wukong.Pb {
     static BattleSyncReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFiYXR0bGVfc3luYy5wcm90bxIJd3Vrb25nLnBiIj8KFEJhdHRsZVBsYXll",
+            "ChFiYXR0bGVfc3luYy5wcm90bxIJd3Vrb25nLnBiIlAKFEJhdHRsZVBsYXll",
             "ckluaXREYXRhEg8KB3JvbGVfaWQYASABKAQSFgoOY29tYmF0X3BheWxvYWQY",
-            "AiABKAwiQAoWQmF0dGxlQXNzaWdubWVudEFjY2VzcxIPCgdyb2xlX2lkGAEg",
-            "ASgEEhUKDXNlc3Npb25fdG9rZW4YAiABKAkiqgEKHlJlcXVlc3RCYXR0bGVB",
-            "c3NpZ25tZW50UmVxdWVzdBInCgRtb2RlGAEgASgOMhkud3Vrb25nLnBiLkJh",
-            "dHRsZVJvb21Nb2RlEhUKDWJhdHRsZV9kZWZfaWQYAiABKA0SFwoPbG9iYnlf",
-            "c2VydmVyX2lkGAMgASgFEi8KBnBsYXllchgEIAEoCzIfLnd1a29uZy5wYi5C",
-            "YXR0bGVQbGF5ZXJJbml0RGF0YSKJAQofUmVxdWVzdEJhdHRsZUFzc2lnbm1l",
-            "bnRSZXNwb25zZRIPCgdyb29tX2lkGAEgASgEEhAKCGtjcF9ob3N0GAIgASgJ",
-            "EhAKCGtjcF9wb3J0GAMgASgFEjEKBmFjY2VzcxgEIAEoCzIhLnd1a29uZy5w",
-            "Yi5CYXR0bGVBc3NpZ25tZW50QWNjZXNzIj0KGVJlbW92ZUJhdHRsZVBsYXll",
-            "clJlcXVlc3QSDwoHcm9vbV9pZBgBIAEoBBIPCgdyb2xlX2lkGAIgASgEIkgK",
-            "DUJhdHRsZUtjcEF1dGgSDwoHcm9vbV9pZBgBIAEoBBIPCgdyb2xlX2lkGAIg",
-            "ASgEEhUKDXNlc3Npb25fdG9rZW4YAyABKAkiTQoSQmF0dGxlS2NwTGVhdmVS",
-            "b29tEg8KB3Jvb21faWQYASABKAQSDwoHcm9sZV9pZBgCIAEoBBIVCg1zZXNz",
-            "aW9uX3Rva2VuGAMgASgJIr8BChZCYXR0bGVQbGF5ZXJGcmFtZUlucHV0EhEK",
-            "CXBsYXllcl9pZBgBIAEoDRIPCgdyb2xlX2lkGAIgASgEEg0KBWZyYW1lGAMg",
-            "ASgNEg4KBm1vdmVfeBgEIAEoBRIOCgZtb3ZlX3kYBSABKAUSDQoFYWltX3gY",
-            "BiABKAUSDQoFYWltX3kYByABKAUSDAoEZmlyZRgIIAEoCBITCgt1c2VfYWJp",
-            "bGl0eRgJIAEoCBIRCgl0aW1lc3RhbXAYCiABKAQiuwEKFEJhdHRsZUtjcElu",
-            "cHV0VXBsb2FkEg8KB3Jvb21faWQYASABKAQSDwoHcm9sZV9pZBgCIAEoBBIN",
-            "CgVmcmFtZRgDIAEoDRIOCgZtb3ZlX3gYBCABKAUSDgoGbW92ZV95GAUgASgF",
-            "Eg0KBWFpbV94GAYgASgFEg0KBWFpbV95GAcgASgFEgwKBGZpcmUYCCABKAgS",
-            "EwoLdXNlX2FiaWxpdHkYCSABKAgSEQoJdGltZXN0YW1wGAogASgEIsUBChJC",
-            "YXR0bGVSb29tU25hcHNob3QSDwoHcm9vbV9pZBgBIAEoBBITCgtsb2dpY19m",
-            "cmFtZRgCIAEoDRISCgpmcmFtZV9yYXRlGAMgASgNEi4KCnJvb21fc3RhdGUY",
-            "BCABKA4yGi53dWtvbmcucGIuQmF0dGxlUm9vbVN0YXRlEhMKC3JhbmRvbV9z",
-            "ZWVkGAUgASgNEjAKB3BsYXllcnMYBiADKAsyHy53dWtvbmcucGIuQmF0dGxl",
-            "U25hcHNob3RQbGF5ZXIiSwoUQmF0dGxlU25hcHNob3RQbGF5ZXISDwoHcm9s",
-            "ZV9pZBgBIAEoBBIRCglwbGF5ZXJfaWQYAiABKA0SDwoHZmFjdGlvbhgDIAEo",
-            "BSJqCg9CYXR0bGVGcmFtZVN5bmMSDwoHcm9vbV9pZBgBIAEoBBITCgtmcmFt",
-            "ZV9pbmRleBgCIAEoDRIxCgZpbnB1dHMYAyADKAsyIS53dWtvbmcucGIuQmF0",
-            "dGxlUGxheWVyRnJhbWVJbnB1dCKjAQoXUGxheWVyQmF0dGxlU3RhdGVOb3Rp",
-            "ZnkSDwoHcm9sZV9pZBgBIAEoBBIRCglpbl9iYXR0bGUYAiABKAgSGAoQYmF0",
-            "dGxlX3NlcnZlcl9pZBgDIAEoBRIPCgdyb29tX2lkGAQgASgEEhAKCGtjcF9o",
-            "b3N0GAUgASgJEhAKCGtjcF9wb3J0GAYgASgFEhUKDWJhdHRsZV9kZWZfaWQY",
-            "ByABKA0idwoPQmF0dGxlRW50ZXJJbmZvEhAKCGtjcF9ob3N0GAEgASgJEhAK",
-            "CGtjcF9wb3J0GAIgASgFEg8KB3Jvb21faWQYAyABKAQSGAoQYmF0dGxlX3Nl",
-            "cnZlcl9pZBgEIAEoBRIVCg1zZXNzaW9uX3Rva2VuGAUgASgJIisKElN0YXJ0",
-            "QmF0dGxlUmVxdWVzdBIVCg1iYXR0bGVfZGVmX2lkGAEgASgNIhIKEExlYXZl",
-            "R2FtZVJlcXVlc3QqawoOQmF0dGxlUm9vbU1vZGUSIAocQkFUVExFX1JPT01f",
-            "TU9ERV9VTlNQRUNJRklFRBAAEhsKF0JBVFRMRV9ST09NX01PREVfU0lOR0xF",
-            "EAESGgoWQkFUVExFX1JPT01fTU9ERV9NVUxUSRACKo8BCg9CYXR0bGVSb29t",
-            "U3RhdGUSIQodQkFUVExFX1JPT01fU1RBVEVfVU5TUEVDSUZJRUQQABIdChlC",
-            "QVRUTEVfUk9PTV9TVEFURV9XQUlUSU5HEAESHQoZQkFUVExFX1JPT01fU1RB",
-            "VEVfUlVOTklORxACEhsKF0JBVFRMRV9ST09NX1NUQVRFX0VOREVEEANiBnBy",
-            "b3RvMw=="));
+            "AiABKAwSDwoHZmFjdGlvbhgDIAEoBSJAChZCYXR0bGVBc3NpZ25tZW50QWNj",
+            "ZXNzEg8KB3JvbGVfaWQYASABKAQSFQoNc2Vzc2lvbl90b2tlbhgCIAEoCSKq",
+            "AQoeUmVxdWVzdEJhdHRsZUFzc2lnbm1lbnRSZXF1ZXN0EicKBG1vZGUYASAB",
+            "KA4yGS53dWtvbmcucGIuQmF0dGxlUm9vbU1vZGUSFQoNYmF0dGxlX2RlZl9p",
+            "ZBgCIAEoDRIXCg9sb2JieV9zZXJ2ZXJfaWQYAyABKAUSLwoGcGxheWVyGAQg",
+            "ASgLMh8ud3Vrb25nLnBiLkJhdHRsZVBsYXllckluaXREYXRhIokBCh9SZXF1",
+            "ZXN0QmF0dGxlQXNzaWdubWVudFJlc3BvbnNlEg8KB3Jvb21faWQYASABKAQS",
+            "EAoIa2NwX2hvc3QYAiABKAkSEAoIa2NwX3BvcnQYAyABKAUSMQoGYWNjZXNz",
+            "GAQgASgLMiEud3Vrb25nLnBiLkJhdHRsZUFzc2lnbm1lbnRBY2Nlc3MiPQoZ",
+            "UmVtb3ZlQmF0dGxlUGxheWVyUmVxdWVzdBIPCgdyb29tX2lkGAEgASgEEg8K",
+            "B3JvbGVfaWQYAiABKAQiSAoNQmF0dGxlS2NwQXV0aBIPCgdyb29tX2lkGAEg",
+            "ASgEEg8KB3JvbGVfaWQYAiABKAQSFQoNc2Vzc2lvbl90b2tlbhgDIAEoCSJN",
+            "ChJCYXR0bGVLY3BMZWF2ZVJvb20SDwoHcm9vbV9pZBgBIAEoBBIPCgdyb2xl",
+            "X2lkGAIgASgEEhUKDXNlc3Npb25fdG9rZW4YAyABKAkivwEKFkJhdHRsZVBs",
+            "YXllckZyYW1lSW5wdXQSEQoJcGxheWVyX2lkGAEgASgNEg8KB3JvbGVfaWQY",
+            "AiABKAQSDQoFZnJhbWUYAyABKA0SDgoGbW92ZV94GAQgASgFEg4KBm1vdmVf",
+            "eRgFIAEoBRINCgVhaW1feBgGIAEoBRINCgVhaW1feRgHIAEoBRIMCgRmaXJl",
+            "GAggASgIEhMKC3VzZV9hYmlsaXR5GAkgASgIEhEKCXRpbWVzdGFtcBgKIAEo",
+            "BCK7AQoUQmF0dGxlS2NwSW5wdXRVcGxvYWQSDwoHcm9vbV9pZBgBIAEoBBIP",
+            "Cgdyb2xlX2lkGAIgASgEEg0KBWZyYW1lGAMgASgNEg4KBm1vdmVfeBgEIAEo",
+            "BRIOCgZtb3ZlX3kYBSABKAUSDQoFYWltX3gYBiABKAUSDQoFYWltX3kYByAB",
+            "KAUSDAoEZmlyZRgIIAEoCBITCgt1c2VfYWJpbGl0eRgJIAEoCBIRCgl0aW1l",
+            "c3RhbXAYCiABKAQixQEKEkJhdHRsZVJvb21TbmFwc2hvdBIPCgdyb29tX2lk",
+            "GAEgASgEEhMKC2xvZ2ljX2ZyYW1lGAIgASgNEhIKCmZyYW1lX3JhdGUYAyAB",
+            "KA0SLgoKcm9vbV9zdGF0ZRgEIAEoDjIaLnd1a29uZy5wYi5CYXR0bGVSb29t",
+            "U3RhdGUSEwoLcmFuZG9tX3NlZWQYBSABKA0SMAoHcGxheWVycxgGIAMoCzIf",
+            "Lnd1a29uZy5wYi5CYXR0bGVTbmFwc2hvdFBsYXllciJLChRCYXR0bGVTbmFw",
+            "c2hvdFBsYXllchIPCgdyb2xlX2lkGAEgASgEEhEKCXBsYXllcl9pZBgCIAEo",
+            "DRIPCgdmYWN0aW9uGAMgASgFImoKD0JhdHRsZUZyYW1lU3luYxIPCgdyb29t",
+            "X2lkGAEgASgEEhMKC2ZyYW1lX2luZGV4GAIgASgNEjEKBmlucHV0cxgDIAMo",
+            "CzIhLnd1a29uZy5wYi5CYXR0bGVQbGF5ZXJGcmFtZUlucHV0IqMBChdQbGF5",
+            "ZXJCYXR0bGVTdGF0ZU5vdGlmeRIPCgdyb2xlX2lkGAEgASgEEhEKCWluX2Jh",
+            "dHRsZRgCIAEoCBIYChBiYXR0bGVfc2VydmVyX2lkGAMgASgFEg8KB3Jvb21f",
+            "aWQYBCABKAQSEAoIa2NwX2hvc3QYBSABKAkSEAoIa2NwX3BvcnQYBiABKAUS",
+            "FQoNYmF0dGxlX2RlZl9pZBgHIAEoDSJ3Cg9CYXR0bGVFbnRlckluZm8SEAoI",
+            "a2NwX2hvc3QYASABKAkSEAoIa2NwX3BvcnQYAiABKAUSDwoHcm9vbV9pZBgD",
+            "IAEoBBIYChBiYXR0bGVfc2VydmVyX2lkGAQgASgFEhUKDXNlc3Npb25fdG9r",
+            "ZW4YBSABKAkiPAoSU3RhcnRCYXR0bGVSZXF1ZXN0EhUKDWJhdHRsZV9kZWZf",
+            "aWQYASABKA0SDwoHZmFjdGlvbhgCIAEoBSISChBMZWF2ZUdhbWVSZXF1ZXN0",
+            "KmsKDkJhdHRsZVJvb21Nb2RlEiAKHEJBVFRMRV9ST09NX01PREVfVU5TUEVD",
+            "SUZJRUQQABIbChdCQVRUTEVfUk9PTV9NT0RFX1NJTkdMRRABEhoKFkJBVFRM",
+            "RV9ST09NX01PREVfTVVMVEkQAiqPAQoPQmF0dGxlUm9vbVN0YXRlEiEKHUJB",
+            "VFRMRV9ST09NX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZQkFUVExFX1JPT01f",
+            "U1RBVEVfV0FJVElORxABEh0KGUJBVFRMRV9ST09NX1NUQVRFX1JVTk5JTkcQ",
+            "AhIbChdCQVRUTEVfUk9PTV9TVEFURV9FTkRFRBADYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Wukong.Pb.BattleRoomMode), typeof(global::Wukong.Pb.BattleRoomState), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattlePlayerInitData), global::Wukong.Pb.BattlePlayerInitData.Parser, new[]{ "RoleId", "CombatPayload" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattlePlayerInitData), global::Wukong.Pb.BattlePlayerInitData.Parser, new[]{ "RoleId", "CombatPayload", "Faction" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleAssignmentAccess), global::Wukong.Pb.BattleAssignmentAccess.Parser, new[]{ "RoleId", "SessionToken" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.RequestBattleAssignmentRequest), global::Wukong.Pb.RequestBattleAssignmentRequest.Parser, new[]{ "Mode", "BattleDefId", "LobbyServerId", "Player" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.RequestBattleAssignmentResponse), global::Wukong.Pb.RequestBattleAssignmentResponse.Parser, new[]{ "RoomId", "KcpHost", "KcpPort", "Access" }, null, null, null, null),
@@ -88,7 +88,7 @@ namespace Wukong.Pb {
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleFrameSync), global::Wukong.Pb.BattleFrameSync.Parser, new[]{ "RoomId", "FrameIndex", "Inputs" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.PlayerBattleStateNotify), global::Wukong.Pb.PlayerBattleStateNotify.Parser, new[]{ "RoleId", "InBattle", "BattleServerId", "RoomId", "KcpHost", "KcpPort", "BattleDefId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleEnterInfo), global::Wukong.Pb.BattleEnterInfo.Parser, new[]{ "KcpHost", "KcpPort", "RoomId", "BattleServerId", "SessionToken" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.StartBattleRequest), global::Wukong.Pb.StartBattleRequest.Parser, new[]{ "BattleDefId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.StartBattleRequest), global::Wukong.Pb.StartBattleRequest.Parser, new[]{ "BattleDefId", "Faction" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.LeaveGameRequest), global::Wukong.Pb.LeaveGameRequest.Parser, null, null, null, null, null)
           }));
     }
@@ -148,6 +148,7 @@ namespace Wukong.Pb {
     public BattlePlayerInitData(BattlePlayerInitData other) : this() {
       roleId_ = other.roleId_;
       combatPayload_ = other.combatPayload_;
+      faction_ = other.faction_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -181,6 +182,21 @@ namespace Wukong.Pb {
       }
     }
 
+    /// <summary>Field number for the "faction" field.</summary>
+    public const int FactionFieldNumber = 3;
+    private int faction_;
+    /// <summary>
+    /// 与 tankbat Faction 一致：0 Soviet / 1 USA / 2 Germany / 3 Italy
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Faction {
+      get { return faction_; }
+      set {
+        faction_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -198,6 +214,7 @@ namespace Wukong.Pb {
       }
       if (RoleId != other.RoleId) return false;
       if (CombatPayload != other.CombatPayload) return false;
+      if (Faction != other.Faction) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -207,6 +224,7 @@ namespace Wukong.Pb {
       int hash = 1;
       if (RoleId != 0UL) hash ^= RoleId.GetHashCode();
       if (CombatPayload.Length != 0) hash ^= CombatPayload.GetHashCode();
+      if (Faction != 0) hash ^= Faction.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -233,6 +251,10 @@ namespace Wukong.Pb {
         output.WriteRawTag(18);
         output.WriteBytes(CombatPayload);
       }
+      if (Faction != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Faction);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -251,6 +273,10 @@ namespace Wukong.Pb {
         output.WriteRawTag(18);
         output.WriteBytes(CombatPayload);
       }
+      if (Faction != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Faction);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -266,6 +292,9 @@ namespace Wukong.Pb {
       }
       if (CombatPayload.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(CombatPayload);
+      }
+      if (Faction != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Faction);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -284,6 +313,9 @@ namespace Wukong.Pb {
       }
       if (other.CombatPayload.Length != 0) {
         CombatPayload = other.CombatPayload;
+      }
+      if (other.Faction != 0) {
+        Faction = other.Faction;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -308,6 +340,10 @@ namespace Wukong.Pb {
             CombatPayload = input.ReadBytes();
             break;
           }
+          case 24: {
+            Faction = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -329,6 +365,10 @@ namespace Wukong.Pb {
           }
           case 18: {
             CombatPayload = input.ReadBytes();
+            break;
+          }
+          case 24: {
+            Faction = input.ReadInt32();
             break;
           }
         }
@@ -4642,6 +4682,7 @@ namespace Wukong.Pb {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StartBattleRequest(StartBattleRequest other) : this() {
       battleDefId_ = other.battleDefId_;
+      faction_ = other.faction_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -4663,6 +4704,21 @@ namespace Wukong.Pb {
       }
     }
 
+    /// <summary>Field number for the "faction" field.</summary>
+    public const int FactionFieldNumber = 2;
+    private int faction_;
+    /// <summary>
+    /// 客户端所选阵营（透传至 BattlePlayerInitData.faction）
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Faction {
+      get { return faction_; }
+      set {
+        faction_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -4679,6 +4735,7 @@ namespace Wukong.Pb {
         return true;
       }
       if (BattleDefId != other.BattleDefId) return false;
+      if (Faction != other.Faction) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -4687,6 +4744,7 @@ namespace Wukong.Pb {
     public override int GetHashCode() {
       int hash = 1;
       if (BattleDefId != 0) hash ^= BattleDefId.GetHashCode();
+      if (Faction != 0) hash ^= Faction.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -4709,6 +4767,10 @@ namespace Wukong.Pb {
         output.WriteRawTag(8);
         output.WriteUInt32(BattleDefId);
       }
+      if (Faction != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(Faction);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4723,6 +4785,10 @@ namespace Wukong.Pb {
         output.WriteRawTag(8);
         output.WriteUInt32(BattleDefId);
       }
+      if (Faction != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(Faction);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -4735,6 +4801,9 @@ namespace Wukong.Pb {
       int size = 0;
       if (BattleDefId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BattleDefId);
+      }
+      if (Faction != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Faction);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -4750,6 +4819,9 @@ namespace Wukong.Pb {
       }
       if (other.BattleDefId != 0) {
         BattleDefId = other.BattleDefId;
+      }
+      if (other.Faction != 0) {
+        Faction = other.Faction;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -4770,6 +4842,10 @@ namespace Wukong.Pb {
             BattleDefId = input.ReadUInt32();
             break;
           }
+          case 16: {
+            Faction = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -4787,6 +4863,10 @@ namespace Wukong.Pb {
             break;
           case 8: {
             BattleDefId = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            Faction = input.ReadInt32();
             break;
           }
         }

@@ -138,6 +138,10 @@ bool BattleRoomManager::assignFromRequest(const pb::RequestBattleAssignmentReque
     BattleRoom::PlayerSlot s;
     s.roleId = req.player().role_id();
     s.combatPayload = req.player().combat_payload();
+    s.preferredFaction = req.player().faction();
+    if (s.preferredFaction < 0 || s.preferredFaction > 3) {
+        s.preferredFaction = -1;
+    }
     s.sessionToken = token;
     s.lobbyServerId = lobbySid;
     s.hasAuthed = false;

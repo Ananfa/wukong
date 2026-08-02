@@ -299,6 +299,7 @@ class BattlePlayerInitData final :
   enum : int {
     kCombatPayloadFieldNumber = 2,
     kRoleIdFieldNumber = 1,
+    kFactionFieldNumber = 3,
   };
   // bytes combat_payload = 2;
   void clear_combat_payload();
@@ -323,6 +324,15 @@ class BattlePlayerInitData final :
   void _internal_set_role_id(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
+  // int32 faction = 3;
+  void clear_faction();
+  ::PROTOBUF_NAMESPACE_ID::int32 faction() const;
+  void set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_faction() const;
+  void _internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:wukong.pb.BattlePlayerInitData)
  private:
   class _Internal;
@@ -332,6 +342,7 @@ class BattlePlayerInitData final :
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr combat_payload_;
   ::PROTOBUF_NAMESPACE_ID::uint64 role_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 faction_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_battle_5fsync_2eproto;
 };
@@ -2870,6 +2881,7 @@ class StartBattleRequest final :
 
   enum : int {
     kBattleDefIdFieldNumber = 1,
+    kFactionFieldNumber = 2,
   };
   // uint32 battle_def_id = 1;
   void clear_battle_def_id();
@@ -2880,6 +2892,15 @@ class StartBattleRequest final :
   void _internal_set_battle_def_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
+  // int32 faction = 2;
+  void clear_faction();
+  ::PROTOBUF_NAMESPACE_ID::int32 faction() const;
+  void set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_faction() const;
+  void _internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:wukong.pb.StartBattleRequest)
  private:
   class _Internal;
@@ -2888,6 +2909,7 @@ class StartBattleRequest final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::uint32 battle_def_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 faction_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_battle_5fsync_2eproto;
 };
@@ -3092,6 +3114,26 @@ inline void BattlePlayerInitData::set_allocated_combat_payload(std::string* comb
   combat_payload_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), combat_payload,
       GetArenaForAllocation());
   // @@protoc_insertion_point(field_set_allocated:wukong.pb.BattlePlayerInitData.combat_payload)
+}
+
+// int32 faction = 3;
+inline void BattlePlayerInitData::clear_faction() {
+  faction_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattlePlayerInitData::_internal_faction() const {
+  return faction_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattlePlayerInitData::faction() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattlePlayerInitData.faction)
+  return _internal_faction();
+}
+inline void BattlePlayerInitData::_internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  faction_ = value;
+}
+inline void BattlePlayerInitData::set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_faction(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattlePlayerInitData.faction)
 }
 
 // -------------------------------------------------------------------
@@ -4770,6 +4812,26 @@ inline void StartBattleRequest::_internal_set_battle_def_id(::PROTOBUF_NAMESPACE
 inline void StartBattleRequest::set_battle_def_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
   _internal_set_battle_def_id(value);
   // @@protoc_insertion_point(field_set:wukong.pb.StartBattleRequest.battle_def_id)
+}
+
+// int32 faction = 2;
+inline void StartBattleRequest::clear_faction() {
+  faction_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StartBattleRequest::_internal_faction() const {
+  return faction_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 StartBattleRequest::faction() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.StartBattleRequest.faction)
+  return _internal_faction();
+}
+inline void StartBattleRequest::_internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  faction_ = value;
+}
+inline void StartBattleRequest::set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_faction(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.StartBattleRequest.faction)
 }
 
 // -------------------------------------------------------------------

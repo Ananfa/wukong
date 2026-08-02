@@ -103,6 +103,11 @@ void BattleRoom::ensureSimulationInitialized() {
 }
 
 TankBattle::Faction BattleRoom::resolveFactionForRole(uint64_t roleId) const {
+    auto it = players_.find(roleId);
+    if (it != players_.end() && it->second.preferredFaction >= 0 && it->second.preferredFaction <= 3) {
+        return static_cast<TankBattle::Faction>(it->second.preferredFaction);
+    }
+    // 未指定阵营时按 roleId 兜底分配，避免全挤同一阵营
     static const TankBattle::Faction kOrder[] = {
         TankBattle::Faction::Soviet,
         TankBattle::Faction::USA,
@@ -363,6 +368,10 @@ bool BattleRoom::addJoiningPlayer(const pb::BattlePlayerInitData &player, const 
     PlayerSlot s;
     s.roleId = player.role_id();
     s.combatPayload = player.combat_payload();
+    s.preferredFaction = player.faction();
+    if (s.preferredFaction < 0 || s.preferredFaction > 3) {
+        s.preferredFaction = -1;
+    }
     s.sessionToken = token;
     s.lobbyServerId = lobbyServerId;
     s.hasAuthed = false;

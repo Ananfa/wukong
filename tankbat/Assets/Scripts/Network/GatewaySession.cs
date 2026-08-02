@@ -81,15 +81,19 @@ namespace TankBattle.Network
             return _enterLobbyTcs.Task;
         }
 
-        public Task<BattleEnterInfo> RequestStartBattleAsync(uint battleDefId)
+        public Task<BattleEnterInfo> RequestStartBattleAsync(uint battleDefId, int faction = 0)
         {
             if (_client == null || !_client.Running)
                 throw new InvalidOperationException("GatewaySession not connected");
 
             _battleEnterTcs = new TaskCompletionSource<BattleEnterInfo>();
-            var req = new StartBattleRequest { BattleDefId = battleDefId };
+            var req = new StartBattleRequest
+            {
+                BattleDefId = battleDefId,
+                Faction = faction
+            };
             _client.Send(WukongMessageIds.C2S_StartBattle, ++_sendTag, req, true);
-            Debug.Log($"GatewaySession: START_BATTLE battleDefId={battleDefId}");
+            Debug.Log($"GatewaySession: START_BATTLE battleDefId={battleDefId} faction={faction}");
             return _battleEnterTcs.Task;
         }
 

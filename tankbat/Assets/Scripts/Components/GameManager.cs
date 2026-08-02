@@ -701,7 +701,8 @@ public class GameManager : MonoBehaviour
         if (playerId == 0 || player.id == playerId)
         {
             playerId = player.id;
-            Debug.Log($"您已加入游戏！playerId={playerId}");
+            selectedFaction = player.faction;
+            Debug.Log($"您已加入游戏！playerId={playerId} faction={selectedFaction}");
         }
     }
     

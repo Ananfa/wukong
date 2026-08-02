@@ -1,0 +1,5 @@
+{
+    "tables": [
+        { "name": "BattleRoomTypes", "path": "battle_room_types.json" }
+    ]
+}

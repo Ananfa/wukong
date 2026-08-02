@@ -82,6 +82,7 @@ void MessageHandler::StartBattleHandle(std::shared_ptr<MessageTarget> obj, uint1
     req.set_lobby_server_id(static_cast<int32_t>(g_LobbyConfig.getId()));
     wukong::pb::BattlePlayerInitData *pd = req.mutable_player();
     pd->set_role_id(realObj->getRoleId());
+    pd->set_faction(realMsg->faction());
     // combat_payload 由业务序列化角色战斗属性后填入
 
     wukong::pb::RequestBattleAssignmentResponse rsp;

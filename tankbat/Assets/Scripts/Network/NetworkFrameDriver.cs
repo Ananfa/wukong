@@ -17,9 +17,11 @@ namespace TankBattle.Network
         private bool _simulationReady;
         private uint _localPlayerId;
         private ulong _localRoleId;
+        private Faction _localFaction = Faction.Soviet;
 
         public bool IsReady => _simulationReady;
         public uint LocalPlayerId => _localPlayerId;
+        public Faction LocalFaction => _localFaction;
 
         public event Action OnSimulationStarted;
         public event Action OnSimulationEnded;
@@ -87,6 +89,7 @@ namespace TankBattle.Network
 
             _localRoleId = _kcp.Session != null ? _kcp.Session.RoleId : 0;
             _localPlayerId = 0;
+            _localFaction = Faction.Soviet;
 
             var players = new List<BattleSnapshotPlayer>(snap.Players);
             players.Sort((a, b) => a.PlayerId.CompareTo(b.PlayerId));
@@ -94,6 +97,7 @@ namespace TankBattle.Network
             if (players.Count == 0)
             {
                 _localPlayerId = _gameCore.AddPlayer("local", Faction.Soviet);
+                _localFaction = Faction.Soviet;
             }
             else
             {
@@ -113,13 +117,17 @@ namespace TankBattle.Network
                             $"NetworkFrameDriver: local playerId {id} != server {p.PlayerId} for role {p.RoleId}");
                     }
                     if (p.RoleId == _localRoleId)
+                    {
                         _localPlayerId = id;
+                        _localFaction = faction;
+                    }
                 }
             }
 
             if (_localPlayerId == 0 && players.Count > 0)
             {
                 _localPlayerId = players[0].PlayerId;
+                _localFaction = (Faction)Mathf.Clamp(players[0].Faction, 0, 3);
                 Debug.LogWarning("NetworkFrameDriver: role not in snapshot; using first server playerId");
             }
 

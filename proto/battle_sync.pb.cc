@@ -21,7 +21,8 @@ namespace pb {
 constexpr BattlePlayerInitData::BattlePlayerInitData(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : combat_payload_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , role_id_(uint64_t{0u}){}
+  , role_id_(uint64_t{0u})
+  , faction_(0){}
 struct BattlePlayerInitDataDefaultTypeInternal {
   constexpr BattlePlayerInitDataDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -240,7 +241,8 @@ struct BattleEnterInfoDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BattleEnterInfoDefaultTypeInternal _BattleEnterInfo_default_instance_;
 constexpr StartBattleRequest::StartBattleRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : battle_def_id_(0u){}
+  : battle_def_id_(0u)
+  , faction_(0){}
 struct StartBattleRequestDefaultTypeInternal {
   constexpr StartBattleRequestDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -275,6 +277,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattlePlayerInitData, role_id_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattlePlayerInitData, combat_payload_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattlePlayerInitData, faction_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleAssignmentAccess, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -408,6 +411,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::StartBattleRequest, battle_def_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::StartBattleRequest, faction_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::LeaveGameRequest, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -416,21 +420,21 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::wukong::pb::BattlePlayerInitData)},
-  { 7, -1, sizeof(::wukong::pb::BattleAssignmentAccess)},
-  { 14, -1, sizeof(::wukong::pb::RequestBattleAssignmentRequest)},
-  { 23, -1, sizeof(::wukong::pb::RequestBattleAssignmentResponse)},
-  { 32, -1, sizeof(::wukong::pb::RemoveBattlePlayerRequest)},
-  { 39, -1, sizeof(::wukong::pb::BattleKcpAuth)},
-  { 47, -1, sizeof(::wukong::pb::BattleKcpLeaveRoom)},
-  { 55, -1, sizeof(::wukong::pb::BattlePlayerFrameInput)},
-  { 70, -1, sizeof(::wukong::pb::BattleKcpInputUpload)},
-  { 85, -1, sizeof(::wukong::pb::BattleRoomSnapshot)},
-  { 96, -1, sizeof(::wukong::pb::BattleSnapshotPlayer)},
-  { 104, -1, sizeof(::wukong::pb::BattleFrameSync)},
-  { 112, -1, sizeof(::wukong::pb::PlayerBattleStateNotify)},
-  { 124, -1, sizeof(::wukong::pb::BattleEnterInfo)},
-  { 134, -1, sizeof(::wukong::pb::StartBattleRequest)},
-  { 140, -1, sizeof(::wukong::pb::LeaveGameRequest)},
+  { 8, -1, sizeof(::wukong::pb::BattleAssignmentAccess)},
+  { 15, -1, sizeof(::wukong::pb::RequestBattleAssignmentRequest)},
+  { 24, -1, sizeof(::wukong::pb::RequestBattleAssignmentResponse)},
+  { 33, -1, sizeof(::wukong::pb::RemoveBattlePlayerRequest)},
+  { 40, -1, sizeof(::wukong::pb::BattleKcpAuth)},
+  { 48, -1, sizeof(::wukong::pb::BattleKcpLeaveRoom)},
+  { 56, -1, sizeof(::wukong::pb::BattlePlayerFrameInput)},
+  { 71, -1, sizeof(::wukong::pb::BattleKcpInputUpload)},
+  { 86, -1, sizeof(::wukong::pb::BattleRoomSnapshot)},
+  { 97, -1, sizeof(::wukong::pb::BattleSnapshotPlayer)},
+  { 105, -1, sizeof(::wukong::pb::BattleFrameSync)},
+  { 113, -1, sizeof(::wukong::pb::PlayerBattleStateNotify)},
+  { 125, -1, sizeof(::wukong::pb::BattleEnterInfo)},
+  { 135, -1, sizeof(::wukong::pb::StartBattleRequest)},
+  { 142, -1, sizeof(::wukong::pb::LeaveGameRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -453,62 +457,63 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_battle_5fsync_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\021battle_sync.proto\022\twukong.pb\"\?\n\024Battle"
+  "\n\021battle_sync.proto\022\twukong.pb\"P\n\024Battle"
   "PlayerInitData\022\017\n\007role_id\030\001 \001(\004\022\026\n\016comba"
-  "t_payload\030\002 \001(\014\"@\n\026BattleAssignmentAcces"
-  "s\022\017\n\007role_id\030\001 \001(\004\022\025\n\rsession_token\030\002 \001("
-  "\t\"\252\001\n\036RequestBattleAssignmentRequest\022\'\n\004"
-  "mode\030\001 \001(\0162\031.wukong.pb.BattleRoomMode\022\025\n"
-  "\rbattle_def_id\030\002 \001(\r\022\027\n\017lobby_server_id\030"
-  "\003 \001(\005\022/\n\006player\030\004 \001(\0132\037.wukong.pb.Battle"
-  "PlayerInitData\"\211\001\n\037RequestBattleAssignme"
-  "ntResponse\022\017\n\007room_id\030\001 \001(\004\022\020\n\010kcp_host\030"
-  "\002 \001(\t\022\020\n\010kcp_port\030\003 \001(\005\0221\n\006access\030\004 \001(\0132"
-  "!.wukong.pb.BattleAssignmentAccess\"=\n\031Re"
-  "moveBattlePlayerRequest\022\017\n\007room_id\030\001 \001(\004"
-  "\022\017\n\007role_id\030\002 \001(\004\"H\n\rBattleKcpAuth\022\017\n\007ro"
-  "om_id\030\001 \001(\004\022\017\n\007role_id\030\002 \001(\004\022\025\n\rsession_"
-  "token\030\003 \001(\t\"M\n\022BattleKcpLeaveRoom\022\017\n\007roo"
-  "m_id\030\001 \001(\004\022\017\n\007role_id\030\002 \001(\004\022\025\n\rsession_t"
-  "oken\030\003 \001(\t\"\277\001\n\026BattlePlayerFrameInput\022\021\n"
-  "\tplayer_id\030\001 \001(\r\022\017\n\007role_id\030\002 \001(\004\022\r\n\005fra"
-  "me\030\003 \001(\r\022\016\n\006move_x\030\004 \001(\005\022\016\n\006move_y\030\005 \001(\005"
-  "\022\r\n\005aim_x\030\006 \001(\005\022\r\n\005aim_y\030\007 \001(\005\022\014\n\004fire\030\010"
-  " \001(\010\022\023\n\013use_ability\030\t \001(\010\022\021\n\ttimestamp\030\n"
-  " \001(\004\"\273\001\n\024BattleKcpInputUpload\022\017\n\007room_id"
-  "\030\001 \001(\004\022\017\n\007role_id\030\002 \001(\004\022\r\n\005frame\030\003 \001(\r\022\016"
-  "\n\006move_x\030\004 \001(\005\022\016\n\006move_y\030\005 \001(\005\022\r\n\005aim_x\030"
-  "\006 \001(\005\022\r\n\005aim_y\030\007 \001(\005\022\014\n\004fire\030\010 \001(\010\022\023\n\013us"
-  "e_ability\030\t \001(\010\022\021\n\ttimestamp\030\n \001(\004\"\305\001\n\022B"
-  "attleRoomSnapshot\022\017\n\007room_id\030\001 \001(\004\022\023\n\013lo"
-  "gic_frame\030\002 \001(\r\022\022\n\nframe_rate\030\003 \001(\r\022.\n\nr"
-  "oom_state\030\004 \001(\0162\032.wukong.pb.BattleRoomSt"
-  "ate\022\023\n\013random_seed\030\005 \001(\r\0220\n\007players\030\006 \003("
-  "\0132\037.wukong.pb.BattleSnapshotPlayer\"K\n\024Ba"
-  "ttleSnapshotPlayer\022\017\n\007role_id\030\001 \001(\004\022\021\n\tp"
-  "layer_id\030\002 \001(\r\022\017\n\007faction\030\003 \001(\005\"j\n\017Battl"
-  "eFrameSync\022\017\n\007room_id\030\001 \001(\004\022\023\n\013frame_ind"
-  "ex\030\002 \001(\r\0221\n\006inputs\030\003 \003(\0132!.wukong.pb.Bat"
-  "tlePlayerFrameInput\"\243\001\n\027PlayerBattleStat"
-  "eNotify\022\017\n\007role_id\030\001 \001(\004\022\021\n\tin_battle\030\002 "
-  "\001(\010\022\030\n\020battle_server_id\030\003 \001(\005\022\017\n\007room_id"
-  "\030\004 \001(\004\022\020\n\010kcp_host\030\005 \001(\t\022\020\n\010kcp_port\030\006 \001"
-  "(\005\022\025\n\rbattle_def_id\030\007 \001(\r\"w\n\017BattleEnter"
-  "Info\022\020\n\010kcp_host\030\001 \001(\t\022\020\n\010kcp_port\030\002 \001(\005"
-  "\022\017\n\007room_id\030\003 \001(\004\022\030\n\020battle_server_id\030\004 "
-  "\001(\005\022\025\n\rsession_token\030\005 \001(\t\"+\n\022StartBattl"
-  "eRequest\022\025\n\rbattle_def_id\030\001 \001(\r\"\022\n\020Leave"
-  "GameRequest*k\n\016BattleRoomMode\022 \n\034BATTLE_"
-  "ROOM_MODE_UNSPECIFIED\020\000\022\033\n\027BATTLE_ROOM_M"
-  "ODE_SINGLE\020\001\022\032\n\026BATTLE_ROOM_MODE_MULTI\020\002"
-  "*\217\001\n\017BattleRoomState\022!\n\035BATTLE_ROOM_STAT"
-  "E_UNSPECIFIED\020\000\022\035\n\031BATTLE_ROOM_STATE_WAI"
-  "TING\020\001\022\035\n\031BATTLE_ROOM_STATE_RUNNING\020\002\022\033\n"
-  "\027BATTLE_ROOM_STATE_ENDED\020\003b\006proto3"
+  "t_payload\030\002 \001(\014\022\017\n\007faction\030\003 \001(\005\"@\n\026Batt"
+  "leAssignmentAccess\022\017\n\007role_id\030\001 \001(\004\022\025\n\rs"
+  "ession_token\030\002 \001(\t\"\252\001\n\036RequestBattleAssi"
+  "gnmentRequest\022\'\n\004mode\030\001 \001(\0162\031.wukong.pb."
+  "BattleRoomMode\022\025\n\rbattle_def_id\030\002 \001(\r\022\027\n"
+  "\017lobby_server_id\030\003 \001(\005\022/\n\006player\030\004 \001(\0132\037"
+  ".wukong.pb.BattlePlayerInitData\"\211\001\n\037Requ"
+  "estBattleAssignmentResponse\022\017\n\007room_id\030\001"
+  " \001(\004\022\020\n\010kcp_host\030\002 \001(\t\022\020\n\010kcp_port\030\003 \001(\005"
+  "\0221\n\006access\030\004 \001(\0132!.wukong.pb.BattleAssig"
+  "nmentAccess\"=\n\031RemoveBattlePlayerRequest"
+  "\022\017\n\007room_id\030\001 \001(\004\022\017\n\007role_id\030\002 \001(\004\"H\n\rBa"
+  "ttleKcpAuth\022\017\n\007room_id\030\001 \001(\004\022\017\n\007role_id\030"
+  "\002 \001(\004\022\025\n\rsession_token\030\003 \001(\t\"M\n\022BattleKc"
+  "pLeaveRoom\022\017\n\007room_id\030\001 \001(\004\022\017\n\007role_id\030\002"
+  " \001(\004\022\025\n\rsession_token\030\003 \001(\t\"\277\001\n\026BattlePl"
+  "ayerFrameInput\022\021\n\tplayer_id\030\001 \001(\r\022\017\n\007rol"
+  "e_id\030\002 \001(\004\022\r\n\005frame\030\003 \001(\r\022\016\n\006move_x\030\004 \001("
+  "\005\022\016\n\006move_y\030\005 \001(\005\022\r\n\005aim_x\030\006 \001(\005\022\r\n\005aim_"
+  "y\030\007 \001(\005\022\014\n\004fire\030\010 \001(\010\022\023\n\013use_ability\030\t \001"
+  "(\010\022\021\n\ttimestamp\030\n \001(\004\"\273\001\n\024BattleKcpInput"
+  "Upload\022\017\n\007room_id\030\001 \001(\004\022\017\n\007role_id\030\002 \001(\004"
+  "\022\r\n\005frame\030\003 \001(\r\022\016\n\006move_x\030\004 \001(\005\022\016\n\006move_"
+  "y\030\005 \001(\005\022\r\n\005aim_x\030\006 \001(\005\022\r\n\005aim_y\030\007 \001(\005\022\014\n"
+  "\004fire\030\010 \001(\010\022\023\n\013use_ability\030\t \001(\010\022\021\n\ttime"
+  "stamp\030\n \001(\004\"\305\001\n\022BattleRoomSnapshot\022\017\n\007ro"
+  "om_id\030\001 \001(\004\022\023\n\013logic_frame\030\002 \001(\r\022\022\n\nfram"
+  "e_rate\030\003 \001(\r\022.\n\nroom_state\030\004 \001(\0162\032.wukon"
+  "g.pb.BattleRoomState\022\023\n\013random_seed\030\005 \001("
+  "\r\0220\n\007players\030\006 \003(\0132\037.wukong.pb.BattleSna"
+  "pshotPlayer\"K\n\024BattleSnapshotPlayer\022\017\n\007r"
+  "ole_id\030\001 \001(\004\022\021\n\tplayer_id\030\002 \001(\r\022\017\n\007facti"
+  "on\030\003 \001(\005\"j\n\017BattleFrameSync\022\017\n\007room_id\030\001"
+  " \001(\004\022\023\n\013frame_index\030\002 \001(\r\0221\n\006inputs\030\003 \003("
+  "\0132!.wukong.pb.BattlePlayerFrameInput\"\243\001\n"
+  "\027PlayerBattleStateNotify\022\017\n\007role_id\030\001 \001("
+  "\004\022\021\n\tin_battle\030\002 \001(\010\022\030\n\020battle_server_id"
+  "\030\003 \001(\005\022\017\n\007room_id\030\004 \001(\004\022\020\n\010kcp_host\030\005 \001("
+  "\t\022\020\n\010kcp_port\030\006 \001(\005\022\025\n\rbattle_def_id\030\007 \001"
+  "(\r\"w\n\017BattleEnterInfo\022\020\n\010kcp_host\030\001 \001(\t\022"
+  "\020\n\010kcp_port\030\002 \001(\005\022\017\n\007room_id\030\003 \001(\004\022\030\n\020ba"
+  "ttle_server_id\030\004 \001(\005\022\025\n\rsession_token\030\005 "
+  "\001(\t\"<\n\022StartBattleRequest\022\025\n\rbattle_def_"
+  "id\030\001 \001(\r\022\017\n\007faction\030\002 \001(\005\"\022\n\020LeaveGameRe"
+  "quest*k\n\016BattleRoomMode\022 \n\034BATTLE_ROOM_M"
+  "ODE_UNSPECIFIED\020\000\022\033\n\027BATTLE_ROOM_MODE_SI"
+  "NGLE\020\001\022\032\n\026BATTLE_ROOM_MODE_MULTI\020\002*\217\001\n\017B"
+  "attleRoomState\022!\n\035BATTLE_ROOM_STATE_UNSP"
+  "ECIFIED\020\000\022\035\n\031BATTLE_ROOM_STATE_WAITING\020\001"
+  "\022\035\n\031BATTLE_ROOM_STATE_RUNNING\020\002\022\033\n\027BATTL"
+  "E_ROOM_STATE_ENDED\020\003b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_battle_5fsync_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_battle_5fsync_2eproto = {
-  false, false, 2074, descriptor_table_protodef_battle_5fsync_2eproto, "battle_sync.proto", 
+  false, false, 2108, descriptor_table_protodef_battle_5fsync_2eproto, "battle_sync.proto", 
   &descriptor_table_battle_5fsync_2eproto_once, nullptr, 0, 16,
   schemas, file_default_instances, TableStruct_battle_5fsync_2eproto::offsets,
   file_level_metadata_battle_5fsync_2eproto, file_level_enum_descriptors_battle_5fsync_2eproto, file_level_service_descriptors_battle_5fsync_2eproto,
@@ -576,13 +581,18 @@ BattlePlayerInitData::BattlePlayerInitData(const BattlePlayerInitData& from)
     combat_payload_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_combat_payload(), 
       GetArenaForAllocation());
   }
-  role_id_ = from.role_id_;
+  ::memcpy(&role_id_, &from.role_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
+    reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.BattlePlayerInitData)
 }
 
 inline void BattlePlayerInitData::SharedCtor() {
 combat_payload_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-role_id_ = uint64_t{0u};
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&role_id_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
+    reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
 }
 
 BattlePlayerInitData::~BattlePlayerInitData() {
@@ -614,7 +624,9 @@ void BattlePlayerInitData::Clear() {
   (void) cached_has_bits;
 
   combat_payload_.ClearToEmpty();
-  role_id_ = uint64_t{0u};
+  ::memset(&role_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&faction_) -
+      reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -636,6 +648,13 @@ const char* BattlePlayerInitData::_InternalParse(const char* ptr, ::PROTOBUF_NAM
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_combat_payload();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 faction = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          faction_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -680,6 +699,12 @@ failure:
         2, this->_internal_combat_payload(), target);
   }
 
+  // int32 faction = 3;
+  if (this->_internal_faction() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_faction(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -708,6 +733,13 @@ size_t BattlePlayerInitData::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
         this->_internal_role_id());
+  }
+
+  // int32 faction = 3;
+  if (this->_internal_faction() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_faction());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -744,6 +776,9 @@ void BattlePlayerInitData::MergeFrom(const BattlePlayerInitData& from) {
   if (from._internal_role_id() != 0) {
     _internal_set_role_id(from._internal_role_id());
   }
+  if (from._internal_faction() != 0) {
+    _internal_set_faction(from._internal_faction());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -766,7 +801,12 @@ void BattlePlayerInitData::InternalSwap(BattlePlayerInitData* other) {
       &combat_payload_, GetArenaForAllocation(),
       &other->combat_payload_, other->GetArenaForAllocation()
   );
-  swap(role_id_, other->role_id_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BattlePlayerInitData, faction_)
+      + sizeof(BattlePlayerInitData::faction_)
+      - PROTOBUF_FIELD_OFFSET(BattlePlayerInitData, role_id_)>(
+          reinterpret_cast<char*>(&role_id_),
+          reinterpret_cast<char*>(&other->role_id_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata BattlePlayerInitData::GetMetadata() const {
@@ -4646,12 +4686,17 @@ StartBattleRequest::StartBattleRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 StartBattleRequest::StartBattleRequest(const StartBattleRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  battle_def_id_ = from.battle_def_id_;
+  ::memcpy(&battle_def_id_, &from.battle_def_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
+    reinterpret_cast<char*>(&battle_def_id_)) + sizeof(faction_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.StartBattleRequest)
 }
 
 inline void StartBattleRequest::SharedCtor() {
-battle_def_id_ = 0u;
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&battle_def_id_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
+    reinterpret_cast<char*>(&battle_def_id_)) + sizeof(faction_));
 }
 
 StartBattleRequest::~StartBattleRequest() {
@@ -4681,7 +4726,9 @@ void StartBattleRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  battle_def_id_ = 0u;
+  ::memset(&battle_def_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&faction_) -
+      reinterpret_cast<char*>(&battle_def_id_)) + sizeof(faction_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -4695,6 +4742,13 @@ const char* StartBattleRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
           battle_def_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 faction = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          faction_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -4733,6 +4787,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_battle_def_id(), target);
   }
 
+  // int32 faction = 2;
+  if (this->_internal_faction() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_faction(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -4754,6 +4814,13 @@ size_t StartBattleRequest::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
         this->_internal_battle_def_id());
+  }
+
+  // int32 faction = 2;
+  if (this->_internal_faction() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_faction());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4787,6 +4854,9 @@ void StartBattleRequest::MergeFrom(const StartBattleRequest& from) {
   if (from._internal_battle_def_id() != 0) {
     _internal_set_battle_def_id(from._internal_battle_def_id());
   }
+  if (from._internal_faction() != 0) {
+    _internal_set_faction(from._internal_faction());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -4804,7 +4874,12 @@ bool StartBattleRequest::IsInitialized() const {
 void StartBattleRequest::InternalSwap(StartBattleRequest* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  swap(battle_def_id_, other->battle_def_id_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(StartBattleRequest, faction_)
+      + sizeof(StartBattleRequest::faction_)
+      - PROTOBUF_FIELD_OFFSET(StartBattleRequest, battle_def_id_)>(
+          reinterpret_cast<char*>(&battle_def_id_),
+          reinterpret_cast<char*>(&other->battle_def_id_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata StartBattleRequest::GetMetadata() const {

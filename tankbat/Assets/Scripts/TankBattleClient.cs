@@ -912,7 +912,7 @@ namespace TankBattle
                     LeaveBattle();
 
                 Debug.Log($"TankBattleClient: request StartBattle battleDefId={battleDefId}");
-                var battleTask = gatewaySession.RequestStartBattleAsync(battleDefId);
+                var battleTask = gatewaySession.RequestStartBattleAsync(battleDefId, (int)selectedFaction);
                 if (!await WaitTaskWithTimeout(battleTask, 15f, "BATTLE_ENTER"))
                     return false;
 
@@ -1040,6 +1040,8 @@ namespace TankBattle
         private void OnNetworkSimulationStarted()
         {
             playerId = networkFrameDriver.LocalPlayerId;
+            // 以服务器 Snapshot 阵营为准（颜色/出生点/镜头）
+            selectedFaction = networkFrameDriver.LocalFaction;
             allowLocalInput = true;
             gameOverNotified = false;
             OnPlayerJoined?.Invoke(new PlayerInfo

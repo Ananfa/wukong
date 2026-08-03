@@ -81,18 +81,37 @@ std::string BattleRoomManager::makeToken(uint64_t roleId, uint64_t roomId) {
     return std::string(buf);
 }
 
-std::shared_ptr<BattleRoom> BattleRoomManager::findMatchableRoom(pb::BattleRoomMode mode, uint32_t battleDefId) {
+std::shared_ptr<BattleRoom> BattleRoomManager::findMatchableRoom(pb::BattleRoomMode mode, uint32_t battleDefId,
+                                                                int faction, std::time_t now) {
     for (auto &kv : rooms_) {
         const std::shared_ptr<BattleRoom> &r = kv.second;
         if (!r->matchesTemplate(mode, battleDefId)) {
             continue;
         }
-        if (!r->canAddPlayer()) {
+        if (!r->canJoinFaction(faction, now)) {
             continue;
         }
         return r;
     }
     return nullptr;
+}
+
+std::shared_ptr<BattleRoom> BattleRoomManager::findRoomByRole(uint64_t roleId) const {
+    for (const auto &kv : rooms_) {
+        if (kv.second && kv.second->hasRole(roleId)) {
+            return kv.second;
+        }
+    }
+    return nullptr;
+}
+
+void BattleRoomManager::fillAssignmentResponse(const std::shared_ptr<BattleRoom> &room, uint64_t roleId,
+                                               const std::string &token, pb::RequestBattleAssignmentResponse &rsp) {
+    rsp.set_room_id(room->roomId());
+    rsp.set_kcp_host(g_BattleConfig.getExternalIp());
+    rsp.set_kcp_port(g_BattleConfig.getMsgPort());
+    rsp.mutable_access()->set_role_id(roleId);
+    rsp.mutable_access()->set_session_token(token);
 }
 
 bool BattleRoomManager::assignFromRequest(const pb::RequestBattleAssignmentRequest &req, pb::RequestBattleAssignmentResponse &rsp) {
@@ -107,8 +126,8 @@ bool BattleRoomManager::assignFromRequest(const pb::RequestBattleAssignmentReque
         ERROR_LOG("BattleRoomManager::assignFromRequest -- invalid role_id\n");
         return false;
     }
-    const uint32_t maxP = g_BattleRoomTypesTable.getMaxPlayers(req.battle_def_id());
-    if (maxP == 0) {
+    const BattleRoomTypeDef *typeDef = g_BattleRoomTypesTable.find(req.battle_def_id());
+    if (!typeDef || typeDef->maxPlayers == 0) {
         ERROR_LOG("BattleRoomManager::assignFromRequest -- battle_def_id %u not in BattleRoomTypes design table\n",
                   (unsigned)req.battle_def_id());
         return false;
@@ -116,32 +135,47 @@ bool BattleRoomManager::assignFromRequest(const pb::RequestBattleAssignmentReque
 
     const ServerId lobbySid = static_cast<ServerId>(req.lobby_server_id());
     const std::time_t now = std::time(nullptr);
+    const uint64_t roleId = req.player().role_id();
+    const int faction = BattleRoom::normalizeFaction(req.player().faction(), roleId);
 
-    std::shared_ptr<BattleRoom> room = findMatchableRoom(req.mode(), req.battle_def_id());
-    if (room) {
-        const std::string token = makeToken(req.player().role_id(), room->roomId());
-        if (!room->addJoiningPlayer(req.player(), token, lobbySid, now)) {
-            ERROR_LOG("BattleRoomManager::assignFromRequest -- add to existing room failed\n");
+    // 断线重连：角色仍在原房间（未 Leave / 未超时踢出）→ 换发 token，回到同一战局
+    std::shared_ptr<BattleRoom> existing = findRoomByRole(roleId);
+    if (existing) {
+        const std::string token = makeToken(roleId, existing->roomId());
+        if (!existing->rebindPlayerForReconnect(roleId, token, lobbySid, now)) {
+            ERROR_LOG("BattleRoomManager::assignFromRequest -- reconnect rebind failed role:%llu room:%llu\n",
+                      (unsigned long long)roleId, (unsigned long long)existing->roomId());
             return false;
         }
-        rsp.set_room_id(room->roomId());
-        rsp.set_kcp_host(g_BattleConfig.getExternalIp());
-        rsp.set_kcp_port(g_BattleConfig.getMsgPort());
-        rsp.mutable_access()->set_role_id(req.player().role_id());
-        rsp.mutable_access()->set_session_token(token);
+        LOG("BattleRoomManager::assignFromRequest -- reconnect room:%llu role:%llu faction:%d\n",
+            (unsigned long long)existing->roomId(), (unsigned long long)roleId, faction);
+        fillAssignmentResponse(existing, roleId, token, rsp);
+        return true;
+    }
+
+    std::shared_ptr<BattleRoom> room = findMatchableRoom(req.mode(), req.battle_def_id(), faction, now);
+    if (room) {
+        const std::string token = makeToken(roleId, room->roomId());
+        if (!room->addJoiningPlayer(req.player(), token, lobbySid, now)) {
+            ERROR_LOG("BattleRoomManager::assignFromRequest -- add to existing room failed faction:%d room:%llu\n",
+                      faction, (unsigned long long)room->roomId());
+            return false;
+        }
+        LOG("BattleRoomManager::assignFromRequest -- join room:%llu role:%llu faction:%d human:%d/%u\n",
+            (unsigned long long)room->roomId(), (unsigned long long)roleId, faction,
+            room->humanCount(faction), (unsigned)room->slotsPerFaction());
+        fillAssignmentResponse(room, roleId, token, rsp);
         return true;
     }
 
     const uint64_t roomId = nextRoomId_++;
-    const std::string token = makeToken(req.player().role_id(), roomId);
+    const std::string token = makeToken(roleId, roomId);
 
     BattleRoom::PlayerSlot s;
-    s.roleId = req.player().role_id();
+    s.roleId = roleId;
     s.combatPayload = req.player().combat_payload();
-    s.preferredFaction = req.player().faction();
-    if (s.preferredFaction < 0 || s.preferredFaction > 3) {
-        s.preferredFaction = -1;
-    }
+    s.preferredFaction = faction;
+    s.reservedFaction = faction;
     s.sessionToken = token;
     s.lobbyServerId = lobbySid;
     s.hasAuthed = false;
@@ -149,14 +183,15 @@ bool BattleRoomManager::assignFromRequest(const pb::RequestBattleAssignmentReque
 
     std::vector<BattleRoom::PlayerSlot> slots;
     slots.push_back(std::move(s));
-    room = std::make_shared<BattleRoom>(roomId, req.mode(), req.battle_def_id(), maxP, std::move(slots));
+    room = std::make_shared<BattleRoom>(roomId, req.mode(), req.battle_def_id(), *typeDef, std::move(slots));
     rooms_[roomId] = room;
 
-    rsp.set_room_id(roomId);
-    rsp.set_kcp_host(g_BattleConfig.getExternalIp());
-    rsp.set_kcp_port(g_BattleConfig.getMsgPort());
-    rsp.mutable_access()->set_role_id(req.player().role_id());
-    rsp.mutable_access()->set_session_token(token);
+    LOG("BattleRoomManager::assignFromRequest -- create room:%llu role:%llu faction:%d slots:%u duration:%us joinWindow:%us\n",
+        (unsigned long long)roomId, (unsigned long long)roleId, faction,
+        (unsigned)typeDef->slotsPerFaction, (unsigned)typeDef->battleDurationSec,
+        (unsigned)typeDef->joinWindowSec);
+
+    fillAssignmentResponse(room, roleId, token, rsp);
     return true;
 }
 

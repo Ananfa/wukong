@@ -18,9 +18,11 @@
 #include "corpc_utils.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
+#include "design_config/design_json_io.h"
 #include "const.h"
 #include <cstdio>
 #include <stdlib.h>
+#include <string>
 
 using namespace rapidjson;
 using namespace wukong;
@@ -37,7 +39,34 @@ struct FileGuard {
     }
 };
 
+bool readEntireFile(const char *path, std::string *out) {
+    if (!path || !out) {
+        return false;
+    }
+    FILE *fp = fopen(path, "rb");
+    if (!fp) {
+        return false;
+    }
+    FileGuard guard(fp);
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        return false;
+    }
+    long sz = ftell(fp);
+    if (sz < 0) {
+        return false;
+    }
+    if (fseek(fp, 0, SEEK_SET) != 0) {
+        return false;
+    }
+    out->assign(static_cast<size_t>(sz), '\0');
+    if (sz == 0) {
+        return true;
+    }
+    size_t n = fread(&(*out)[0], 1, static_cast<size_t>(sz), fp);
+    return n == static_cast<size_t>(sz);
 }
+
+} // namespace
 
 bool BattleConfig::parse(const char *path) {
     FILE *fp = fopen(path, "rb");
@@ -146,6 +175,23 @@ bool BattleConfig::parse(const char *path) {
         return false;
     }
     designConfigManifest_ = doc["designConfigManifest"].GetString();
+
+    // 场景配置：默认 design/MapObstacles.json（与 Unity Assets/Config/MapObstacles.json 对齐）
+    std::string mapRel = "design/MapObstacles.json";
+    if (doc.HasMember("mapObstaclesPath") && doc["mapObstaclesPath"].IsString()) {
+        mapRel = doc["mapObstaclesPath"].GetString();
+    }
+    mapObstaclesPathResolved_ = design_config::resolveDataPath(path, mapRel.c_str());
+    mapObstaclesJson_.clear();
+    if (mapObstaclesPathResolved_.empty() || !readEntireFile(mapObstaclesPathResolved_.c_str(), &mapObstaclesJson_)) {
+        WARN_LOG("config warning -- cannot read mapObstaclesPath=%s (resolved=%s); GameCore will use built-in defaults\n",
+                 mapRel.c_str(),
+                 mapObstaclesPathResolved_.empty() ? "(empty)" : mapObstaclesPathResolved_.c_str());
+        mapObstaclesJson_.clear();
+    } else {
+        LOG("BattleConfig -- map obstacles loaded from %s (%u bytes)\n",
+            mapObstaclesPathResolved_.c_str(), (unsigned)mapObstaclesJson_.size());
+    }
 
     return true;
 }

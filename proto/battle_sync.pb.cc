@@ -159,15 +159,132 @@ struct BattleKcpInputUploadDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BattleKcpInputUploadDefaultTypeInternal _BattleKcpInputUpload_default_instance_;
+constexpr BattleSnapshotTank::BattleSnapshotTank(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : id_(0u)
+  , player_id_(0u)
+  , faction_(0)
+  , type_(0)
+  , pos_x_(0)
+  , pos_y_(0)
+  , vel_x_(0)
+  , vel_y_(0)
+  , rotation_(0)
+  , turret_rotation_(0)
+  , hp_(0)
+  , max_hp_(0)
+  , shield_frames_(0)
+  , speed_boost_frames_(0)
+  , rapid_fire_frames_(0)
+  , ability_cooldown_frames_(0)
+  , reload_frames_(0)
+  , reload_duration_frames_(0)
+  , recoil_vel_x_(0)
+  , recoil_vel_y_(0)
+  , locked_target_id_(0u)
+  , ai_move_mode_(0u)
+  , respawn_frames_(0)
+  , spawn_protection_frames_(0)
+  , charged_shot_(false)
+  , is_player_(false)
+  , is_alive_(false){}
+struct BattleSnapshotTankDefaultTypeInternal {
+  constexpr BattleSnapshotTankDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BattleSnapshotTankDefaultTypeInternal() {}
+  union {
+    BattleSnapshotTank _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BattleSnapshotTankDefaultTypeInternal _BattleSnapshotTank_default_instance_;
+constexpr BattleSnapshotAiMemory::BattleSnapshotAiMemory(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : path_waypoint_coords_()
+  , _path_waypoint_coords_cached_byte_size_(0)
+  , tank_id_(0u)
+  , wander_heading_(0)
+  , strafe_sign_(0)
+  , strafe_switch_frames_(0)
+  , wander_goal_serial_(0u)
+  , path_goal_x_(0)
+  , path_goal_y_(0)
+  , path_target_id_(0u)
+  , path_move_mode_(0u)
+  , path_recalc_frames_(0)
+  , wander_path_goal_x_(0)
+  , wander_path_goal_y_(0)
+  , wander_path_frames_(0)
+  , path_waypoint_index_(0u){}
+struct BattleSnapshotAiMemoryDefaultTypeInternal {
+  constexpr BattleSnapshotAiMemoryDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BattleSnapshotAiMemoryDefaultTypeInternal() {}
+  union {
+    BattleSnapshotAiMemory _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BattleSnapshotAiMemoryDefaultTypeInternal _BattleSnapshotAiMemory_default_instance_;
+constexpr BattleSnapshotBullet::BattleSnapshotBullet(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : damaged_tank_ids_()
+  , _damaged_tank_ids_cached_byte_size_(0)
+  , id_(0u)
+  , owner_id_(0u)
+  , pos_x_(0)
+  , pos_y_(0)
+  , vel_x_(0)
+  , vel_y_(0)
+  , damage_(0)
+  , life_frames_(0)
+  , penetrating_(false){}
+struct BattleSnapshotBulletDefaultTypeInternal {
+  constexpr BattleSnapshotBulletDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BattleSnapshotBulletDefaultTypeInternal() {}
+  union {
+    BattleSnapshotBullet _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BattleSnapshotBulletDefaultTypeInternal _BattleSnapshotBullet_default_instance_;
+constexpr BattleControlEvent::BattleControlEvent(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , role_id_(uint64_t{0u})
+  , type_(0)
+
+  , player_id_(0u)
+  , tank_id_(0u)
+  , faction_(0){}
+struct BattleControlEventDefaultTypeInternal {
+  constexpr BattleControlEventDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~BattleControlEventDefaultTypeInternal() {}
+  union {
+    BattleControlEvent _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BattleControlEventDefaultTypeInternal _BattleControlEvent_default_instance_;
 constexpr BattleRoomSnapshot::BattleRoomSnapshot(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : players_()
+  , faction_kills_()
+  , _faction_kills_cached_byte_size_(0)
+  , faction_deaths_()
+  , _faction_deaths_cached_byte_size_(0)
+  , tanks_()
+  , bullets_()
+  , ai_memories_()
   , room_id_(uint64_t{0u})
   , logic_frame_(0u)
   , frame_rate_(0u)
   , room_state_(0)
 
-  , random_seed_(0u){}
+  , random_seed_(0u)
+  , slots_per_faction_(0u)
+  , next_player_id_(0u)
+  , next_tank_id_(0u)
+  , next_bullet_id_(0u)
+  , game_state_(0){}
 struct BattleRoomSnapshotDefaultTypeInternal {
   constexpr BattleRoomSnapshotDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -181,7 +298,8 @@ constexpr BattleSnapshotPlayer::BattleSnapshotPlayer(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : role_id_(uint64_t{0u})
   , player_id_(0u)
-  , faction_(0){}
+  , faction_(0)
+  , tank_id_(0u){}
 struct BattleSnapshotPlayerDefaultTypeInternal {
   constexpr BattleSnapshotPlayerDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -194,6 +312,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT BattleSnapshotPlayerDefaultType
 constexpr BattleFrameSync::BattleFrameSync(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : inputs_()
+  , control_events_()
   , room_id_(uint64_t{0u})
   , frame_index_(0u){}
 struct BattleFrameSyncDefaultTypeInternal {
@@ -265,8 +384,8 @@ struct LeaveGameRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LeaveGameRequestDefaultTypeInternal _LeaveGameRequest_default_instance_;
 }  // namespace pb
 }  // namespace wukong
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_battle_5fsync_2eproto[16];
-static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_battle_5fsync_2eproto[2];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_battle_5fsync_2eproto[20];
+static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_battle_5fsync_2eproto[3];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_battle_5fsync_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -357,6 +476,84 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleKcpInputUpload, use_ability_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleKcpInputUpload, timestamp_),
   ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, player_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, faction_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, type_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, pos_x_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, pos_y_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, vel_x_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, vel_y_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, rotation_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, turret_rotation_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, hp_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, max_hp_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, shield_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, speed_boost_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, rapid_fire_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, ability_cooldown_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, reload_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, reload_duration_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, recoil_vel_x_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, recoil_vel_y_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, locked_target_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, ai_move_mode_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, respawn_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, spawn_protection_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, charged_shot_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, is_player_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotTank, is_alive_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, tank_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, wander_heading_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, strafe_sign_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, strafe_switch_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, wander_goal_serial_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, path_goal_x_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, path_goal_y_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, path_target_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, path_move_mode_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, path_recalc_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, wander_path_goal_x_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, wander_path_goal_y_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, wander_path_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, path_waypoint_index_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotAiMemory, path_waypoint_coords_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, owner_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, pos_x_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, pos_y_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, vel_x_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, vel_y_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, damage_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, life_frames_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, penetrating_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotBullet, damaged_tank_ids_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleControlEvent, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleControlEvent, type_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleControlEvent, role_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleControlEvent, player_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleControlEvent, tank_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleControlEvent, faction_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleControlEvent, name_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -367,6 +564,16 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, room_state_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, random_seed_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, players_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, slots_per_faction_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, next_player_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, next_tank_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, next_bullet_id_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, faction_kills_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, faction_deaths_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, tanks_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, bullets_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, game_state_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleRoomSnapshot, ai_memories_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotPlayer, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -375,6 +582,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotPlayer, role_id_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotPlayer, player_id_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotPlayer, faction_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleSnapshotPlayer, tank_id_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleFrameSync, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -383,6 +591,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_battle_5fsync_2eproto::offsets
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleFrameSync, room_id_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleFrameSync, frame_index_),
   PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleFrameSync, inputs_),
+  PROTOBUF_FIELD_OFFSET(::wukong::pb::BattleFrameSync, control_events_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::wukong::pb::PlayerBattleStateNotify, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -428,13 +637,17 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 48, -1, sizeof(::wukong::pb::BattleKcpLeaveRoom)},
   { 56, -1, sizeof(::wukong::pb::BattlePlayerFrameInput)},
   { 71, -1, sizeof(::wukong::pb::BattleKcpInputUpload)},
-  { 86, -1, sizeof(::wukong::pb::BattleRoomSnapshot)},
-  { 97, -1, sizeof(::wukong::pb::BattleSnapshotPlayer)},
-  { 105, -1, sizeof(::wukong::pb::BattleFrameSync)},
-  { 113, -1, sizeof(::wukong::pb::PlayerBattleStateNotify)},
-  { 125, -1, sizeof(::wukong::pb::BattleEnterInfo)},
-  { 135, -1, sizeof(::wukong::pb::StartBattleRequest)},
-  { 142, -1, sizeof(::wukong::pb::LeaveGameRequest)},
+  { 86, -1, sizeof(::wukong::pb::BattleSnapshotTank)},
+  { 118, -1, sizeof(::wukong::pb::BattleSnapshotAiMemory)},
+  { 138, -1, sizeof(::wukong::pb::BattleSnapshotBullet)},
+  { 153, -1, sizeof(::wukong::pb::BattleControlEvent)},
+  { 164, -1, sizeof(::wukong::pb::BattleRoomSnapshot)},
+  { 185, -1, sizeof(::wukong::pb::BattleSnapshotPlayer)},
+  { 194, -1, sizeof(::wukong::pb::BattleFrameSync)},
+  { 203, -1, sizeof(::wukong::pb::PlayerBattleStateNotify)},
+  { 215, -1, sizeof(::wukong::pb::BattleEnterInfo)},
+  { 225, -1, sizeof(::wukong::pb::StartBattleRequest)},
+  { 232, -1, sizeof(::wukong::pb::LeaveGameRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -447,6 +660,10 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleKcpLeaveRoom_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattlePlayerFrameInput_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleKcpInputUpload_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleSnapshotTank_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleSnapshotAiMemory_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleSnapshotBullet_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleControlEvent_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleRoomSnapshot_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleSnapshotPlayer_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::wukong::pb::_BattleFrameSync_default_instance_),
@@ -484,37 +701,83 @@ const char descriptor_table_protodef_battle_5fsync_2eproto[] PROTOBUF_SECTION_VA
   "\022\r\n\005frame\030\003 \001(\r\022\016\n\006move_x\030\004 \001(\005\022\016\n\006move_"
   "y\030\005 \001(\005\022\r\n\005aim_x\030\006 \001(\005\022\r\n\005aim_y\030\007 \001(\005\022\014\n"
   "\004fire\030\010 \001(\010\022\023\n\013use_ability\030\t \001(\010\022\021\n\ttime"
-  "stamp\030\n \001(\004\"\305\001\n\022BattleRoomSnapshot\022\017\n\007ro"
-  "om_id\030\001 \001(\004\022\023\n\013logic_frame\030\002 \001(\r\022\022\n\nfram"
-  "e_rate\030\003 \001(\r\022.\n\nroom_state\030\004 \001(\0162\032.wukon"
-  "g.pb.BattleRoomState\022\023\n\013random_seed\030\005 \001("
-  "\r\0220\n\007players\030\006 \003(\0132\037.wukong.pb.BattleSna"
-  "pshotPlayer\"K\n\024BattleSnapshotPlayer\022\017\n\007r"
-  "ole_id\030\001 \001(\004\022\021\n\tplayer_id\030\002 \001(\r\022\017\n\007facti"
-  "on\030\003 \001(\005\"j\n\017BattleFrameSync\022\017\n\007room_id\030\001"
-  " \001(\004\022\023\n\013frame_index\030\002 \001(\r\0221\n\006inputs\030\003 \003("
-  "\0132!.wukong.pb.BattlePlayerFrameInput\"\243\001\n"
-  "\027PlayerBattleStateNotify\022\017\n\007role_id\030\001 \001("
-  "\004\022\021\n\tin_battle\030\002 \001(\010\022\030\n\020battle_server_id"
-  "\030\003 \001(\005\022\017\n\007room_id\030\004 \001(\004\022\020\n\010kcp_host\030\005 \001("
-  "\t\022\020\n\010kcp_port\030\006 \001(\005\022\025\n\rbattle_def_id\030\007 \001"
-  "(\r\"w\n\017BattleEnterInfo\022\020\n\010kcp_host\030\001 \001(\t\022"
-  "\020\n\010kcp_port\030\002 \001(\005\022\017\n\007room_id\030\003 \001(\004\022\030\n\020ba"
-  "ttle_server_id\030\004 \001(\005\022\025\n\rsession_token\030\005 "
-  "\001(\t\"<\n\022StartBattleRequest\022\025\n\rbattle_def_"
-  "id\030\001 \001(\r\022\017\n\007faction\030\002 \001(\005\"\022\n\020LeaveGameRe"
-  "quest*k\n\016BattleRoomMode\022 \n\034BATTLE_ROOM_M"
-  "ODE_UNSPECIFIED\020\000\022\033\n\027BATTLE_ROOM_MODE_SI"
-  "NGLE\020\001\022\032\n\026BATTLE_ROOM_MODE_MULTI\020\002*\217\001\n\017B"
-  "attleRoomState\022!\n\035BATTLE_ROOM_STATE_UNSP"
-  "ECIFIED\020\000\022\035\n\031BATTLE_ROOM_STATE_WAITING\020\001"
-  "\022\035\n\031BATTLE_ROOM_STATE_RUNNING\020\002\022\033\n\027BATTL"
-  "E_ROOM_STATE_ENDED\020\003b\006proto3"
+  "stamp\030\n \001(\004\"\313\004\n\022BattleSnapshotTank\022\n\n\002id"
+  "\030\001 \001(\r\022\021\n\tplayer_id\030\002 \001(\r\022\017\n\007faction\030\003 \001"
+  "(\005\022\014\n\004type\030\004 \001(\005\022\r\n\005pos_x\030\005 \001(\005\022\r\n\005pos_y"
+  "\030\006 \001(\005\022\r\n\005vel_x\030\007 \001(\005\022\r\n\005vel_y\030\010 \001(\005\022\020\n\010"
+  "rotation\030\t \001(\005\022\027\n\017turret_rotation\030\n \001(\005\022"
+  "\n\n\002hp\030\013 \001(\005\022\016\n\006max_hp\030\014 \001(\005\022\025\n\rshield_fr"
+  "ames\030\r \001(\005\022\032\n\022speed_boost_frames\030\016 \001(\005\022\031"
+  "\n\021rapid_fire_frames\030\017 \001(\005\022\037\n\027ability_coo"
+  "ldown_frames\030\020 \001(\005\022\025\n\rreload_frames\030\021 \001("
+  "\005\022\036\n\026reload_duration_frames\030\022 \001(\005\022\024\n\014rec"
+  "oil_vel_x\030\023 \001(\005\022\024\n\014recoil_vel_y\030\024 \001(\005\022\030\n"
+  "\020locked_target_id\030\025 \001(\r\022\024\n\014ai_move_mode\030"
+  "\026 \001(\r\022\026\n\016respawn_frames\030\027 \001(\005\022\037\n\027spawn_p"
+  "rotection_frames\030\030 \001(\005\022\024\n\014charged_shot\030\031"
+  " \001(\010\022\021\n\tis_player\030\032 \001(\010\022\020\n\010is_alive\030\033 \001("
+  "\010\"\225\003\n\026BattleSnapshotAiMemory\022\017\n\007tank_id\030"
+  "\001 \001(\r\022\026\n\016wander_heading\030\002 \001(\005\022\023\n\013strafe_"
+  "sign\030\003 \001(\005\022\034\n\024strafe_switch_frames\030\004 \001(\005"
+  "\022\032\n\022wander_goal_serial\030\005 \001(\r\022\023\n\013path_goa"
+  "l_x\030\006 \001(\005\022\023\n\013path_goal_y\030\007 \001(\005\022\026\n\016path_t"
+  "arget_id\030\010 \001(\r\022\026\n\016path_move_mode\030\t \001(\r\022\032"
+  "\n\022path_recalc_frames\030\n \001(\005\022\032\n\022wander_pat"
+  "h_goal_x\030\013 \001(\005\022\032\n\022wander_path_goal_y\030\014 \001"
+  "(\005\022\032\n\022wander_path_frames\030\r \001(\005\022\033\n\023path_w"
+  "aypoint_index\030\016 \001(\r\022\034\n\024path_waypoint_coo"
+  "rds\030\017 \003(\005\"\304\001\n\024BattleSnapshotBullet\022\n\n\002id"
+  "\030\001 \001(\r\022\020\n\010owner_id\030\002 \001(\r\022\r\n\005pos_x\030\003 \001(\005\022"
+  "\r\n\005pos_y\030\004 \001(\005\022\r\n\005vel_x\030\005 \001(\005\022\r\n\005vel_y\030\006"
+  " \001(\005\022\016\n\006damage\030\007 \001(\005\022\023\n\013life_frames\030\010 \001("
+  "\005\022\023\n\013penetrating\030\t \001(\010\022\030\n\020damaged_tank_i"
+  "ds\030\n \003(\r\"\231\001\n\022BattleControlEvent\022/\n\004type\030"
+  "\001 \001(\0162!.wukong.pb.BattleControlEventType"
+  "\022\017\n\007role_id\030\002 \001(\004\022\021\n\tplayer_id\030\003 \001(\r\022\017\n\007"
+  "tank_id\030\004 \001(\r\022\017\n\007faction\030\005 \001(\005\022\014\n\004name\030\006"
+  " \001(\t\"\201\004\n\022BattleRoomSnapshot\022\017\n\007room_id\030\001"
+  " \001(\004\022\023\n\013logic_frame\030\002 \001(\r\022\022\n\nframe_rate\030"
+  "\003 \001(\r\022.\n\nroom_state\030\004 \001(\0162\032.wukong.pb.Ba"
+  "ttleRoomState\022\023\n\013random_seed\030\005 \001(\r\0220\n\007pl"
+  "ayers\030\006 \003(\0132\037.wukong.pb.BattleSnapshotPl"
+  "ayer\022\031\n\021slots_per_faction\030\007 \001(\r\022\026\n\016next_"
+  "player_id\030\010 \001(\r\022\024\n\014next_tank_id\030\t \001(\r\022\026\n"
+  "\016next_bullet_id\030\n \001(\r\022\025\n\rfaction_kills\030\013"
+  " \003(\r\022\026\n\016faction_deaths\030\014 \003(\r\022,\n\005tanks\030\r "
+  "\003(\0132\035.wukong.pb.BattleSnapshotTank\0220\n\007bu"
+  "llets\030\016 \003(\0132\037.wukong.pb.BattleSnapshotBu"
+  "llet\022\022\n\ngame_state\030\017 \001(\005\0226\n\013ai_memories\030"
+  "\020 \003(\0132!.wukong.pb.BattleSnapshotAiMemory"
+  "\"\\\n\024BattleSnapshotPlayer\022\017\n\007role_id\030\001 \001("
+  "\004\022\021\n\tplayer_id\030\002 \001(\r\022\017\n\007faction\030\003 \001(\005\022\017\n"
+  "\007tank_id\030\004 \001(\r\"\241\001\n\017BattleFrameSync\022\017\n\007ro"
+  "om_id\030\001 \001(\004\022\023\n\013frame_index\030\002 \001(\r\0221\n\006inpu"
+  "ts\030\003 \003(\0132!.wukong.pb.BattlePlayerFrameIn"
+  "put\0225\n\016control_events\030\004 \003(\0132\035.wukong.pb."
+  "BattleControlEvent\"\243\001\n\027PlayerBattleState"
+  "Notify\022\017\n\007role_id\030\001 \001(\004\022\021\n\tin_battle\030\002 \001"
+  "(\010\022\030\n\020battle_server_id\030\003 \001(\005\022\017\n\007room_id\030"
+  "\004 \001(\004\022\020\n\010kcp_host\030\005 \001(\t\022\020\n\010kcp_port\030\006 \001("
+  "\005\022\025\n\rbattle_def_id\030\007 \001(\r\"w\n\017BattleEnterI"
+  "nfo\022\020\n\010kcp_host\030\001 \001(\t\022\020\n\010kcp_port\030\002 \001(\005\022"
+  "\017\n\007room_id\030\003 \001(\004\022\030\n\020battle_server_id\030\004 \001"
+  "(\005\022\025\n\rsession_token\030\005 \001(\t\"<\n\022StartBattle"
+  "Request\022\025\n\rbattle_def_id\030\001 \001(\r\022\017\n\007factio"
+  "n\030\002 \001(\005\"\022\n\020LeaveGameRequest*k\n\016BattleRoo"
+  "mMode\022 \n\034BATTLE_ROOM_MODE_UNSPECIFIED\020\000\022"
+  "\033\n\027BATTLE_ROOM_MODE_SINGLE\020\001\022\032\n\026BATTLE_R"
+  "OOM_MODE_MULTI\020\002*\217\001\n\017BattleRoomState\022!\n\035"
+  "BATTLE_ROOM_STATE_UNSPECIFIED\020\000\022\035\n\031BATTL"
+  "E_ROOM_STATE_WAITING\020\001\022\035\n\031BATTLE_ROOM_ST"
+  "ATE_RUNNING\020\002\022\033\n\027BATTLE_ROOM_STATE_ENDED"
+  "\020\003*i\n\026BattleControlEventType\022\027\n\023BATTLE_C"
+  "ONTROL_NONE\020\000\022\032\n\026BATTLE_CONTROL_POSSESS\020"
+  "\001\022\032\n\026BATTLE_CONTROL_RELEASE\020\002b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_battle_5fsync_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_battle_5fsync_2eproto = {
-  false, false, 2108, descriptor_table_protodef_battle_5fsync_2eproto, "battle_sync.proto", 
-  &descriptor_table_battle_5fsync_2eproto_once, nullptr, 0, 16,
+  false, false, 3957, descriptor_table_protodef_battle_5fsync_2eproto, "battle_sync.proto", 
+  &descriptor_table_battle_5fsync_2eproto_once, nullptr, 0, 20,
   schemas, file_default_instances, TableStruct_battle_5fsync_2eproto::offsets,
   file_level_metadata_battle_5fsync_2eproto, file_level_enum_descriptors_battle_5fsync_2eproto, file_level_service_descriptors_battle_5fsync_2eproto,
 };
@@ -551,6 +814,21 @@ bool BattleRoomState_IsValid(int value) {
     case 1:
     case 2:
     case 3:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BattleControlEventType_descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_battle_5fsync_2eproto);
+  return file_level_enum_descriptors_battle_5fsync_2eproto[2];
+}
+bool BattleControlEventType_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+    case 2:
       return true;
     default:
       return false;
@@ -3174,6 +3452,2080 @@ void BattleKcpInputUpload::InternalSwap(BattleKcpInputUpload* other) {
 
 // ===================================================================
 
+class BattleSnapshotTank::_Internal {
+ public:
+};
+
+BattleSnapshotTank::BattleSnapshotTank(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:wukong.pb.BattleSnapshotTank)
+}
+BattleSnapshotTank::BattleSnapshotTank(const BattleSnapshotTank& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&id_, &from.id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&is_alive_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(is_alive_));
+  // @@protoc_insertion_point(copy_constructor:wukong.pb.BattleSnapshotTank)
+}
+
+inline void BattleSnapshotTank::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&is_alive_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(is_alive_));
+}
+
+BattleSnapshotTank::~BattleSnapshotTank() {
+  // @@protoc_insertion_point(destructor:wukong.pb.BattleSnapshotTank)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void BattleSnapshotTank::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void BattleSnapshotTank::ArenaDtor(void* object) {
+  BattleSnapshotTank* _this = reinterpret_cast< BattleSnapshotTank* >(object);
+  (void)_this;
+}
+void BattleSnapshotTank::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void BattleSnapshotTank::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void BattleSnapshotTank::Clear() {
+// @@protoc_insertion_point(message_clear_start:wukong.pb.BattleSnapshotTank)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&is_alive_) -
+      reinterpret_cast<char*>(&id_)) + sizeof(is_alive_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* BattleSnapshotTank::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint32 id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 player_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          player_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 faction = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          faction_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 type = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          type_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 pos_x = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          pos_x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 pos_y = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
+          pos_y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 vel_x = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
+          vel_x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 vel_y = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 64)) {
+          vel_y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 rotation = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 72)) {
+          rotation_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 turret_rotation = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 80)) {
+          turret_rotation_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 hp = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 88)) {
+          hp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 max_hp = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 96)) {
+          max_hp_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 shield_frames = 13;
+      case 13:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 104)) {
+          shield_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 speed_boost_frames = 14;
+      case 14:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 112)) {
+          speed_boost_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 rapid_fire_frames = 15;
+      case 15:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 120)) {
+          rapid_fire_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 ability_cooldown_frames = 16;
+      case 16:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 128)) {
+          ability_cooldown_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 reload_frames = 17;
+      case 17:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 136)) {
+          reload_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 reload_duration_frames = 18;
+      case 18:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 144)) {
+          reload_duration_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 recoil_vel_x = 19;
+      case 19:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 152)) {
+          recoil_vel_x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 recoil_vel_y = 20;
+      case 20:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 160)) {
+          recoil_vel_y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 locked_target_id = 21;
+      case 21:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 168)) {
+          locked_target_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 ai_move_mode = 22;
+      case 22:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 176)) {
+          ai_move_mode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 respawn_frames = 23;
+      case 23:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 184)) {
+          respawn_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 spawn_protection_frames = 24;
+      case 24:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 192)) {
+          spawn_protection_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool charged_shot = 25;
+      case 25:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 200)) {
+          charged_shot_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool is_player = 26;
+      case 26:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 208)) {
+          is_player_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool is_alive = 27;
+      case 27:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 216)) {
+          is_alive_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* BattleSnapshotTank::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.BattleSnapshotTank)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint32 id = 1;
+  if (this->_internal_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_id(), target);
+  }
+
+  // uint32 player_id = 2;
+  if (this->_internal_player_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_player_id(), target);
+  }
+
+  // int32 faction = 3;
+  if (this->_internal_faction() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_faction(), target);
+  }
+
+  // int32 type = 4;
+  if (this->_internal_type() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_type(), target);
+  }
+
+  // int32 pos_x = 5;
+  if (this->_internal_pos_x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(5, this->_internal_pos_x(), target);
+  }
+
+  // int32 pos_y = 6;
+  if (this->_internal_pos_y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(6, this->_internal_pos_y(), target);
+  }
+
+  // int32 vel_x = 7;
+  if (this->_internal_vel_x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(7, this->_internal_vel_x(), target);
+  }
+
+  // int32 vel_y = 8;
+  if (this->_internal_vel_y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(8, this->_internal_vel_y(), target);
+  }
+
+  // int32 rotation = 9;
+  if (this->_internal_rotation() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(9, this->_internal_rotation(), target);
+  }
+
+  // int32 turret_rotation = 10;
+  if (this->_internal_turret_rotation() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(10, this->_internal_turret_rotation(), target);
+  }
+
+  // int32 hp = 11;
+  if (this->_internal_hp() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(11, this->_internal_hp(), target);
+  }
+
+  // int32 max_hp = 12;
+  if (this->_internal_max_hp() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(12, this->_internal_max_hp(), target);
+  }
+
+  // int32 shield_frames = 13;
+  if (this->_internal_shield_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(13, this->_internal_shield_frames(), target);
+  }
+
+  // int32 speed_boost_frames = 14;
+  if (this->_internal_speed_boost_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(14, this->_internal_speed_boost_frames(), target);
+  }
+
+  // int32 rapid_fire_frames = 15;
+  if (this->_internal_rapid_fire_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(15, this->_internal_rapid_fire_frames(), target);
+  }
+
+  // int32 ability_cooldown_frames = 16;
+  if (this->_internal_ability_cooldown_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(16, this->_internal_ability_cooldown_frames(), target);
+  }
+
+  // int32 reload_frames = 17;
+  if (this->_internal_reload_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(17, this->_internal_reload_frames(), target);
+  }
+
+  // int32 reload_duration_frames = 18;
+  if (this->_internal_reload_duration_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(18, this->_internal_reload_duration_frames(), target);
+  }
+
+  // int32 recoil_vel_x = 19;
+  if (this->_internal_recoil_vel_x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(19, this->_internal_recoil_vel_x(), target);
+  }
+
+  // int32 recoil_vel_y = 20;
+  if (this->_internal_recoil_vel_y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(20, this->_internal_recoil_vel_y(), target);
+  }
+
+  // uint32 locked_target_id = 21;
+  if (this->_internal_locked_target_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(21, this->_internal_locked_target_id(), target);
+  }
+
+  // uint32 ai_move_mode = 22;
+  if (this->_internal_ai_move_mode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(22, this->_internal_ai_move_mode(), target);
+  }
+
+  // int32 respawn_frames = 23;
+  if (this->_internal_respawn_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(23, this->_internal_respawn_frames(), target);
+  }
+
+  // int32 spawn_protection_frames = 24;
+  if (this->_internal_spawn_protection_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(24, this->_internal_spawn_protection_frames(), target);
+  }
+
+  // bool charged_shot = 25;
+  if (this->_internal_charged_shot() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(25, this->_internal_charged_shot(), target);
+  }
+
+  // bool is_player = 26;
+  if (this->_internal_is_player() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(26, this->_internal_is_player(), target);
+  }
+
+  // bool is_alive = 27;
+  if (this->_internal_is_alive() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(27, this->_internal_is_alive(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.BattleSnapshotTank)
+  return target;
+}
+
+size_t BattleSnapshotTank::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:wukong.pb.BattleSnapshotTank)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // uint32 id = 1;
+  if (this->_internal_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_id());
+  }
+
+  // uint32 player_id = 2;
+  if (this->_internal_player_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_player_id());
+  }
+
+  // int32 faction = 3;
+  if (this->_internal_faction() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_faction());
+  }
+
+  // int32 type = 4;
+  if (this->_internal_type() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_type());
+  }
+
+  // int32 pos_x = 5;
+  if (this->_internal_pos_x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_pos_x());
+  }
+
+  // int32 pos_y = 6;
+  if (this->_internal_pos_y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_pos_y());
+  }
+
+  // int32 vel_x = 7;
+  if (this->_internal_vel_x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_vel_x());
+  }
+
+  // int32 vel_y = 8;
+  if (this->_internal_vel_y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_vel_y());
+  }
+
+  // int32 rotation = 9;
+  if (this->_internal_rotation() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_rotation());
+  }
+
+  // int32 turret_rotation = 10;
+  if (this->_internal_turret_rotation() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_turret_rotation());
+  }
+
+  // int32 hp = 11;
+  if (this->_internal_hp() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_hp());
+  }
+
+  // int32 max_hp = 12;
+  if (this->_internal_max_hp() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_max_hp());
+  }
+
+  // int32 shield_frames = 13;
+  if (this->_internal_shield_frames() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_shield_frames());
+  }
+
+  // int32 speed_boost_frames = 14;
+  if (this->_internal_speed_boost_frames() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_speed_boost_frames());
+  }
+
+  // int32 rapid_fire_frames = 15;
+  if (this->_internal_rapid_fire_frames() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_rapid_fire_frames());
+  }
+
+  // int32 ability_cooldown_frames = 16;
+  if (this->_internal_ability_cooldown_frames() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_ability_cooldown_frames());
+  }
+
+  // int32 reload_frames = 17;
+  if (this->_internal_reload_frames() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_reload_frames());
+  }
+
+  // int32 reload_duration_frames = 18;
+  if (this->_internal_reload_duration_frames() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_reload_duration_frames());
+  }
+
+  // int32 recoil_vel_x = 19;
+  if (this->_internal_recoil_vel_x() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_recoil_vel_x());
+  }
+
+  // int32 recoil_vel_y = 20;
+  if (this->_internal_recoil_vel_y() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_recoil_vel_y());
+  }
+
+  // uint32 locked_target_id = 21;
+  if (this->_internal_locked_target_id() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_locked_target_id());
+  }
+
+  // uint32 ai_move_mode = 22;
+  if (this->_internal_ai_move_mode() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_ai_move_mode());
+  }
+
+  // int32 respawn_frames = 23;
+  if (this->_internal_respawn_frames() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_respawn_frames());
+  }
+
+  // int32 spawn_protection_frames = 24;
+  if (this->_internal_spawn_protection_frames() != 0) {
+    total_size += 2 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_spawn_protection_frames());
+  }
+
+  // bool charged_shot = 25;
+  if (this->_internal_charged_shot() != 0) {
+    total_size += 2 + 1;
+  }
+
+  // bool is_player = 26;
+  if (this->_internal_is_player() != 0) {
+    total_size += 2 + 1;
+  }
+
+  // bool is_alive = 27;
+  if (this->_internal_is_alive() != 0) {
+    total_size += 2 + 1;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BattleSnapshotTank::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BattleSnapshotTank::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BattleSnapshotTank::GetClassData() const { return &_class_data_; }
+
+void BattleSnapshotTank::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message&from) {
+  static_cast<BattleSnapshotTank *>(to)->MergeFrom(
+      static_cast<const BattleSnapshotTank &>(from));
+}
+
+
+void BattleSnapshotTank::MergeFrom(const BattleSnapshotTank& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.BattleSnapshotTank)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_id() != 0) {
+    _internal_set_id(from._internal_id());
+  }
+  if (from._internal_player_id() != 0) {
+    _internal_set_player_id(from._internal_player_id());
+  }
+  if (from._internal_faction() != 0) {
+    _internal_set_faction(from._internal_faction());
+  }
+  if (from._internal_type() != 0) {
+    _internal_set_type(from._internal_type());
+  }
+  if (from._internal_pos_x() != 0) {
+    _internal_set_pos_x(from._internal_pos_x());
+  }
+  if (from._internal_pos_y() != 0) {
+    _internal_set_pos_y(from._internal_pos_y());
+  }
+  if (from._internal_vel_x() != 0) {
+    _internal_set_vel_x(from._internal_vel_x());
+  }
+  if (from._internal_vel_y() != 0) {
+    _internal_set_vel_y(from._internal_vel_y());
+  }
+  if (from._internal_rotation() != 0) {
+    _internal_set_rotation(from._internal_rotation());
+  }
+  if (from._internal_turret_rotation() != 0) {
+    _internal_set_turret_rotation(from._internal_turret_rotation());
+  }
+  if (from._internal_hp() != 0) {
+    _internal_set_hp(from._internal_hp());
+  }
+  if (from._internal_max_hp() != 0) {
+    _internal_set_max_hp(from._internal_max_hp());
+  }
+  if (from._internal_shield_frames() != 0) {
+    _internal_set_shield_frames(from._internal_shield_frames());
+  }
+  if (from._internal_speed_boost_frames() != 0) {
+    _internal_set_speed_boost_frames(from._internal_speed_boost_frames());
+  }
+  if (from._internal_rapid_fire_frames() != 0) {
+    _internal_set_rapid_fire_frames(from._internal_rapid_fire_frames());
+  }
+  if (from._internal_ability_cooldown_frames() != 0) {
+    _internal_set_ability_cooldown_frames(from._internal_ability_cooldown_frames());
+  }
+  if (from._internal_reload_frames() != 0) {
+    _internal_set_reload_frames(from._internal_reload_frames());
+  }
+  if (from._internal_reload_duration_frames() != 0) {
+    _internal_set_reload_duration_frames(from._internal_reload_duration_frames());
+  }
+  if (from._internal_recoil_vel_x() != 0) {
+    _internal_set_recoil_vel_x(from._internal_recoil_vel_x());
+  }
+  if (from._internal_recoil_vel_y() != 0) {
+    _internal_set_recoil_vel_y(from._internal_recoil_vel_y());
+  }
+  if (from._internal_locked_target_id() != 0) {
+    _internal_set_locked_target_id(from._internal_locked_target_id());
+  }
+  if (from._internal_ai_move_mode() != 0) {
+    _internal_set_ai_move_mode(from._internal_ai_move_mode());
+  }
+  if (from._internal_respawn_frames() != 0) {
+    _internal_set_respawn_frames(from._internal_respawn_frames());
+  }
+  if (from._internal_spawn_protection_frames() != 0) {
+    _internal_set_spawn_protection_frames(from._internal_spawn_protection_frames());
+  }
+  if (from._internal_charged_shot() != 0) {
+    _internal_set_charged_shot(from._internal_charged_shot());
+  }
+  if (from._internal_is_player() != 0) {
+    _internal_set_is_player(from._internal_is_player());
+  }
+  if (from._internal_is_alive() != 0) {
+    _internal_set_is_alive(from._internal_is_alive());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void BattleSnapshotTank::CopyFrom(const BattleSnapshotTank& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.BattleSnapshotTank)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool BattleSnapshotTank::IsInitialized() const {
+  return true;
+}
+
+void BattleSnapshotTank::InternalSwap(BattleSnapshotTank* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BattleSnapshotTank, is_alive_)
+      + sizeof(BattleSnapshotTank::is_alive_)
+      - PROTOBUF_FIELD_OFFSET(BattleSnapshotTank, id_)>(
+          reinterpret_cast<char*>(&id_),
+          reinterpret_cast<char*>(&other->id_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata BattleSnapshotTank::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
+      file_level_metadata_battle_5fsync_2eproto[9]);
+}
+
+// ===================================================================
+
+class BattleSnapshotAiMemory::_Internal {
+ public:
+};
+
+BattleSnapshotAiMemory::BattleSnapshotAiMemory(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
+  path_waypoint_coords_(arena) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:wukong.pb.BattleSnapshotAiMemory)
+}
+BattleSnapshotAiMemory::BattleSnapshotAiMemory(const BattleSnapshotAiMemory& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      path_waypoint_coords_(from.path_waypoint_coords_) {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&tank_id_, &from.tank_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&path_waypoint_index_) -
+    reinterpret_cast<char*>(&tank_id_)) + sizeof(path_waypoint_index_));
+  // @@protoc_insertion_point(copy_constructor:wukong.pb.BattleSnapshotAiMemory)
+}
+
+inline void BattleSnapshotAiMemory::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&tank_id_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&path_waypoint_index_) -
+    reinterpret_cast<char*>(&tank_id_)) + sizeof(path_waypoint_index_));
+}
+
+BattleSnapshotAiMemory::~BattleSnapshotAiMemory() {
+  // @@protoc_insertion_point(destructor:wukong.pb.BattleSnapshotAiMemory)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void BattleSnapshotAiMemory::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void BattleSnapshotAiMemory::ArenaDtor(void* object) {
+  BattleSnapshotAiMemory* _this = reinterpret_cast< BattleSnapshotAiMemory* >(object);
+  (void)_this;
+}
+void BattleSnapshotAiMemory::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void BattleSnapshotAiMemory::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void BattleSnapshotAiMemory::Clear() {
+// @@protoc_insertion_point(message_clear_start:wukong.pb.BattleSnapshotAiMemory)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  path_waypoint_coords_.Clear();
+  ::memset(&tank_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&path_waypoint_index_) -
+      reinterpret_cast<char*>(&tank_id_)) + sizeof(path_waypoint_index_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* BattleSnapshotAiMemory::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint32 tank_id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          tank_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 wander_heading = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          wander_heading_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 strafe_sign = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          strafe_sign_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 strafe_switch_frames = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          strafe_switch_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 wander_goal_serial = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          wander_goal_serial_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 path_goal_x = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
+          path_goal_x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 path_goal_y = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
+          path_goal_y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 path_target_id = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 64)) {
+          path_target_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 path_move_mode = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 72)) {
+          path_move_mode_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 path_recalc_frames = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 80)) {
+          path_recalc_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 wander_path_goal_x = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 88)) {
+          wander_path_goal_x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 wander_path_goal_y = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 96)) {
+          wander_path_goal_y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 wander_path_frames = 13;
+      case 13:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 104)) {
+          wander_path_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 path_waypoint_index = 14;
+      case 14:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 112)) {
+          path_waypoint_index_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated int32 path_waypoint_coords = 15;
+      case 15:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 122)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_path_waypoint_coords(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 120) {
+          _internal_add_path_waypoint_coords(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* BattleSnapshotAiMemory::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.BattleSnapshotAiMemory)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint32 tank_id = 1;
+  if (this->_internal_tank_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_tank_id(), target);
+  }
+
+  // int32 wander_heading = 2;
+  if (this->_internal_wander_heading() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_wander_heading(), target);
+  }
+
+  // int32 strafe_sign = 3;
+  if (this->_internal_strafe_sign() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_strafe_sign(), target);
+  }
+
+  // int32 strafe_switch_frames = 4;
+  if (this->_internal_strafe_switch_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_strafe_switch_frames(), target);
+  }
+
+  // uint32 wander_goal_serial = 5;
+  if (this->_internal_wander_goal_serial() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(5, this->_internal_wander_goal_serial(), target);
+  }
+
+  // int32 path_goal_x = 6;
+  if (this->_internal_path_goal_x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(6, this->_internal_path_goal_x(), target);
+  }
+
+  // int32 path_goal_y = 7;
+  if (this->_internal_path_goal_y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(7, this->_internal_path_goal_y(), target);
+  }
+
+  // uint32 path_target_id = 8;
+  if (this->_internal_path_target_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(8, this->_internal_path_target_id(), target);
+  }
+
+  // uint32 path_move_mode = 9;
+  if (this->_internal_path_move_mode() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(9, this->_internal_path_move_mode(), target);
+  }
+
+  // int32 path_recalc_frames = 10;
+  if (this->_internal_path_recalc_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(10, this->_internal_path_recalc_frames(), target);
+  }
+
+  // int32 wander_path_goal_x = 11;
+  if (this->_internal_wander_path_goal_x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(11, this->_internal_wander_path_goal_x(), target);
+  }
+
+  // int32 wander_path_goal_y = 12;
+  if (this->_internal_wander_path_goal_y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(12, this->_internal_wander_path_goal_y(), target);
+  }
+
+  // int32 wander_path_frames = 13;
+  if (this->_internal_wander_path_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(13, this->_internal_wander_path_frames(), target);
+  }
+
+  // uint32 path_waypoint_index = 14;
+  if (this->_internal_path_waypoint_index() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(14, this->_internal_path_waypoint_index(), target);
+  }
+
+  // repeated int32 path_waypoint_coords = 15;
+  {
+    int byte_size = _path_waypoint_coords_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteInt32Packed(
+          15, _internal_path_waypoint_coords(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.BattleSnapshotAiMemory)
+  return target;
+}
+
+size_t BattleSnapshotAiMemory::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:wukong.pb.BattleSnapshotAiMemory)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated int32 path_waypoint_coords = 15;
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      Int32Size(this->path_waypoint_coords_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _path_waypoint_coords_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // uint32 tank_id = 1;
+  if (this->_internal_tank_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_tank_id());
+  }
+
+  // int32 wander_heading = 2;
+  if (this->_internal_wander_heading() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_wander_heading());
+  }
+
+  // int32 strafe_sign = 3;
+  if (this->_internal_strafe_sign() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_strafe_sign());
+  }
+
+  // int32 strafe_switch_frames = 4;
+  if (this->_internal_strafe_switch_frames() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_strafe_switch_frames());
+  }
+
+  // uint32 wander_goal_serial = 5;
+  if (this->_internal_wander_goal_serial() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_wander_goal_serial());
+  }
+
+  // int32 path_goal_x = 6;
+  if (this->_internal_path_goal_x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_path_goal_x());
+  }
+
+  // int32 path_goal_y = 7;
+  if (this->_internal_path_goal_y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_path_goal_y());
+  }
+
+  // uint32 path_target_id = 8;
+  if (this->_internal_path_target_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_path_target_id());
+  }
+
+  // uint32 path_move_mode = 9;
+  if (this->_internal_path_move_mode() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_path_move_mode());
+  }
+
+  // int32 path_recalc_frames = 10;
+  if (this->_internal_path_recalc_frames() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_path_recalc_frames());
+  }
+
+  // int32 wander_path_goal_x = 11;
+  if (this->_internal_wander_path_goal_x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_wander_path_goal_x());
+  }
+
+  // int32 wander_path_goal_y = 12;
+  if (this->_internal_wander_path_goal_y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_wander_path_goal_y());
+  }
+
+  // int32 wander_path_frames = 13;
+  if (this->_internal_wander_path_frames() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_wander_path_frames());
+  }
+
+  // uint32 path_waypoint_index = 14;
+  if (this->_internal_path_waypoint_index() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_path_waypoint_index());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BattleSnapshotAiMemory::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BattleSnapshotAiMemory::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BattleSnapshotAiMemory::GetClassData() const { return &_class_data_; }
+
+void BattleSnapshotAiMemory::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message&from) {
+  static_cast<BattleSnapshotAiMemory *>(to)->MergeFrom(
+      static_cast<const BattleSnapshotAiMemory &>(from));
+}
+
+
+void BattleSnapshotAiMemory::MergeFrom(const BattleSnapshotAiMemory& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.BattleSnapshotAiMemory)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  path_waypoint_coords_.MergeFrom(from.path_waypoint_coords_);
+  if (from._internal_tank_id() != 0) {
+    _internal_set_tank_id(from._internal_tank_id());
+  }
+  if (from._internal_wander_heading() != 0) {
+    _internal_set_wander_heading(from._internal_wander_heading());
+  }
+  if (from._internal_strafe_sign() != 0) {
+    _internal_set_strafe_sign(from._internal_strafe_sign());
+  }
+  if (from._internal_strafe_switch_frames() != 0) {
+    _internal_set_strafe_switch_frames(from._internal_strafe_switch_frames());
+  }
+  if (from._internal_wander_goal_serial() != 0) {
+    _internal_set_wander_goal_serial(from._internal_wander_goal_serial());
+  }
+  if (from._internal_path_goal_x() != 0) {
+    _internal_set_path_goal_x(from._internal_path_goal_x());
+  }
+  if (from._internal_path_goal_y() != 0) {
+    _internal_set_path_goal_y(from._internal_path_goal_y());
+  }
+  if (from._internal_path_target_id() != 0) {
+    _internal_set_path_target_id(from._internal_path_target_id());
+  }
+  if (from._internal_path_move_mode() != 0) {
+    _internal_set_path_move_mode(from._internal_path_move_mode());
+  }
+  if (from._internal_path_recalc_frames() != 0) {
+    _internal_set_path_recalc_frames(from._internal_path_recalc_frames());
+  }
+  if (from._internal_wander_path_goal_x() != 0) {
+    _internal_set_wander_path_goal_x(from._internal_wander_path_goal_x());
+  }
+  if (from._internal_wander_path_goal_y() != 0) {
+    _internal_set_wander_path_goal_y(from._internal_wander_path_goal_y());
+  }
+  if (from._internal_wander_path_frames() != 0) {
+    _internal_set_wander_path_frames(from._internal_wander_path_frames());
+  }
+  if (from._internal_path_waypoint_index() != 0) {
+    _internal_set_path_waypoint_index(from._internal_path_waypoint_index());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void BattleSnapshotAiMemory::CopyFrom(const BattleSnapshotAiMemory& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.BattleSnapshotAiMemory)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool BattleSnapshotAiMemory::IsInitialized() const {
+  return true;
+}
+
+void BattleSnapshotAiMemory::InternalSwap(BattleSnapshotAiMemory* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  path_waypoint_coords_.InternalSwap(&other->path_waypoint_coords_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BattleSnapshotAiMemory, path_waypoint_index_)
+      + sizeof(BattleSnapshotAiMemory::path_waypoint_index_)
+      - PROTOBUF_FIELD_OFFSET(BattleSnapshotAiMemory, tank_id_)>(
+          reinterpret_cast<char*>(&tank_id_),
+          reinterpret_cast<char*>(&other->tank_id_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata BattleSnapshotAiMemory::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
+      file_level_metadata_battle_5fsync_2eproto[10]);
+}
+
+// ===================================================================
+
+class BattleSnapshotBullet::_Internal {
+ public:
+};
+
+BattleSnapshotBullet::BattleSnapshotBullet(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
+  damaged_tank_ids_(arena) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:wukong.pb.BattleSnapshotBullet)
+}
+BattleSnapshotBullet::BattleSnapshotBullet(const BattleSnapshotBullet& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      damaged_tank_ids_(from.damaged_tank_ids_) {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&id_, &from.id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&penetrating_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(penetrating_));
+  // @@protoc_insertion_point(copy_constructor:wukong.pb.BattleSnapshotBullet)
+}
+
+inline void BattleSnapshotBullet::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&penetrating_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(penetrating_));
+}
+
+BattleSnapshotBullet::~BattleSnapshotBullet() {
+  // @@protoc_insertion_point(destructor:wukong.pb.BattleSnapshotBullet)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void BattleSnapshotBullet::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void BattleSnapshotBullet::ArenaDtor(void* object) {
+  BattleSnapshotBullet* _this = reinterpret_cast< BattleSnapshotBullet* >(object);
+  (void)_this;
+}
+void BattleSnapshotBullet::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void BattleSnapshotBullet::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void BattleSnapshotBullet::Clear() {
+// @@protoc_insertion_point(message_clear_start:wukong.pb.BattleSnapshotBullet)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  damaged_tank_ids_.Clear();
+  ::memset(&id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&penetrating_) -
+      reinterpret_cast<char*>(&id_)) + sizeof(penetrating_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* BattleSnapshotBullet::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // uint32 id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 owner_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          owner_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 pos_x = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          pos_x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 pos_y = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          pos_y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 vel_x = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          vel_x_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 vel_y = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 48)) {
+          vel_y_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 damage = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
+          damage_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 life_frames = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 64)) {
+          life_frames_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bool penetrating = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 72)) {
+          penetrating_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated uint32 damaged_tank_ids = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 82)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_damaged_tank_ids(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 80) {
+          _internal_add_damaged_tank_ids(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* BattleSnapshotBullet::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.BattleSnapshotBullet)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // uint32 id = 1;
+  if (this->_internal_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_id(), target);
+  }
+
+  // uint32 owner_id = 2;
+  if (this->_internal_owner_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(2, this->_internal_owner_id(), target);
+  }
+
+  // int32 pos_x = 3;
+  if (this->_internal_pos_x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_pos_x(), target);
+  }
+
+  // int32 pos_y = 4;
+  if (this->_internal_pos_y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_pos_y(), target);
+  }
+
+  // int32 vel_x = 5;
+  if (this->_internal_vel_x() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(5, this->_internal_vel_x(), target);
+  }
+
+  // int32 vel_y = 6;
+  if (this->_internal_vel_y() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(6, this->_internal_vel_y(), target);
+  }
+
+  // int32 damage = 7;
+  if (this->_internal_damage() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(7, this->_internal_damage(), target);
+  }
+
+  // int32 life_frames = 8;
+  if (this->_internal_life_frames() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(8, this->_internal_life_frames(), target);
+  }
+
+  // bool penetrating = 9;
+  if (this->_internal_penetrating() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(9, this->_internal_penetrating(), target);
+  }
+
+  // repeated uint32 damaged_tank_ids = 10;
+  {
+    int byte_size = _damaged_tank_ids_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          10, _internal_damaged_tank_ids(), byte_size, target);
+    }
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.BattleSnapshotBullet)
+  return target;
+}
+
+size_t BattleSnapshotBullet::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:wukong.pb.BattleSnapshotBullet)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // repeated uint32 damaged_tank_ids = 10;
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->damaged_tank_ids_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _damaged_tank_ids_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // uint32 id = 1;
+  if (this->_internal_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_id());
+  }
+
+  // uint32 owner_id = 2;
+  if (this->_internal_owner_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_owner_id());
+  }
+
+  // int32 pos_x = 3;
+  if (this->_internal_pos_x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_pos_x());
+  }
+
+  // int32 pos_y = 4;
+  if (this->_internal_pos_y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_pos_y());
+  }
+
+  // int32 vel_x = 5;
+  if (this->_internal_vel_x() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_vel_x());
+  }
+
+  // int32 vel_y = 6;
+  if (this->_internal_vel_y() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_vel_y());
+  }
+
+  // int32 damage = 7;
+  if (this->_internal_damage() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_damage());
+  }
+
+  // int32 life_frames = 8;
+  if (this->_internal_life_frames() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_life_frames());
+  }
+
+  // bool penetrating = 9;
+  if (this->_internal_penetrating() != 0) {
+    total_size += 1 + 1;
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BattleSnapshotBullet::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BattleSnapshotBullet::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BattleSnapshotBullet::GetClassData() const { return &_class_data_; }
+
+void BattleSnapshotBullet::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message&from) {
+  static_cast<BattleSnapshotBullet *>(to)->MergeFrom(
+      static_cast<const BattleSnapshotBullet &>(from));
+}
+
+
+void BattleSnapshotBullet::MergeFrom(const BattleSnapshotBullet& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.BattleSnapshotBullet)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  damaged_tank_ids_.MergeFrom(from.damaged_tank_ids_);
+  if (from._internal_id() != 0) {
+    _internal_set_id(from._internal_id());
+  }
+  if (from._internal_owner_id() != 0) {
+    _internal_set_owner_id(from._internal_owner_id());
+  }
+  if (from._internal_pos_x() != 0) {
+    _internal_set_pos_x(from._internal_pos_x());
+  }
+  if (from._internal_pos_y() != 0) {
+    _internal_set_pos_y(from._internal_pos_y());
+  }
+  if (from._internal_vel_x() != 0) {
+    _internal_set_vel_x(from._internal_vel_x());
+  }
+  if (from._internal_vel_y() != 0) {
+    _internal_set_vel_y(from._internal_vel_y());
+  }
+  if (from._internal_damage() != 0) {
+    _internal_set_damage(from._internal_damage());
+  }
+  if (from._internal_life_frames() != 0) {
+    _internal_set_life_frames(from._internal_life_frames());
+  }
+  if (from._internal_penetrating() != 0) {
+    _internal_set_penetrating(from._internal_penetrating());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void BattleSnapshotBullet::CopyFrom(const BattleSnapshotBullet& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.BattleSnapshotBullet)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool BattleSnapshotBullet::IsInitialized() const {
+  return true;
+}
+
+void BattleSnapshotBullet::InternalSwap(BattleSnapshotBullet* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  damaged_tank_ids_.InternalSwap(&other->damaged_tank_ids_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BattleSnapshotBullet, penetrating_)
+      + sizeof(BattleSnapshotBullet::penetrating_)
+      - PROTOBUF_FIELD_OFFSET(BattleSnapshotBullet, id_)>(
+          reinterpret_cast<char*>(&id_),
+          reinterpret_cast<char*>(&other->id_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata BattleSnapshotBullet::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
+      file_level_metadata_battle_5fsync_2eproto[11]);
+}
+
+// ===================================================================
+
+class BattleControlEvent::_Internal {
+ public:
+};
+
+BattleControlEvent::BattleControlEvent(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:wukong.pb.BattleControlEvent)
+}
+BattleControlEvent::BattleControlEvent(const BattleControlEvent& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_name().empty()) {
+    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
+      GetArenaForAllocation());
+  }
+  ::memcpy(&role_id_, &from.role_id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
+    reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
+  // @@protoc_insertion_point(copy_constructor:wukong.pb.BattleControlEvent)
+}
+
+inline void BattleControlEvent::SharedCtor() {
+name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&role_id_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
+    reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
+}
+
+BattleControlEvent::~BattleControlEvent() {
+  // @@protoc_insertion_point(destructor:wukong.pb.BattleControlEvent)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void BattleControlEvent::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void BattleControlEvent::ArenaDtor(void* object) {
+  BattleControlEvent* _this = reinterpret_cast< BattleControlEvent* >(object);
+  (void)_this;
+}
+void BattleControlEvent::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void BattleControlEvent::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void BattleControlEvent::Clear() {
+// @@protoc_insertion_point(message_clear_start:wukong.pb.BattleControlEvent)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  name_.ClearToEmpty();
+  ::memset(&role_id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&faction_) -
+      reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* BattleControlEvent::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // .wukong.pb.BattleControlEventType type = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          _internal_set_type(static_cast<::wukong::pb::BattleControlEventType>(val));
+        } else goto handle_unusual;
+        continue;
+      // uint64 role_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          role_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 player_id = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          player_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 tank_id = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          tank_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 faction = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 40)) {
+          faction_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string name = 6;
+      case 6:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
+          auto str = _internal_mutable_name();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "wukong.pb.BattleControlEvent.name"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag == 0) || ((tag & 7) == 4)) {
+          CHK_(ptr);
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* BattleControlEvent::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:wukong.pb.BattleControlEvent)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .wukong.pb.BattleControlEventType type = 1;
+  if (this->_internal_type() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      1, this->_internal_type(), target);
+  }
+
+  // uint64 role_id = 2;
+  if (this->_internal_role_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_role_id(), target);
+  }
+
+  // uint32 player_id = 3;
+  if (this->_internal_player_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(3, this->_internal_player_id(), target);
+  }
+
+  // uint32 tank_id = 4;
+  if (this->_internal_tank_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_tank_id(), target);
+  }
+
+  // int32 faction = 5;
+  if (this->_internal_faction() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(5, this->_internal_faction(), target);
+  }
+
+  // string name = 6;
+  if (!this->_internal_name().empty()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_name().data(), static_cast<int>(this->_internal_name().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "wukong.pb.BattleControlEvent.name");
+    target = stream->WriteStringMaybeAliased(
+        6, this->_internal_name(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:wukong.pb.BattleControlEvent)
+  return target;
+}
+
+size_t BattleControlEvent::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:wukong.pb.BattleControlEvent)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string name = 6;
+  if (!this->_internal_name().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_name());
+  }
+
+  // uint64 role_id = 2;
+  if (this->_internal_role_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+        this->_internal_role_id());
+  }
+
+  // .wukong.pb.BattleControlEventType type = 1;
+  if (this->_internal_type() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_type());
+  }
+
+  // uint32 player_id = 3;
+  if (this->_internal_player_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_player_id());
+  }
+
+  // uint32 tank_id = 4;
+  if (this->_internal_tank_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_tank_id());
+  }
+
+  // int32 faction = 5;
+  if (this->_internal_faction() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_faction());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData BattleControlEvent::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    BattleControlEvent::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*BattleControlEvent::GetClassData() const { return &_class_data_; }
+
+void BattleControlEvent::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message&from) {
+  static_cast<BattleControlEvent *>(to)->MergeFrom(
+      static_cast<const BattleControlEvent &>(from));
+}
+
+
+void BattleControlEvent::MergeFrom(const BattleControlEvent& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:wukong.pb.BattleControlEvent)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_name().empty()) {
+    _internal_set_name(from._internal_name());
+  }
+  if (from._internal_role_id() != 0) {
+    _internal_set_role_id(from._internal_role_id());
+  }
+  if (from._internal_type() != 0) {
+    _internal_set_type(from._internal_type());
+  }
+  if (from._internal_player_id() != 0) {
+    _internal_set_player_id(from._internal_player_id());
+  }
+  if (from._internal_tank_id() != 0) {
+    _internal_set_tank_id(from._internal_tank_id());
+  }
+  if (from._internal_faction() != 0) {
+    _internal_set_faction(from._internal_faction());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void BattleControlEvent::CopyFrom(const BattleControlEvent& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:wukong.pb.BattleControlEvent)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool BattleControlEvent::IsInitialized() const {
+  return true;
+}
+
+void BattleControlEvent::InternalSwap(BattleControlEvent* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &name_, GetArenaForAllocation(),
+      &other->name_, other->GetArenaForAllocation()
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BattleControlEvent, faction_)
+      + sizeof(BattleControlEvent::faction_)
+      - PROTOBUF_FIELD_OFFSET(BattleControlEvent, role_id_)>(
+          reinterpret_cast<char*>(&role_id_),
+          reinterpret_cast<char*>(&other->role_id_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata BattleControlEvent::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
+      file_level_metadata_battle_5fsync_2eproto[12]);
+}
+
+// ===================================================================
+
 class BattleRoomSnapshot::_Internal {
  public:
 };
@@ -3181,7 +5533,12 @@ class BattleRoomSnapshot::_Internal {
 BattleRoomSnapshot::BattleRoomSnapshot(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
-  players_(arena) {
+  players_(arena),
+  faction_kills_(arena),
+  faction_deaths_(arena),
+  tanks_(arena),
+  bullets_(arena),
+  ai_memories_(arena) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -3190,19 +5547,24 @@ BattleRoomSnapshot::BattleRoomSnapshot(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 }
 BattleRoomSnapshot::BattleRoomSnapshot(const BattleRoomSnapshot& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      players_(from.players_) {
+      players_(from.players_),
+      faction_kills_(from.faction_kills_),
+      faction_deaths_(from.faction_deaths_),
+      tanks_(from.tanks_),
+      bullets_(from.bullets_),
+      ai_memories_(from.ai_memories_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&room_id_, &from.room_id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&random_seed_) -
-    reinterpret_cast<char*>(&room_id_)) + sizeof(random_seed_));
+    static_cast<size_t>(reinterpret_cast<char*>(&game_state_) -
+    reinterpret_cast<char*>(&room_id_)) + sizeof(game_state_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.BattleRoomSnapshot)
 }
 
 inline void BattleRoomSnapshot::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&room_id_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&random_seed_) -
-    reinterpret_cast<char*>(&room_id_)) + sizeof(random_seed_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&game_state_) -
+    reinterpret_cast<char*>(&room_id_)) + sizeof(game_state_));
 }
 
 BattleRoomSnapshot::~BattleRoomSnapshot() {
@@ -3233,9 +5595,14 @@ void BattleRoomSnapshot::Clear() {
   (void) cached_has_bits;
 
   players_.Clear();
+  faction_kills_.Clear();
+  faction_deaths_.Clear();
+  tanks_.Clear();
+  bullets_.Clear();
+  ai_memories_.Clear();
   ::memset(&room_id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&random_seed_) -
-      reinterpret_cast<char*>(&room_id_)) + sizeof(random_seed_));
+      reinterpret_cast<char*>(&game_state_) -
+      reinterpret_cast<char*>(&room_id_)) + sizeof(game_state_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -3291,6 +5658,97 @@ const char* BattleRoomSnapshot::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // uint32 slots_per_faction = 7;
+      case 7:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 56)) {
+          slots_per_faction_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 next_player_id = 8;
+      case 8:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 64)) {
+          next_player_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 next_tank_id = 9;
+      case 9:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 72)) {
+          next_tank_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 next_bullet_id = 10;
+      case 10:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 80)) {
+          next_bullet_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated uint32 faction_kills = 11;
+      case 11:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 90)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_faction_kills(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 88) {
+          _internal_add_faction_kills(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated uint32 faction_deaths = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 98)) {
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_faction_deaths(), ptr, ctx);
+          CHK_(ptr);
+        } else if (static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 96) {
+          _internal_add_faction_deaths(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated .wukong.pb.BattleSnapshotTank tanks = 13;
+      case 13:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 106)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_tanks(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<106>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // repeated .wukong.pb.BattleSnapshotBullet bullets = 14;
+      case 14:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 114)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_bullets(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<114>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // int32 game_state = 15;
+      case 15:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 120)) {
+          game_state_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated .wukong.pb.BattleSnapshotAiMemory ai_memories = 16;
+      case 16:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 130)) {
+          ptr -= 2;
+          do {
+            ptr += 2;
+            ptr = ctx->ParseMessage(_internal_add_ai_memories(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<130>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -3361,6 +5819,78 @@ failure:
       InternalWriteMessage(6, this->_internal_players(i), target, stream);
   }
 
+  // uint32 slots_per_faction = 7;
+  if (this->_internal_slots_per_faction() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(7, this->_internal_slots_per_faction(), target);
+  }
+
+  // uint32 next_player_id = 8;
+  if (this->_internal_next_player_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(8, this->_internal_next_player_id(), target);
+  }
+
+  // uint32 next_tank_id = 9;
+  if (this->_internal_next_tank_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(9, this->_internal_next_tank_id(), target);
+  }
+
+  // uint32 next_bullet_id = 10;
+  if (this->_internal_next_bullet_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(10, this->_internal_next_bullet_id(), target);
+  }
+
+  // repeated uint32 faction_kills = 11;
+  {
+    int byte_size = _faction_kills_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          11, _internal_faction_kills(), byte_size, target);
+    }
+  }
+
+  // repeated uint32 faction_deaths = 12;
+  {
+    int byte_size = _faction_deaths_cached_byte_size_.load(std::memory_order_relaxed);
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          12, _internal_faction_deaths(), byte_size, target);
+    }
+  }
+
+  // repeated .wukong.pb.BattleSnapshotTank tanks = 13;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_tanks_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(13, this->_internal_tanks(i), target, stream);
+  }
+
+  // repeated .wukong.pb.BattleSnapshotBullet bullets = 14;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_bullets_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(14, this->_internal_bullets(i), target, stream);
+  }
+
+  // int32 game_state = 15;
+  if (this->_internal_game_state() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(15, this->_internal_game_state(), target);
+  }
+
+  // repeated .wukong.pb.BattleSnapshotAiMemory ai_memories = 16;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_ai_memories_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(16, this->_internal_ai_memories(i), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -3380,6 +5910,57 @@ size_t BattleRoomSnapshot::ByteSizeLong() const {
   // repeated .wukong.pb.BattleSnapshotPlayer players = 6;
   total_size += 1UL * this->_internal_players_size();
   for (const auto& msg : this->players_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // repeated uint32 faction_kills = 11;
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->faction_kills_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _faction_kills_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // repeated uint32 faction_deaths = 12;
+  {
+    size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      UInt32Size(this->faction_deaths_);
+    if (data_size > 0) {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+            static_cast<::PROTOBUF_NAMESPACE_ID::int32>(data_size));
+    }
+    int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(data_size);
+    _faction_deaths_cached_byte_size_.store(cached_size,
+                                    std::memory_order_relaxed);
+    total_size += data_size;
+  }
+
+  // repeated .wukong.pb.BattleSnapshotTank tanks = 13;
+  total_size += 1UL * this->_internal_tanks_size();
+  for (const auto& msg : this->tanks_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // repeated .wukong.pb.BattleSnapshotBullet bullets = 14;
+  total_size += 1UL * this->_internal_bullets_size();
+  for (const auto& msg : this->bullets_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // repeated .wukong.pb.BattleSnapshotAiMemory ai_memories = 16;
+  total_size += 2UL * this->_internal_ai_memories_size();
+  for (const auto& msg : this->ai_memories_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
@@ -3418,6 +5999,41 @@ size_t BattleRoomSnapshot::ByteSizeLong() const {
         this->_internal_random_seed());
   }
 
+  // uint32 slots_per_faction = 7;
+  if (this->_internal_slots_per_faction() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_slots_per_faction());
+  }
+
+  // uint32 next_player_id = 8;
+  if (this->_internal_next_player_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_next_player_id());
+  }
+
+  // uint32 next_tank_id = 9;
+  if (this->_internal_next_tank_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_next_tank_id());
+  }
+
+  // uint32 next_bullet_id = 10;
+  if (this->_internal_next_bullet_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_next_bullet_id());
+  }
+
+  // int32 game_state = 15;
+  if (this->_internal_game_state() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_game_state());
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -3447,6 +6063,11 @@ void BattleRoomSnapshot::MergeFrom(const BattleRoomSnapshot& from) {
   (void) cached_has_bits;
 
   players_.MergeFrom(from.players_);
+  faction_kills_.MergeFrom(from.faction_kills_);
+  faction_deaths_.MergeFrom(from.faction_deaths_);
+  tanks_.MergeFrom(from.tanks_);
+  bullets_.MergeFrom(from.bullets_);
+  ai_memories_.MergeFrom(from.ai_memories_);
   if (from._internal_room_id() != 0) {
     _internal_set_room_id(from._internal_room_id());
   }
@@ -3461,6 +6082,21 @@ void BattleRoomSnapshot::MergeFrom(const BattleRoomSnapshot& from) {
   }
   if (from._internal_random_seed() != 0) {
     _internal_set_random_seed(from._internal_random_seed());
+  }
+  if (from._internal_slots_per_faction() != 0) {
+    _internal_set_slots_per_faction(from._internal_slots_per_faction());
+  }
+  if (from._internal_next_player_id() != 0) {
+    _internal_set_next_player_id(from._internal_next_player_id());
+  }
+  if (from._internal_next_tank_id() != 0) {
+    _internal_set_next_tank_id(from._internal_next_tank_id());
+  }
+  if (from._internal_next_bullet_id() != 0) {
+    _internal_set_next_bullet_id(from._internal_next_bullet_id());
+  }
+  if (from._internal_game_state() != 0) {
+    _internal_set_game_state(from._internal_game_state());
   }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -3480,9 +6116,14 @@ void BattleRoomSnapshot::InternalSwap(BattleRoomSnapshot* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   players_.InternalSwap(&other->players_);
+  faction_kills_.InternalSwap(&other->faction_kills_);
+  faction_deaths_.InternalSwap(&other->faction_deaths_);
+  tanks_.InternalSwap(&other->tanks_);
+  bullets_.InternalSwap(&other->bullets_);
+  ai_memories_.InternalSwap(&other->ai_memories_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(BattleRoomSnapshot, random_seed_)
-      + sizeof(BattleRoomSnapshot::random_seed_)
+      PROTOBUF_FIELD_OFFSET(BattleRoomSnapshot, game_state_)
+      + sizeof(BattleRoomSnapshot::game_state_)
       - PROTOBUF_FIELD_OFFSET(BattleRoomSnapshot, room_id_)>(
           reinterpret_cast<char*>(&room_id_),
           reinterpret_cast<char*>(&other->room_id_));
@@ -3491,7 +6132,7 @@ void BattleRoomSnapshot::InternalSwap(BattleRoomSnapshot* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata BattleRoomSnapshot::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
-      file_level_metadata_battle_5fsync_2eproto[9]);
+      file_level_metadata_battle_5fsync_2eproto[13]);
 }
 
 // ===================================================================
@@ -3513,16 +6154,16 @@ BattleSnapshotPlayer::BattleSnapshotPlayer(const BattleSnapshotPlayer& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&role_id_, &from.role_id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
-    reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
+    static_cast<size_t>(reinterpret_cast<char*>(&tank_id_) -
+    reinterpret_cast<char*>(&role_id_)) + sizeof(tank_id_));
   // @@protoc_insertion_point(copy_constructor:wukong.pb.BattleSnapshotPlayer)
 }
 
 inline void BattleSnapshotPlayer::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&role_id_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&faction_) -
-    reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&tank_id_) -
+    reinterpret_cast<char*>(&role_id_)) + sizeof(tank_id_));
 }
 
 BattleSnapshotPlayer::~BattleSnapshotPlayer() {
@@ -3553,8 +6194,8 @@ void BattleSnapshotPlayer::Clear() {
   (void) cached_has_bits;
 
   ::memset(&role_id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&faction_) -
-      reinterpret_cast<char*>(&role_id_)) + sizeof(faction_));
+      reinterpret_cast<char*>(&tank_id_) -
+      reinterpret_cast<char*>(&role_id_)) + sizeof(tank_id_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -3582,6 +6223,13 @@ const char* BattleSnapshotPlayer::_InternalParse(const char* ptr, ::PROTOBUF_NAM
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
           faction_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // uint32 tank_id = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
+          tank_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -3632,6 +6280,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_faction(), target);
   }
 
+  // uint32 tank_id = 4;
+  if (this->_internal_tank_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(4, this->_internal_tank_id(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -3667,6 +6321,13 @@ size_t BattleSnapshotPlayer::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->_internal_faction());
+  }
+
+  // uint32 tank_id = 4;
+  if (this->_internal_tank_id() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+        this->_internal_tank_id());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3706,6 +6367,9 @@ void BattleSnapshotPlayer::MergeFrom(const BattleSnapshotPlayer& from) {
   if (from._internal_faction() != 0) {
     _internal_set_faction(from._internal_faction());
   }
+  if (from._internal_tank_id() != 0) {
+    _internal_set_tank_id(from._internal_tank_id());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -3724,8 +6388,8 @@ void BattleSnapshotPlayer::InternalSwap(BattleSnapshotPlayer* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(BattleSnapshotPlayer, faction_)
-      + sizeof(BattleSnapshotPlayer::faction_)
+      PROTOBUF_FIELD_OFFSET(BattleSnapshotPlayer, tank_id_)
+      + sizeof(BattleSnapshotPlayer::tank_id_)
       - PROTOBUF_FIELD_OFFSET(BattleSnapshotPlayer, role_id_)>(
           reinterpret_cast<char*>(&role_id_),
           reinterpret_cast<char*>(&other->role_id_));
@@ -3734,7 +6398,7 @@ void BattleSnapshotPlayer::InternalSwap(BattleSnapshotPlayer* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata BattleSnapshotPlayer::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
-      file_level_metadata_battle_5fsync_2eproto[10]);
+      file_level_metadata_battle_5fsync_2eproto[14]);
 }
 
 // ===================================================================
@@ -3746,7 +6410,8 @@ class BattleFrameSync::_Internal {
 BattleFrameSync::BattleFrameSync(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
-  inputs_(arena) {
+  inputs_(arena),
+  control_events_(arena) {
   SharedCtor();
   if (!is_message_owned) {
     RegisterArenaDtor(arena);
@@ -3755,7 +6420,8 @@ BattleFrameSync::BattleFrameSync(::PROTOBUF_NAMESPACE_ID::Arena* arena,
 }
 BattleFrameSync::BattleFrameSync(const BattleFrameSync& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      inputs_(from.inputs_) {
+      inputs_(from.inputs_),
+      control_events_(from.control_events_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&room_id_, &from.room_id_,
     static_cast<size_t>(reinterpret_cast<char*>(&frame_index_) -
@@ -3798,6 +6464,7 @@ void BattleFrameSync::Clear() {
   (void) cached_has_bits;
 
   inputs_.Clear();
+  control_events_.Clear();
   ::memset(&room_id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&frame_index_) -
       reinterpret_cast<char*>(&room_id_)) + sizeof(frame_index_));
@@ -3834,6 +6501,18 @@ const char* BattleFrameSync::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+        } else goto handle_unusual;
+        continue;
+      // repeated .wukong.pb.BattleControlEvent control_events = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_control_events(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -3885,6 +6564,14 @@ failure:
       InternalWriteMessage(3, this->_internal_inputs(i), target, stream);
   }
 
+  // repeated .wukong.pb.BattleControlEvent control_events = 4;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_control_events_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(4, this->_internal_control_events(i), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -3904,6 +6591,13 @@ size_t BattleFrameSync::ByteSizeLong() const {
   // repeated .wukong.pb.BattlePlayerFrameInput inputs = 3;
   total_size += 1UL * this->_internal_inputs_size();
   for (const auto& msg : this->inputs_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // repeated .wukong.pb.BattleControlEvent control_events = 4;
+  total_size += 1UL * this->_internal_control_events_size();
+  for (const auto& msg : this->control_events_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
@@ -3951,6 +6645,7 @@ void BattleFrameSync::MergeFrom(const BattleFrameSync& from) {
   (void) cached_has_bits;
 
   inputs_.MergeFrom(from.inputs_);
+  control_events_.MergeFrom(from.control_events_);
   if (from._internal_room_id() != 0) {
     _internal_set_room_id(from._internal_room_id());
   }
@@ -3975,6 +6670,7 @@ void BattleFrameSync::InternalSwap(BattleFrameSync* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   inputs_.InternalSwap(&other->inputs_);
+  control_events_.InternalSwap(&other->control_events_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(BattleFrameSync, frame_index_)
       + sizeof(BattleFrameSync::frame_index_)
@@ -3986,7 +6682,7 @@ void BattleFrameSync::InternalSwap(BattleFrameSync* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata BattleFrameSync::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
-      file_level_metadata_battle_5fsync_2eproto[11]);
+      file_level_metadata_battle_5fsync_2eproto[15]);
 }
 
 // ===================================================================
@@ -4338,7 +7034,7 @@ void PlayerBattleStateNotify::InternalSwap(PlayerBattleStateNotify* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata PlayerBattleStateNotify::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
-      file_level_metadata_battle_5fsync_2eproto[12]);
+      file_level_metadata_battle_5fsync_2eproto[16]);
 }
 
 // ===================================================================
@@ -4665,7 +7361,7 @@ void BattleEnterInfo::InternalSwap(BattleEnterInfo* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata BattleEnterInfo::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
-      file_level_metadata_battle_5fsync_2eproto[13]);
+      file_level_metadata_battle_5fsync_2eproto[17]);
 }
 
 // ===================================================================
@@ -4885,7 +7581,7 @@ void StartBattleRequest::InternalSwap(StartBattleRequest* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata StartBattleRequest::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
-      file_level_metadata_battle_5fsync_2eproto[14]);
+      file_level_metadata_battle_5fsync_2eproto[18]);
 }
 
 // ===================================================================
@@ -5038,7 +7734,7 @@ void LeaveGameRequest::InternalSwap(LeaveGameRequest* other) {
 ::PROTOBUF_NAMESPACE_ID::Metadata LeaveGameRequest::GetMetadata() const {
   return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
       &descriptor_table_battle_5fsync_2eproto_getter, &descriptor_table_battle_5fsync_2eproto_once,
-      file_level_metadata_battle_5fsync_2eproto[15]);
+      file_level_metadata_battle_5fsync_2eproto[19]);
 }
 
 // @@protoc_insertion_point(namespace_scope)
@@ -5071,6 +7767,18 @@ template<> PROTOBUF_NOINLINE ::wukong::pb::BattlePlayerFrameInput* Arena::Create
 }
 template<> PROTOBUF_NOINLINE ::wukong::pb::BattleKcpInputUpload* Arena::CreateMaybeMessage< ::wukong::pb::BattleKcpInputUpload >(Arena* arena) {
   return Arena::CreateMessageInternal< ::wukong::pb::BattleKcpInputUpload >(arena);
+}
+template<> PROTOBUF_NOINLINE ::wukong::pb::BattleSnapshotTank* Arena::CreateMaybeMessage< ::wukong::pb::BattleSnapshotTank >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::wukong::pb::BattleSnapshotTank >(arena);
+}
+template<> PROTOBUF_NOINLINE ::wukong::pb::BattleSnapshotAiMemory* Arena::CreateMaybeMessage< ::wukong::pb::BattleSnapshotAiMemory >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::wukong::pb::BattleSnapshotAiMemory >(arena);
+}
+template<> PROTOBUF_NOINLINE ::wukong::pb::BattleSnapshotBullet* Arena::CreateMaybeMessage< ::wukong::pb::BattleSnapshotBullet >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::wukong::pb::BattleSnapshotBullet >(arena);
+}
+template<> PROTOBUF_NOINLINE ::wukong::pb::BattleControlEvent* Arena::CreateMaybeMessage< ::wukong::pb::BattleControlEvent >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::wukong::pb::BattleControlEvent >(arena);
 }
 template<> PROTOBUF_NOINLINE ::wukong::pb::BattleRoomSnapshot* Arena::CreateMaybeMessage< ::wukong::pb::BattleRoomSnapshot >(Arena* arena) {
   return Arena::CreateMessageInternal< ::wukong::pb::BattleRoomSnapshot >(arena);

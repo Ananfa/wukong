@@ -10,6 +10,83 @@ namespace TankBattle
     {
         s_nextBulletId = 1;
     }
+
+    uint32_t Tank::GetNextBulletId()
+    {
+        return s_nextBulletId;
+    }
+
+    void Tank::SetNextBulletId(uint32_t id)
+    {
+        s_nextBulletId = id == 0 ? 1 : id;
+    }
+
+    TankLogicSnapshot Tank::ExportLogicSnapshot() const
+    {
+        TankLogicSnapshot s;
+        s.id = m_id;
+        s.playerId = m_playerId;
+        s.faction = static_cast<int32_t>(m_faction);
+        s.type = static_cast<int32_t>(m_type);
+        s.posX = m_position.x;
+        s.posY = m_position.y;
+        s.velX = m_velocity.x;
+        s.velY = m_velocity.y;
+        s.rotation = m_rotation;
+        s.turretRotation = m_turretRotation;
+        s.hp = m_hp;
+        s.maxHp = m_maxHp;
+        s.shieldFrames = m_shieldFramesRemaining;
+        s.speedBoostFrames = m_speedBoostFramesRemaining;
+        s.rapidFireFrames = m_rapidFireFramesRemaining;
+        s.abilityCooldownFrames = m_abilityCooldownFramesRemaining;
+        s.reloadFrames = m_reloadFramesRemaining;
+        s.reloadDurationFrames = m_lastReloadDurationFrames;
+        s.recoilVelX = m_recoilVelocity.x;
+        s.recoilVelY = m_recoilVelocity.y;
+        s.lockedTargetId = m_lockedTargetId;
+        s.aiMoveMode = m_aiMoveMode;
+        s.respawnFrames = m_respawnFramesRemaining;
+        s.spawnProtectionFrames = m_spawnProtectionFramesRemaining;
+        s.chargedShot = m_chargedShot;
+        s.isPlayer = m_isPlayer;
+        s.isAlive = m_isAlive;
+        return s;
+    }
+
+    void Tank::ApplyLogicSnapshot(const TankLogicSnapshot& snap)
+    {
+        m_id = snap.id;
+        m_playerId = snap.playerId;
+        m_faction = static_cast<Faction>(snap.faction);
+        m_type = static_cast<TankType>(snap.type);
+        m_config = GetTankConfig();
+        m_position.x = snap.posX;
+        m_position.y = snap.posY;
+        m_velocity.x = snap.velX;
+        m_velocity.y = snap.velY;
+        m_rotation = snap.rotation;
+        m_turretRotation = snap.turretRotation;
+        m_hp = snap.hp;
+        m_maxHp = snap.maxHp;
+        m_shieldFramesRemaining = snap.shieldFrames;
+        m_speedBoostFramesRemaining = snap.speedBoostFrames;
+        m_rapidFireFramesRemaining = snap.rapidFireFrames;
+        m_abilityCooldownFramesRemaining = snap.abilityCooldownFrames;
+        m_reloadFramesRemaining = snap.reloadFrames;
+        m_lastReloadDurationFrames = snap.reloadDurationFrames;
+        m_recoilVelocity.x = snap.recoilVelX;
+        m_recoilVelocity.y = snap.recoilVelY;
+        m_lockedTargetId = snap.lockedTargetId;
+        m_aiMoveMode = snap.aiMoveMode;
+        m_respawnFramesRemaining = snap.respawnFrames;
+        m_spawnProtectionFramesRemaining = snap.spawnProtectionFrames;
+        m_chargedShot = snap.chargedShot;
+        m_isPlayer = snap.isPlayer;
+        m_isAI = !snap.isPlayer || snap.playerId == 0;
+        // proto3 bool 默认 false：hp>0 时视为存活，避免中途加入后 AI 被 Cleanup 删掉再刷回出生区
+        m_isAlive = snap.isAlive || snap.hp > 0;
+    }
     
 Tank::Tank(uint32_t id, uint32_t playerId, Faction faction, TankType type, 
            const FixedVec2& position, bool isPlayer, Angle initialRotation)

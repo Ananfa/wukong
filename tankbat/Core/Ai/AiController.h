@@ -5,6 +5,7 @@
 #include "bt/TankBehaviorTree.h"
 #include "../ObstacleWall.h"
 #include "../../Common/GameRng.h"
+#include "../../Common/Types.h"
 #include "Tank.h"
 #include <cstdint>
 #include <memory>
@@ -27,6 +28,10 @@ namespace TankBattle
             const GameRng& rng);
 
         void Clear();
+        void RemoveMemory(uint32_t tankId);
+
+        void ExportMemories(std::vector<AiTankMemorySnapshot>& out) const;
+        void ApplyMemories(const std::vector<AiTankMemorySnapshot>& memories);
 
     private:
         AiTankMemory& GetOrCreateMemory(uint32_t tankId, uint32_t frameIndex, const GameRng& rng);

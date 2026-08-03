@@ -52,6 +52,10 @@ namespace wukong {
         // 策划配置清单路径（相对 battle 主配置 JSON 所在目录，或绝对路径）
         const std::string &getDesignConfigManifest() const { return designConfigManifest_; }
 
+        // 场景阻挡/出生区 JSON 原文（与 Unity Assets/Config/MapObstacles.json 同内容）
+        const std::string &getMapObstaclesJson() const { return mapObstaclesJson_; }
+        const std::string &getMapObstaclesPath() const { return mapObstaclesPathResolved_; }
+
     private:
         uint32_t id_;                // 服务号（Gateway服务唯一标识）
 
@@ -70,6 +74,8 @@ namespace wukong {
         Address nexusAddr_;     // nexus服务地址
 
         std::string designConfigManifest_;
+        std::string mapObstaclesPathResolved_;
+        std::string mapObstaclesJson_;
 
     private:
         BattleConfig() = default;                                 // ctor hidden

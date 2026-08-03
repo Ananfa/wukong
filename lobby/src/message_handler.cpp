@@ -77,7 +77,8 @@ void MessageHandler::StartBattleHandle(std::shared_ptr<MessageTarget> obj, uint1
     }
 
     wukong::pb::RequestBattleAssignmentRequest req;
-    req.set_mode(wukong::pb::BATTLE_ROOM_MODE_SINGLE);
+    // 多人：按阵营空位匹配已有房间或新建；开战刷 AI，玩家接管
+    req.set_mode(wukong::pb::BATTLE_ROOM_MODE_MULTI);
     req.set_battle_def_id(realMsg->battle_def_id());
     req.set_lobby_server_id(static_cast<int32_t>(g_LobbyConfig.getId()));
     wukong::pb::BattlePlayerInitData *pd = req.mutable_player();

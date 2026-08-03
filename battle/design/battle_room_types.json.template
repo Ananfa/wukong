@@ -1,9 +1,12 @@
 [
     {
         "battleDefId": 1,
-        "maxPlayers": 1,
+        "maxPlayers": 8,
         "minPlayers": 1,
-        "displayName": "单人副本示例",
+        "slotsPerFaction": 2,
+        "battleDurationSec": 300,
+        "joinWindowSec": 120,
+        "displayName": "多人接管AI",
         "frameRateOverride": 0
     }
 ]

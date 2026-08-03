@@ -18,6 +18,12 @@ struct BattleRoomTypeDef {
     uint32_t battleDefId = 0;
     uint32_t maxPlayers = 0;
     uint32_t minPlayers = 1;
+    // 每阵营可被玩家接管的坦克槽位数（默认 2）
+    uint32_t slotsPerFaction = 2;
+    // 整场战斗时长（秒，默认 300）；0 表示不限时
+    uint32_t battleDurationSec = 300;
+    // 开战后再允许加入的窗口（秒，默认 120）；0 表示开战即禁止中途加入
+    uint32_t joinWindowSec = 120;
     std::string displayName;
     // 预留：与 battle_config.syncFrameRate 独立时可启用（0 表示沿用服务器默认）
     uint32_t frameRateOverride = 0;
@@ -28,6 +34,7 @@ public:
     const char *designName() const override { return "BattleRoomTypes"; }
 
     uint32_t getMaxPlayers(uint32_t battleDefId) const;
+    uint32_t getSlotsPerFaction(uint32_t battleDefId) const;
     const BattleRoomTypeDef *find(uint32_t battleDefId) const;
     const std::unordered_map<uint32_t, BattleRoomTypeDef> &defs() const { return defs_; }
 

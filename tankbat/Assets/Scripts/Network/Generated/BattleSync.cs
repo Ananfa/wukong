@@ -48,32 +48,73 @@ namespace Wukong.Pb {
             "Cgdyb2xlX2lkGAIgASgEEg0KBWZyYW1lGAMgASgNEg4KBm1vdmVfeBgEIAEo",
             "BRIOCgZtb3ZlX3kYBSABKAUSDQoFYWltX3gYBiABKAUSDQoFYWltX3kYByAB",
             "KAUSDAoEZmlyZRgIIAEoCBITCgt1c2VfYWJpbGl0eRgJIAEoCBIRCgl0aW1l",
-            "c3RhbXAYCiABKAQixQEKEkJhdHRsZVJvb21TbmFwc2hvdBIPCgdyb29tX2lk",
-            "GAEgASgEEhMKC2xvZ2ljX2ZyYW1lGAIgASgNEhIKCmZyYW1lX3JhdGUYAyAB",
-            "KA0SLgoKcm9vbV9zdGF0ZRgEIAEoDjIaLnd1a29uZy5wYi5CYXR0bGVSb29t",
-            "U3RhdGUSEwoLcmFuZG9tX3NlZWQYBSABKA0SMAoHcGxheWVycxgGIAMoCzIf",
-            "Lnd1a29uZy5wYi5CYXR0bGVTbmFwc2hvdFBsYXllciJLChRCYXR0bGVTbmFw",
-            "c2hvdFBsYXllchIPCgdyb2xlX2lkGAEgASgEEhEKCXBsYXllcl9pZBgCIAEo",
-            "DRIPCgdmYWN0aW9uGAMgASgFImoKD0JhdHRsZUZyYW1lU3luYxIPCgdyb29t",
-            "X2lkGAEgASgEEhMKC2ZyYW1lX2luZGV4GAIgASgNEjEKBmlucHV0cxgDIAMo",
-            "CzIhLnd1a29uZy5wYi5CYXR0bGVQbGF5ZXJGcmFtZUlucHV0IqMBChdQbGF5",
-            "ZXJCYXR0bGVTdGF0ZU5vdGlmeRIPCgdyb2xlX2lkGAEgASgEEhEKCWluX2Jh",
-            "dHRsZRgCIAEoCBIYChBiYXR0bGVfc2VydmVyX2lkGAMgASgFEg8KB3Jvb21f",
-            "aWQYBCABKAQSEAoIa2NwX2hvc3QYBSABKAkSEAoIa2NwX3BvcnQYBiABKAUS",
-            "FQoNYmF0dGxlX2RlZl9pZBgHIAEoDSJ3Cg9CYXR0bGVFbnRlckluZm8SEAoI",
-            "a2NwX2hvc3QYASABKAkSEAoIa2NwX3BvcnQYAiABKAUSDwoHcm9vbV9pZBgD",
-            "IAEoBBIYChBiYXR0bGVfc2VydmVyX2lkGAQgASgFEhUKDXNlc3Npb25fdG9r",
-            "ZW4YBSABKAkiPAoSU3RhcnRCYXR0bGVSZXF1ZXN0EhUKDWJhdHRsZV9kZWZf",
-            "aWQYASABKA0SDwoHZmFjdGlvbhgCIAEoBSISChBMZWF2ZUdhbWVSZXF1ZXN0",
-            "KmsKDkJhdHRsZVJvb21Nb2RlEiAKHEJBVFRMRV9ST09NX01PREVfVU5TUEVD",
-            "SUZJRUQQABIbChdCQVRUTEVfUk9PTV9NT0RFX1NJTkdMRRABEhoKFkJBVFRM",
-            "RV9ST09NX01PREVfTVVMVEkQAiqPAQoPQmF0dGxlUm9vbVN0YXRlEiEKHUJB",
-            "VFRMRV9ST09NX1NUQVRFX1VOU1BFQ0lGSUVEEAASHQoZQkFUVExFX1JPT01f",
-            "U1RBVEVfV0FJVElORxABEh0KGUJBVFRMRV9ST09NX1NUQVRFX1JVTk5JTkcQ",
-            "AhIbChdCQVRUTEVfUk9PTV9TVEFURV9FTkRFRBADYgZwcm90bzM="));
+            "c3RhbXAYCiABKAQiywQKEkJhdHRsZVNuYXBzaG90VGFuaxIKCgJpZBgBIAEo",
+            "DRIRCglwbGF5ZXJfaWQYAiABKA0SDwoHZmFjdGlvbhgDIAEoBRIMCgR0eXBl",
+            "GAQgASgFEg0KBXBvc194GAUgASgFEg0KBXBvc195GAYgASgFEg0KBXZlbF94",
+            "GAcgASgFEg0KBXZlbF95GAggASgFEhAKCHJvdGF0aW9uGAkgASgFEhcKD3R1",
+            "cnJldF9yb3RhdGlvbhgKIAEoBRIKCgJocBgLIAEoBRIOCgZtYXhfaHAYDCAB",
+            "KAUSFQoNc2hpZWxkX2ZyYW1lcxgNIAEoBRIaChJzcGVlZF9ib29zdF9mcmFt",
+            "ZXMYDiABKAUSGQoRcmFwaWRfZmlyZV9mcmFtZXMYDyABKAUSHwoXYWJpbGl0",
+            "eV9jb29sZG93bl9mcmFtZXMYECABKAUSFQoNcmVsb2FkX2ZyYW1lcxgRIAEo",
+            "BRIeChZyZWxvYWRfZHVyYXRpb25fZnJhbWVzGBIgASgFEhQKDHJlY29pbF92",
+            "ZWxfeBgTIAEoBRIUCgxyZWNvaWxfdmVsX3kYFCABKAUSGAoQbG9ja2VkX3Rh",
+            "cmdldF9pZBgVIAEoDRIUCgxhaV9tb3ZlX21vZGUYFiABKA0SFgoOcmVzcGF3",
+            "bl9mcmFtZXMYFyABKAUSHwoXc3Bhd25fcHJvdGVjdGlvbl9mcmFtZXMYGCAB",
+            "KAUSFAoMY2hhcmdlZF9zaG90GBkgASgIEhEKCWlzX3BsYXllchgaIAEoCBIQ",
+            "Cghpc19hbGl2ZRgbIAEoCCKVAwoWQmF0dGxlU25hcHNob3RBaU1lbW9yeRIP",
+            "Cgd0YW5rX2lkGAEgASgNEhYKDndhbmRlcl9oZWFkaW5nGAIgASgFEhMKC3N0",
+            "cmFmZV9zaWduGAMgASgFEhwKFHN0cmFmZV9zd2l0Y2hfZnJhbWVzGAQgASgF",
+            "EhoKEndhbmRlcl9nb2FsX3NlcmlhbBgFIAEoDRITCgtwYXRoX2dvYWxfeBgG",
+            "IAEoBRITCgtwYXRoX2dvYWxfeRgHIAEoBRIWCg5wYXRoX3RhcmdldF9pZBgI",
+            "IAEoDRIWCg5wYXRoX21vdmVfbW9kZRgJIAEoDRIaChJwYXRoX3JlY2FsY19m",
+            "cmFtZXMYCiABKAUSGgoSd2FuZGVyX3BhdGhfZ29hbF94GAsgASgFEhoKEndh",
+            "bmRlcl9wYXRoX2dvYWxfeRgMIAEoBRIaChJ3YW5kZXJfcGF0aF9mcmFtZXMY",
+            "DSABKAUSGwoTcGF0aF93YXlwb2ludF9pbmRleBgOIAEoDRIcChRwYXRoX3dh",
+            "eXBvaW50X2Nvb3JkcxgPIAMoBSLEAQoUQmF0dGxlU25hcHNob3RCdWxsZXQS",
+            "CgoCaWQYASABKA0SEAoIb3duZXJfaWQYAiABKA0SDQoFcG9zX3gYAyABKAUS",
+            "DQoFcG9zX3kYBCABKAUSDQoFdmVsX3gYBSABKAUSDQoFdmVsX3kYBiABKAUS",
+            "DgoGZGFtYWdlGAcgASgFEhMKC2xpZmVfZnJhbWVzGAggASgFEhMKC3BlbmV0",
+            "cmF0aW5nGAkgASgIEhgKEGRhbWFnZWRfdGFua19pZHMYCiADKA0imQEKEkJh",
+            "dHRsZUNvbnRyb2xFdmVudBIvCgR0eXBlGAEgASgOMiEud3Vrb25nLnBiLkJh",
+            "dHRsZUNvbnRyb2xFdmVudFR5cGUSDwoHcm9sZV9pZBgCIAEoBBIRCglwbGF5",
+            "ZXJfaWQYAyABKA0SDwoHdGFua19pZBgEIAEoDRIPCgdmYWN0aW9uGAUgASgF",
+            "EgwKBG5hbWUYBiABKAkigQQKEkJhdHRsZVJvb21TbmFwc2hvdBIPCgdyb29t",
+            "X2lkGAEgASgEEhMKC2xvZ2ljX2ZyYW1lGAIgASgNEhIKCmZyYW1lX3JhdGUY",
+            "AyABKA0SLgoKcm9vbV9zdGF0ZRgEIAEoDjIaLnd1a29uZy5wYi5CYXR0bGVS",
+            "b29tU3RhdGUSEwoLcmFuZG9tX3NlZWQYBSABKA0SMAoHcGxheWVycxgGIAMo",
+            "CzIfLnd1a29uZy5wYi5CYXR0bGVTbmFwc2hvdFBsYXllchIZChFzbG90c19w",
+            "ZXJfZmFjdGlvbhgHIAEoDRIWCg5uZXh0X3BsYXllcl9pZBgIIAEoDRIUCgxu",
+            "ZXh0X3RhbmtfaWQYCSABKA0SFgoObmV4dF9idWxsZXRfaWQYCiABKA0SFQoN",
+            "ZmFjdGlvbl9raWxscxgLIAMoDRIWCg5mYWN0aW9uX2RlYXRocxgMIAMoDRIs",
+            "CgV0YW5rcxgNIAMoCzIdLnd1a29uZy5wYi5CYXR0bGVTbmFwc2hvdFRhbmsS",
+            "MAoHYnVsbGV0cxgOIAMoCzIfLnd1a29uZy5wYi5CYXR0bGVTbmFwc2hvdEJ1",
+            "bGxldBISCgpnYW1lX3N0YXRlGA8gASgFEjYKC2FpX21lbW9yaWVzGBAgAygL",
+            "MiEud3Vrb25nLnBiLkJhdHRsZVNuYXBzaG90QWlNZW1vcnkiXAoUQmF0dGxl",
+            "U25hcHNob3RQbGF5ZXISDwoHcm9sZV9pZBgBIAEoBBIRCglwbGF5ZXJfaWQY",
+            "AiABKA0SDwoHZmFjdGlvbhgDIAEoBRIPCgd0YW5rX2lkGAQgASgNIqEBCg9C",
+            "YXR0bGVGcmFtZVN5bmMSDwoHcm9vbV9pZBgBIAEoBBITCgtmcmFtZV9pbmRl",
+            "eBgCIAEoDRIxCgZpbnB1dHMYAyADKAsyIS53dWtvbmcucGIuQmF0dGxlUGxh",
+            "eWVyRnJhbWVJbnB1dBI1Cg5jb250cm9sX2V2ZW50cxgEIAMoCzIdLnd1a29u",
+            "Zy5wYi5CYXR0bGVDb250cm9sRXZlbnQiowEKF1BsYXllckJhdHRsZVN0YXRl",
+            "Tm90aWZ5Eg8KB3JvbGVfaWQYASABKAQSEQoJaW5fYmF0dGxlGAIgASgIEhgK",
+            "EGJhdHRsZV9zZXJ2ZXJfaWQYAyABKAUSDwoHcm9vbV9pZBgEIAEoBBIQCghr",
+            "Y3BfaG9zdBgFIAEoCRIQCghrY3BfcG9ydBgGIAEoBRIVCg1iYXR0bGVfZGVm",
+            "X2lkGAcgASgNIncKD0JhdHRsZUVudGVySW5mbxIQCghrY3BfaG9zdBgBIAEo",
+            "CRIQCghrY3BfcG9ydBgCIAEoBRIPCgdyb29tX2lkGAMgASgEEhgKEGJhdHRs",
+            "ZV9zZXJ2ZXJfaWQYBCABKAUSFQoNc2Vzc2lvbl90b2tlbhgFIAEoCSI8ChJT",
+            "dGFydEJhdHRsZVJlcXVlc3QSFQoNYmF0dGxlX2RlZl9pZBgBIAEoDRIPCgdm",
+            "YWN0aW9uGAIgASgFIhIKEExlYXZlR2FtZVJlcXVlc3QqawoOQmF0dGxlUm9v",
+            "bU1vZGUSIAocQkFUVExFX1JPT01fTU9ERV9VTlNQRUNJRklFRBAAEhsKF0JB",
+            "VFRMRV9ST09NX01PREVfU0lOR0xFEAESGgoWQkFUVExFX1JPT01fTU9ERV9N",
+            "VUxUSRACKo8BCg9CYXR0bGVSb29tU3RhdGUSIQodQkFUVExFX1JPT01fU1RB",
+            "VEVfVU5TUEVDSUZJRUQQABIdChlCQVRUTEVfUk9PTV9TVEFURV9XQUlUSU5H",
+            "EAESHQoZQkFUVExFX1JPT01fU1RBVEVfUlVOTklORxACEhsKF0JBVFRMRV9S",
+            "T09NX1NUQVRFX0VOREVEEAMqaQoWQmF0dGxlQ29udHJvbEV2ZW50VHlwZRIX",
+            "ChNCQVRUTEVfQ09OVFJPTF9OT05FEAASGgoWQkFUVExFX0NPTlRST0xfUE9T",
+            "U0VTUxABEhoKFkJBVFRMRV9DT05UUk9MX1JFTEVBU0UQAmIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Wukong.Pb.BattleRoomMode), typeof(global::Wukong.Pb.BattleRoomState), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Wukong.Pb.BattleRoomMode), typeof(global::Wukong.Pb.BattleRoomState), typeof(global::Wukong.Pb.BattleControlEventType), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattlePlayerInitData), global::Wukong.Pb.BattlePlayerInitData.Parser, new[]{ "RoleId", "CombatPayload", "Faction" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleAssignmentAccess), global::Wukong.Pb.BattleAssignmentAccess.Parser, new[]{ "RoleId", "SessionToken" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.RequestBattleAssignmentRequest), global::Wukong.Pb.RequestBattleAssignmentRequest.Parser, new[]{ "Mode", "BattleDefId", "LobbyServerId", "Player" }, null, null, null, null),
@@ -83,9 +124,13 @@ namespace Wukong.Pb {
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleKcpLeaveRoom), global::Wukong.Pb.BattleKcpLeaveRoom.Parser, new[]{ "RoomId", "RoleId", "SessionToken" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattlePlayerFrameInput), global::Wukong.Pb.BattlePlayerFrameInput.Parser, new[]{ "PlayerId", "RoleId", "Frame", "MoveX", "MoveY", "AimX", "AimY", "Fire", "UseAbility", "Timestamp" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleKcpInputUpload), global::Wukong.Pb.BattleKcpInputUpload.Parser, new[]{ "RoomId", "RoleId", "Frame", "MoveX", "MoveY", "AimX", "AimY", "Fire", "UseAbility", "Timestamp" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleRoomSnapshot), global::Wukong.Pb.BattleRoomSnapshot.Parser, new[]{ "RoomId", "LogicFrame", "FrameRate", "RoomState", "RandomSeed", "Players" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleSnapshotPlayer), global::Wukong.Pb.BattleSnapshotPlayer.Parser, new[]{ "RoleId", "PlayerId", "Faction" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleFrameSync), global::Wukong.Pb.BattleFrameSync.Parser, new[]{ "RoomId", "FrameIndex", "Inputs" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleSnapshotTank), global::Wukong.Pb.BattleSnapshotTank.Parser, new[]{ "Id", "PlayerId", "Faction", "Type", "PosX", "PosY", "VelX", "VelY", "Rotation", "TurretRotation", "Hp", "MaxHp", "ShieldFrames", "SpeedBoostFrames", "RapidFireFrames", "AbilityCooldownFrames", "ReloadFrames", "ReloadDurationFrames", "RecoilVelX", "RecoilVelY", "LockedTargetId", "AiMoveMode", "RespawnFrames", "SpawnProtectionFrames", "ChargedShot", "IsPlayer", "IsAlive" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleSnapshotAiMemory), global::Wukong.Pb.BattleSnapshotAiMemory.Parser, new[]{ "TankId", "WanderHeading", "StrafeSign", "StrafeSwitchFrames", "WanderGoalSerial", "PathGoalX", "PathGoalY", "PathTargetId", "PathMoveMode", "PathRecalcFrames", "WanderPathGoalX", "WanderPathGoalY", "WanderPathFrames", "PathWaypointIndex", "PathWaypointCoords" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleSnapshotBullet), global::Wukong.Pb.BattleSnapshotBullet.Parser, new[]{ "Id", "OwnerId", "PosX", "PosY", "VelX", "VelY", "Damage", "LifeFrames", "Penetrating", "DamagedTankIds" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleControlEvent), global::Wukong.Pb.BattleControlEvent.Parser, new[]{ "Type", "RoleId", "PlayerId", "TankId", "Faction", "Name" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleRoomSnapshot), global::Wukong.Pb.BattleRoomSnapshot.Parser, new[]{ "RoomId", "LogicFrame", "FrameRate", "RoomState", "RandomSeed", "Players", "SlotsPerFaction", "NextPlayerId", "NextTankId", "NextBulletId", "FactionKills", "FactionDeaths", "Tanks", "Bullets", "GameState", "AiMemories" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleSnapshotPlayer), global::Wukong.Pb.BattleSnapshotPlayer.Parser, new[]{ "RoleId", "PlayerId", "Faction", "TankId" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleFrameSync), global::Wukong.Pb.BattleFrameSync.Parser, new[]{ "RoomId", "FrameIndex", "Inputs", "ControlEvents" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.PlayerBattleStateNotify), global::Wukong.Pb.PlayerBattleStateNotify.Parser, new[]{ "RoleId", "InBattle", "BattleServerId", "RoomId", "KcpHost", "KcpPort", "BattleDefId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.BattleEnterInfo), global::Wukong.Pb.BattleEnterInfo.Parser, new[]{ "KcpHost", "KcpPort", "RoomId", "BattleServerId", "SessionToken" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Wukong.Pb.StartBattleRequest), global::Wukong.Pb.StartBattleRequest.Parser, new[]{ "BattleDefId", "Faction" }, null, null, null, null),
@@ -107,6 +152,12 @@ namespace Wukong.Pb {
     [pbr::OriginalName("BATTLE_ROOM_STATE_WAITING")] Waiting = 1,
     [pbr::OriginalName("BATTLE_ROOM_STATE_RUNNING")] Running = 2,
     [pbr::OriginalName("BATTLE_ROOM_STATE_ENDED")] Ended = 3,
+  }
+
+  public enum BattleControlEventType {
+    [pbr::OriginalName("BATTLE_CONTROL_NONE")] BattleControlNone = 0,
+    [pbr::OriginalName("BATTLE_CONTROL_POSSESS")] BattleControlPossess = 1,
+    [pbr::OriginalName("BATTLE_CONTROL_RELEASE")] BattleControlRelease = 2,
   }
 
   #endregion
@@ -3021,6 +3072,2751 @@ namespace Wukong.Pb {
 
   }
 
+  /// <summary>
+  /// 定点逻辑状态（Pos/Vel/Angle 与 GameCore 一致），用于中途加入全量对齐
+  /// </summary>
+  public sealed partial class BattleSnapshotTank : pb::IMessage<BattleSnapshotTank>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BattleSnapshotTank> _parser = new pb::MessageParser<BattleSnapshotTank>(() => new BattleSnapshotTank());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BattleSnapshotTank> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[9]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotTank() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotTank(BattleSnapshotTank other) : this() {
+      id_ = other.id_;
+      playerId_ = other.playerId_;
+      faction_ = other.faction_;
+      type_ = other.type_;
+      posX_ = other.posX_;
+      posY_ = other.posY_;
+      velX_ = other.velX_;
+      velY_ = other.velY_;
+      rotation_ = other.rotation_;
+      turretRotation_ = other.turretRotation_;
+      hp_ = other.hp_;
+      maxHp_ = other.maxHp_;
+      shieldFrames_ = other.shieldFrames_;
+      speedBoostFrames_ = other.speedBoostFrames_;
+      rapidFireFrames_ = other.rapidFireFrames_;
+      abilityCooldownFrames_ = other.abilityCooldownFrames_;
+      reloadFrames_ = other.reloadFrames_;
+      reloadDurationFrames_ = other.reloadDurationFrames_;
+      recoilVelX_ = other.recoilVelX_;
+      recoilVelY_ = other.recoilVelY_;
+      lockedTargetId_ = other.lockedTargetId_;
+      aiMoveMode_ = other.aiMoveMode_;
+      respawnFrames_ = other.respawnFrames_;
+      spawnProtectionFrames_ = other.spawnProtectionFrames_;
+      chargedShot_ = other.chargedShot_;
+      isPlayer_ = other.isPlayer_;
+      isAlive_ = other.isAlive_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotTank Clone() {
+      return new BattleSnapshotTank(this);
+    }
+
+    /// <summary>Field number for the "id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private uint id_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "player_id" field.</summary>
+    public const int PlayerIdFieldNumber = 2;
+    private uint playerId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PlayerId {
+      get { return playerId_; }
+      set {
+        playerId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "faction" field.</summary>
+    public const int FactionFieldNumber = 3;
+    private int faction_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Faction {
+      get { return faction_; }
+      set {
+        faction_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "type" field.</summary>
+    public const int TypeFieldNumber = 4;
+    private int type_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Type {
+      get { return type_; }
+      set {
+        type_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "pos_x" field.</summary>
+    public const int PosXFieldNumber = 5;
+    private int posX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PosX {
+      get { return posX_; }
+      set {
+        posX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "pos_y" field.</summary>
+    public const int PosYFieldNumber = 6;
+    private int posY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PosY {
+      get { return posY_; }
+      set {
+        posY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "vel_x" field.</summary>
+    public const int VelXFieldNumber = 7;
+    private int velX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int VelX {
+      get { return velX_; }
+      set {
+        velX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "vel_y" field.</summary>
+    public const int VelYFieldNumber = 8;
+    private int velY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int VelY {
+      get { return velY_; }
+      set {
+        velY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "rotation" field.</summary>
+    public const int RotationFieldNumber = 9;
+    private int rotation_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Rotation {
+      get { return rotation_; }
+      set {
+        rotation_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "turret_rotation" field.</summary>
+    public const int TurretRotationFieldNumber = 10;
+    private int turretRotation_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int TurretRotation {
+      get { return turretRotation_; }
+      set {
+        turretRotation_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "hp" field.</summary>
+    public const int HpFieldNumber = 11;
+    private int hp_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Hp {
+      get { return hp_; }
+      set {
+        hp_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "max_hp" field.</summary>
+    public const int MaxHpFieldNumber = 12;
+    private int maxHp_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int MaxHp {
+      get { return maxHp_; }
+      set {
+        maxHp_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "shield_frames" field.</summary>
+    public const int ShieldFramesFieldNumber = 13;
+    private int shieldFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ShieldFrames {
+      get { return shieldFrames_; }
+      set {
+        shieldFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "speed_boost_frames" field.</summary>
+    public const int SpeedBoostFramesFieldNumber = 14;
+    private int speedBoostFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SpeedBoostFrames {
+      get { return speedBoostFrames_; }
+      set {
+        speedBoostFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "rapid_fire_frames" field.</summary>
+    public const int RapidFireFramesFieldNumber = 15;
+    private int rapidFireFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int RapidFireFrames {
+      get { return rapidFireFrames_; }
+      set {
+        rapidFireFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ability_cooldown_frames" field.</summary>
+    public const int AbilityCooldownFramesFieldNumber = 16;
+    private int abilityCooldownFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int AbilityCooldownFrames {
+      get { return abilityCooldownFrames_; }
+      set {
+        abilityCooldownFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reload_frames" field.</summary>
+    public const int ReloadFramesFieldNumber = 17;
+    private int reloadFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ReloadFrames {
+      get { return reloadFrames_; }
+      set {
+        reloadFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "reload_duration_frames" field.</summary>
+    public const int ReloadDurationFramesFieldNumber = 18;
+    private int reloadDurationFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int ReloadDurationFrames {
+      get { return reloadDurationFrames_; }
+      set {
+        reloadDurationFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "recoil_vel_x" field.</summary>
+    public const int RecoilVelXFieldNumber = 19;
+    private int recoilVelX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int RecoilVelX {
+      get { return recoilVelX_; }
+      set {
+        recoilVelX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "recoil_vel_y" field.</summary>
+    public const int RecoilVelYFieldNumber = 20;
+    private int recoilVelY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int RecoilVelY {
+      get { return recoilVelY_; }
+      set {
+        recoilVelY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "locked_target_id" field.</summary>
+    public const int LockedTargetIdFieldNumber = 21;
+    private uint lockedTargetId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint LockedTargetId {
+      get { return lockedTargetId_; }
+      set {
+        lockedTargetId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ai_move_mode" field.</summary>
+    public const int AiMoveModeFieldNumber = 22;
+    private uint aiMoveMode_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint AiMoveMode {
+      get { return aiMoveMode_; }
+      set {
+        aiMoveMode_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "respawn_frames" field.</summary>
+    public const int RespawnFramesFieldNumber = 23;
+    private int respawnFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int RespawnFrames {
+      get { return respawnFrames_; }
+      set {
+        respawnFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "spawn_protection_frames" field.</summary>
+    public const int SpawnProtectionFramesFieldNumber = 24;
+    private int spawnProtectionFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SpawnProtectionFrames {
+      get { return spawnProtectionFrames_; }
+      set {
+        spawnProtectionFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "charged_shot" field.</summary>
+    public const int ChargedShotFieldNumber = 25;
+    private bool chargedShot_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool ChargedShot {
+      get { return chargedShot_; }
+      set {
+        chargedShot_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "is_player" field.</summary>
+    public const int IsPlayerFieldNumber = 26;
+    private bool isPlayer_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool IsPlayer {
+      get { return isPlayer_; }
+      set {
+        isPlayer_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "is_alive" field.</summary>
+    public const int IsAliveFieldNumber = 27;
+    private bool isAlive_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool IsAlive {
+      get { return isAlive_; }
+      set {
+        isAlive_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BattleSnapshotTank);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BattleSnapshotTank other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (PlayerId != other.PlayerId) return false;
+      if (Faction != other.Faction) return false;
+      if (Type != other.Type) return false;
+      if (PosX != other.PosX) return false;
+      if (PosY != other.PosY) return false;
+      if (VelX != other.VelX) return false;
+      if (VelY != other.VelY) return false;
+      if (Rotation != other.Rotation) return false;
+      if (TurretRotation != other.TurretRotation) return false;
+      if (Hp != other.Hp) return false;
+      if (MaxHp != other.MaxHp) return false;
+      if (ShieldFrames != other.ShieldFrames) return false;
+      if (SpeedBoostFrames != other.SpeedBoostFrames) return false;
+      if (RapidFireFrames != other.RapidFireFrames) return false;
+      if (AbilityCooldownFrames != other.AbilityCooldownFrames) return false;
+      if (ReloadFrames != other.ReloadFrames) return false;
+      if (ReloadDurationFrames != other.ReloadDurationFrames) return false;
+      if (RecoilVelX != other.RecoilVelX) return false;
+      if (RecoilVelY != other.RecoilVelY) return false;
+      if (LockedTargetId != other.LockedTargetId) return false;
+      if (AiMoveMode != other.AiMoveMode) return false;
+      if (RespawnFrames != other.RespawnFrames) return false;
+      if (SpawnProtectionFrames != other.SpawnProtectionFrames) return false;
+      if (ChargedShot != other.ChargedShot) return false;
+      if (IsPlayer != other.IsPlayer) return false;
+      if (IsAlive != other.IsAlive) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id != 0) hash ^= Id.GetHashCode();
+      if (PlayerId != 0) hash ^= PlayerId.GetHashCode();
+      if (Faction != 0) hash ^= Faction.GetHashCode();
+      if (Type != 0) hash ^= Type.GetHashCode();
+      if (PosX != 0) hash ^= PosX.GetHashCode();
+      if (PosY != 0) hash ^= PosY.GetHashCode();
+      if (VelX != 0) hash ^= VelX.GetHashCode();
+      if (VelY != 0) hash ^= VelY.GetHashCode();
+      if (Rotation != 0) hash ^= Rotation.GetHashCode();
+      if (TurretRotation != 0) hash ^= TurretRotation.GetHashCode();
+      if (Hp != 0) hash ^= Hp.GetHashCode();
+      if (MaxHp != 0) hash ^= MaxHp.GetHashCode();
+      if (ShieldFrames != 0) hash ^= ShieldFrames.GetHashCode();
+      if (SpeedBoostFrames != 0) hash ^= SpeedBoostFrames.GetHashCode();
+      if (RapidFireFrames != 0) hash ^= RapidFireFrames.GetHashCode();
+      if (AbilityCooldownFrames != 0) hash ^= AbilityCooldownFrames.GetHashCode();
+      if (ReloadFrames != 0) hash ^= ReloadFrames.GetHashCode();
+      if (ReloadDurationFrames != 0) hash ^= ReloadDurationFrames.GetHashCode();
+      if (RecoilVelX != 0) hash ^= RecoilVelX.GetHashCode();
+      if (RecoilVelY != 0) hash ^= RecoilVelY.GetHashCode();
+      if (LockedTargetId != 0) hash ^= LockedTargetId.GetHashCode();
+      if (AiMoveMode != 0) hash ^= AiMoveMode.GetHashCode();
+      if (RespawnFrames != 0) hash ^= RespawnFrames.GetHashCode();
+      if (SpawnProtectionFrames != 0) hash ^= SpawnProtectionFrames.GetHashCode();
+      if (ChargedShot != false) hash ^= ChargedShot.GetHashCode();
+      if (IsPlayer != false) hash ^= IsPlayer.GetHashCode();
+      if (IsAlive != false) hash ^= IsAlive.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Id != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Id);
+      }
+      if (PlayerId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(PlayerId);
+      }
+      if (Faction != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Faction);
+      }
+      if (Type != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(Type);
+      }
+      if (PosX != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(PosX);
+      }
+      if (PosY != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(PosY);
+      }
+      if (VelX != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(VelX);
+      }
+      if (VelY != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(VelY);
+      }
+      if (Rotation != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(Rotation);
+      }
+      if (TurretRotation != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(TurretRotation);
+      }
+      if (Hp != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(Hp);
+      }
+      if (MaxHp != 0) {
+        output.WriteRawTag(96);
+        output.WriteInt32(MaxHp);
+      }
+      if (ShieldFrames != 0) {
+        output.WriteRawTag(104);
+        output.WriteInt32(ShieldFrames);
+      }
+      if (SpeedBoostFrames != 0) {
+        output.WriteRawTag(112);
+        output.WriteInt32(SpeedBoostFrames);
+      }
+      if (RapidFireFrames != 0) {
+        output.WriteRawTag(120);
+        output.WriteInt32(RapidFireFrames);
+      }
+      if (AbilityCooldownFrames != 0) {
+        output.WriteRawTag(128, 1);
+        output.WriteInt32(AbilityCooldownFrames);
+      }
+      if (ReloadFrames != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteInt32(ReloadFrames);
+      }
+      if (ReloadDurationFrames != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteInt32(ReloadDurationFrames);
+      }
+      if (RecoilVelX != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteInt32(RecoilVelX);
+      }
+      if (RecoilVelY != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteInt32(RecoilVelY);
+      }
+      if (LockedTargetId != 0) {
+        output.WriteRawTag(168, 1);
+        output.WriteUInt32(LockedTargetId);
+      }
+      if (AiMoveMode != 0) {
+        output.WriteRawTag(176, 1);
+        output.WriteUInt32(AiMoveMode);
+      }
+      if (RespawnFrames != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteInt32(RespawnFrames);
+      }
+      if (SpawnProtectionFrames != 0) {
+        output.WriteRawTag(192, 1);
+        output.WriteInt32(SpawnProtectionFrames);
+      }
+      if (ChargedShot != false) {
+        output.WriteRawTag(200, 1);
+        output.WriteBool(ChargedShot);
+      }
+      if (IsPlayer != false) {
+        output.WriteRawTag(208, 1);
+        output.WriteBool(IsPlayer);
+      }
+      if (IsAlive != false) {
+        output.WriteRawTag(216, 1);
+        output.WriteBool(IsAlive);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Id != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Id);
+      }
+      if (PlayerId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(PlayerId);
+      }
+      if (Faction != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Faction);
+      }
+      if (Type != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(Type);
+      }
+      if (PosX != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(PosX);
+      }
+      if (PosY != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(PosY);
+      }
+      if (VelX != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(VelX);
+      }
+      if (VelY != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(VelY);
+      }
+      if (Rotation != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(Rotation);
+      }
+      if (TurretRotation != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(TurretRotation);
+      }
+      if (Hp != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(Hp);
+      }
+      if (MaxHp != 0) {
+        output.WriteRawTag(96);
+        output.WriteInt32(MaxHp);
+      }
+      if (ShieldFrames != 0) {
+        output.WriteRawTag(104);
+        output.WriteInt32(ShieldFrames);
+      }
+      if (SpeedBoostFrames != 0) {
+        output.WriteRawTag(112);
+        output.WriteInt32(SpeedBoostFrames);
+      }
+      if (RapidFireFrames != 0) {
+        output.WriteRawTag(120);
+        output.WriteInt32(RapidFireFrames);
+      }
+      if (AbilityCooldownFrames != 0) {
+        output.WriteRawTag(128, 1);
+        output.WriteInt32(AbilityCooldownFrames);
+      }
+      if (ReloadFrames != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteInt32(ReloadFrames);
+      }
+      if (ReloadDurationFrames != 0) {
+        output.WriteRawTag(144, 1);
+        output.WriteInt32(ReloadDurationFrames);
+      }
+      if (RecoilVelX != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteInt32(RecoilVelX);
+      }
+      if (RecoilVelY != 0) {
+        output.WriteRawTag(160, 1);
+        output.WriteInt32(RecoilVelY);
+      }
+      if (LockedTargetId != 0) {
+        output.WriteRawTag(168, 1);
+        output.WriteUInt32(LockedTargetId);
+      }
+      if (AiMoveMode != 0) {
+        output.WriteRawTag(176, 1);
+        output.WriteUInt32(AiMoveMode);
+      }
+      if (RespawnFrames != 0) {
+        output.WriteRawTag(184, 1);
+        output.WriteInt32(RespawnFrames);
+      }
+      if (SpawnProtectionFrames != 0) {
+        output.WriteRawTag(192, 1);
+        output.WriteInt32(SpawnProtectionFrames);
+      }
+      if (ChargedShot != false) {
+        output.WriteRawTag(200, 1);
+        output.WriteBool(ChargedShot);
+      }
+      if (IsPlayer != false) {
+        output.WriteRawTag(208, 1);
+        output.WriteBool(IsPlayer);
+      }
+      if (IsAlive != false) {
+        output.WriteRawTag(216, 1);
+        output.WriteBool(IsAlive);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Id);
+      }
+      if (PlayerId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PlayerId);
+      }
+      if (Faction != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Faction);
+      }
+      if (Type != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Type);
+      }
+      if (PosX != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PosX);
+      }
+      if (PosY != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PosY);
+      }
+      if (VelX != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(VelX);
+      }
+      if (VelY != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(VelY);
+      }
+      if (Rotation != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Rotation);
+      }
+      if (TurretRotation != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(TurretRotation);
+      }
+      if (Hp != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Hp);
+      }
+      if (MaxHp != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MaxHp);
+      }
+      if (ShieldFrames != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ShieldFrames);
+      }
+      if (SpeedBoostFrames != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SpeedBoostFrames);
+      }
+      if (RapidFireFrames != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RapidFireFrames);
+      }
+      if (AbilityCooldownFrames != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(AbilityCooldownFrames);
+      }
+      if (ReloadFrames != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReloadFrames);
+      }
+      if (ReloadDurationFrames != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(ReloadDurationFrames);
+      }
+      if (RecoilVelX != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RecoilVelX);
+      }
+      if (RecoilVelY != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RecoilVelY);
+      }
+      if (LockedTargetId != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(LockedTargetId);
+      }
+      if (AiMoveMode != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeUInt32Size(AiMoveMode);
+      }
+      if (RespawnFrames != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(RespawnFrames);
+      }
+      if (SpawnProtectionFrames != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(SpawnProtectionFrames);
+      }
+      if (ChargedShot != false) {
+        size += 2 + 1;
+      }
+      if (IsPlayer != false) {
+        size += 2 + 1;
+      }
+      if (IsAlive != false) {
+        size += 2 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BattleSnapshotTank other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id != 0) {
+        Id = other.Id;
+      }
+      if (other.PlayerId != 0) {
+        PlayerId = other.PlayerId;
+      }
+      if (other.Faction != 0) {
+        Faction = other.Faction;
+      }
+      if (other.Type != 0) {
+        Type = other.Type;
+      }
+      if (other.PosX != 0) {
+        PosX = other.PosX;
+      }
+      if (other.PosY != 0) {
+        PosY = other.PosY;
+      }
+      if (other.VelX != 0) {
+        VelX = other.VelX;
+      }
+      if (other.VelY != 0) {
+        VelY = other.VelY;
+      }
+      if (other.Rotation != 0) {
+        Rotation = other.Rotation;
+      }
+      if (other.TurretRotation != 0) {
+        TurretRotation = other.TurretRotation;
+      }
+      if (other.Hp != 0) {
+        Hp = other.Hp;
+      }
+      if (other.MaxHp != 0) {
+        MaxHp = other.MaxHp;
+      }
+      if (other.ShieldFrames != 0) {
+        ShieldFrames = other.ShieldFrames;
+      }
+      if (other.SpeedBoostFrames != 0) {
+        SpeedBoostFrames = other.SpeedBoostFrames;
+      }
+      if (other.RapidFireFrames != 0) {
+        RapidFireFrames = other.RapidFireFrames;
+      }
+      if (other.AbilityCooldownFrames != 0) {
+        AbilityCooldownFrames = other.AbilityCooldownFrames;
+      }
+      if (other.ReloadFrames != 0) {
+        ReloadFrames = other.ReloadFrames;
+      }
+      if (other.ReloadDurationFrames != 0) {
+        ReloadDurationFrames = other.ReloadDurationFrames;
+      }
+      if (other.RecoilVelX != 0) {
+        RecoilVelX = other.RecoilVelX;
+      }
+      if (other.RecoilVelY != 0) {
+        RecoilVelY = other.RecoilVelY;
+      }
+      if (other.LockedTargetId != 0) {
+        LockedTargetId = other.LockedTargetId;
+      }
+      if (other.AiMoveMode != 0) {
+        AiMoveMode = other.AiMoveMode;
+      }
+      if (other.RespawnFrames != 0) {
+        RespawnFrames = other.RespawnFrames;
+      }
+      if (other.SpawnProtectionFrames != 0) {
+        SpawnProtectionFrames = other.SpawnProtectionFrames;
+      }
+      if (other.ChargedShot != false) {
+        ChargedShot = other.ChargedShot;
+      }
+      if (other.IsPlayer != false) {
+        IsPlayer = other.IsPlayer;
+      }
+      if (other.IsAlive != false) {
+        IsAlive = other.IsAlive;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Id = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            PlayerId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Faction = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            Type = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            PosX = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            PosY = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            VelX = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            VelY = input.ReadInt32();
+            break;
+          }
+          case 72: {
+            Rotation = input.ReadInt32();
+            break;
+          }
+          case 80: {
+            TurretRotation = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            Hp = input.ReadInt32();
+            break;
+          }
+          case 96: {
+            MaxHp = input.ReadInt32();
+            break;
+          }
+          case 104: {
+            ShieldFrames = input.ReadInt32();
+            break;
+          }
+          case 112: {
+            SpeedBoostFrames = input.ReadInt32();
+            break;
+          }
+          case 120: {
+            RapidFireFrames = input.ReadInt32();
+            break;
+          }
+          case 128: {
+            AbilityCooldownFrames = input.ReadInt32();
+            break;
+          }
+          case 136: {
+            ReloadFrames = input.ReadInt32();
+            break;
+          }
+          case 144: {
+            ReloadDurationFrames = input.ReadInt32();
+            break;
+          }
+          case 152: {
+            RecoilVelX = input.ReadInt32();
+            break;
+          }
+          case 160: {
+            RecoilVelY = input.ReadInt32();
+            break;
+          }
+          case 168: {
+            LockedTargetId = input.ReadUInt32();
+            break;
+          }
+          case 176: {
+            AiMoveMode = input.ReadUInt32();
+            break;
+          }
+          case 184: {
+            RespawnFrames = input.ReadInt32();
+            break;
+          }
+          case 192: {
+            SpawnProtectionFrames = input.ReadInt32();
+            break;
+          }
+          case 200: {
+            ChargedShot = input.ReadBool();
+            break;
+          }
+          case 208: {
+            IsPlayer = input.ReadBool();
+            break;
+          }
+          case 216: {
+            IsAlive = input.ReadBool();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Id = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            PlayerId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Faction = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            Type = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            PosX = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            PosY = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            VelX = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            VelY = input.ReadInt32();
+            break;
+          }
+          case 72: {
+            Rotation = input.ReadInt32();
+            break;
+          }
+          case 80: {
+            TurretRotation = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            Hp = input.ReadInt32();
+            break;
+          }
+          case 96: {
+            MaxHp = input.ReadInt32();
+            break;
+          }
+          case 104: {
+            ShieldFrames = input.ReadInt32();
+            break;
+          }
+          case 112: {
+            SpeedBoostFrames = input.ReadInt32();
+            break;
+          }
+          case 120: {
+            RapidFireFrames = input.ReadInt32();
+            break;
+          }
+          case 128: {
+            AbilityCooldownFrames = input.ReadInt32();
+            break;
+          }
+          case 136: {
+            ReloadFrames = input.ReadInt32();
+            break;
+          }
+          case 144: {
+            ReloadDurationFrames = input.ReadInt32();
+            break;
+          }
+          case 152: {
+            RecoilVelX = input.ReadInt32();
+            break;
+          }
+          case 160: {
+            RecoilVelY = input.ReadInt32();
+            break;
+          }
+          case 168: {
+            LockedTargetId = input.ReadUInt32();
+            break;
+          }
+          case 176: {
+            AiMoveMode = input.ReadUInt32();
+            break;
+          }
+          case 184: {
+            RespawnFrames = input.ReadInt32();
+            break;
+          }
+          case 192: {
+            SpawnProtectionFrames = input.ReadInt32();
+            break;
+          }
+          case 200: {
+            ChargedShot = input.ReadBool();
+            break;
+          }
+          case 208: {
+            IsPlayer = input.ReadBool();
+            break;
+          }
+          case 216: {
+            IsAlive = input.ReadBool();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// AI 持久记忆（寻路航点等）；中途加入必须带上，否则 Clear 后重建也会立刻分叉
+  /// </summary>
+  public sealed partial class BattleSnapshotAiMemory : pb::IMessage<BattleSnapshotAiMemory>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BattleSnapshotAiMemory> _parser = new pb::MessageParser<BattleSnapshotAiMemory>(() => new BattleSnapshotAiMemory());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BattleSnapshotAiMemory> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[10]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotAiMemory() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotAiMemory(BattleSnapshotAiMemory other) : this() {
+      tankId_ = other.tankId_;
+      wanderHeading_ = other.wanderHeading_;
+      strafeSign_ = other.strafeSign_;
+      strafeSwitchFrames_ = other.strafeSwitchFrames_;
+      wanderGoalSerial_ = other.wanderGoalSerial_;
+      pathGoalX_ = other.pathGoalX_;
+      pathGoalY_ = other.pathGoalY_;
+      pathTargetId_ = other.pathTargetId_;
+      pathMoveMode_ = other.pathMoveMode_;
+      pathRecalcFrames_ = other.pathRecalcFrames_;
+      wanderPathGoalX_ = other.wanderPathGoalX_;
+      wanderPathGoalY_ = other.wanderPathGoalY_;
+      wanderPathFrames_ = other.wanderPathFrames_;
+      pathWaypointIndex_ = other.pathWaypointIndex_;
+      pathWaypointCoords_ = other.pathWaypointCoords_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotAiMemory Clone() {
+      return new BattleSnapshotAiMemory(this);
+    }
+
+    /// <summary>Field number for the "tank_id" field.</summary>
+    public const int TankIdFieldNumber = 1;
+    private uint tankId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint TankId {
+      get { return tankId_; }
+      set {
+        tankId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "wander_heading" field.</summary>
+    public const int WanderHeadingFieldNumber = 2;
+    private int wanderHeading_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int WanderHeading {
+      get { return wanderHeading_; }
+      set {
+        wanderHeading_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "strafe_sign" field.</summary>
+    public const int StrafeSignFieldNumber = 3;
+    private int strafeSign_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int StrafeSign {
+      get { return strafeSign_; }
+      set {
+        strafeSign_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "strafe_switch_frames" field.</summary>
+    public const int StrafeSwitchFramesFieldNumber = 4;
+    private int strafeSwitchFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int StrafeSwitchFrames {
+      get { return strafeSwitchFrames_; }
+      set {
+        strafeSwitchFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "wander_goal_serial" field.</summary>
+    public const int WanderGoalSerialFieldNumber = 5;
+    private uint wanderGoalSerial_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint WanderGoalSerial {
+      get { return wanderGoalSerial_; }
+      set {
+        wanderGoalSerial_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "path_goal_x" field.</summary>
+    public const int PathGoalXFieldNumber = 6;
+    private int pathGoalX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PathGoalX {
+      get { return pathGoalX_; }
+      set {
+        pathGoalX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "path_goal_y" field.</summary>
+    public const int PathGoalYFieldNumber = 7;
+    private int pathGoalY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PathGoalY {
+      get { return pathGoalY_; }
+      set {
+        pathGoalY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "path_target_id" field.</summary>
+    public const int PathTargetIdFieldNumber = 8;
+    private uint pathTargetId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PathTargetId {
+      get { return pathTargetId_; }
+      set {
+        pathTargetId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "path_move_mode" field.</summary>
+    public const int PathMoveModeFieldNumber = 9;
+    private uint pathMoveMode_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PathMoveMode {
+      get { return pathMoveMode_; }
+      set {
+        pathMoveMode_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "path_recalc_frames" field.</summary>
+    public const int PathRecalcFramesFieldNumber = 10;
+    private int pathRecalcFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PathRecalcFrames {
+      get { return pathRecalcFrames_; }
+      set {
+        pathRecalcFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "wander_path_goal_x" field.</summary>
+    public const int WanderPathGoalXFieldNumber = 11;
+    private int wanderPathGoalX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int WanderPathGoalX {
+      get { return wanderPathGoalX_; }
+      set {
+        wanderPathGoalX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "wander_path_goal_y" field.</summary>
+    public const int WanderPathGoalYFieldNumber = 12;
+    private int wanderPathGoalY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int WanderPathGoalY {
+      get { return wanderPathGoalY_; }
+      set {
+        wanderPathGoalY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "wander_path_frames" field.</summary>
+    public const int WanderPathFramesFieldNumber = 13;
+    private int wanderPathFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int WanderPathFrames {
+      get { return wanderPathFrames_; }
+      set {
+        wanderPathFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "path_waypoint_index" field.</summary>
+    public const int PathWaypointIndexFieldNumber = 14;
+    private uint pathWaypointIndex_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PathWaypointIndex {
+      get { return pathWaypointIndex_; }
+      set {
+        pathWaypointIndex_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "path_waypoint_coords" field.</summary>
+    public const int PathWaypointCoordsFieldNumber = 15;
+    private static readonly pb::FieldCodec<int> _repeated_pathWaypointCoords_codec
+        = pb::FieldCodec.ForInt32(122);
+    private readonly pbc::RepeatedField<int> pathWaypointCoords_ = new pbc::RepeatedField<int>();
+    /// <summary>
+    /// 航点坐标交错：x0,y0,x1,y1,...
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<int> PathWaypointCoords {
+      get { return pathWaypointCoords_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BattleSnapshotAiMemory);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BattleSnapshotAiMemory other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (TankId != other.TankId) return false;
+      if (WanderHeading != other.WanderHeading) return false;
+      if (StrafeSign != other.StrafeSign) return false;
+      if (StrafeSwitchFrames != other.StrafeSwitchFrames) return false;
+      if (WanderGoalSerial != other.WanderGoalSerial) return false;
+      if (PathGoalX != other.PathGoalX) return false;
+      if (PathGoalY != other.PathGoalY) return false;
+      if (PathTargetId != other.PathTargetId) return false;
+      if (PathMoveMode != other.PathMoveMode) return false;
+      if (PathRecalcFrames != other.PathRecalcFrames) return false;
+      if (WanderPathGoalX != other.WanderPathGoalX) return false;
+      if (WanderPathGoalY != other.WanderPathGoalY) return false;
+      if (WanderPathFrames != other.WanderPathFrames) return false;
+      if (PathWaypointIndex != other.PathWaypointIndex) return false;
+      if(!pathWaypointCoords_.Equals(other.pathWaypointCoords_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (TankId != 0) hash ^= TankId.GetHashCode();
+      if (WanderHeading != 0) hash ^= WanderHeading.GetHashCode();
+      if (StrafeSign != 0) hash ^= StrafeSign.GetHashCode();
+      if (StrafeSwitchFrames != 0) hash ^= StrafeSwitchFrames.GetHashCode();
+      if (WanderGoalSerial != 0) hash ^= WanderGoalSerial.GetHashCode();
+      if (PathGoalX != 0) hash ^= PathGoalX.GetHashCode();
+      if (PathGoalY != 0) hash ^= PathGoalY.GetHashCode();
+      if (PathTargetId != 0) hash ^= PathTargetId.GetHashCode();
+      if (PathMoveMode != 0) hash ^= PathMoveMode.GetHashCode();
+      if (PathRecalcFrames != 0) hash ^= PathRecalcFrames.GetHashCode();
+      if (WanderPathGoalX != 0) hash ^= WanderPathGoalX.GetHashCode();
+      if (WanderPathGoalY != 0) hash ^= WanderPathGoalY.GetHashCode();
+      if (WanderPathFrames != 0) hash ^= WanderPathFrames.GetHashCode();
+      if (PathWaypointIndex != 0) hash ^= PathWaypointIndex.GetHashCode();
+      hash ^= pathWaypointCoords_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (TankId != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(TankId);
+      }
+      if (WanderHeading != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(WanderHeading);
+      }
+      if (StrafeSign != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(StrafeSign);
+      }
+      if (StrafeSwitchFrames != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(StrafeSwitchFrames);
+      }
+      if (WanderGoalSerial != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(WanderGoalSerial);
+      }
+      if (PathGoalX != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(PathGoalX);
+      }
+      if (PathGoalY != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(PathGoalY);
+      }
+      if (PathTargetId != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(PathTargetId);
+      }
+      if (PathMoveMode != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(PathMoveMode);
+      }
+      if (PathRecalcFrames != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(PathRecalcFrames);
+      }
+      if (WanderPathGoalX != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(WanderPathGoalX);
+      }
+      if (WanderPathGoalY != 0) {
+        output.WriteRawTag(96);
+        output.WriteInt32(WanderPathGoalY);
+      }
+      if (WanderPathFrames != 0) {
+        output.WriteRawTag(104);
+        output.WriteInt32(WanderPathFrames);
+      }
+      if (PathWaypointIndex != 0) {
+        output.WriteRawTag(112);
+        output.WriteUInt32(PathWaypointIndex);
+      }
+      pathWaypointCoords_.WriteTo(output, _repeated_pathWaypointCoords_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (TankId != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(TankId);
+      }
+      if (WanderHeading != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(WanderHeading);
+      }
+      if (StrafeSign != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(StrafeSign);
+      }
+      if (StrafeSwitchFrames != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(StrafeSwitchFrames);
+      }
+      if (WanderGoalSerial != 0) {
+        output.WriteRawTag(40);
+        output.WriteUInt32(WanderGoalSerial);
+      }
+      if (PathGoalX != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(PathGoalX);
+      }
+      if (PathGoalY != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(PathGoalY);
+      }
+      if (PathTargetId != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(PathTargetId);
+      }
+      if (PathMoveMode != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(PathMoveMode);
+      }
+      if (PathRecalcFrames != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(PathRecalcFrames);
+      }
+      if (WanderPathGoalX != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(WanderPathGoalX);
+      }
+      if (WanderPathGoalY != 0) {
+        output.WriteRawTag(96);
+        output.WriteInt32(WanderPathGoalY);
+      }
+      if (WanderPathFrames != 0) {
+        output.WriteRawTag(104);
+        output.WriteInt32(WanderPathFrames);
+      }
+      if (PathWaypointIndex != 0) {
+        output.WriteRawTag(112);
+        output.WriteUInt32(PathWaypointIndex);
+      }
+      pathWaypointCoords_.WriteTo(ref output, _repeated_pathWaypointCoords_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (TankId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(TankId);
+      }
+      if (WanderHeading != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(WanderHeading);
+      }
+      if (StrafeSign != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(StrafeSign);
+      }
+      if (StrafeSwitchFrames != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(StrafeSwitchFrames);
+      }
+      if (WanderGoalSerial != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(WanderGoalSerial);
+      }
+      if (PathGoalX != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PathGoalX);
+      }
+      if (PathGoalY != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PathGoalY);
+      }
+      if (PathTargetId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PathTargetId);
+      }
+      if (PathMoveMode != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PathMoveMode);
+      }
+      if (PathRecalcFrames != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PathRecalcFrames);
+      }
+      if (WanderPathGoalX != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(WanderPathGoalX);
+      }
+      if (WanderPathGoalY != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(WanderPathGoalY);
+      }
+      if (WanderPathFrames != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(WanderPathFrames);
+      }
+      if (PathWaypointIndex != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PathWaypointIndex);
+      }
+      size += pathWaypointCoords_.CalculateSize(_repeated_pathWaypointCoords_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BattleSnapshotAiMemory other) {
+      if (other == null) {
+        return;
+      }
+      if (other.TankId != 0) {
+        TankId = other.TankId;
+      }
+      if (other.WanderHeading != 0) {
+        WanderHeading = other.WanderHeading;
+      }
+      if (other.StrafeSign != 0) {
+        StrafeSign = other.StrafeSign;
+      }
+      if (other.StrafeSwitchFrames != 0) {
+        StrafeSwitchFrames = other.StrafeSwitchFrames;
+      }
+      if (other.WanderGoalSerial != 0) {
+        WanderGoalSerial = other.WanderGoalSerial;
+      }
+      if (other.PathGoalX != 0) {
+        PathGoalX = other.PathGoalX;
+      }
+      if (other.PathGoalY != 0) {
+        PathGoalY = other.PathGoalY;
+      }
+      if (other.PathTargetId != 0) {
+        PathTargetId = other.PathTargetId;
+      }
+      if (other.PathMoveMode != 0) {
+        PathMoveMode = other.PathMoveMode;
+      }
+      if (other.PathRecalcFrames != 0) {
+        PathRecalcFrames = other.PathRecalcFrames;
+      }
+      if (other.WanderPathGoalX != 0) {
+        WanderPathGoalX = other.WanderPathGoalX;
+      }
+      if (other.WanderPathGoalY != 0) {
+        WanderPathGoalY = other.WanderPathGoalY;
+      }
+      if (other.WanderPathFrames != 0) {
+        WanderPathFrames = other.WanderPathFrames;
+      }
+      if (other.PathWaypointIndex != 0) {
+        PathWaypointIndex = other.PathWaypointIndex;
+      }
+      pathWaypointCoords_.Add(other.pathWaypointCoords_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            TankId = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            WanderHeading = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            StrafeSign = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            StrafeSwitchFrames = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            WanderGoalSerial = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            PathGoalX = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            PathGoalY = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            PathTargetId = input.ReadUInt32();
+            break;
+          }
+          case 72: {
+            PathMoveMode = input.ReadUInt32();
+            break;
+          }
+          case 80: {
+            PathRecalcFrames = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            WanderPathGoalX = input.ReadInt32();
+            break;
+          }
+          case 96: {
+            WanderPathGoalY = input.ReadInt32();
+            break;
+          }
+          case 104: {
+            WanderPathFrames = input.ReadInt32();
+            break;
+          }
+          case 112: {
+            PathWaypointIndex = input.ReadUInt32();
+            break;
+          }
+          case 122:
+          case 120: {
+            pathWaypointCoords_.AddEntriesFrom(input, _repeated_pathWaypointCoords_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            TankId = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            WanderHeading = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            StrafeSign = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            StrafeSwitchFrames = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            WanderGoalSerial = input.ReadUInt32();
+            break;
+          }
+          case 48: {
+            PathGoalX = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            PathGoalY = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            PathTargetId = input.ReadUInt32();
+            break;
+          }
+          case 72: {
+            PathMoveMode = input.ReadUInt32();
+            break;
+          }
+          case 80: {
+            PathRecalcFrames = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            WanderPathGoalX = input.ReadInt32();
+            break;
+          }
+          case 96: {
+            WanderPathGoalY = input.ReadInt32();
+            break;
+          }
+          case 104: {
+            WanderPathFrames = input.ReadInt32();
+            break;
+          }
+          case 112: {
+            PathWaypointIndex = input.ReadUInt32();
+            break;
+          }
+          case 122:
+          case 120: {
+            pathWaypointCoords_.AddEntriesFrom(ref input, _repeated_pathWaypointCoords_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class BattleSnapshotBullet : pb::IMessage<BattleSnapshotBullet>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BattleSnapshotBullet> _parser = new pb::MessageParser<BattleSnapshotBullet>(() => new BattleSnapshotBullet());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BattleSnapshotBullet> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[11]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotBullet() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotBullet(BattleSnapshotBullet other) : this() {
+      id_ = other.id_;
+      ownerId_ = other.ownerId_;
+      posX_ = other.posX_;
+      posY_ = other.posY_;
+      velX_ = other.velX_;
+      velY_ = other.velY_;
+      damage_ = other.damage_;
+      lifeFrames_ = other.lifeFrames_;
+      penetrating_ = other.penetrating_;
+      damagedTankIds_ = other.damagedTankIds_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleSnapshotBullet Clone() {
+      return new BattleSnapshotBullet(this);
+    }
+
+    /// <summary>Field number for the "id" field.</summary>
+    public const int IdFieldNumber = 1;
+    private uint id_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint Id {
+      get { return id_; }
+      set {
+        id_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "owner_id" field.</summary>
+    public const int OwnerIdFieldNumber = 2;
+    private uint ownerId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint OwnerId {
+      get { return ownerId_; }
+      set {
+        ownerId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "pos_x" field.</summary>
+    public const int PosXFieldNumber = 3;
+    private int posX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PosX {
+      get { return posX_; }
+      set {
+        posX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "pos_y" field.</summary>
+    public const int PosYFieldNumber = 4;
+    private int posY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int PosY {
+      get { return posY_; }
+      set {
+        posY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "vel_x" field.</summary>
+    public const int VelXFieldNumber = 5;
+    private int velX_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int VelX {
+      get { return velX_; }
+      set {
+        velX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "vel_y" field.</summary>
+    public const int VelYFieldNumber = 6;
+    private int velY_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int VelY {
+      get { return velY_; }
+      set {
+        velY_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "damage" field.</summary>
+    public const int DamageFieldNumber = 7;
+    private int damage_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Damage {
+      get { return damage_; }
+      set {
+        damage_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "life_frames" field.</summary>
+    public const int LifeFramesFieldNumber = 8;
+    private int lifeFrames_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int LifeFrames {
+      get { return lifeFrames_; }
+      set {
+        lifeFrames_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "penetrating" field.</summary>
+    public const int PenetratingFieldNumber = 9;
+    private bool penetrating_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Penetrating {
+      get { return penetrating_; }
+      set {
+        penetrating_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "damaged_tank_ids" field.</summary>
+    public const int DamagedTankIdsFieldNumber = 10;
+    private static readonly pb::FieldCodec<uint> _repeated_damagedTankIds_codec
+        = pb::FieldCodec.ForUInt32(82);
+    private readonly pbc::RepeatedField<uint> damagedTankIds_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> DamagedTankIds {
+      get { return damagedTankIds_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BattleSnapshotBullet);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BattleSnapshotBullet other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Id != other.Id) return false;
+      if (OwnerId != other.OwnerId) return false;
+      if (PosX != other.PosX) return false;
+      if (PosY != other.PosY) return false;
+      if (VelX != other.VelX) return false;
+      if (VelY != other.VelY) return false;
+      if (Damage != other.Damage) return false;
+      if (LifeFrames != other.LifeFrames) return false;
+      if (Penetrating != other.Penetrating) return false;
+      if(!damagedTankIds_.Equals(other.damagedTankIds_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Id != 0) hash ^= Id.GetHashCode();
+      if (OwnerId != 0) hash ^= OwnerId.GetHashCode();
+      if (PosX != 0) hash ^= PosX.GetHashCode();
+      if (PosY != 0) hash ^= PosY.GetHashCode();
+      if (VelX != 0) hash ^= VelX.GetHashCode();
+      if (VelY != 0) hash ^= VelY.GetHashCode();
+      if (Damage != 0) hash ^= Damage.GetHashCode();
+      if (LifeFrames != 0) hash ^= LifeFrames.GetHashCode();
+      if (Penetrating != false) hash ^= Penetrating.GetHashCode();
+      hash ^= damagedTankIds_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Id != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Id);
+      }
+      if (OwnerId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(OwnerId);
+      }
+      if (PosX != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(PosX);
+      }
+      if (PosY != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(PosY);
+      }
+      if (VelX != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(VelX);
+      }
+      if (VelY != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(VelY);
+      }
+      if (Damage != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(Damage);
+      }
+      if (LifeFrames != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(LifeFrames);
+      }
+      if (Penetrating != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(Penetrating);
+      }
+      damagedTankIds_.WriteTo(output, _repeated_damagedTankIds_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Id != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(Id);
+      }
+      if (OwnerId != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(OwnerId);
+      }
+      if (PosX != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(PosX);
+      }
+      if (PosY != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(PosY);
+      }
+      if (VelX != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(VelX);
+      }
+      if (VelY != 0) {
+        output.WriteRawTag(48);
+        output.WriteInt32(VelY);
+      }
+      if (Damage != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(Damage);
+      }
+      if (LifeFrames != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(LifeFrames);
+      }
+      if (Penetrating != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(Penetrating);
+      }
+      damagedTankIds_.WriteTo(ref output, _repeated_damagedTankIds_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Id != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Id);
+      }
+      if (OwnerId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(OwnerId);
+      }
+      if (PosX != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PosX);
+      }
+      if (PosY != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(PosY);
+      }
+      if (VelX != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(VelX);
+      }
+      if (VelY != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(VelY);
+      }
+      if (Damage != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Damage);
+      }
+      if (LifeFrames != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(LifeFrames);
+      }
+      if (Penetrating != false) {
+        size += 1 + 1;
+      }
+      size += damagedTankIds_.CalculateSize(_repeated_damagedTankIds_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BattleSnapshotBullet other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Id != 0) {
+        Id = other.Id;
+      }
+      if (other.OwnerId != 0) {
+        OwnerId = other.OwnerId;
+      }
+      if (other.PosX != 0) {
+        PosX = other.PosX;
+      }
+      if (other.PosY != 0) {
+        PosY = other.PosY;
+      }
+      if (other.VelX != 0) {
+        VelX = other.VelX;
+      }
+      if (other.VelY != 0) {
+        VelY = other.VelY;
+      }
+      if (other.Damage != 0) {
+        Damage = other.Damage;
+      }
+      if (other.LifeFrames != 0) {
+        LifeFrames = other.LifeFrames;
+      }
+      if (other.Penetrating != false) {
+        Penetrating = other.Penetrating;
+      }
+      damagedTankIds_.Add(other.damagedTankIds_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Id = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            OwnerId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            PosX = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            PosY = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            VelX = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            VelY = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            Damage = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            LifeFrames = input.ReadInt32();
+            break;
+          }
+          case 72: {
+            Penetrating = input.ReadBool();
+            break;
+          }
+          case 82:
+          case 80: {
+            damagedTankIds_.AddEntriesFrom(input, _repeated_damagedTankIds_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Id = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            OwnerId = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            PosX = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            PosY = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            VelX = input.ReadInt32();
+            break;
+          }
+          case 48: {
+            VelY = input.ReadInt32();
+            break;
+          }
+          case 56: {
+            Damage = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            LifeFrames = input.ReadInt32();
+            break;
+          }
+          case 72: {
+            Penetrating = input.ReadBool();
+            break;
+          }
+          case 82:
+          case 80: {
+            damagedTankIds_.AddEntriesFrom(ref input, _repeated_damagedTankIds_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  public sealed partial class BattleControlEvent : pb::IMessage<BattleControlEvent>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<BattleControlEvent> _parser = new pb::MessageParser<BattleControlEvent>(() => new BattleControlEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<BattleControlEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[12]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleControlEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleControlEvent(BattleControlEvent other) : this() {
+      type_ = other.type_;
+      roleId_ = other.roleId_;
+      playerId_ = other.playerId_;
+      tankId_ = other.tankId_;
+      faction_ = other.faction_;
+      name_ = other.name_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public BattleControlEvent Clone() {
+      return new BattleControlEvent(this);
+    }
+
+    /// <summary>Field number for the "type" field.</summary>
+    public const int TypeFieldNumber = 1;
+    private global::Wukong.Pb.BattleControlEventType type_ = global::Wukong.Pb.BattleControlEventType.BattleControlNone;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Wukong.Pb.BattleControlEventType Type {
+      get { return type_; }
+      set {
+        type_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "role_id" field.</summary>
+    public const int RoleIdFieldNumber = 2;
+    private ulong roleId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public ulong RoleId {
+      get { return roleId_; }
+      set {
+        roleId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "player_id" field.</summary>
+    public const int PlayerIdFieldNumber = 3;
+    private uint playerId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint PlayerId {
+      get { return playerId_; }
+      set {
+        playerId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "tank_id" field.</summary>
+    public const int TankIdFieldNumber = 4;
+    private uint tankId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint TankId {
+      get { return tankId_; }
+      set {
+        tankId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "faction" field.</summary>
+    public const int FactionFieldNumber = 5;
+    private int faction_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Faction {
+      get { return faction_; }
+      set {
+        faction_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "name" field.</summary>
+    public const int NameFieldNumber = 6;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as BattleControlEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(BattleControlEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (Type != other.Type) return false;
+      if (RoleId != other.RoleId) return false;
+      if (PlayerId != other.PlayerId) return false;
+      if (TankId != other.TankId) return false;
+      if (Faction != other.Faction) return false;
+      if (Name != other.Name) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Type != global::Wukong.Pb.BattleControlEventType.BattleControlNone) hash ^= Type.GetHashCode();
+      if (RoleId != 0UL) hash ^= RoleId.GetHashCode();
+      if (PlayerId != 0) hash ^= PlayerId.GetHashCode();
+      if (TankId != 0) hash ^= TankId.GetHashCode();
+      if (Faction != 0) hash ^= Faction.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (Type != global::Wukong.Pb.BattleControlEventType.BattleControlNone) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Type);
+      }
+      if (RoleId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(RoleId);
+      }
+      if (PlayerId != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(PlayerId);
+      }
+      if (TankId != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(TankId);
+      }
+      if (Faction != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(Faction);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(Name);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (Type != global::Wukong.Pb.BattleControlEventType.BattleControlNone) {
+        output.WriteRawTag(8);
+        output.WriteEnum((int) Type);
+      }
+      if (RoleId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(RoleId);
+      }
+      if (PlayerId != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(PlayerId);
+      }
+      if (TankId != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(TankId);
+      }
+      if (Faction != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(Faction);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(Name);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (Type != global::Wukong.Pb.BattleControlEventType.BattleControlNone) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
+      }
+      if (RoleId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(RoleId);
+      }
+      if (PlayerId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(PlayerId);
+      }
+      if (TankId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(TankId);
+      }
+      if (Faction != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Faction);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(BattleControlEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.Type != global::Wukong.Pb.BattleControlEventType.BattleControlNone) {
+        Type = other.Type;
+      }
+      if (other.RoleId != 0UL) {
+        RoleId = other.RoleId;
+      }
+      if (other.PlayerId != 0) {
+        PlayerId = other.PlayerId;
+      }
+      if (other.TankId != 0) {
+        TankId = other.TankId;
+      }
+      if (other.Faction != 0) {
+        Faction = other.Faction;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            Type = (global::Wukong.Pb.BattleControlEventType) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            RoleId = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            PlayerId = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            TankId = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            Faction = input.ReadInt32();
+            break;
+          }
+          case 50: {
+            Name = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            Type = (global::Wukong.Pb.BattleControlEventType) input.ReadEnum();
+            break;
+          }
+          case 16: {
+            RoleId = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            PlayerId = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            TankId = input.ReadUInt32();
+            break;
+          }
+          case 40: {
+            Faction = input.ReadInt32();
+            break;
+          }
+          case 50: {
+            Name = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class BattleRoomSnapshot : pb::IMessage<BattleRoomSnapshot>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -3035,7 +5831,7 @@ namespace Wukong.Pb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[9]; }
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3061,6 +5857,16 @@ namespace Wukong.Pb {
       roomState_ = other.roomState_;
       randomSeed_ = other.randomSeed_;
       players_ = other.players_.Clone();
+      slotsPerFaction_ = other.slotsPerFaction_;
+      nextPlayerId_ = other.nextPlayerId_;
+      nextTankId_ = other.nextTankId_;
+      nextBulletId_ = other.nextBulletId_;
+      factionKills_ = other.factionKills_.Clone();
+      factionDeaths_ = other.factionDeaths_.Clone();
+      tanks_ = other.tanks_.Clone();
+      bullets_ = other.bullets_.Clone();
+      gameState_ = other.gameState_;
+      aiMemories_ = other.aiMemories_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3141,6 +5947,124 @@ namespace Wukong.Pb {
       get { return players_; }
     }
 
+    /// <summary>Field number for the "slots_per_faction" field.</summary>
+    public const int SlotsPerFactionFieldNumber = 7;
+    private uint slotsPerFaction_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint SlotsPerFaction {
+      get { return slotsPerFaction_; }
+      set {
+        slotsPerFaction_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "next_player_id" field.</summary>
+    public const int NextPlayerIdFieldNumber = 8;
+    private uint nextPlayerId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint NextPlayerId {
+      get { return nextPlayerId_; }
+      set {
+        nextPlayerId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "next_tank_id" field.</summary>
+    public const int NextTankIdFieldNumber = 9;
+    private uint nextTankId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint NextTankId {
+      get { return nextTankId_; }
+      set {
+        nextTankId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "next_bullet_id" field.</summary>
+    public const int NextBulletIdFieldNumber = 10;
+    private uint nextBulletId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint NextBulletId {
+      get { return nextBulletId_; }
+      set {
+        nextBulletId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "faction_kills" field.</summary>
+    public const int FactionKillsFieldNumber = 11;
+    private static readonly pb::FieldCodec<uint> _repeated_factionKills_codec
+        = pb::FieldCodec.ForUInt32(90);
+    private readonly pbc::RepeatedField<uint> factionKills_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> FactionKills {
+      get { return factionKills_; }
+    }
+
+    /// <summary>Field number for the "faction_deaths" field.</summary>
+    public const int FactionDeathsFieldNumber = 12;
+    private static readonly pb::FieldCodec<uint> _repeated_factionDeaths_codec
+        = pb::FieldCodec.ForUInt32(98);
+    private readonly pbc::RepeatedField<uint> factionDeaths_ = new pbc::RepeatedField<uint>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<uint> FactionDeaths {
+      get { return factionDeaths_; }
+    }
+
+    /// <summary>Field number for the "tanks" field.</summary>
+    public const int TanksFieldNumber = 13;
+    private static readonly pb::FieldCodec<global::Wukong.Pb.BattleSnapshotTank> _repeated_tanks_codec
+        = pb::FieldCodec.ForMessage(106, global::Wukong.Pb.BattleSnapshotTank.Parser);
+    private readonly pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotTank> tanks_ = new pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotTank>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotTank> Tanks {
+      get { return tanks_; }
+    }
+
+    /// <summary>Field number for the "bullets" field.</summary>
+    public const int BulletsFieldNumber = 14;
+    private static readonly pb::FieldCodec<global::Wukong.Pb.BattleSnapshotBullet> _repeated_bullets_codec
+        = pb::FieldCodec.ForMessage(114, global::Wukong.Pb.BattleSnapshotBullet.Parser);
+    private readonly pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotBullet> bullets_ = new pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotBullet>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotBullet> Bullets {
+      get { return bullets_; }
+    }
+
+    /// <summary>Field number for the "game_state" field.</summary>
+    public const int GameStateFieldNumber = 15;
+    private int gameState_;
+    /// <summary>
+    /// TankBattle::GameState
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int GameState {
+      get { return gameState_; }
+      set {
+        gameState_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ai_memories" field.</summary>
+    public const int AiMemoriesFieldNumber = 16;
+    private static readonly pb::FieldCodec<global::Wukong.Pb.BattleSnapshotAiMemory> _repeated_aiMemories_codec
+        = pb::FieldCodec.ForMessage(130, global::Wukong.Pb.BattleSnapshotAiMemory.Parser);
+    private readonly pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotAiMemory> aiMemories_ = new pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotAiMemory>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Wukong.Pb.BattleSnapshotAiMemory> AiMemories {
+      get { return aiMemories_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3162,6 +6086,16 @@ namespace Wukong.Pb {
       if (RoomState != other.RoomState) return false;
       if (RandomSeed != other.RandomSeed) return false;
       if(!players_.Equals(other.players_)) return false;
+      if (SlotsPerFaction != other.SlotsPerFaction) return false;
+      if (NextPlayerId != other.NextPlayerId) return false;
+      if (NextTankId != other.NextTankId) return false;
+      if (NextBulletId != other.NextBulletId) return false;
+      if(!factionKills_.Equals(other.factionKills_)) return false;
+      if(!factionDeaths_.Equals(other.factionDeaths_)) return false;
+      if(!tanks_.Equals(other.tanks_)) return false;
+      if(!bullets_.Equals(other.bullets_)) return false;
+      if (GameState != other.GameState) return false;
+      if(!aiMemories_.Equals(other.aiMemories_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3175,6 +6109,16 @@ namespace Wukong.Pb {
       if (RoomState != global::Wukong.Pb.BattleRoomState.Unspecified) hash ^= RoomState.GetHashCode();
       if (RandomSeed != 0) hash ^= RandomSeed.GetHashCode();
       hash ^= players_.GetHashCode();
+      if (SlotsPerFaction != 0) hash ^= SlotsPerFaction.GetHashCode();
+      if (NextPlayerId != 0) hash ^= NextPlayerId.GetHashCode();
+      if (NextTankId != 0) hash ^= NextTankId.GetHashCode();
+      if (NextBulletId != 0) hash ^= NextBulletId.GetHashCode();
+      hash ^= factionKills_.GetHashCode();
+      hash ^= factionDeaths_.GetHashCode();
+      hash ^= tanks_.GetHashCode();
+      hash ^= bullets_.GetHashCode();
+      if (GameState != 0) hash ^= GameState.GetHashCode();
+      hash ^= aiMemories_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3214,6 +6158,31 @@ namespace Wukong.Pb {
         output.WriteUInt32(RandomSeed);
       }
       players_.WriteTo(output, _repeated_players_codec);
+      if (SlotsPerFaction != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(SlotsPerFaction);
+      }
+      if (NextPlayerId != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(NextPlayerId);
+      }
+      if (NextTankId != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(NextTankId);
+      }
+      if (NextBulletId != 0) {
+        output.WriteRawTag(80);
+        output.WriteUInt32(NextBulletId);
+      }
+      factionKills_.WriteTo(output, _repeated_factionKills_codec);
+      factionDeaths_.WriteTo(output, _repeated_factionDeaths_codec);
+      tanks_.WriteTo(output, _repeated_tanks_codec);
+      bullets_.WriteTo(output, _repeated_bullets_codec);
+      if (GameState != 0) {
+        output.WriteRawTag(120);
+        output.WriteInt32(GameState);
+      }
+      aiMemories_.WriteTo(output, _repeated_aiMemories_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -3245,6 +6214,31 @@ namespace Wukong.Pb {
         output.WriteUInt32(RandomSeed);
       }
       players_.WriteTo(ref output, _repeated_players_codec);
+      if (SlotsPerFaction != 0) {
+        output.WriteRawTag(56);
+        output.WriteUInt32(SlotsPerFaction);
+      }
+      if (NextPlayerId != 0) {
+        output.WriteRawTag(64);
+        output.WriteUInt32(NextPlayerId);
+      }
+      if (NextTankId != 0) {
+        output.WriteRawTag(72);
+        output.WriteUInt32(NextTankId);
+      }
+      if (NextBulletId != 0) {
+        output.WriteRawTag(80);
+        output.WriteUInt32(NextBulletId);
+      }
+      factionKills_.WriteTo(ref output, _repeated_factionKills_codec);
+      factionDeaths_.WriteTo(ref output, _repeated_factionDeaths_codec);
+      tanks_.WriteTo(ref output, _repeated_tanks_codec);
+      bullets_.WriteTo(ref output, _repeated_bullets_codec);
+      if (GameState != 0) {
+        output.WriteRawTag(120);
+        output.WriteInt32(GameState);
+      }
+      aiMemories_.WriteTo(ref output, _repeated_aiMemories_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -3271,6 +6265,26 @@ namespace Wukong.Pb {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(RandomSeed);
       }
       size += players_.CalculateSize(_repeated_players_codec);
+      if (SlotsPerFaction != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SlotsPerFaction);
+      }
+      if (NextPlayerId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(NextPlayerId);
+      }
+      if (NextTankId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(NextTankId);
+      }
+      if (NextBulletId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(NextBulletId);
+      }
+      size += factionKills_.CalculateSize(_repeated_factionKills_codec);
+      size += factionDeaths_.CalculateSize(_repeated_factionDeaths_codec);
+      size += tanks_.CalculateSize(_repeated_tanks_codec);
+      size += bullets_.CalculateSize(_repeated_bullets_codec);
+      if (GameState != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(GameState);
+      }
+      size += aiMemories_.CalculateSize(_repeated_aiMemories_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -3299,6 +6313,26 @@ namespace Wukong.Pb {
         RandomSeed = other.RandomSeed;
       }
       players_.Add(other.players_);
+      if (other.SlotsPerFaction != 0) {
+        SlotsPerFaction = other.SlotsPerFaction;
+      }
+      if (other.NextPlayerId != 0) {
+        NextPlayerId = other.NextPlayerId;
+      }
+      if (other.NextTankId != 0) {
+        NextTankId = other.NextTankId;
+      }
+      if (other.NextBulletId != 0) {
+        NextBulletId = other.NextBulletId;
+      }
+      factionKills_.Add(other.factionKills_);
+      factionDeaths_.Add(other.factionDeaths_);
+      tanks_.Add(other.tanks_);
+      bullets_.Add(other.bullets_);
+      if (other.GameState != 0) {
+        GameState = other.GameState;
+      }
+      aiMemories_.Add(other.aiMemories_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -3336,6 +6370,48 @@ namespace Wukong.Pb {
           }
           case 50: {
             players_.AddEntriesFrom(input, _repeated_players_codec);
+            break;
+          }
+          case 56: {
+            SlotsPerFaction = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            NextPlayerId = input.ReadUInt32();
+            break;
+          }
+          case 72: {
+            NextTankId = input.ReadUInt32();
+            break;
+          }
+          case 80: {
+            NextBulletId = input.ReadUInt32();
+            break;
+          }
+          case 90:
+          case 88: {
+            factionKills_.AddEntriesFrom(input, _repeated_factionKills_codec);
+            break;
+          }
+          case 98:
+          case 96: {
+            factionDeaths_.AddEntriesFrom(input, _repeated_factionDeaths_codec);
+            break;
+          }
+          case 106: {
+            tanks_.AddEntriesFrom(input, _repeated_tanks_codec);
+            break;
+          }
+          case 114: {
+            bullets_.AddEntriesFrom(input, _repeated_bullets_codec);
+            break;
+          }
+          case 120: {
+            GameState = input.ReadInt32();
+            break;
+          }
+          case 130: {
+            aiMemories_.AddEntriesFrom(input, _repeated_aiMemories_codec);
             break;
           }
         }
@@ -3377,6 +6453,48 @@ namespace Wukong.Pb {
             players_.AddEntriesFrom(ref input, _repeated_players_codec);
             break;
           }
+          case 56: {
+            SlotsPerFaction = input.ReadUInt32();
+            break;
+          }
+          case 64: {
+            NextPlayerId = input.ReadUInt32();
+            break;
+          }
+          case 72: {
+            NextTankId = input.ReadUInt32();
+            break;
+          }
+          case 80: {
+            NextBulletId = input.ReadUInt32();
+            break;
+          }
+          case 90:
+          case 88: {
+            factionKills_.AddEntriesFrom(ref input, _repeated_factionKills_codec);
+            break;
+          }
+          case 98:
+          case 96: {
+            factionDeaths_.AddEntriesFrom(ref input, _repeated_factionDeaths_codec);
+            break;
+          }
+          case 106: {
+            tanks_.AddEntriesFrom(ref input, _repeated_tanks_codec);
+            break;
+          }
+          case 114: {
+            bullets_.AddEntriesFrom(ref input, _repeated_bullets_codec);
+            break;
+          }
+          case 120: {
+            GameState = input.ReadInt32();
+            break;
+          }
+          case 130: {
+            aiMemories_.AddEntriesFrom(ref input, _repeated_aiMemories_codec);
+            break;
+          }
         }
       }
     }
@@ -3398,7 +6516,7 @@ namespace Wukong.Pb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[10]; }
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3421,6 +6539,7 @@ namespace Wukong.Pb {
       roleId_ = other.roleId_;
       playerId_ = other.playerId_;
       faction_ = other.faction_;
+      tankId_ = other.tankId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3466,6 +6585,18 @@ namespace Wukong.Pb {
       }
     }
 
+    /// <summary>Field number for the "tank_id" field.</summary>
+    public const int TankIdFieldNumber = 4;
+    private uint tankId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint TankId {
+      get { return tankId_; }
+      set {
+        tankId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3484,6 +6615,7 @@ namespace Wukong.Pb {
       if (RoleId != other.RoleId) return false;
       if (PlayerId != other.PlayerId) return false;
       if (Faction != other.Faction) return false;
+      if (TankId != other.TankId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3494,6 +6626,7 @@ namespace Wukong.Pb {
       if (RoleId != 0UL) hash ^= RoleId.GetHashCode();
       if (PlayerId != 0) hash ^= PlayerId.GetHashCode();
       if (Faction != 0) hash ^= Faction.GetHashCode();
+      if (TankId != 0) hash ^= TankId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3524,6 +6657,10 @@ namespace Wukong.Pb {
         output.WriteRawTag(24);
         output.WriteInt32(Faction);
       }
+      if (TankId != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(TankId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -3546,6 +6683,10 @@ namespace Wukong.Pb {
         output.WriteRawTag(24);
         output.WriteInt32(Faction);
       }
+      if (TankId != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(TankId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -3564,6 +6705,9 @@ namespace Wukong.Pb {
       }
       if (Faction != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Faction);
+      }
+      if (TankId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(TankId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3585,6 +6729,9 @@ namespace Wukong.Pb {
       }
       if (other.Faction != 0) {
         Faction = other.Faction;
+      }
+      if (other.TankId != 0) {
+        TankId = other.TankId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -3611,6 +6758,10 @@ namespace Wukong.Pb {
           }
           case 24: {
             Faction = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            TankId = input.ReadUInt32();
             break;
           }
         }
@@ -3640,6 +6791,10 @@ namespace Wukong.Pb {
             Faction = input.ReadInt32();
             break;
           }
+          case 32: {
+            TankId = input.ReadUInt32();
+            break;
+          }
         }
       }
     }
@@ -3661,7 +6816,7 @@ namespace Wukong.Pb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[11]; }
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3684,6 +6839,7 @@ namespace Wukong.Pb {
       roomId_ = other.roomId_;
       frameIndex_ = other.frameIndex_;
       inputs_ = other.inputs_.Clone();
+      controlEvents_ = other.controlEvents_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3728,6 +6884,17 @@ namespace Wukong.Pb {
       get { return inputs_; }
     }
 
+    /// <summary>Field number for the "control_events" field.</summary>
+    public const int ControlEventsFieldNumber = 4;
+    private static readonly pb::FieldCodec<global::Wukong.Pb.BattleControlEvent> _repeated_controlEvents_codec
+        = pb::FieldCodec.ForMessage(34, global::Wukong.Pb.BattleControlEvent.Parser);
+    private readonly pbc::RepeatedField<global::Wukong.Pb.BattleControlEvent> controlEvents_ = new pbc::RepeatedField<global::Wukong.Pb.BattleControlEvent>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Wukong.Pb.BattleControlEvent> ControlEvents {
+      get { return controlEvents_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3746,6 +6913,7 @@ namespace Wukong.Pb {
       if (RoomId != other.RoomId) return false;
       if (FrameIndex != other.FrameIndex) return false;
       if(!inputs_.Equals(other.inputs_)) return false;
+      if(!controlEvents_.Equals(other.controlEvents_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3756,6 +6924,7 @@ namespace Wukong.Pb {
       if (RoomId != 0UL) hash ^= RoomId.GetHashCode();
       if (FrameIndex != 0) hash ^= FrameIndex.GetHashCode();
       hash ^= inputs_.GetHashCode();
+      hash ^= controlEvents_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3783,6 +6952,7 @@ namespace Wukong.Pb {
         output.WriteUInt32(FrameIndex);
       }
       inputs_.WriteTo(output, _repeated_inputs_codec);
+      controlEvents_.WriteTo(output, _repeated_controlEvents_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -3802,6 +6972,7 @@ namespace Wukong.Pb {
         output.WriteUInt32(FrameIndex);
       }
       inputs_.WriteTo(ref output, _repeated_inputs_codec);
+      controlEvents_.WriteTo(ref output, _repeated_controlEvents_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -3819,6 +6990,7 @@ namespace Wukong.Pb {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FrameIndex);
       }
       size += inputs_.CalculateSize(_repeated_inputs_codec);
+      size += controlEvents_.CalculateSize(_repeated_controlEvents_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -3838,6 +7010,7 @@ namespace Wukong.Pb {
         FrameIndex = other.FrameIndex;
       }
       inputs_.Add(other.inputs_);
+      controlEvents_.Add(other.controlEvents_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -3863,6 +7036,10 @@ namespace Wukong.Pb {
           }
           case 26: {
             inputs_.AddEntriesFrom(input, _repeated_inputs_codec);
+            break;
+          }
+          case 34: {
+            controlEvents_.AddEntriesFrom(input, _repeated_controlEvents_codec);
             break;
           }
         }
@@ -3892,6 +7069,10 @@ namespace Wukong.Pb {
             inputs_.AddEntriesFrom(ref input, _repeated_inputs_codec);
             break;
           }
+          case 34: {
+            controlEvents_.AddEntriesFrom(ref input, _repeated_controlEvents_codec);
+            break;
+          }
         }
       }
     }
@@ -3913,7 +7094,7 @@ namespace Wukong.Pb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[12]; }
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4324,7 +7505,7 @@ namespace Wukong.Pb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[13]; }
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4661,7 +7842,7 @@ namespace Wukong.Pb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[14]; }
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4890,7 +8071,7 @@ namespace Wukong.Pb {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[15]; }
+      get { return global::Wukong.Pb.BattleSyncReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

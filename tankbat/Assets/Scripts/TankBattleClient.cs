@@ -166,12 +166,174 @@ namespace TankBattle
         
         [DllImport("TankBattleNative")]
         private static extern void TB_RemovePlayer(IntPtr game, uint playerId);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_SetSlotsPerFaction(IntPtr game, uint slots);
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_GetSlotsPerFaction(IntPtr game);
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_CountFreeAISlots(IntPtr game, int faction);
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_PossessAITank(IntPtr game, string name, int faction, out uint outTankId);
+
+        [DllImport("TankBattleNative")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool TB_ReleaseToAI(IntPtr game, uint playerId);
+
+        [DllImport("TankBattleNative")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool TB_ApplyPossess(IntPtr game, uint playerId, string name, int faction, uint tankId);
+
+        [DllImport("TankBattleNative")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool TB_ApplyRelease(IntPtr game, uint playerId);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_ClearAiMemory(IntPtr game);
+
+        [DllImport("TankBattleNative", CharSet = CharSet.Ansi)]
+        private static extern int TB_FormatCompareSnapshot(
+            IntPtr game, string side, byte[] buf, int bufSize);
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct TB_LogicSnapshotHeader
+        {
+            public uint frame;
+            public int gameState;
+            public uint randomSeed;
+            public uint slotsPerFaction;
+            public uint nextPlayerId;
+            public uint nextTankId;
+            public uint nextBulletId;
+            public uint factionKills0, factionKills1, factionKills2, factionKills3;
+            public uint factionDeaths0, factionDeaths1, factionDeaths2, factionDeaths3;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct TB_TankLogicSnapshot
+        {
+            public uint id;
+            public uint playerId;
+            public int faction;
+            public int type;
+            public int posX;
+            public int posY;
+            public int velX;
+            public int velY;
+            public int rotation;
+            public int turretRotation;
+            public int hp;
+            public int maxHp;
+            public int shieldFrames;
+            public int speedBoostFrames;
+            public int rapidFireFrames;
+            public int abilityCooldownFrames;
+            public int reloadFrames;
+            public int reloadDurationFrames;
+            public int recoilVelX;
+            public int recoilVelY;
+            public uint lockedTargetId;
+            public uint aiMoveMode;
+            public int respawnFrames;
+            public int spawnProtectionFrames;
+            public byte chargedShot;
+            public byte isPlayer;
+            public byte isAlive;
+            public byte pad;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct TB_BulletLogicSnapshot
+        {
+            public uint id;
+            public uint ownerId;
+            public int posX;
+            public int posY;
+            public int velX;
+            public int velY;
+            public int damage;
+            public int lifeFrames;
+            public byte penetrating;
+            public byte pad0, pad1, pad2;
+            public uint damagedCount;
+            public uint d0, d1, d2, d3, d4, d5, d6, d7;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct TB_AiMemorySnapshot
+        {
+            public uint tankId;
+            public int wanderHeading;
+            public int strafeSign;
+            public int strafeSwitchFrames;
+            public uint wanderGoalSerial;
+            public int pathGoalX;
+            public int pathGoalY;
+            public uint pathTargetId;
+            public uint pathMoveMode;
+            public int pathRecalcFrames;
+            public int wanderPathGoalX;
+            public int wanderPathGoalY;
+            public int wanderPathFrames;
+            public uint pathWaypointIndex;
+            public uint waypointCoordCount;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+            public int[] pathWaypointCoords;
+        }
+
+        public struct PlayerLogicSnap
+        {
+            public uint id;
+            public string name;
+            public int faction;
+            public uint kills;
+            public uint score;
+            public bool isConnected;
+        }
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_LogicSnap_Begin(IntPtr game, ref TB_LogicSnapshotHeader header);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_LogicSnap_AddTank(IntPtr game, ref TB_TankLogicSnapshot tank);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_LogicSnap_AddBullet(IntPtr game, ref TB_BulletLogicSnapshot bullet);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_LogicSnap_AddAiMemory(IntPtr game, ref TB_AiMemorySnapshot memory);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_LogicSnap_AddPlayer(
+            IntPtr game, uint id, string name, int faction, uint kills, uint score, byte isConnected);
+
+        [DllImport("TankBattleNative")]
+        [return: MarshalAs(UnmanagedType.U1)]
+        private static extern bool TB_LogicSnap_Commit(IntPtr game);
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_LogicSnap_TankStructSize();
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_LogicSnap_BulletStructSize();
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_LogicSnap_AiMemoryStructSize();
+
+        [DllImport("TankBattleNative")]
+        private static extern uint TB_LogicSnap_HeaderStructSize();
         
         [DllImport("TankBattleNative")]
         private static extern void TB_ProcessPlayerInput(IntPtr game, ref TB_PlayerInput input);
         
         [DllImport("TankBattleNative")]
         private static extern void TB_StartGame(IntPtr game);
+
+        [DllImport("TankBattleNative")]
+        private static extern void TB_StartGameAIOnly(IntPtr game);
         
         [DllImport("TankBattleNative")]
         private static extern void TB_Reset(IntPtr game);
@@ -261,6 +423,20 @@ namespace TankBattle
             {
                 TB_AdvanceSimulation(nativeHandle);
             }
+
+            /// <summary>与服务器 FormatCompareSnapshot 同格式的定点状态文本。</summary>
+            public string FormatCompareSnapshot(string side)
+            {
+                byte[] buf = new byte[65536];
+                int n = TB_FormatCompareSnapshot(nativeHandle, side ?? "CLIENT", buf, buf.Length);
+                if (n <= 0)
+                    return string.Empty;
+                int len = Math.Min(n, buf.Length - 1);
+                int zero = Array.IndexOf(buf, (byte)0);
+                if (zero >= 0 && zero < len)
+                    len = zero;
+                return System.Text.Encoding.UTF8.GetString(buf, 0, len);
+            }
             
             public uint AddPlayer(string name, Faction faction)
             {
@@ -270,6 +446,146 @@ namespace TankBattle
             public void RemovePlayer(uint playerId)
             {
                 TB_RemovePlayer(nativeHandle, playerId);
+            }
+
+            public void SetSlotsPerFaction(uint slots)
+            {
+                TB_SetSlotsPerFaction(nativeHandle, slots);
+            }
+
+            public uint GetSlotsPerFaction()
+            {
+                return TB_GetSlotsPerFaction(nativeHandle);
+            }
+
+            public uint CountFreeAISlots(Faction faction)
+            {
+                return TB_CountFreeAISlots(nativeHandle, (int)faction);
+            }
+
+            /// <summary>接管该阵营一台 AI；失败返回 0。tankId 为被接管坦克。</summary>
+            public uint PossessAITank(string name, Faction faction, out uint tankId)
+            {
+                return TB_PossessAITank(nativeHandle, name, (int)faction, out tankId);
+            }
+
+            public bool ReleaseToAI(uint playerId)
+            {
+                return TB_ReleaseToAI(nativeHandle, playerId);
+            }
+
+            public bool ApplyPossess(uint playerId, string name, Faction faction, uint tankId)
+            {
+                return TB_ApplyPossess(nativeHandle, playerId, name ?? "Player", (int)faction, tankId);
+            }
+
+            public bool ApplyRelease(uint playerId)
+            {
+                return TB_ApplyRelease(nativeHandle, playerId);
+            }
+
+            public void ClearAiMemory()
+            {
+                TB_ClearAiMemory(nativeHandle);
+            }
+
+            public bool ApplyLogicSnapshot(
+                uint frame, int gameState, uint randomSeed, uint slotsPerFaction,
+                uint nextPlayerId, uint nextTankId, uint nextBulletId,
+                uint[] factionKills, uint[] factionDeaths,
+                TB_TankLogicSnapshot[] tanks,
+                TB_BulletLogicSnapshot[] bullets,
+                List<PlayerLogicSnap> players,
+                TB_AiMemorySnapshot[] aiMemories = null)
+            {
+                uint nativeTankSz = TB_LogicSnap_TankStructSize();
+                uint managedTankSz = (uint)Marshal.SizeOf<TB_TankLogicSnapshot>();
+                if (nativeTankSz != managedTankSz)
+                {
+                    Debug.LogError(
+                        $"ApplyLogicSnapshot tank struct size mismatch native={nativeTankSz} managed={managedTankSz}");
+                    return false;
+                }
+
+                uint nativeAiSz = TB_LogicSnap_AiMemoryStructSize();
+                uint managedAiSz = (uint)Marshal.SizeOf<TB_AiMemorySnapshot>();
+                bool aiMemSizeOk = nativeAiSz == managedAiSz;
+                if (!aiMemSizeOk)
+                {
+                    Debug.LogWarning(
+                        $"ApplyLogicSnapshot: skip AI memories (size native={nativeAiSz} managed={managedAiSz})");
+                }
+
+                var header = new TB_LogicSnapshotHeader
+                {
+                    frame = frame,
+                    gameState = gameState,
+                    randomSeed = randomSeed,
+                    slotsPerFaction = slotsPerFaction,
+                    nextPlayerId = nextPlayerId,
+                    nextTankId = nextTankId,
+                    nextBulletId = nextBulletId,
+                    factionKills0 = factionKills != null && factionKills.Length > 0 ? factionKills[0] : 0,
+                    factionKills1 = factionKills != null && factionKills.Length > 1 ? factionKills[1] : 0,
+                    factionKills2 = factionKills != null && factionKills.Length > 2 ? factionKills[2] : 0,
+                    factionKills3 = factionKills != null && factionKills.Length > 3 ? factionKills[3] : 0,
+                    factionDeaths0 = factionDeaths != null && factionDeaths.Length > 0 ? factionDeaths[0] : 0,
+                    factionDeaths1 = factionDeaths != null && factionDeaths.Length > 1 ? factionDeaths[1] : 0,
+                    factionDeaths2 = factionDeaths != null && factionDeaths.Length > 2 ? factionDeaths[2] : 0,
+                    factionDeaths3 = factionDeaths != null && factionDeaths.Length > 3 ? factionDeaths[3] : 0
+                };
+
+                TB_LogicSnap_Begin(nativeHandle, ref header);
+
+                if (tanks != null)
+                {
+                    for (int i = 0; i < tanks.Length; i++)
+                    {
+                        var t = tanks[i];
+                        TB_LogicSnap_AddTank(nativeHandle, ref t);
+                    }
+                }
+
+                if (bullets != null)
+                {
+                    for (int i = 0; i < bullets.Length; i++)
+                    {
+                        var b = bullets[i];
+                        TB_LogicSnap_AddBullet(nativeHandle, ref b);
+                    }
+                }
+
+                if (aiMemSizeOk && aiMemories != null)
+                {
+                    for (int i = 0; i < aiMemories.Length; i++)
+                    {
+                        var m = aiMemories[i];
+                        if (m.pathWaypointCoords == null || m.pathWaypointCoords.Length != 64)
+                        {
+                            var coords = new int[64];
+                            if (m.pathWaypointCoords != null)
+                            {
+                                int copy = Math.Min(m.pathWaypointCoords.Length, 64);
+                                Array.Copy(m.pathWaypointCoords, coords, copy);
+                            }
+                            m.pathWaypointCoords = coords;
+                        }
+                        TB_LogicSnap_AddAiMemory(nativeHandle, ref m);
+                    }
+                }
+
+                if (players != null)
+                {
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        var p = players[i];
+                        TB_LogicSnap_AddPlayer(
+                            nativeHandle, p.id, p.name ?? "", p.faction, p.kills, p.score,
+                            p.isConnected ? (byte)1 : (byte)0);
+                    }
+                }
+
+                return TB_LogicSnap_Commit(nativeHandle);
             }
             
             public void ProcessPlayerInput(PlayerInput input)
@@ -297,6 +613,11 @@ namespace TankBattle
             public void StartGame()
             {
                 TB_StartGame(nativeHandle);
+            }
+
+            public void StartGameAIOnly()
+            {
+                TB_StartGameAIOnly(nativeHandle);
             }
             
             public void Reset()
@@ -973,6 +1294,9 @@ namespace TankBattle
         /// <summary>退出战斗房间（KCP），保留 Gateway/Lobby 登录态。</summary>
         public void LeaveBattle()
         {
+            // 先转储再退房：Stop Play 后 Console 可能被清，文件可对比重进 Snapshot
+            DumpLocalBattleStateForCompare("LeaveBattle");
+
             allowLocalInput = false;
             if (kcpBattleClient != null)
             {
@@ -992,6 +1316,56 @@ namespace TankBattle
             gameCore?.Reset();
             playerId = 0;
             gameOverNotified = false;
+        }
+
+        /// <summary>
+        /// 退出前把本地权威状态打到 Console，并写入 persistentDataPath，
+        /// 便于与重进时 NetworkFrameDriver snapshot 日志对比。
+        /// </summary>
+        public void DumpLocalBattleStateForCompare(string reason)
+        {
+            if (gameCore == null || !useNetworkTransport)
+                return;
+
+            try
+            {
+                uint pid = playerId;
+                if (pid == 0 && networkFrameDriver != null)
+                    pid = networkFrameDriver.LocalPlayerId;
+
+                var snap = gameCore.GetGameState();
+                if (snap == null)
+                    return;
+
+                var sb = new System.Text.StringBuilder(512);
+                sb.AppendLine(
+                    $"[BattleStateDump] reason={reason} utc={DateTime.UtcNow:o} " +
+                    $"frame={snap.frame} localPlayerId={pid} roleId={onlineRoleId}");
+
+                if (snap.tanks != null)
+                {
+                    foreach (var t in snap.tanks)
+                    {
+                        bool mine = t.playerId == pid && pid != 0;
+                        sb.AppendLine(
+                            $"  tank id={t.id} playerId={t.playerId} faction={t.faction} " +
+                            $"pos=({t.position.x:F3},{t.position.y:F3}) hp={t.hp:F1}/{t.maxHp:F1} " +
+                            $"alive={t.isAlive}{(mine ? " << LOCAL" : "")}");
+                    }
+                }
+
+                string text = sb.ToString();
+                Debug.Log(text);
+
+                string path = System.IO.Path.Combine(
+                    Application.persistentDataPath, "last_battle_state_before_leave.txt");
+                System.IO.File.WriteAllText(path, text);
+                Debug.Log($"[BattleStateDump] wrote {path}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("DumpLocalBattleStateForCompare failed: " + ex.Message);
+            }
         }
 
         /// <summary>退出战斗并断开 Gateway（需重新登录）。</summary>
@@ -1131,8 +1505,18 @@ namespace TankBattle
         {
         }
         
+        private void OnApplicationQuit()
+        {
+            // 尽量通知战斗服 Leave，避免席位残留导致重登进错房
+            try { LeaveBattle(); } catch { /* ignore */ }
+            try { gatewaySession?.Disconnect(); } catch { /* ignore */ }
+        }
+
         private void OnDestroy()
         {
+            // Editor 点 Stop 通常走这里；LeaveBattle 内会先 Dump 再退房
+            try { LeaveBattle(); } catch { /* ignore */ }
+
             if (networkFrameDriver != null)
             {
                 networkFrameDriver.OnSimulationStarted -= OnNetworkSimulationStarted;

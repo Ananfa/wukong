@@ -15,6 +15,12 @@ enum BattleRoomState {
     BATTLE_ROOM_STATE_ENDED = 3;
 }
 
+enum BattleControlEventType {
+    BATTLE_CONTROL_NONE = 0;
+    BATTLE_CONTROL_POSSESS = 1;
+    BATTLE_CONTROL_RELEASE = 2;
+}
+
 message BattlePlayerInitData {
     uint64 role_id = 1;
     bytes combat_payload = 2;
@@ -85,6 +91,79 @@ message BattleKcpInputUpload {
     uint64 timestamp = 10;
 }
 
+// 定点逻辑状态（Pos/Vel/Angle 与 GameCore 一致），用于中途加入全量对齐
+message BattleSnapshotTank {
+    uint32 id = 1;
+    uint32 player_id = 2;
+    int32 faction = 3;
+    int32 type = 4;
+    int32 pos_x = 5;
+    int32 pos_y = 6;
+    int32 vel_x = 7;
+    int32 vel_y = 8;
+    int32 rotation = 9;
+    int32 turret_rotation = 10;
+    int32 hp = 11;
+    int32 max_hp = 12;
+    int32 shield_frames = 13;
+    int32 speed_boost_frames = 14;
+    int32 rapid_fire_frames = 15;
+    int32 ability_cooldown_frames = 16;
+    int32 reload_frames = 17;
+    int32 reload_duration_frames = 18;
+    int32 recoil_vel_x = 19;
+    int32 recoil_vel_y = 20;
+    uint32 locked_target_id = 21;
+    uint32 ai_move_mode = 22;
+    int32 respawn_frames = 23;
+    int32 spawn_protection_frames = 24;
+    bool charged_shot = 25;
+    bool is_player = 26;
+    bool is_alive = 27;
+}
+
+// AI 持久记忆（寻路航点等）；中途加入必须带上，否则 Clear 后重建也会立刻分叉
+message BattleSnapshotAiMemory {
+    uint32 tank_id = 1;
+    int32 wander_heading = 2;
+    int32 strafe_sign = 3;
+    int32 strafe_switch_frames = 4;
+    uint32 wander_goal_serial = 5;
+    int32 path_goal_x = 6;
+    int32 path_goal_y = 7;
+    uint32 path_target_id = 8;
+    uint32 path_move_mode = 9;
+    int32 path_recalc_frames = 10;
+    int32 wander_path_goal_x = 11;
+    int32 wander_path_goal_y = 12;
+    int32 wander_path_frames = 13;
+    uint32 path_waypoint_index = 14;
+    // 航点坐标交错：x0,y0,x1,y1,...
+    repeated int32 path_waypoint_coords = 15;
+}
+
+message BattleSnapshotBullet {
+    uint32 id = 1;
+    uint32 owner_id = 2;
+    int32 pos_x = 3;
+    int32 pos_y = 4;
+    int32 vel_x = 5;
+    int32 vel_y = 6;
+    int32 damage = 7;
+    int32 life_frames = 8;
+    bool penetrating = 9;
+    repeated uint32 damaged_tank_ids = 10;
+}
+
+message BattleControlEvent {
+    BattleControlEventType type = 1;
+    uint64 role_id = 2;
+    uint32 player_id = 3;
+    uint32 tank_id = 4;
+    int32 faction = 5;
+    string name = 6;
+}
+
 message BattleRoomSnapshot {
     uint64 room_id = 1;
     uint32 logic_frame = 2;
@@ -92,18 +171,30 @@ message BattleRoomSnapshot {
     BattleRoomState room_state = 4;
     uint32 random_seed = 5;
     repeated BattleSnapshotPlayer players = 6;
+    uint32 slots_per_faction = 7;
+    uint32 next_player_id = 8;
+    uint32 next_tank_id = 9;
+    uint32 next_bullet_id = 10;
+    repeated uint32 faction_kills = 11;
+    repeated uint32 faction_deaths = 12;
+    repeated BattleSnapshotTank tanks = 13;
+    repeated BattleSnapshotBullet bullets = 14;
+    int32 game_state = 15; // TankBattle::GameState
+    repeated BattleSnapshotAiMemory ai_memories = 16;
 }
 
 message BattleSnapshotPlayer {
     uint64 role_id = 1;
     uint32 player_id = 2;
     int32 faction = 3;
+    uint32 tank_id = 4;
 }
 
 message BattleFrameSync {
     uint64 room_id = 1;
     uint32 frame_index = 2;
     repeated BattlePlayerFrameInput inputs = 3;
+    repeated BattleControlEvent control_events = 4;
 }
 
 message PlayerBattleStateNotify {

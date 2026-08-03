@@ -134,4 +134,99 @@ namespace TankBattle
         uint32_t kills = 0;   // 阵营累计击毁敌对阵营单位数
         uint32_t deaths = 0;  // 阵营累计被击毁次数（含复活后再次死亡）
     };
+
+    // 联网全量同步用定点坦克状态（与 proto BattleSnapshotTank 对齐）
+    struct TankLogicSnapshot
+    {
+        uint32_t id = 0;
+        uint32_t playerId = 0;
+        int32_t faction = 0;
+        int32_t type = 0;
+        int32_t posX = 0;
+        int32_t posY = 0;
+        int32_t velX = 0;
+        int32_t velY = 0;
+        int32_t rotation = 0;
+        int32_t turretRotation = 0;
+        int32_t hp = 0;
+        int32_t maxHp = 0;
+        int32_t shieldFrames = 0;
+        int32_t speedBoostFrames = 0;
+        int32_t rapidFireFrames = 0;
+        int32_t abilityCooldownFrames = 0;
+        int32_t reloadFrames = 0;
+        int32_t reloadDurationFrames = 0;
+        int32_t recoilVelX = 0;
+        int32_t recoilVelY = 0;
+        uint32_t lockedTargetId = 0;
+        uint32_t aiMoveMode = 0;
+        int32_t respawnFrames = 0;
+        int32_t spawnProtectionFrames = 0;
+        bool chargedShot = false;
+        bool isPlayer = false;
+        bool isAlive = true;
+    };
+
+    struct BulletLogicSnapshot
+    {
+        uint32_t id = 0;
+        uint32_t ownerId = 0;
+        int32_t posX = 0;
+        int32_t posY = 0;
+        int32_t velX = 0;
+        int32_t velY = 0;
+        int32_t damage = 0;
+        int32_t lifeFrames = 0;
+        bool penetrating = false;
+        std::vector<uint32_t> damagedTankIds;
+    };
+
+    struct PlayerLogicSnapshot
+    {
+        uint32_t id = 0;
+        std::string name;
+        int32_t faction = 0;
+        uint32_t kills = 0;
+        uint32_t score = 0;
+        bool isConnected = true;
+    };
+
+    // AI 记忆快照（与 proto BattleSnapshotAiMemory 对齐）；航点最多 32
+    constexpr size_t kAiMemoryMaxWaypoints = 32;
+
+    struct AiTankMemorySnapshot
+    {
+        uint32_t tankId = 0;
+        int32_t wanderHeading = 0;
+        int32_t strafeSign = 1;
+        int32_t strafeSwitchFrames = 0;
+        uint32_t wanderGoalSerial = 0;
+        int32_t pathGoalX = 0;
+        int32_t pathGoalY = 0;
+        uint32_t pathTargetId = 0;
+        uint32_t pathMoveMode = 0;
+        int32_t pathRecalcFrames = 0;
+        int32_t wanderPathGoalX = 0;
+        int32_t wanderPathGoalY = 0;
+        int32_t wanderPathFrames = 0;
+        uint32_t pathWaypointIndex = 0;
+        std::vector<int32_t> pathWaypointCoords; // x,y interleaved
+    };
+
+    struct GameLogicSnapshot
+    {
+        uint32_t frame = 0;
+        int32_t gameState = 0;
+        uint32_t randomSeed = 1;
+        uint32_t slotsPerFaction = 2;
+        uint32_t nextPlayerId = 1;
+        uint32_t nextTankId = 1;
+        uint32_t nextBulletId = 1;
+        uint32_t factionKills[4] = {0, 0, 0, 0};
+        uint32_t factionDeaths[4] = {0, 0, 0, 0};
+        std::vector<TankLogicSnapshot> tanks;
+        std::vector<BulletLogicSnapshot> bullets;
+        std::vector<PlayerLogicSnapshot> players;
+        std::vector<AiTankMemorySnapshot> aiMemories;
+    };
 }

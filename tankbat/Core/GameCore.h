@@ -10,6 +10,7 @@
 #include <memory>
 #include <map>
 #include <mutex>
+#include <string>
 
 namespace TankBattle
 {
@@ -33,17 +34,49 @@ namespace TankBattle
         // 推进一帧模拟（应用已设置的帧输入后执行物理/AI/碰撞）
         void AdvanceSimulation();
         
-        // 添加玩家
+        // 添加玩家（Waiting：仅注册；Playing：仍会新建坦克，兼容旧本地流程）
         uint32_t AddPlayer(const std::string& name, Faction faction);
         
-        // 移除玩家
+        // 移除玩家（删除其坦克；联网交回 AI 请用 ReleaseToAI）
         void RemovePlayer(uint32_t playerId);
+
+        // 每阵营坦克槽位数（开局 AI 名额 / 可被接管席位），默认 2
+        void SetSlotsPerFaction(uint32_t slots);
+        uint32_t GetSlotsPerFaction() const;
+
+        // 指定阵营当前可被接管的 AI 坦克数（含尚未刷出的空槽）
+        uint32_t CountFreeAISlots(Faction faction) const;
+
+        // 注册玩家并接管该阵营一台 AI 坦克；失败返回 0。outTankId 可选。
+        uint32_t PossessAITank(const std::string& name, Faction faction, uint32_t* outTankId = nullptr);
+
+        // 将玩家控制权交回 AI（坦克保留）；成功返回 true
+        bool ReleaseToAI(uint32_t playerId);
+
+        // 按指定 playerId/tankId 接管（幂等，供 FrameSync 事件 / 全量快照对齐）
+        bool ApplyPossess(uint32_t playerId, const std::string& name, Faction faction, uint32_t tankId);
+
+        // 与 ReleaseToAI 相同，供控制事件命名
+        bool ApplyRelease(uint32_t playerId) { return ReleaseToAI(playerId); }
+
+        // 导出 / 应用定点全量逻辑状态（中途加入）
+        GameLogicSnapshot ExportLogicSnapshot() const;
+        bool ApplyLogicSnapshot(const GameLogicSnapshot& snap);
+
+        // 同步对比用：格式化 ExportLogicSnapshot（坦克按 id 排序）
+        std::string FormatCompareSnapshot(const char* side) const;
+
+        // 清空 AI 记忆（全量同步点：服与端对齐）
+        void ClearAiMemory();
         
         // 处理玩家输入
         void ProcessPlayerInput(const PlayerInput& input);
         
-        // 开始游戏
+        // 开始游戏：为已注册玩家造车，再按槽位补齐各阵营 AI
         void StartGame();
+
+        // 仅按槽位生成各阵营 AI（无人造车）；供「接管 AI」模式开局
+        void StartGameAIOnly();
         
         // 重置游戏
         void Reset();
@@ -169,5 +202,6 @@ namespace TankBattle
         AiController m_aiController;
         uint32_t m_factionKills[4] = {0, 0, 0, 0};
         uint32_t m_factionDeaths[4] = {0, 0, 0, 0};
+        uint32_t m_slotsPerFaction = 2; // 配置项，Reset 不清除
     };
 }

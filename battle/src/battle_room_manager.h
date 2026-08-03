@@ -52,7 +52,12 @@ private:
 
     std::string makeToken(uint64_t roleId, uint64_t roomId);
 
-    std::shared_ptr<BattleRoom> findMatchableRoom(pb::BattleRoomMode mode, uint32_t battleDefId);
+    std::shared_ptr<BattleRoom> findMatchableRoom(pb::BattleRoomMode mode, uint32_t battleDefId,
+                                                  int faction, std::time_t now);
+    std::shared_ptr<BattleRoom> findRoomByRole(uint64_t roleId) const;
+
+    void fillAssignmentResponse(const std::shared_ptr<BattleRoom> &room, uint64_t roleId,
+                                const std::string &token, pb::RequestBattleAssignmentResponse &rsp);
 
     void notifyLobbyPlayerEnterBattle(ServerId lobbySid, uint64_t roleId, const std::shared_ptr<BattleRoom> &room);
     void notifyLobbyPlayerLeaveBattle(ServerId lobbySid, uint64_t roleId);

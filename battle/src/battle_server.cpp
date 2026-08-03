@@ -139,9 +139,9 @@ bool BattleServer::init(int argc, char * argv[]) {
 
 void BattleServer::run() {
     // 帧同步战斗流程（框架层）：
-    // Lobby requestBattleAssignment：按 battle_def_id+mode 匹配未满房间或新建（人数上限见策划表 BattleRoomTypes），登记玩家后 RPC 返回；
-    // 客户端 KCP AUTH 成功后战局内推进帧；掉线超过 disconnectTimeout 踢出；席位上未鉴权超过 verifyTimeout 取消登记。
-    // 房间内无任何席位后 roomEmptyDestroySec 销毁。主动离开走 LEAVE 删席。
+    // Lobby requestBattleAssignment：按 mode+battle_def_id+阵营空位(humanCount)匹配房间或新建；
+    // 策划表 slotsPerFaction / joinWindowSec / battleDurationSec；分配时占席，不查 GameCore。
+    // KCP AUTH 后 StartGameAIOnly + PossessAITank；掉线/未鉴权超时踢出并释放席位；空房超时销毁。
 
     // 启动对外的RPC服务
     RpcServer *server = RpcServer::create(io_, nullptr, g_BattleConfig.getInternalIp(), g_BattleConfig.getRpcPort());

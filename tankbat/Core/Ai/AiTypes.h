@@ -23,4 +23,5 @@ namespace TankBattle
         FixedVec2 wanderPathGoal;
         int wanderPathFramesRemaining = 0;
     };
+
 }

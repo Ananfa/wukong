@@ -47,7 +47,7 @@ struct TableStruct_battle_5fsync_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[16]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[20]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -59,6 +59,9 @@ namespace pb {
 class BattleAssignmentAccess;
 struct BattleAssignmentAccessDefaultTypeInternal;
 extern BattleAssignmentAccessDefaultTypeInternal _BattleAssignmentAccess_default_instance_;
+class BattleControlEvent;
+struct BattleControlEventDefaultTypeInternal;
+extern BattleControlEventDefaultTypeInternal _BattleControlEvent_default_instance_;
 class BattleEnterInfo;
 struct BattleEnterInfoDefaultTypeInternal;
 extern BattleEnterInfoDefaultTypeInternal _BattleEnterInfo_default_instance_;
@@ -83,9 +86,18 @@ extern BattlePlayerInitDataDefaultTypeInternal _BattlePlayerInitData_default_ins
 class BattleRoomSnapshot;
 struct BattleRoomSnapshotDefaultTypeInternal;
 extern BattleRoomSnapshotDefaultTypeInternal _BattleRoomSnapshot_default_instance_;
+class BattleSnapshotAiMemory;
+struct BattleSnapshotAiMemoryDefaultTypeInternal;
+extern BattleSnapshotAiMemoryDefaultTypeInternal _BattleSnapshotAiMemory_default_instance_;
+class BattleSnapshotBullet;
+struct BattleSnapshotBulletDefaultTypeInternal;
+extern BattleSnapshotBulletDefaultTypeInternal _BattleSnapshotBullet_default_instance_;
 class BattleSnapshotPlayer;
 struct BattleSnapshotPlayerDefaultTypeInternal;
 extern BattleSnapshotPlayerDefaultTypeInternal _BattleSnapshotPlayer_default_instance_;
+class BattleSnapshotTank;
+struct BattleSnapshotTankDefaultTypeInternal;
+extern BattleSnapshotTankDefaultTypeInternal _BattleSnapshotTank_default_instance_;
 class LeaveGameRequest;
 struct LeaveGameRequestDefaultTypeInternal;
 extern LeaveGameRequestDefaultTypeInternal _LeaveGameRequest_default_instance_;
@@ -108,6 +120,7 @@ extern StartBattleRequestDefaultTypeInternal _StartBattleRequest_default_instanc
 }  // namespace wukong
 PROTOBUF_NAMESPACE_OPEN
 template<> ::wukong::pb::BattleAssignmentAccess* Arena::CreateMaybeMessage<::wukong::pb::BattleAssignmentAccess>(Arena*);
+template<> ::wukong::pb::BattleControlEvent* Arena::CreateMaybeMessage<::wukong::pb::BattleControlEvent>(Arena*);
 template<> ::wukong::pb::BattleEnterInfo* Arena::CreateMaybeMessage<::wukong::pb::BattleEnterInfo>(Arena*);
 template<> ::wukong::pb::BattleFrameSync* Arena::CreateMaybeMessage<::wukong::pb::BattleFrameSync>(Arena*);
 template<> ::wukong::pb::BattleKcpAuth* Arena::CreateMaybeMessage<::wukong::pb::BattleKcpAuth>(Arena*);
@@ -116,7 +129,10 @@ template<> ::wukong::pb::BattleKcpLeaveRoom* Arena::CreateMaybeMessage<::wukong:
 template<> ::wukong::pb::BattlePlayerFrameInput* Arena::CreateMaybeMessage<::wukong::pb::BattlePlayerFrameInput>(Arena*);
 template<> ::wukong::pb::BattlePlayerInitData* Arena::CreateMaybeMessage<::wukong::pb::BattlePlayerInitData>(Arena*);
 template<> ::wukong::pb::BattleRoomSnapshot* Arena::CreateMaybeMessage<::wukong::pb::BattleRoomSnapshot>(Arena*);
+template<> ::wukong::pb::BattleSnapshotAiMemory* Arena::CreateMaybeMessage<::wukong::pb::BattleSnapshotAiMemory>(Arena*);
+template<> ::wukong::pb::BattleSnapshotBullet* Arena::CreateMaybeMessage<::wukong::pb::BattleSnapshotBullet>(Arena*);
 template<> ::wukong::pb::BattleSnapshotPlayer* Arena::CreateMaybeMessage<::wukong::pb::BattleSnapshotPlayer>(Arena*);
+template<> ::wukong::pb::BattleSnapshotTank* Arena::CreateMaybeMessage<::wukong::pb::BattleSnapshotTank>(Arena*);
 template<> ::wukong::pb::LeaveGameRequest* Arena::CreateMaybeMessage<::wukong::pb::LeaveGameRequest>(Arena*);
 template<> ::wukong::pb::PlayerBattleStateNotify* Arena::CreateMaybeMessage<::wukong::pb::PlayerBattleStateNotify>(Arena*);
 template<> ::wukong::pb::RemoveBattlePlayerRequest* Arena::CreateMaybeMessage<::wukong::pb::RemoveBattlePlayerRequest>(Arena*);
@@ -179,6 +195,32 @@ inline bool BattleRoomState_Parse(
     ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, BattleRoomState* value) {
   return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BattleRoomState>(
     BattleRoomState_descriptor(), name, value);
+}
+enum BattleControlEventType : int {
+  BATTLE_CONTROL_NONE = 0,
+  BATTLE_CONTROL_POSSESS = 1,
+  BATTLE_CONTROL_RELEASE = 2,
+  BattleControlEventType_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  BattleControlEventType_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool BattleControlEventType_IsValid(int value);
+constexpr BattleControlEventType BattleControlEventType_MIN = BATTLE_CONTROL_NONE;
+constexpr BattleControlEventType BattleControlEventType_MAX = BATTLE_CONTROL_RELEASE;
+constexpr int BattleControlEventType_ARRAYSIZE = BattleControlEventType_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* BattleControlEventType_descriptor();
+template<typename T>
+inline const std::string& BattleControlEventType_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, BattleControlEventType>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function BattleControlEventType_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    BattleControlEventType_descriptor(), enum_t_value);
+}
+inline bool BattleControlEventType_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, BattleControlEventType* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<BattleControlEventType>(
+    BattleControlEventType_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -1828,6 +1870,1189 @@ class BattleKcpInputUpload final :
 };
 // -------------------------------------------------------------------
 
+class BattleSnapshotTank final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.BattleSnapshotTank) */ {
+ public:
+  inline BattleSnapshotTank() : BattleSnapshotTank(nullptr) {}
+  ~BattleSnapshotTank() override;
+  explicit constexpr BattleSnapshotTank(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BattleSnapshotTank(const BattleSnapshotTank& from);
+  BattleSnapshotTank(BattleSnapshotTank&& from) noexcept
+    : BattleSnapshotTank() {
+    *this = ::std::move(from);
+  }
+
+  inline BattleSnapshotTank& operator=(const BattleSnapshotTank& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BattleSnapshotTank& operator=(BattleSnapshotTank&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BattleSnapshotTank& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BattleSnapshotTank* internal_default_instance() {
+    return reinterpret_cast<const BattleSnapshotTank*>(
+               &_BattleSnapshotTank_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    9;
+
+  friend void swap(BattleSnapshotTank& a, BattleSnapshotTank& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BattleSnapshotTank* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BattleSnapshotTank* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline BattleSnapshotTank* New() const final {
+    return new BattleSnapshotTank();
+  }
+
+  BattleSnapshotTank* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<BattleSnapshotTank>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BattleSnapshotTank& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const BattleSnapshotTank& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BattleSnapshotTank* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.BattleSnapshotTank";
+  }
+  protected:
+  explicit BattleSnapshotTank(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kIdFieldNumber = 1,
+    kPlayerIdFieldNumber = 2,
+    kFactionFieldNumber = 3,
+    kTypeFieldNumber = 4,
+    kPosXFieldNumber = 5,
+    kPosYFieldNumber = 6,
+    kVelXFieldNumber = 7,
+    kVelYFieldNumber = 8,
+    kRotationFieldNumber = 9,
+    kTurretRotationFieldNumber = 10,
+    kHpFieldNumber = 11,
+    kMaxHpFieldNumber = 12,
+    kShieldFramesFieldNumber = 13,
+    kSpeedBoostFramesFieldNumber = 14,
+    kRapidFireFramesFieldNumber = 15,
+    kAbilityCooldownFramesFieldNumber = 16,
+    kReloadFramesFieldNumber = 17,
+    kReloadDurationFramesFieldNumber = 18,
+    kRecoilVelXFieldNumber = 19,
+    kRecoilVelYFieldNumber = 20,
+    kLockedTargetIdFieldNumber = 21,
+    kAiMoveModeFieldNumber = 22,
+    kRespawnFramesFieldNumber = 23,
+    kSpawnProtectionFramesFieldNumber = 24,
+    kChargedShotFieldNumber = 25,
+    kIsPlayerFieldNumber = 26,
+    kIsAliveFieldNumber = 27,
+  };
+  // uint32 id = 1;
+  void clear_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 id() const;
+  void set_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_id() const;
+  void _internal_set_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 player_id = 2;
+  void clear_player_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 player_id() const;
+  void set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_player_id() const;
+  void _internal_set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 faction = 3;
+  void clear_faction();
+  ::PROTOBUF_NAMESPACE_ID::int32 faction() const;
+  void set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_faction() const;
+  void _internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 type = 4;
+  void clear_type();
+  ::PROTOBUF_NAMESPACE_ID::int32 type() const;
+  void set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_type() const;
+  void _internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 pos_x = 5;
+  void clear_pos_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_x() const;
+  void set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_pos_x() const;
+  void _internal_set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 pos_y = 6;
+  void clear_pos_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_y() const;
+  void set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_pos_y() const;
+  void _internal_set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 vel_x = 7;
+  void clear_vel_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_x() const;
+  void set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_vel_x() const;
+  void _internal_set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 vel_y = 8;
+  void clear_vel_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_y() const;
+  void set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_vel_y() const;
+  void _internal_set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 rotation = 9;
+  void clear_rotation();
+  ::PROTOBUF_NAMESPACE_ID::int32 rotation() const;
+  void set_rotation(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_rotation() const;
+  void _internal_set_rotation(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 turret_rotation = 10;
+  void clear_turret_rotation();
+  ::PROTOBUF_NAMESPACE_ID::int32 turret_rotation() const;
+  void set_turret_rotation(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_turret_rotation() const;
+  void _internal_set_turret_rotation(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 hp = 11;
+  void clear_hp();
+  ::PROTOBUF_NAMESPACE_ID::int32 hp() const;
+  void set_hp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_hp() const;
+  void _internal_set_hp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 max_hp = 12;
+  void clear_max_hp();
+  ::PROTOBUF_NAMESPACE_ID::int32 max_hp() const;
+  void set_max_hp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_max_hp() const;
+  void _internal_set_max_hp(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 shield_frames = 13;
+  void clear_shield_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 shield_frames() const;
+  void set_shield_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_shield_frames() const;
+  void _internal_set_shield_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 speed_boost_frames = 14;
+  void clear_speed_boost_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 speed_boost_frames() const;
+  void set_speed_boost_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_speed_boost_frames() const;
+  void _internal_set_speed_boost_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 rapid_fire_frames = 15;
+  void clear_rapid_fire_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 rapid_fire_frames() const;
+  void set_rapid_fire_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_rapid_fire_frames() const;
+  void _internal_set_rapid_fire_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 ability_cooldown_frames = 16;
+  void clear_ability_cooldown_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 ability_cooldown_frames() const;
+  void set_ability_cooldown_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_ability_cooldown_frames() const;
+  void _internal_set_ability_cooldown_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 reload_frames = 17;
+  void clear_reload_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 reload_frames() const;
+  void set_reload_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_reload_frames() const;
+  void _internal_set_reload_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 reload_duration_frames = 18;
+  void clear_reload_duration_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 reload_duration_frames() const;
+  void set_reload_duration_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_reload_duration_frames() const;
+  void _internal_set_reload_duration_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 recoil_vel_x = 19;
+  void clear_recoil_vel_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 recoil_vel_x() const;
+  void set_recoil_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_recoil_vel_x() const;
+  void _internal_set_recoil_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 recoil_vel_y = 20;
+  void clear_recoil_vel_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 recoil_vel_y() const;
+  void set_recoil_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_recoil_vel_y() const;
+  void _internal_set_recoil_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // uint32 locked_target_id = 21;
+  void clear_locked_target_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 locked_target_id() const;
+  void set_locked_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_locked_target_id() const;
+  void _internal_set_locked_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 ai_move_mode = 22;
+  void clear_ai_move_mode();
+  ::PROTOBUF_NAMESPACE_ID::uint32 ai_move_mode() const;
+  void set_ai_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_ai_move_mode() const;
+  void _internal_set_ai_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 respawn_frames = 23;
+  void clear_respawn_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 respawn_frames() const;
+  void set_respawn_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_respawn_frames() const;
+  void _internal_set_respawn_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 spawn_protection_frames = 24;
+  void clear_spawn_protection_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 spawn_protection_frames() const;
+  void set_spawn_protection_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_spawn_protection_frames() const;
+  void _internal_set_spawn_protection_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // bool charged_shot = 25;
+  void clear_charged_shot();
+  bool charged_shot() const;
+  void set_charged_shot(bool value);
+  private:
+  bool _internal_charged_shot() const;
+  void _internal_set_charged_shot(bool value);
+  public:
+
+  // bool is_player = 26;
+  void clear_is_player();
+  bool is_player() const;
+  void set_is_player(bool value);
+  private:
+  bool _internal_is_player() const;
+  void _internal_set_is_player(bool value);
+  public:
+
+  // bool is_alive = 27;
+  void clear_is_alive();
+  bool is_alive() const;
+  void set_is_alive(bool value);
+  private:
+  bool _internal_is_alive() const;
+  void _internal_set_is_alive(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.BattleSnapshotTank)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 player_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 faction_;
+  ::PROTOBUF_NAMESPACE_ID::int32 type_;
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_y_;
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_y_;
+  ::PROTOBUF_NAMESPACE_ID::int32 rotation_;
+  ::PROTOBUF_NAMESPACE_ID::int32 turret_rotation_;
+  ::PROTOBUF_NAMESPACE_ID::int32 hp_;
+  ::PROTOBUF_NAMESPACE_ID::int32 max_hp_;
+  ::PROTOBUF_NAMESPACE_ID::int32 shield_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 speed_boost_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 rapid_fire_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 ability_cooldown_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 reload_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 reload_duration_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 recoil_vel_x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 recoil_vel_y_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 locked_target_id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 ai_move_mode_;
+  ::PROTOBUF_NAMESPACE_ID::int32 respawn_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 spawn_protection_frames_;
+  bool charged_shot_;
+  bool is_player_;
+  bool is_alive_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_battle_5fsync_2eproto;
+};
+// -------------------------------------------------------------------
+
+class BattleSnapshotAiMemory final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.BattleSnapshotAiMemory) */ {
+ public:
+  inline BattleSnapshotAiMemory() : BattleSnapshotAiMemory(nullptr) {}
+  ~BattleSnapshotAiMemory() override;
+  explicit constexpr BattleSnapshotAiMemory(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BattleSnapshotAiMemory(const BattleSnapshotAiMemory& from);
+  BattleSnapshotAiMemory(BattleSnapshotAiMemory&& from) noexcept
+    : BattleSnapshotAiMemory() {
+    *this = ::std::move(from);
+  }
+
+  inline BattleSnapshotAiMemory& operator=(const BattleSnapshotAiMemory& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BattleSnapshotAiMemory& operator=(BattleSnapshotAiMemory&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BattleSnapshotAiMemory& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BattleSnapshotAiMemory* internal_default_instance() {
+    return reinterpret_cast<const BattleSnapshotAiMemory*>(
+               &_BattleSnapshotAiMemory_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    10;
+
+  friend void swap(BattleSnapshotAiMemory& a, BattleSnapshotAiMemory& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BattleSnapshotAiMemory* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BattleSnapshotAiMemory* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline BattleSnapshotAiMemory* New() const final {
+    return new BattleSnapshotAiMemory();
+  }
+
+  BattleSnapshotAiMemory* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<BattleSnapshotAiMemory>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BattleSnapshotAiMemory& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const BattleSnapshotAiMemory& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BattleSnapshotAiMemory* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.BattleSnapshotAiMemory";
+  }
+  protected:
+  explicit BattleSnapshotAiMemory(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPathWaypointCoordsFieldNumber = 15,
+    kTankIdFieldNumber = 1,
+    kWanderHeadingFieldNumber = 2,
+    kStrafeSignFieldNumber = 3,
+    kStrafeSwitchFramesFieldNumber = 4,
+    kWanderGoalSerialFieldNumber = 5,
+    kPathGoalXFieldNumber = 6,
+    kPathGoalYFieldNumber = 7,
+    kPathTargetIdFieldNumber = 8,
+    kPathMoveModeFieldNumber = 9,
+    kPathRecalcFramesFieldNumber = 10,
+    kWanderPathGoalXFieldNumber = 11,
+    kWanderPathGoalYFieldNumber = 12,
+    kWanderPathFramesFieldNumber = 13,
+    kPathWaypointIndexFieldNumber = 14,
+  };
+  // repeated int32 path_waypoint_coords = 15;
+  int path_waypoint_coords_size() const;
+  private:
+  int _internal_path_waypoint_coords_size() const;
+  public:
+  void clear_path_waypoint_coords();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_path_waypoint_coords(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      _internal_path_waypoint_coords() const;
+  void _internal_add_path_waypoint_coords(::PROTOBUF_NAMESPACE_ID::int32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      _internal_mutable_path_waypoint_coords();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::int32 path_waypoint_coords(int index) const;
+  void set_path_waypoint_coords(int index, ::PROTOBUF_NAMESPACE_ID::int32 value);
+  void add_path_waypoint_coords(::PROTOBUF_NAMESPACE_ID::int32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+      path_waypoint_coords() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+      mutable_path_waypoint_coords();
+
+  // uint32 tank_id = 1;
+  void clear_tank_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 tank_id() const;
+  void set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_tank_id() const;
+  void _internal_set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 wander_heading = 2;
+  void clear_wander_heading();
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_heading() const;
+  void set_wander_heading(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_wander_heading() const;
+  void _internal_set_wander_heading(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 strafe_sign = 3;
+  void clear_strafe_sign();
+  ::PROTOBUF_NAMESPACE_ID::int32 strafe_sign() const;
+  void set_strafe_sign(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_strafe_sign() const;
+  void _internal_set_strafe_sign(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 strafe_switch_frames = 4;
+  void clear_strafe_switch_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 strafe_switch_frames() const;
+  void set_strafe_switch_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_strafe_switch_frames() const;
+  void _internal_set_strafe_switch_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // uint32 wander_goal_serial = 5;
+  void clear_wander_goal_serial();
+  ::PROTOBUF_NAMESPACE_ID::uint32 wander_goal_serial() const;
+  void set_wander_goal_serial(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_wander_goal_serial() const;
+  void _internal_set_wander_goal_serial(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 path_goal_x = 6;
+  void clear_path_goal_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 path_goal_x() const;
+  void set_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_path_goal_x() const;
+  void _internal_set_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 path_goal_y = 7;
+  void clear_path_goal_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 path_goal_y() const;
+  void set_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_path_goal_y() const;
+  void _internal_set_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // uint32 path_target_id = 8;
+  void clear_path_target_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 path_target_id() const;
+  void set_path_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_path_target_id() const;
+  void _internal_set_path_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 path_move_mode = 9;
+  void clear_path_move_mode();
+  ::PROTOBUF_NAMESPACE_ID::uint32 path_move_mode() const;
+  void set_path_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_path_move_mode() const;
+  void _internal_set_path_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 path_recalc_frames = 10;
+  void clear_path_recalc_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 path_recalc_frames() const;
+  void set_path_recalc_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_path_recalc_frames() const;
+  void _internal_set_path_recalc_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 wander_path_goal_x = 11;
+  void clear_wander_path_goal_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_path_goal_x() const;
+  void set_wander_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_wander_path_goal_x() const;
+  void _internal_set_wander_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 wander_path_goal_y = 12;
+  void clear_wander_path_goal_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_path_goal_y() const;
+  void set_wander_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_wander_path_goal_y() const;
+  void _internal_set_wander_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 wander_path_frames = 13;
+  void clear_wander_path_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_path_frames() const;
+  void set_wander_path_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_wander_path_frames() const;
+  void _internal_set_wander_path_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // uint32 path_waypoint_index = 14;
+  void clear_path_waypoint_index();
+  ::PROTOBUF_NAMESPACE_ID::uint32 path_waypoint_index() const;
+  void set_path_waypoint_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_path_waypoint_index() const;
+  void _internal_set_path_waypoint_index(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.BattleSnapshotAiMemory)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 > path_waypoint_coords_;
+  mutable std::atomic<int> _path_waypoint_coords_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 tank_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_heading_;
+  ::PROTOBUF_NAMESPACE_ID::int32 strafe_sign_;
+  ::PROTOBUF_NAMESPACE_ID::int32 strafe_switch_frames_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 wander_goal_serial_;
+  ::PROTOBUF_NAMESPACE_ID::int32 path_goal_x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 path_goal_y_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 path_target_id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 path_move_mode_;
+  ::PROTOBUF_NAMESPACE_ID::int32 path_recalc_frames_;
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_path_goal_x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_path_goal_y_;
+  ::PROTOBUF_NAMESPACE_ID::int32 wander_path_frames_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 path_waypoint_index_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_battle_5fsync_2eproto;
+};
+// -------------------------------------------------------------------
+
+class BattleSnapshotBullet final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.BattleSnapshotBullet) */ {
+ public:
+  inline BattleSnapshotBullet() : BattleSnapshotBullet(nullptr) {}
+  ~BattleSnapshotBullet() override;
+  explicit constexpr BattleSnapshotBullet(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BattleSnapshotBullet(const BattleSnapshotBullet& from);
+  BattleSnapshotBullet(BattleSnapshotBullet&& from) noexcept
+    : BattleSnapshotBullet() {
+    *this = ::std::move(from);
+  }
+
+  inline BattleSnapshotBullet& operator=(const BattleSnapshotBullet& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BattleSnapshotBullet& operator=(BattleSnapshotBullet&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BattleSnapshotBullet& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BattleSnapshotBullet* internal_default_instance() {
+    return reinterpret_cast<const BattleSnapshotBullet*>(
+               &_BattleSnapshotBullet_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    11;
+
+  friend void swap(BattleSnapshotBullet& a, BattleSnapshotBullet& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BattleSnapshotBullet* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BattleSnapshotBullet* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline BattleSnapshotBullet* New() const final {
+    return new BattleSnapshotBullet();
+  }
+
+  BattleSnapshotBullet* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<BattleSnapshotBullet>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BattleSnapshotBullet& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const BattleSnapshotBullet& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BattleSnapshotBullet* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.BattleSnapshotBullet";
+  }
+  protected:
+  explicit BattleSnapshotBullet(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDamagedTankIdsFieldNumber = 10,
+    kIdFieldNumber = 1,
+    kOwnerIdFieldNumber = 2,
+    kPosXFieldNumber = 3,
+    kPosYFieldNumber = 4,
+    kVelXFieldNumber = 5,
+    kVelYFieldNumber = 6,
+    kDamageFieldNumber = 7,
+    kLifeFramesFieldNumber = 8,
+    kPenetratingFieldNumber = 9,
+  };
+  // repeated uint32 damaged_tank_ids = 10;
+  int damaged_tank_ids_size() const;
+  private:
+  int _internal_damaged_tank_ids_size() const;
+  public:
+  void clear_damaged_tank_ids();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_damaged_tank_ids(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_damaged_tank_ids() const;
+  void _internal_add_damaged_tank_ids(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_damaged_tank_ids();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::uint32 damaged_tank_ids(int index) const;
+  void set_damaged_tank_ids(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_damaged_tank_ids(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      damaged_tank_ids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_damaged_tank_ids();
+
+  // uint32 id = 1;
+  void clear_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 id() const;
+  void set_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_id() const;
+  void _internal_set_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 owner_id = 2;
+  void clear_owner_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 owner_id() const;
+  void set_owner_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_owner_id() const;
+  void _internal_set_owner_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 pos_x = 3;
+  void clear_pos_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_x() const;
+  void set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_pos_x() const;
+  void _internal_set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 pos_y = 4;
+  void clear_pos_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_y() const;
+  void set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_pos_y() const;
+  void _internal_set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 vel_x = 5;
+  void clear_vel_x();
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_x() const;
+  void set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_vel_x() const;
+  void _internal_set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 vel_y = 6;
+  void clear_vel_y();
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_y() const;
+  void set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_vel_y() const;
+  void _internal_set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 damage = 7;
+  void clear_damage();
+  ::PROTOBUF_NAMESPACE_ID::int32 damage() const;
+  void set_damage(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_damage() const;
+  void _internal_set_damage(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // int32 life_frames = 8;
+  void clear_life_frames();
+  ::PROTOBUF_NAMESPACE_ID::int32 life_frames() const;
+  void set_life_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_life_frames() const;
+  void _internal_set_life_frames(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // bool penetrating = 9;
+  void clear_penetrating();
+  bool penetrating() const;
+  void set_penetrating(bool value);
+  private:
+  bool _internal_penetrating() const;
+  void _internal_set_penetrating(bool value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.BattleSnapshotBullet)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > damaged_tank_ids_;
+  mutable std::atomic<int> _damaged_tank_ids_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 owner_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 pos_y_;
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_x_;
+  ::PROTOBUF_NAMESPACE_ID::int32 vel_y_;
+  ::PROTOBUF_NAMESPACE_ID::int32 damage_;
+  ::PROTOBUF_NAMESPACE_ID::int32 life_frames_;
+  bool penetrating_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_battle_5fsync_2eproto;
+};
+// -------------------------------------------------------------------
+
+class BattleControlEvent final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.BattleControlEvent) */ {
+ public:
+  inline BattleControlEvent() : BattleControlEvent(nullptr) {}
+  ~BattleControlEvent() override;
+  explicit constexpr BattleControlEvent(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  BattleControlEvent(const BattleControlEvent& from);
+  BattleControlEvent(BattleControlEvent&& from) noexcept
+    : BattleControlEvent() {
+    *this = ::std::move(from);
+  }
+
+  inline BattleControlEvent& operator=(const BattleControlEvent& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BattleControlEvent& operator=(BattleControlEvent&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BattleControlEvent& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BattleControlEvent* internal_default_instance() {
+    return reinterpret_cast<const BattleControlEvent*>(
+               &_BattleControlEvent_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    12;
+
+  friend void swap(BattleControlEvent& a, BattleControlEvent& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(BattleControlEvent* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BattleControlEvent* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline BattleControlEvent* New() const final {
+    return new BattleControlEvent();
+  }
+
+  BattleControlEvent* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<BattleControlEvent>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const BattleControlEvent& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const BattleControlEvent& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message*to, const ::PROTOBUF_NAMESPACE_ID::Message&from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(BattleControlEvent* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "wukong.pb.BattleControlEvent";
+  }
+  protected:
+  explicit BattleControlEvent(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kNameFieldNumber = 6,
+    kRoleIdFieldNumber = 2,
+    kTypeFieldNumber = 1,
+    kPlayerIdFieldNumber = 3,
+    kTankIdFieldNumber = 4,
+    kFactionFieldNumber = 5,
+  };
+  // string name = 6;
+  void clear_name();
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_name(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_name();
+  PROTOBUF_MUST_USE_RESULT std::string* release_name();
+  void set_allocated_name(std::string* name);
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
+  std::string* _internal_mutable_name();
+  public:
+
+  // uint64 role_id = 2;
+  void clear_role_id();
+  ::PROTOBUF_NAMESPACE_ID::uint64 role_id() const;
+  void set_role_id(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_role_id() const;
+  void _internal_set_role_id(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
+  // .wukong.pb.BattleControlEventType type = 1;
+  void clear_type();
+  ::wukong::pb::BattleControlEventType type() const;
+  void set_type(::wukong::pb::BattleControlEventType value);
+  private:
+  ::wukong::pb::BattleControlEventType _internal_type() const;
+  void _internal_set_type(::wukong::pb::BattleControlEventType value);
+  public:
+
+  // uint32 player_id = 3;
+  void clear_player_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 player_id() const;
+  void set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_player_id() const;
+  void _internal_set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 tank_id = 4;
+  void clear_tank_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 tank_id() const;
+  void set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_tank_id() const;
+  void _internal_set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 faction = 5;
+  void clear_faction();
+  ::PROTOBUF_NAMESPACE_ID::int32 faction() const;
+  void set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_faction() const;
+  void _internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:wukong.pb.BattleControlEvent)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 role_id_;
+  int type_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 player_id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 tank_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 faction_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_battle_5fsync_2eproto;
+};
+// -------------------------------------------------------------------
+
 class BattleRoomSnapshot final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:wukong.pb.BattleRoomSnapshot) */ {
  public:
@@ -1872,7 +3097,7 @@ class BattleRoomSnapshot final :
                &_BattleRoomSnapshot_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    13;
 
   friend void swap(BattleRoomSnapshot& a, BattleRoomSnapshot& b) {
     a.Swap(&b);
@@ -1944,11 +3169,21 @@ class BattleRoomSnapshot final :
 
   enum : int {
     kPlayersFieldNumber = 6,
+    kFactionKillsFieldNumber = 11,
+    kFactionDeathsFieldNumber = 12,
+    kTanksFieldNumber = 13,
+    kBulletsFieldNumber = 14,
+    kAiMemoriesFieldNumber = 16,
     kRoomIdFieldNumber = 1,
     kLogicFrameFieldNumber = 2,
     kFrameRateFieldNumber = 3,
     kRoomStateFieldNumber = 4,
     kRandomSeedFieldNumber = 5,
+    kSlotsPerFactionFieldNumber = 7,
+    kNextPlayerIdFieldNumber = 8,
+    kNextTankIdFieldNumber = 9,
+    kNextBulletIdFieldNumber = 10,
+    kGameStateFieldNumber = 15,
   };
   // repeated .wukong.pb.BattleSnapshotPlayer players = 6;
   int players_size() const;
@@ -1967,6 +3202,104 @@ class BattleRoomSnapshot final :
   ::wukong::pb::BattleSnapshotPlayer* add_players();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotPlayer >&
       players() const;
+
+  // repeated uint32 faction_kills = 11;
+  int faction_kills_size() const;
+  private:
+  int _internal_faction_kills_size() const;
+  public:
+  void clear_faction_kills();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_faction_kills(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_faction_kills() const;
+  void _internal_add_faction_kills(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_faction_kills();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::uint32 faction_kills(int index) const;
+  void set_faction_kills(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_faction_kills(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      faction_kills() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_faction_kills();
+
+  // repeated uint32 faction_deaths = 12;
+  int faction_deaths_size() const;
+  private:
+  int _internal_faction_deaths_size() const;
+  public:
+  void clear_faction_deaths();
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_faction_deaths(int index) const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      _internal_faction_deaths() const;
+  void _internal_add_faction_deaths(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      _internal_mutable_faction_deaths();
+  public:
+  ::PROTOBUF_NAMESPACE_ID::uint32 faction_deaths(int index) const;
+  void set_faction_deaths(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value);
+  void add_faction_deaths(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+      faction_deaths() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+      mutable_faction_deaths();
+
+  // repeated .wukong.pb.BattleSnapshotTank tanks = 13;
+  int tanks_size() const;
+  private:
+  int _internal_tanks_size() const;
+  public:
+  void clear_tanks();
+  ::wukong::pb::BattleSnapshotTank* mutable_tanks(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotTank >*
+      mutable_tanks();
+  private:
+  const ::wukong::pb::BattleSnapshotTank& _internal_tanks(int index) const;
+  ::wukong::pb::BattleSnapshotTank* _internal_add_tanks();
+  public:
+  const ::wukong::pb::BattleSnapshotTank& tanks(int index) const;
+  ::wukong::pb::BattleSnapshotTank* add_tanks();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotTank >&
+      tanks() const;
+
+  // repeated .wukong.pb.BattleSnapshotBullet bullets = 14;
+  int bullets_size() const;
+  private:
+  int _internal_bullets_size() const;
+  public:
+  void clear_bullets();
+  ::wukong::pb::BattleSnapshotBullet* mutable_bullets(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotBullet >*
+      mutable_bullets();
+  private:
+  const ::wukong::pb::BattleSnapshotBullet& _internal_bullets(int index) const;
+  ::wukong::pb::BattleSnapshotBullet* _internal_add_bullets();
+  public:
+  const ::wukong::pb::BattleSnapshotBullet& bullets(int index) const;
+  ::wukong::pb::BattleSnapshotBullet* add_bullets();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotBullet >&
+      bullets() const;
+
+  // repeated .wukong.pb.BattleSnapshotAiMemory ai_memories = 16;
+  int ai_memories_size() const;
+  private:
+  int _internal_ai_memories_size() const;
+  public:
+  void clear_ai_memories();
+  ::wukong::pb::BattleSnapshotAiMemory* mutable_ai_memories(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotAiMemory >*
+      mutable_ai_memories();
+  private:
+  const ::wukong::pb::BattleSnapshotAiMemory& _internal_ai_memories(int index) const;
+  ::wukong::pb::BattleSnapshotAiMemory* _internal_add_ai_memories();
+  public:
+  const ::wukong::pb::BattleSnapshotAiMemory& ai_memories(int index) const;
+  ::wukong::pb::BattleSnapshotAiMemory* add_ai_memories();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotAiMemory >&
+      ai_memories() const;
 
   // uint64 room_id = 1;
   void clear_room_id();
@@ -2013,6 +3346,51 @@ class BattleRoomSnapshot final :
   void _internal_set_random_seed(::PROTOBUF_NAMESPACE_ID::uint32 value);
   public:
 
+  // uint32 slots_per_faction = 7;
+  void clear_slots_per_faction();
+  ::PROTOBUF_NAMESPACE_ID::uint32 slots_per_faction() const;
+  void set_slots_per_faction(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_slots_per_faction() const;
+  void _internal_set_slots_per_faction(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 next_player_id = 8;
+  void clear_next_player_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 next_player_id() const;
+  void set_next_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_next_player_id() const;
+  void _internal_set_next_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 next_tank_id = 9;
+  void clear_next_tank_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 next_tank_id() const;
+  void set_next_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_next_tank_id() const;
+  void _internal_set_next_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // uint32 next_bullet_id = 10;
+  void clear_next_bullet_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 next_bullet_id() const;
+  void set_next_bullet_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_next_bullet_id() const;
+  void _internal_set_next_bullet_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // int32 game_state = 15;
+  void clear_game_state();
+  ::PROTOBUF_NAMESPACE_ID::int32 game_state() const;
+  void set_game_state(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_game_state() const;
+  void _internal_set_game_state(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:wukong.pb.BattleRoomSnapshot)
  private:
   class _Internal;
@@ -2021,11 +3399,23 @@ class BattleRoomSnapshot final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotPlayer > players_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > faction_kills_;
+  mutable std::atomic<int> _faction_kills_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 > faction_deaths_;
+  mutable std::atomic<int> _faction_deaths_cached_byte_size_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotTank > tanks_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotBullet > bullets_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotAiMemory > ai_memories_;
   ::PROTOBUF_NAMESPACE_ID::uint64 room_id_;
   ::PROTOBUF_NAMESPACE_ID::uint32 logic_frame_;
   ::PROTOBUF_NAMESPACE_ID::uint32 frame_rate_;
   int room_state_;
   ::PROTOBUF_NAMESPACE_ID::uint32 random_seed_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 slots_per_faction_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 next_player_id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 next_tank_id_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 next_bullet_id_;
+  ::PROTOBUF_NAMESPACE_ID::int32 game_state_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_battle_5fsync_2eproto;
 };
@@ -2075,7 +3465,7 @@ class BattleSnapshotPlayer final :
                &_BattleSnapshotPlayer_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    14;
 
   friend void swap(BattleSnapshotPlayer& a, BattleSnapshotPlayer& b) {
     a.Swap(&b);
@@ -2149,6 +3539,7 @@ class BattleSnapshotPlayer final :
     kRoleIdFieldNumber = 1,
     kPlayerIdFieldNumber = 2,
     kFactionFieldNumber = 3,
+    kTankIdFieldNumber = 4,
   };
   // uint64 role_id = 1;
   void clear_role_id();
@@ -2177,6 +3568,15 @@ class BattleSnapshotPlayer final :
   void _internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
+  // uint32 tank_id = 4;
+  void clear_tank_id();
+  ::PROTOBUF_NAMESPACE_ID::uint32 tank_id() const;
+  void set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_tank_id() const;
+  void _internal_set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:wukong.pb.BattleSnapshotPlayer)
  private:
   class _Internal;
@@ -2187,6 +3587,7 @@ class BattleSnapshotPlayer final :
   ::PROTOBUF_NAMESPACE_ID::uint64 role_id_;
   ::PROTOBUF_NAMESPACE_ID::uint32 player_id_;
   ::PROTOBUF_NAMESPACE_ID::int32 faction_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 tank_id_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_battle_5fsync_2eproto;
 };
@@ -2236,7 +3637,7 @@ class BattleFrameSync final :
                &_BattleFrameSync_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    15;
 
   friend void swap(BattleFrameSync& a, BattleFrameSync& b) {
     a.Swap(&b);
@@ -2308,6 +3709,7 @@ class BattleFrameSync final :
 
   enum : int {
     kInputsFieldNumber = 3,
+    kControlEventsFieldNumber = 4,
     kRoomIdFieldNumber = 1,
     kFrameIndexFieldNumber = 2,
   };
@@ -2328,6 +3730,24 @@ class BattleFrameSync final :
   ::wukong::pb::BattlePlayerFrameInput* add_inputs();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattlePlayerFrameInput >&
       inputs() const;
+
+  // repeated .wukong.pb.BattleControlEvent control_events = 4;
+  int control_events_size() const;
+  private:
+  int _internal_control_events_size() const;
+  public:
+  void clear_control_events();
+  ::wukong::pb::BattleControlEvent* mutable_control_events(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleControlEvent >*
+      mutable_control_events();
+  private:
+  const ::wukong::pb::BattleControlEvent& _internal_control_events(int index) const;
+  ::wukong::pb::BattleControlEvent* _internal_add_control_events();
+  public:
+  const ::wukong::pb::BattleControlEvent& control_events(int index) const;
+  ::wukong::pb::BattleControlEvent* add_control_events();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleControlEvent >&
+      control_events() const;
 
   // uint64 room_id = 1;
   void clear_room_id();
@@ -2355,6 +3775,7 @@ class BattleFrameSync final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattlePlayerFrameInput > inputs_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleControlEvent > control_events_;
   ::PROTOBUF_NAMESPACE_ID::uint64 room_id_;
   ::PROTOBUF_NAMESPACE_ID::uint32 frame_index_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -2406,7 +3827,7 @@ class PlayerBattleStateNotify final :
                &_PlayerBattleStateNotify_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    16;
 
   friend void swap(PlayerBattleStateNotify& a, PlayerBattleStateNotify& b) {
     a.Swap(&b);
@@ -2616,7 +4037,7 @@ class BattleEnterInfo final :
                &_BattleEnterInfo_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    17;
 
   friend void swap(BattleEnterInfo& a, BattleEnterInfo& b) {
     a.Swap(&b);
@@ -2809,7 +4230,7 @@ class StartBattleRequest final :
                &_StartBattleRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    18;
 
   friend void swap(StartBattleRequest& a, StartBattleRequest& b) {
     a.Swap(&b);
@@ -2959,7 +4380,7 @@ class LeaveGameRequest final :
                &_LeaveGameRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    19;
 
   friend void swap(LeaveGameRequest& a, LeaveGameRequest& b) {
     a.Swap(&b);
@@ -4174,6 +5595,1262 @@ inline void BattleKcpInputUpload::set_timestamp(::PROTOBUF_NAMESPACE_ID::uint64 
 
 // -------------------------------------------------------------------
 
+// BattleSnapshotTank
+
+// uint32 id = 1;
+inline void BattleSnapshotTank::clear_id() {
+  id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::_internal_id() const {
+  return id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.id)
+  return _internal_id();
+}
+inline void BattleSnapshotTank::_internal_set_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  id_ = value;
+}
+inline void BattleSnapshotTank::set_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.id)
+}
+
+// uint32 player_id = 2;
+inline void BattleSnapshotTank::clear_player_id() {
+  player_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::_internal_player_id() const {
+  return player_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::player_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.player_id)
+  return _internal_player_id();
+}
+inline void BattleSnapshotTank::_internal_set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  player_id_ = value;
+}
+inline void BattleSnapshotTank::set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_player_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.player_id)
+}
+
+// int32 faction = 3;
+inline void BattleSnapshotTank::clear_faction() {
+  faction_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_faction() const {
+  return faction_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::faction() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.faction)
+  return _internal_faction();
+}
+inline void BattleSnapshotTank::_internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  faction_ = value;
+}
+inline void BattleSnapshotTank::set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_faction(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.faction)
+}
+
+// int32 type = 4;
+inline void BattleSnapshotTank::clear_type() {
+  type_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_type() const {
+  return type_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::type() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.type)
+  return _internal_type();
+}
+inline void BattleSnapshotTank::_internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  type_ = value;
+}
+inline void BattleSnapshotTank::set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.type)
+}
+
+// int32 pos_x = 5;
+inline void BattleSnapshotTank::clear_pos_x() {
+  pos_x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_pos_x() const {
+  return pos_x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::pos_x() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.pos_x)
+  return _internal_pos_x();
+}
+inline void BattleSnapshotTank::_internal_set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  pos_x_ = value;
+}
+inline void BattleSnapshotTank::set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_pos_x(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.pos_x)
+}
+
+// int32 pos_y = 6;
+inline void BattleSnapshotTank::clear_pos_y() {
+  pos_y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_pos_y() const {
+  return pos_y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::pos_y() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.pos_y)
+  return _internal_pos_y();
+}
+inline void BattleSnapshotTank::_internal_set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  pos_y_ = value;
+}
+inline void BattleSnapshotTank::set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_pos_y(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.pos_y)
+}
+
+// int32 vel_x = 7;
+inline void BattleSnapshotTank::clear_vel_x() {
+  vel_x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_vel_x() const {
+  return vel_x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::vel_x() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.vel_x)
+  return _internal_vel_x();
+}
+inline void BattleSnapshotTank::_internal_set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  vel_x_ = value;
+}
+inline void BattleSnapshotTank::set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_vel_x(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.vel_x)
+}
+
+// int32 vel_y = 8;
+inline void BattleSnapshotTank::clear_vel_y() {
+  vel_y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_vel_y() const {
+  return vel_y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::vel_y() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.vel_y)
+  return _internal_vel_y();
+}
+inline void BattleSnapshotTank::_internal_set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  vel_y_ = value;
+}
+inline void BattleSnapshotTank::set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_vel_y(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.vel_y)
+}
+
+// int32 rotation = 9;
+inline void BattleSnapshotTank::clear_rotation() {
+  rotation_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_rotation() const {
+  return rotation_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::rotation() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.rotation)
+  return _internal_rotation();
+}
+inline void BattleSnapshotTank::_internal_set_rotation(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  rotation_ = value;
+}
+inline void BattleSnapshotTank::set_rotation(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_rotation(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.rotation)
+}
+
+// int32 turret_rotation = 10;
+inline void BattleSnapshotTank::clear_turret_rotation() {
+  turret_rotation_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_turret_rotation() const {
+  return turret_rotation_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::turret_rotation() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.turret_rotation)
+  return _internal_turret_rotation();
+}
+inline void BattleSnapshotTank::_internal_set_turret_rotation(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  turret_rotation_ = value;
+}
+inline void BattleSnapshotTank::set_turret_rotation(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_turret_rotation(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.turret_rotation)
+}
+
+// int32 hp = 11;
+inline void BattleSnapshotTank::clear_hp() {
+  hp_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_hp() const {
+  return hp_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::hp() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.hp)
+  return _internal_hp();
+}
+inline void BattleSnapshotTank::_internal_set_hp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  hp_ = value;
+}
+inline void BattleSnapshotTank::set_hp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_hp(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.hp)
+}
+
+// int32 max_hp = 12;
+inline void BattleSnapshotTank::clear_max_hp() {
+  max_hp_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_max_hp() const {
+  return max_hp_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::max_hp() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.max_hp)
+  return _internal_max_hp();
+}
+inline void BattleSnapshotTank::_internal_set_max_hp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  max_hp_ = value;
+}
+inline void BattleSnapshotTank::set_max_hp(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_max_hp(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.max_hp)
+}
+
+// int32 shield_frames = 13;
+inline void BattleSnapshotTank::clear_shield_frames() {
+  shield_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_shield_frames() const {
+  return shield_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::shield_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.shield_frames)
+  return _internal_shield_frames();
+}
+inline void BattleSnapshotTank::_internal_set_shield_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  shield_frames_ = value;
+}
+inline void BattleSnapshotTank::set_shield_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_shield_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.shield_frames)
+}
+
+// int32 speed_boost_frames = 14;
+inline void BattleSnapshotTank::clear_speed_boost_frames() {
+  speed_boost_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_speed_boost_frames() const {
+  return speed_boost_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::speed_boost_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.speed_boost_frames)
+  return _internal_speed_boost_frames();
+}
+inline void BattleSnapshotTank::_internal_set_speed_boost_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  speed_boost_frames_ = value;
+}
+inline void BattleSnapshotTank::set_speed_boost_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_speed_boost_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.speed_boost_frames)
+}
+
+// int32 rapid_fire_frames = 15;
+inline void BattleSnapshotTank::clear_rapid_fire_frames() {
+  rapid_fire_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_rapid_fire_frames() const {
+  return rapid_fire_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::rapid_fire_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.rapid_fire_frames)
+  return _internal_rapid_fire_frames();
+}
+inline void BattleSnapshotTank::_internal_set_rapid_fire_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  rapid_fire_frames_ = value;
+}
+inline void BattleSnapshotTank::set_rapid_fire_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_rapid_fire_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.rapid_fire_frames)
+}
+
+// int32 ability_cooldown_frames = 16;
+inline void BattleSnapshotTank::clear_ability_cooldown_frames() {
+  ability_cooldown_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_ability_cooldown_frames() const {
+  return ability_cooldown_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::ability_cooldown_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.ability_cooldown_frames)
+  return _internal_ability_cooldown_frames();
+}
+inline void BattleSnapshotTank::_internal_set_ability_cooldown_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  ability_cooldown_frames_ = value;
+}
+inline void BattleSnapshotTank::set_ability_cooldown_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_ability_cooldown_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.ability_cooldown_frames)
+}
+
+// int32 reload_frames = 17;
+inline void BattleSnapshotTank::clear_reload_frames() {
+  reload_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_reload_frames() const {
+  return reload_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::reload_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.reload_frames)
+  return _internal_reload_frames();
+}
+inline void BattleSnapshotTank::_internal_set_reload_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  reload_frames_ = value;
+}
+inline void BattleSnapshotTank::set_reload_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_reload_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.reload_frames)
+}
+
+// int32 reload_duration_frames = 18;
+inline void BattleSnapshotTank::clear_reload_duration_frames() {
+  reload_duration_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_reload_duration_frames() const {
+  return reload_duration_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::reload_duration_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.reload_duration_frames)
+  return _internal_reload_duration_frames();
+}
+inline void BattleSnapshotTank::_internal_set_reload_duration_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  reload_duration_frames_ = value;
+}
+inline void BattleSnapshotTank::set_reload_duration_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_reload_duration_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.reload_duration_frames)
+}
+
+// int32 recoil_vel_x = 19;
+inline void BattleSnapshotTank::clear_recoil_vel_x() {
+  recoil_vel_x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_recoil_vel_x() const {
+  return recoil_vel_x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::recoil_vel_x() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.recoil_vel_x)
+  return _internal_recoil_vel_x();
+}
+inline void BattleSnapshotTank::_internal_set_recoil_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  recoil_vel_x_ = value;
+}
+inline void BattleSnapshotTank::set_recoil_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_recoil_vel_x(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.recoil_vel_x)
+}
+
+// int32 recoil_vel_y = 20;
+inline void BattleSnapshotTank::clear_recoil_vel_y() {
+  recoil_vel_y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_recoil_vel_y() const {
+  return recoil_vel_y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::recoil_vel_y() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.recoil_vel_y)
+  return _internal_recoil_vel_y();
+}
+inline void BattleSnapshotTank::_internal_set_recoil_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  recoil_vel_y_ = value;
+}
+inline void BattleSnapshotTank::set_recoil_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_recoil_vel_y(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.recoil_vel_y)
+}
+
+// uint32 locked_target_id = 21;
+inline void BattleSnapshotTank::clear_locked_target_id() {
+  locked_target_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::_internal_locked_target_id() const {
+  return locked_target_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::locked_target_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.locked_target_id)
+  return _internal_locked_target_id();
+}
+inline void BattleSnapshotTank::_internal_set_locked_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  locked_target_id_ = value;
+}
+inline void BattleSnapshotTank::set_locked_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_locked_target_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.locked_target_id)
+}
+
+// uint32 ai_move_mode = 22;
+inline void BattleSnapshotTank::clear_ai_move_mode() {
+  ai_move_mode_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::_internal_ai_move_mode() const {
+  return ai_move_mode_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotTank::ai_move_mode() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.ai_move_mode)
+  return _internal_ai_move_mode();
+}
+inline void BattleSnapshotTank::_internal_set_ai_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  ai_move_mode_ = value;
+}
+inline void BattleSnapshotTank::set_ai_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_ai_move_mode(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.ai_move_mode)
+}
+
+// int32 respawn_frames = 23;
+inline void BattleSnapshotTank::clear_respawn_frames() {
+  respawn_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_respawn_frames() const {
+  return respawn_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::respawn_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.respawn_frames)
+  return _internal_respawn_frames();
+}
+inline void BattleSnapshotTank::_internal_set_respawn_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  respawn_frames_ = value;
+}
+inline void BattleSnapshotTank::set_respawn_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_respawn_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.respawn_frames)
+}
+
+// int32 spawn_protection_frames = 24;
+inline void BattleSnapshotTank::clear_spawn_protection_frames() {
+  spawn_protection_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::_internal_spawn_protection_frames() const {
+  return spawn_protection_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotTank::spawn_protection_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.spawn_protection_frames)
+  return _internal_spawn_protection_frames();
+}
+inline void BattleSnapshotTank::_internal_set_spawn_protection_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  spawn_protection_frames_ = value;
+}
+inline void BattleSnapshotTank::set_spawn_protection_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_spawn_protection_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.spawn_protection_frames)
+}
+
+// bool charged_shot = 25;
+inline void BattleSnapshotTank::clear_charged_shot() {
+  charged_shot_ = false;
+}
+inline bool BattleSnapshotTank::_internal_charged_shot() const {
+  return charged_shot_;
+}
+inline bool BattleSnapshotTank::charged_shot() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.charged_shot)
+  return _internal_charged_shot();
+}
+inline void BattleSnapshotTank::_internal_set_charged_shot(bool value) {
+  
+  charged_shot_ = value;
+}
+inline void BattleSnapshotTank::set_charged_shot(bool value) {
+  _internal_set_charged_shot(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.charged_shot)
+}
+
+// bool is_player = 26;
+inline void BattleSnapshotTank::clear_is_player() {
+  is_player_ = false;
+}
+inline bool BattleSnapshotTank::_internal_is_player() const {
+  return is_player_;
+}
+inline bool BattleSnapshotTank::is_player() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.is_player)
+  return _internal_is_player();
+}
+inline void BattleSnapshotTank::_internal_set_is_player(bool value) {
+  
+  is_player_ = value;
+}
+inline void BattleSnapshotTank::set_is_player(bool value) {
+  _internal_set_is_player(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.is_player)
+}
+
+// bool is_alive = 27;
+inline void BattleSnapshotTank::clear_is_alive() {
+  is_alive_ = false;
+}
+inline bool BattleSnapshotTank::_internal_is_alive() const {
+  return is_alive_;
+}
+inline bool BattleSnapshotTank::is_alive() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotTank.is_alive)
+  return _internal_is_alive();
+}
+inline void BattleSnapshotTank::_internal_set_is_alive(bool value) {
+  
+  is_alive_ = value;
+}
+inline void BattleSnapshotTank::set_is_alive(bool value) {
+  _internal_set_is_alive(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotTank.is_alive)
+}
+
+// -------------------------------------------------------------------
+
+// BattleSnapshotAiMemory
+
+// uint32 tank_id = 1;
+inline void BattleSnapshotAiMemory::clear_tank_id() {
+  tank_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::_internal_tank_id() const {
+  return tank_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::tank_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.tank_id)
+  return _internal_tank_id();
+}
+inline void BattleSnapshotAiMemory::_internal_set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  tank_id_ = value;
+}
+inline void BattleSnapshotAiMemory::set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_tank_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.tank_id)
+}
+
+// int32 wander_heading = 2;
+inline void BattleSnapshotAiMemory::clear_wander_heading() {
+  wander_heading_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_wander_heading() const {
+  return wander_heading_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::wander_heading() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.wander_heading)
+  return _internal_wander_heading();
+}
+inline void BattleSnapshotAiMemory::_internal_set_wander_heading(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  wander_heading_ = value;
+}
+inline void BattleSnapshotAiMemory::set_wander_heading(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_wander_heading(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.wander_heading)
+}
+
+// int32 strafe_sign = 3;
+inline void BattleSnapshotAiMemory::clear_strafe_sign() {
+  strafe_sign_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_strafe_sign() const {
+  return strafe_sign_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::strafe_sign() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.strafe_sign)
+  return _internal_strafe_sign();
+}
+inline void BattleSnapshotAiMemory::_internal_set_strafe_sign(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  strafe_sign_ = value;
+}
+inline void BattleSnapshotAiMemory::set_strafe_sign(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_strafe_sign(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.strafe_sign)
+}
+
+// int32 strafe_switch_frames = 4;
+inline void BattleSnapshotAiMemory::clear_strafe_switch_frames() {
+  strafe_switch_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_strafe_switch_frames() const {
+  return strafe_switch_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::strafe_switch_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.strafe_switch_frames)
+  return _internal_strafe_switch_frames();
+}
+inline void BattleSnapshotAiMemory::_internal_set_strafe_switch_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  strafe_switch_frames_ = value;
+}
+inline void BattleSnapshotAiMemory::set_strafe_switch_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_strafe_switch_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.strafe_switch_frames)
+}
+
+// uint32 wander_goal_serial = 5;
+inline void BattleSnapshotAiMemory::clear_wander_goal_serial() {
+  wander_goal_serial_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::_internal_wander_goal_serial() const {
+  return wander_goal_serial_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::wander_goal_serial() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.wander_goal_serial)
+  return _internal_wander_goal_serial();
+}
+inline void BattleSnapshotAiMemory::_internal_set_wander_goal_serial(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  wander_goal_serial_ = value;
+}
+inline void BattleSnapshotAiMemory::set_wander_goal_serial(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_wander_goal_serial(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.wander_goal_serial)
+}
+
+// int32 path_goal_x = 6;
+inline void BattleSnapshotAiMemory::clear_path_goal_x() {
+  path_goal_x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_path_goal_x() const {
+  return path_goal_x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::path_goal_x() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.path_goal_x)
+  return _internal_path_goal_x();
+}
+inline void BattleSnapshotAiMemory::_internal_set_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  path_goal_x_ = value;
+}
+inline void BattleSnapshotAiMemory::set_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_path_goal_x(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.path_goal_x)
+}
+
+// int32 path_goal_y = 7;
+inline void BattleSnapshotAiMemory::clear_path_goal_y() {
+  path_goal_y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_path_goal_y() const {
+  return path_goal_y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::path_goal_y() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.path_goal_y)
+  return _internal_path_goal_y();
+}
+inline void BattleSnapshotAiMemory::_internal_set_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  path_goal_y_ = value;
+}
+inline void BattleSnapshotAiMemory::set_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_path_goal_y(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.path_goal_y)
+}
+
+// uint32 path_target_id = 8;
+inline void BattleSnapshotAiMemory::clear_path_target_id() {
+  path_target_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::_internal_path_target_id() const {
+  return path_target_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::path_target_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.path_target_id)
+  return _internal_path_target_id();
+}
+inline void BattleSnapshotAiMemory::_internal_set_path_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  path_target_id_ = value;
+}
+inline void BattleSnapshotAiMemory::set_path_target_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_path_target_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.path_target_id)
+}
+
+// uint32 path_move_mode = 9;
+inline void BattleSnapshotAiMemory::clear_path_move_mode() {
+  path_move_mode_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::_internal_path_move_mode() const {
+  return path_move_mode_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::path_move_mode() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.path_move_mode)
+  return _internal_path_move_mode();
+}
+inline void BattleSnapshotAiMemory::_internal_set_path_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  path_move_mode_ = value;
+}
+inline void BattleSnapshotAiMemory::set_path_move_mode(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_path_move_mode(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.path_move_mode)
+}
+
+// int32 path_recalc_frames = 10;
+inline void BattleSnapshotAiMemory::clear_path_recalc_frames() {
+  path_recalc_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_path_recalc_frames() const {
+  return path_recalc_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::path_recalc_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.path_recalc_frames)
+  return _internal_path_recalc_frames();
+}
+inline void BattleSnapshotAiMemory::_internal_set_path_recalc_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  path_recalc_frames_ = value;
+}
+inline void BattleSnapshotAiMemory::set_path_recalc_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_path_recalc_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.path_recalc_frames)
+}
+
+// int32 wander_path_goal_x = 11;
+inline void BattleSnapshotAiMemory::clear_wander_path_goal_x() {
+  wander_path_goal_x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_wander_path_goal_x() const {
+  return wander_path_goal_x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::wander_path_goal_x() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.wander_path_goal_x)
+  return _internal_wander_path_goal_x();
+}
+inline void BattleSnapshotAiMemory::_internal_set_wander_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  wander_path_goal_x_ = value;
+}
+inline void BattleSnapshotAiMemory::set_wander_path_goal_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_wander_path_goal_x(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.wander_path_goal_x)
+}
+
+// int32 wander_path_goal_y = 12;
+inline void BattleSnapshotAiMemory::clear_wander_path_goal_y() {
+  wander_path_goal_y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_wander_path_goal_y() const {
+  return wander_path_goal_y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::wander_path_goal_y() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.wander_path_goal_y)
+  return _internal_wander_path_goal_y();
+}
+inline void BattleSnapshotAiMemory::_internal_set_wander_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  wander_path_goal_y_ = value;
+}
+inline void BattleSnapshotAiMemory::set_wander_path_goal_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_wander_path_goal_y(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.wander_path_goal_y)
+}
+
+// int32 wander_path_frames = 13;
+inline void BattleSnapshotAiMemory::clear_wander_path_frames() {
+  wander_path_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_wander_path_frames() const {
+  return wander_path_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::wander_path_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.wander_path_frames)
+  return _internal_wander_path_frames();
+}
+inline void BattleSnapshotAiMemory::_internal_set_wander_path_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  wander_path_frames_ = value;
+}
+inline void BattleSnapshotAiMemory::set_wander_path_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_wander_path_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.wander_path_frames)
+}
+
+// uint32 path_waypoint_index = 14;
+inline void BattleSnapshotAiMemory::clear_path_waypoint_index() {
+  path_waypoint_index_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::_internal_path_waypoint_index() const {
+  return path_waypoint_index_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotAiMemory::path_waypoint_index() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.path_waypoint_index)
+  return _internal_path_waypoint_index();
+}
+inline void BattleSnapshotAiMemory::_internal_set_path_waypoint_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  path_waypoint_index_ = value;
+}
+inline void BattleSnapshotAiMemory::set_path_waypoint_index(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_path_waypoint_index(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.path_waypoint_index)
+}
+
+// repeated int32 path_waypoint_coords = 15;
+inline int BattleSnapshotAiMemory::_internal_path_waypoint_coords_size() const {
+  return path_waypoint_coords_.size();
+}
+inline int BattleSnapshotAiMemory::path_waypoint_coords_size() const {
+  return _internal_path_waypoint_coords_size();
+}
+inline void BattleSnapshotAiMemory::clear_path_waypoint_coords() {
+  path_waypoint_coords_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::_internal_path_waypoint_coords(int index) const {
+  return path_waypoint_coords_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotAiMemory::path_waypoint_coords(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotAiMemory.path_waypoint_coords)
+  return _internal_path_waypoint_coords(index);
+}
+inline void BattleSnapshotAiMemory::set_path_waypoint_coords(int index, ::PROTOBUF_NAMESPACE_ID::int32 value) {
+  path_waypoint_coords_.Set(index, value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotAiMemory.path_waypoint_coords)
+}
+inline void BattleSnapshotAiMemory::_internal_add_path_waypoint_coords(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  path_waypoint_coords_.Add(value);
+}
+inline void BattleSnapshotAiMemory::add_path_waypoint_coords(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_add_path_waypoint_coords(value);
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleSnapshotAiMemory.path_waypoint_coords)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+BattleSnapshotAiMemory::_internal_path_waypoint_coords() const {
+  return path_waypoint_coords_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >&
+BattleSnapshotAiMemory::path_waypoint_coords() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleSnapshotAiMemory.path_waypoint_coords)
+  return _internal_path_waypoint_coords();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+BattleSnapshotAiMemory::_internal_mutable_path_waypoint_coords() {
+  return &path_waypoint_coords_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::int32 >*
+BattleSnapshotAiMemory::mutable_path_waypoint_coords() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleSnapshotAiMemory.path_waypoint_coords)
+  return _internal_mutable_path_waypoint_coords();
+}
+
+// -------------------------------------------------------------------
+
+// BattleSnapshotBullet
+
+// uint32 id = 1;
+inline void BattleSnapshotBullet::clear_id() {
+  id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotBullet::_internal_id() const {
+  return id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotBullet::id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.id)
+  return _internal_id();
+}
+inline void BattleSnapshotBullet::_internal_set_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  id_ = value;
+}
+inline void BattleSnapshotBullet::set_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.id)
+}
+
+// uint32 owner_id = 2;
+inline void BattleSnapshotBullet::clear_owner_id() {
+  owner_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotBullet::_internal_owner_id() const {
+  return owner_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotBullet::owner_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.owner_id)
+  return _internal_owner_id();
+}
+inline void BattleSnapshotBullet::_internal_set_owner_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  owner_id_ = value;
+}
+inline void BattleSnapshotBullet::set_owner_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_owner_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.owner_id)
+}
+
+// int32 pos_x = 3;
+inline void BattleSnapshotBullet::clear_pos_x() {
+  pos_x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::_internal_pos_x() const {
+  return pos_x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::pos_x() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.pos_x)
+  return _internal_pos_x();
+}
+inline void BattleSnapshotBullet::_internal_set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  pos_x_ = value;
+}
+inline void BattleSnapshotBullet::set_pos_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_pos_x(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.pos_x)
+}
+
+// int32 pos_y = 4;
+inline void BattleSnapshotBullet::clear_pos_y() {
+  pos_y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::_internal_pos_y() const {
+  return pos_y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::pos_y() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.pos_y)
+  return _internal_pos_y();
+}
+inline void BattleSnapshotBullet::_internal_set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  pos_y_ = value;
+}
+inline void BattleSnapshotBullet::set_pos_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_pos_y(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.pos_y)
+}
+
+// int32 vel_x = 5;
+inline void BattleSnapshotBullet::clear_vel_x() {
+  vel_x_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::_internal_vel_x() const {
+  return vel_x_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::vel_x() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.vel_x)
+  return _internal_vel_x();
+}
+inline void BattleSnapshotBullet::_internal_set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  vel_x_ = value;
+}
+inline void BattleSnapshotBullet::set_vel_x(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_vel_x(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.vel_x)
+}
+
+// int32 vel_y = 6;
+inline void BattleSnapshotBullet::clear_vel_y() {
+  vel_y_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::_internal_vel_y() const {
+  return vel_y_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::vel_y() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.vel_y)
+  return _internal_vel_y();
+}
+inline void BattleSnapshotBullet::_internal_set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  vel_y_ = value;
+}
+inline void BattleSnapshotBullet::set_vel_y(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_vel_y(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.vel_y)
+}
+
+// int32 damage = 7;
+inline void BattleSnapshotBullet::clear_damage() {
+  damage_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::_internal_damage() const {
+  return damage_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::damage() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.damage)
+  return _internal_damage();
+}
+inline void BattleSnapshotBullet::_internal_set_damage(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  damage_ = value;
+}
+inline void BattleSnapshotBullet::set_damage(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_damage(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.damage)
+}
+
+// int32 life_frames = 8;
+inline void BattleSnapshotBullet::clear_life_frames() {
+  life_frames_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::_internal_life_frames() const {
+  return life_frames_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleSnapshotBullet::life_frames() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.life_frames)
+  return _internal_life_frames();
+}
+inline void BattleSnapshotBullet::_internal_set_life_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  life_frames_ = value;
+}
+inline void BattleSnapshotBullet::set_life_frames(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_life_frames(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.life_frames)
+}
+
+// bool penetrating = 9;
+inline void BattleSnapshotBullet::clear_penetrating() {
+  penetrating_ = false;
+}
+inline bool BattleSnapshotBullet::_internal_penetrating() const {
+  return penetrating_;
+}
+inline bool BattleSnapshotBullet::penetrating() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.penetrating)
+  return _internal_penetrating();
+}
+inline void BattleSnapshotBullet::_internal_set_penetrating(bool value) {
+  
+  penetrating_ = value;
+}
+inline void BattleSnapshotBullet::set_penetrating(bool value) {
+  _internal_set_penetrating(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.penetrating)
+}
+
+// repeated uint32 damaged_tank_ids = 10;
+inline int BattleSnapshotBullet::_internal_damaged_tank_ids_size() const {
+  return damaged_tank_ids_.size();
+}
+inline int BattleSnapshotBullet::damaged_tank_ids_size() const {
+  return _internal_damaged_tank_ids_size();
+}
+inline void BattleSnapshotBullet::clear_damaged_tank_ids() {
+  damaged_tank_ids_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotBullet::_internal_damaged_tank_ids(int index) const {
+  return damaged_tank_ids_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotBullet::damaged_tank_ids(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotBullet.damaged_tank_ids)
+  return _internal_damaged_tank_ids(index);
+}
+inline void BattleSnapshotBullet::set_damaged_tank_ids(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  damaged_tank_ids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotBullet.damaged_tank_ids)
+}
+inline void BattleSnapshotBullet::_internal_add_damaged_tank_ids(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  damaged_tank_ids_.Add(value);
+}
+inline void BattleSnapshotBullet::add_damaged_tank_ids(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_damaged_tank_ids(value);
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleSnapshotBullet.damaged_tank_ids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+BattleSnapshotBullet::_internal_damaged_tank_ids() const {
+  return damaged_tank_ids_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+BattleSnapshotBullet::damaged_tank_ids() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleSnapshotBullet.damaged_tank_ids)
+  return _internal_damaged_tank_ids();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+BattleSnapshotBullet::_internal_mutable_damaged_tank_ids() {
+  return &damaged_tank_ids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+BattleSnapshotBullet::mutable_damaged_tank_ids() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleSnapshotBullet.damaged_tank_ids)
+  return _internal_mutable_damaged_tank_ids();
+}
+
+// -------------------------------------------------------------------
+
+// BattleControlEvent
+
+// .wukong.pb.BattleControlEventType type = 1;
+inline void BattleControlEvent::clear_type() {
+  type_ = 0;
+}
+inline ::wukong::pb::BattleControlEventType BattleControlEvent::_internal_type() const {
+  return static_cast< ::wukong::pb::BattleControlEventType >(type_);
+}
+inline ::wukong::pb::BattleControlEventType BattleControlEvent::type() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleControlEvent.type)
+  return _internal_type();
+}
+inline void BattleControlEvent::_internal_set_type(::wukong::pb::BattleControlEventType value) {
+  
+  type_ = value;
+}
+inline void BattleControlEvent::set_type(::wukong::pb::BattleControlEventType value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleControlEvent.type)
+}
+
+// uint64 role_id = 2;
+inline void BattleControlEvent::clear_role_id() {
+  role_id_ = uint64_t{0u};
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 BattleControlEvent::_internal_role_id() const {
+  return role_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 BattleControlEvent::role_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleControlEvent.role_id)
+  return _internal_role_id();
+}
+inline void BattleControlEvent::_internal_set_role_id(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  
+  role_id_ = value;
+}
+inline void BattleControlEvent::set_role_id(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_role_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleControlEvent.role_id)
+}
+
+// uint32 player_id = 3;
+inline void BattleControlEvent::clear_player_id() {
+  player_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleControlEvent::_internal_player_id() const {
+  return player_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleControlEvent::player_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleControlEvent.player_id)
+  return _internal_player_id();
+}
+inline void BattleControlEvent::_internal_set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  player_id_ = value;
+}
+inline void BattleControlEvent::set_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_player_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleControlEvent.player_id)
+}
+
+// uint32 tank_id = 4;
+inline void BattleControlEvent::clear_tank_id() {
+  tank_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleControlEvent::_internal_tank_id() const {
+  return tank_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleControlEvent::tank_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleControlEvent.tank_id)
+  return _internal_tank_id();
+}
+inline void BattleControlEvent::_internal_set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  tank_id_ = value;
+}
+inline void BattleControlEvent::set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_tank_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleControlEvent.tank_id)
+}
+
+// int32 faction = 5;
+inline void BattleControlEvent::clear_faction() {
+  faction_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleControlEvent::_internal_faction() const {
+  return faction_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleControlEvent::faction() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleControlEvent.faction)
+  return _internal_faction();
+}
+inline void BattleControlEvent::_internal_set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  faction_ = value;
+}
+inline void BattleControlEvent::set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_faction(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleControlEvent.faction)
+}
+
+// string name = 6;
+inline void BattleControlEvent::clear_name() {
+  name_.ClearToEmpty();
+}
+inline const std::string& BattleControlEvent::name() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleControlEvent.name)
+  return _internal_name();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void BattleControlEvent::set_name(ArgT0&& arg0, ArgT... args) {
+ 
+ name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleControlEvent.name)
+}
+inline std::string* BattleControlEvent::mutable_name() {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:wukong.pb.BattleControlEvent.name)
+  return _s;
+}
+inline const std::string& BattleControlEvent::_internal_name() const {
+  return name_.Get();
+}
+inline void BattleControlEvent::_internal_set_name(const std::string& value) {
+  
+  name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* BattleControlEvent::_internal_mutable_name() {
+  
+  return name_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* BattleControlEvent::release_name() {
+  // @@protoc_insertion_point(field_release:wukong.pb.BattleControlEvent.name)
+  return name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void BattleControlEvent::set_allocated_name(std::string* name) {
+  if (name != nullptr) {
+    
+  } else {
+    
+  }
+  name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name,
+      GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set_allocated:wukong.pb.BattleControlEvent.name)
+}
+
+// -------------------------------------------------------------------
+
 // BattleRoomSnapshot
 
 // uint64 room_id = 1;
@@ -4316,6 +6993,320 @@ BattleRoomSnapshot::players() const {
   return players_;
 }
 
+// uint32 slots_per_faction = 7;
+inline void BattleRoomSnapshot::clear_slots_per_faction() {
+  slots_per_faction_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::_internal_slots_per_faction() const {
+  return slots_per_faction_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::slots_per_faction() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.slots_per_faction)
+  return _internal_slots_per_faction();
+}
+inline void BattleRoomSnapshot::_internal_set_slots_per_faction(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  slots_per_faction_ = value;
+}
+inline void BattleRoomSnapshot::set_slots_per_faction(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_slots_per_faction(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleRoomSnapshot.slots_per_faction)
+}
+
+// uint32 next_player_id = 8;
+inline void BattleRoomSnapshot::clear_next_player_id() {
+  next_player_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::_internal_next_player_id() const {
+  return next_player_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::next_player_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.next_player_id)
+  return _internal_next_player_id();
+}
+inline void BattleRoomSnapshot::_internal_set_next_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  next_player_id_ = value;
+}
+inline void BattleRoomSnapshot::set_next_player_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_next_player_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleRoomSnapshot.next_player_id)
+}
+
+// uint32 next_tank_id = 9;
+inline void BattleRoomSnapshot::clear_next_tank_id() {
+  next_tank_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::_internal_next_tank_id() const {
+  return next_tank_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::next_tank_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.next_tank_id)
+  return _internal_next_tank_id();
+}
+inline void BattleRoomSnapshot::_internal_set_next_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  next_tank_id_ = value;
+}
+inline void BattleRoomSnapshot::set_next_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_next_tank_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleRoomSnapshot.next_tank_id)
+}
+
+// uint32 next_bullet_id = 10;
+inline void BattleRoomSnapshot::clear_next_bullet_id() {
+  next_bullet_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::_internal_next_bullet_id() const {
+  return next_bullet_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::next_bullet_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.next_bullet_id)
+  return _internal_next_bullet_id();
+}
+inline void BattleRoomSnapshot::_internal_set_next_bullet_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  next_bullet_id_ = value;
+}
+inline void BattleRoomSnapshot::set_next_bullet_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_next_bullet_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleRoomSnapshot.next_bullet_id)
+}
+
+// repeated uint32 faction_kills = 11;
+inline int BattleRoomSnapshot::_internal_faction_kills_size() const {
+  return faction_kills_.size();
+}
+inline int BattleRoomSnapshot::faction_kills_size() const {
+  return _internal_faction_kills_size();
+}
+inline void BattleRoomSnapshot::clear_faction_kills() {
+  faction_kills_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::_internal_faction_kills(int index) const {
+  return faction_kills_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::faction_kills(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.faction_kills)
+  return _internal_faction_kills(index);
+}
+inline void BattleRoomSnapshot::set_faction_kills(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  faction_kills_.Set(index, value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleRoomSnapshot.faction_kills)
+}
+inline void BattleRoomSnapshot::_internal_add_faction_kills(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  faction_kills_.Add(value);
+}
+inline void BattleRoomSnapshot::add_faction_kills(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_faction_kills(value);
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleRoomSnapshot.faction_kills)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+BattleRoomSnapshot::_internal_faction_kills() const {
+  return faction_kills_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+BattleRoomSnapshot::faction_kills() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleRoomSnapshot.faction_kills)
+  return _internal_faction_kills();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+BattleRoomSnapshot::_internal_mutable_faction_kills() {
+  return &faction_kills_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+BattleRoomSnapshot::mutable_faction_kills() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleRoomSnapshot.faction_kills)
+  return _internal_mutable_faction_kills();
+}
+
+// repeated uint32 faction_deaths = 12;
+inline int BattleRoomSnapshot::_internal_faction_deaths_size() const {
+  return faction_deaths_.size();
+}
+inline int BattleRoomSnapshot::faction_deaths_size() const {
+  return _internal_faction_deaths_size();
+}
+inline void BattleRoomSnapshot::clear_faction_deaths() {
+  faction_deaths_.Clear();
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::_internal_faction_deaths(int index) const {
+  return faction_deaths_.Get(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleRoomSnapshot::faction_deaths(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.faction_deaths)
+  return _internal_faction_deaths(index);
+}
+inline void BattleRoomSnapshot::set_faction_deaths(int index, ::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  faction_deaths_.Set(index, value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleRoomSnapshot.faction_deaths)
+}
+inline void BattleRoomSnapshot::_internal_add_faction_deaths(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  faction_deaths_.Add(value);
+}
+inline void BattleRoomSnapshot::add_faction_deaths(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_add_faction_deaths(value);
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleRoomSnapshot.faction_deaths)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+BattleRoomSnapshot::_internal_faction_deaths() const {
+  return faction_deaths_;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >&
+BattleRoomSnapshot::faction_deaths() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleRoomSnapshot.faction_deaths)
+  return _internal_faction_deaths();
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+BattleRoomSnapshot::_internal_mutable_faction_deaths() {
+  return &faction_deaths_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< ::PROTOBUF_NAMESPACE_ID::uint32 >*
+BattleRoomSnapshot::mutable_faction_deaths() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleRoomSnapshot.faction_deaths)
+  return _internal_mutable_faction_deaths();
+}
+
+// repeated .wukong.pb.BattleSnapshotTank tanks = 13;
+inline int BattleRoomSnapshot::_internal_tanks_size() const {
+  return tanks_.size();
+}
+inline int BattleRoomSnapshot::tanks_size() const {
+  return _internal_tanks_size();
+}
+inline void BattleRoomSnapshot::clear_tanks() {
+  tanks_.Clear();
+}
+inline ::wukong::pb::BattleSnapshotTank* BattleRoomSnapshot::mutable_tanks(int index) {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.BattleRoomSnapshot.tanks)
+  return tanks_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotTank >*
+BattleRoomSnapshot::mutable_tanks() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleRoomSnapshot.tanks)
+  return &tanks_;
+}
+inline const ::wukong::pb::BattleSnapshotTank& BattleRoomSnapshot::_internal_tanks(int index) const {
+  return tanks_.Get(index);
+}
+inline const ::wukong::pb::BattleSnapshotTank& BattleRoomSnapshot::tanks(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.tanks)
+  return _internal_tanks(index);
+}
+inline ::wukong::pb::BattleSnapshotTank* BattleRoomSnapshot::_internal_add_tanks() {
+  return tanks_.Add();
+}
+inline ::wukong::pb::BattleSnapshotTank* BattleRoomSnapshot::add_tanks() {
+  ::wukong::pb::BattleSnapshotTank* _add = _internal_add_tanks();
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleRoomSnapshot.tanks)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotTank >&
+BattleRoomSnapshot::tanks() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleRoomSnapshot.tanks)
+  return tanks_;
+}
+
+// repeated .wukong.pb.BattleSnapshotBullet bullets = 14;
+inline int BattleRoomSnapshot::_internal_bullets_size() const {
+  return bullets_.size();
+}
+inline int BattleRoomSnapshot::bullets_size() const {
+  return _internal_bullets_size();
+}
+inline void BattleRoomSnapshot::clear_bullets() {
+  bullets_.Clear();
+}
+inline ::wukong::pb::BattleSnapshotBullet* BattleRoomSnapshot::mutable_bullets(int index) {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.BattleRoomSnapshot.bullets)
+  return bullets_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotBullet >*
+BattleRoomSnapshot::mutable_bullets() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleRoomSnapshot.bullets)
+  return &bullets_;
+}
+inline const ::wukong::pb::BattleSnapshotBullet& BattleRoomSnapshot::_internal_bullets(int index) const {
+  return bullets_.Get(index);
+}
+inline const ::wukong::pb::BattleSnapshotBullet& BattleRoomSnapshot::bullets(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.bullets)
+  return _internal_bullets(index);
+}
+inline ::wukong::pb::BattleSnapshotBullet* BattleRoomSnapshot::_internal_add_bullets() {
+  return bullets_.Add();
+}
+inline ::wukong::pb::BattleSnapshotBullet* BattleRoomSnapshot::add_bullets() {
+  ::wukong::pb::BattleSnapshotBullet* _add = _internal_add_bullets();
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleRoomSnapshot.bullets)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotBullet >&
+BattleRoomSnapshot::bullets() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleRoomSnapshot.bullets)
+  return bullets_;
+}
+
+// int32 game_state = 15;
+inline void BattleRoomSnapshot::clear_game_state() {
+  game_state_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleRoomSnapshot::_internal_game_state() const {
+  return game_state_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 BattleRoomSnapshot::game_state() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.game_state)
+  return _internal_game_state();
+}
+inline void BattleRoomSnapshot::_internal_set_game_state(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  game_state_ = value;
+}
+inline void BattleRoomSnapshot::set_game_state(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_game_state(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleRoomSnapshot.game_state)
+}
+
+// repeated .wukong.pb.BattleSnapshotAiMemory ai_memories = 16;
+inline int BattleRoomSnapshot::_internal_ai_memories_size() const {
+  return ai_memories_.size();
+}
+inline int BattleRoomSnapshot::ai_memories_size() const {
+  return _internal_ai_memories_size();
+}
+inline void BattleRoomSnapshot::clear_ai_memories() {
+  ai_memories_.Clear();
+}
+inline ::wukong::pb::BattleSnapshotAiMemory* BattleRoomSnapshot::mutable_ai_memories(int index) {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.BattleRoomSnapshot.ai_memories)
+  return ai_memories_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotAiMemory >*
+BattleRoomSnapshot::mutable_ai_memories() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleRoomSnapshot.ai_memories)
+  return &ai_memories_;
+}
+inline const ::wukong::pb::BattleSnapshotAiMemory& BattleRoomSnapshot::_internal_ai_memories(int index) const {
+  return ai_memories_.Get(index);
+}
+inline const ::wukong::pb::BattleSnapshotAiMemory& BattleRoomSnapshot::ai_memories(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleRoomSnapshot.ai_memories)
+  return _internal_ai_memories(index);
+}
+inline ::wukong::pb::BattleSnapshotAiMemory* BattleRoomSnapshot::_internal_add_ai_memories() {
+  return ai_memories_.Add();
+}
+inline ::wukong::pb::BattleSnapshotAiMemory* BattleRoomSnapshot::add_ai_memories() {
+  ::wukong::pb::BattleSnapshotAiMemory* _add = _internal_add_ai_memories();
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleRoomSnapshot.ai_memories)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleSnapshotAiMemory >&
+BattleRoomSnapshot::ai_memories() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleRoomSnapshot.ai_memories)
+  return ai_memories_;
+}
+
 // -------------------------------------------------------------------
 
 // BattleSnapshotPlayer
@@ -4378,6 +7369,26 @@ inline void BattleSnapshotPlayer::_internal_set_faction(::PROTOBUF_NAMESPACE_ID:
 inline void BattleSnapshotPlayer::set_faction(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_faction(value);
   // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotPlayer.faction)
+}
+
+// uint32 tank_id = 4;
+inline void BattleSnapshotPlayer::clear_tank_id() {
+  tank_id_ = 0u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotPlayer::_internal_tank_id() const {
+  return tank_id_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 BattleSnapshotPlayer::tank_id() const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleSnapshotPlayer.tank_id)
+  return _internal_tank_id();
+}
+inline void BattleSnapshotPlayer::_internal_set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  
+  tank_id_ = value;
+}
+inline void BattleSnapshotPlayer::set_tank_id(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_tank_id(value);
+  // @@protoc_insertion_point(field_set:wukong.pb.BattleSnapshotPlayer.tank_id)
 }
 
 // -------------------------------------------------------------------
@@ -4462,6 +7473,46 @@ inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattlePlay
 BattleFrameSync::inputs() const {
   // @@protoc_insertion_point(field_list:wukong.pb.BattleFrameSync.inputs)
   return inputs_;
+}
+
+// repeated .wukong.pb.BattleControlEvent control_events = 4;
+inline int BattleFrameSync::_internal_control_events_size() const {
+  return control_events_.size();
+}
+inline int BattleFrameSync::control_events_size() const {
+  return _internal_control_events_size();
+}
+inline void BattleFrameSync::clear_control_events() {
+  control_events_.Clear();
+}
+inline ::wukong::pb::BattleControlEvent* BattleFrameSync::mutable_control_events(int index) {
+  // @@protoc_insertion_point(field_mutable:wukong.pb.BattleFrameSync.control_events)
+  return control_events_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleControlEvent >*
+BattleFrameSync::mutable_control_events() {
+  // @@protoc_insertion_point(field_mutable_list:wukong.pb.BattleFrameSync.control_events)
+  return &control_events_;
+}
+inline const ::wukong::pb::BattleControlEvent& BattleFrameSync::_internal_control_events(int index) const {
+  return control_events_.Get(index);
+}
+inline const ::wukong::pb::BattleControlEvent& BattleFrameSync::control_events(int index) const {
+  // @@protoc_insertion_point(field_get:wukong.pb.BattleFrameSync.control_events)
+  return _internal_control_events(index);
+}
+inline ::wukong::pb::BattleControlEvent* BattleFrameSync::_internal_add_control_events() {
+  return control_events_.Add();
+}
+inline ::wukong::pb::BattleControlEvent* BattleFrameSync::add_control_events() {
+  ::wukong::pb::BattleControlEvent* _add = _internal_add_control_events();
+  // @@protoc_insertion_point(field_add:wukong.pb.BattleFrameSync.control_events)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::wukong::pb::BattleControlEvent >&
+BattleFrameSync::control_events() const {
+  // @@protoc_insertion_point(field_list:wukong.pb.BattleFrameSync.control_events)
+  return control_events_;
 }
 
 // -------------------------------------------------------------------
@@ -4871,6 +7922,14 @@ inline void StartBattleRequest::set_faction(::PROTOBUF_NAMESPACE_ID::int32 value
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -4888,6 +7947,11 @@ template <> struct is_proto_enum< ::wukong::pb::BattleRoomState> : ::std::true_t
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::wukong::pb::BattleRoomState>() {
   return ::wukong::pb::BattleRoomState_descriptor();
+}
+template <> struct is_proto_enum< ::wukong::pb::BattleControlEventType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::wukong::pb::BattleControlEventType>() {
+  return ::wukong::pb::BattleControlEventType_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

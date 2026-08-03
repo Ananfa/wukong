@@ -39,6 +39,14 @@ namespace TankBattle
         
         // 设置AI
         void SetAI(bool isAI) { m_isAI = isAI; }
+
+        // 接管 / 交回控制权（playerId==0 表示 AI）
+        void SetControlOwner(uint32_t playerId, bool isPlayer)
+        {
+            m_playerId = playerId;
+            m_isPlayer = isPlayer;
+            m_isAI = !isPlayer || playerId == 0;
+        }
         
         // 玩家炮塔瞄准（Q15 方向分量，与 moveX/moveY 同一坐标系）
         void SetTurretAim(int16_t aimX, int16_t aimY);
@@ -47,7 +55,7 @@ namespace TankBattle
         uint32_t GetId() const { return m_id; }
         uint32_t GetPlayerId() const { return m_playerId; }
         Faction GetFaction() const { return m_faction; }
-        bool IsAlive() const { return m_hp > 0; }
+        bool IsAlive() const { return m_isAlive && m_hp > 0; }
         int32_t GetHP() const { return m_hp; }
         int32_t GetMaxHP() const { return m_maxHp; }
         bool CanFire() const { return m_reloadFramesRemaining <= 0; }
@@ -60,6 +68,11 @@ namespace TankBattle
         void RespawnAt(const FixedVec2& position, Angle initialRotation = 0);
 
         static void ResetBulletIdCounter();
+        static uint32_t GetNextBulletId();
+        static void SetNextBulletId(uint32_t id);
+
+        TankLogicSnapshot ExportLogicSnapshot() const;
+        void ApplyLogicSnapshot(const TankLogicSnapshot& snap);
         
     private:
         // 坦克配置

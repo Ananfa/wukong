@@ -72,6 +72,26 @@ bool BattleRoomTypesTable::onParse(const Document &doc) {
         if (o.HasMember("frameRateOverride") && o["frameRateOverride"].IsUint()) {
             row.frameRateOverride = o["frameRateOverride"].GetUint();
         }
+        if (o.HasMember("slotsPerFaction") && o["slotsPerFaction"].IsUint()) {
+            row.slotsPerFaction = o["slotsPerFaction"].GetUint();
+        }
+        if (row.slotsPerFaction < 1) {
+            row.slotsPerFaction = 1;
+        }
+        if (row.slotsPerFaction > 16) {
+            row.slotsPerFaction = 16;
+        }
+        if (o.HasMember("battleDurationSec") && o["battleDurationSec"].IsUint()) {
+            row.battleDurationSec = o["battleDurationSec"].GetUint();
+        }
+        if (o.HasMember("joinWindowSec") && o["joinWindowSec"].IsUint()) {
+            row.joinWindowSec = o["joinWindowSec"].GetUint();
+        }
+        // 总人数上限至少覆盖四阵营槽位
+        const uint32_t seatCap = row.slotsPerFaction * 4u;
+        if (row.maxPlayers < seatCap) {
+            row.maxPlayers = seatCap;
+        }
         next[row.battleDefId] = std::move(row);
     }
     if (next.empty()) {
@@ -88,6 +108,14 @@ uint32_t BattleRoomTypesTable::getMaxPlayers(uint32_t battleDefId) const {
         return 0;
     }
     return it->second.maxPlayers;
+}
+
+uint32_t BattleRoomTypesTable::getSlotsPerFaction(uint32_t battleDefId) const {
+    auto it = defs_.find(battleDefId);
+    if (it == defs_.end()) {
+        return 0;
+    }
+    return it->second.slotsPerFaction;
 }
 
 const BattleRoomTypeDef *BattleRoomTypesTable::find(uint32_t battleDefId) const {

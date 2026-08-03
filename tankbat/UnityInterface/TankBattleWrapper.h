@@ -150,11 +150,166 @@ TANKBATTLE_API unsigned int TB_AddPlayer(TankBattleGame game, const char* name, 
 // 移除玩家
 TANKBATTLE_API void TB_RemovePlayer(TankBattleGame game, unsigned int playerId);
 
+// 每阵营槽位数（可接管席位）
+TANKBATTLE_API void TB_SetSlotsPerFaction(TankBattleGame game, unsigned int slots);
+TANKBATTLE_API unsigned int TB_GetSlotsPerFaction(TankBattleGame game);
+TANKBATTLE_API unsigned int TB_CountFreeAISlots(TankBattleGame game, int faction);
+
+// 接管阵营 AI 坦克；成功返回 playerId，outTankId 可为 NULL
+TANKBATTLE_API unsigned int TB_PossessAITank(
+    TankBattleGame game,
+    const char* name,
+    int faction,
+    unsigned int* outTankId);
+
+// 交回 AI 控制权
+TANKBATTLE_API unsigned char TB_ReleaseToAI(TankBattleGame game, unsigned int playerId);
+
+// 按指定 id 接管 / 交回（FrameSync 控制事件，幂等）
+TANKBATTLE_API unsigned char TB_ApplyPossess(
+    TankBattleGame game,
+    unsigned int playerId,
+    const char* name,
+    int faction,
+    unsigned int tankId);
+TANKBATTLE_API unsigned char TB_ApplyRelease(TankBattleGame game, unsigned int playerId);
+
+TANKBATTLE_API void TB_ClearAiMemory(TankBattleGame game);
+
+// 同步对比：将 FormatCompareSnapshot 写入 buf（UTF-8），返回写入字节数（不含 \\0）；
+// 若 buf 不够，仍返回完整长度，内容截断并保证 \\0 结尾。
+TANKBATTLE_API int TB_FormatCompareSnapshot(
+    TankBattleGame game,
+    const char* side,
+    char* buf,
+    int bufSize);
+
+#pragma pack(push, 1)
+typedef struct
+{
+    unsigned int frame;
+    int gameState;
+    unsigned int randomSeed;
+    unsigned int slotsPerFaction;
+    unsigned int nextPlayerId;
+    unsigned int nextTankId;
+    unsigned int nextBulletId;
+    unsigned int factionKills[4];
+    unsigned int factionDeaths[4];
+} TB_LogicSnapshotHeader;
+
+typedef struct
+{
+    unsigned int id;
+    unsigned int playerId;
+    int faction;
+    int type;
+    int posX;
+    int posY;
+    int velX;
+    int velY;
+    int rotation;
+    int turretRotation;
+    int hp;
+    int maxHp;
+    int shieldFrames;
+    int speedBoostFrames;
+    int rapidFireFrames;
+    int abilityCooldownFrames;
+    int reloadFrames;
+    int reloadDurationFrames;
+    int recoilVelX;
+    int recoilVelY;
+    unsigned int lockedTargetId;
+    unsigned int aiMoveMode;
+    int respawnFrames;
+    int spawnProtectionFrames;
+    unsigned char chargedShot;
+    unsigned char isPlayer;
+    unsigned char isAlive;
+    unsigned char _pad; // 凑齐 100 字节，避免 C# Marshal.SizeOf 与原生 stride 不一致
+} TB_TankLogicSnapshot;
+
+typedef struct
+{
+    unsigned int id;
+    unsigned int ownerId;
+    int posX;
+    int posY;
+    int velX;
+    int velY;
+    int damage;
+    int lifeFrames;
+    unsigned char penetrating;
+    unsigned char _pad0;
+    unsigned char _pad1;
+    unsigned char _pad2;
+    unsigned int damagedCount;
+    unsigned int damagedTankIds[8];
+} TB_BulletLogicSnapshot;
+
+typedef struct
+{
+    unsigned int id;
+    const char* name;
+    int faction;
+    unsigned int kills;
+    unsigned int score;
+    unsigned char isConnected;
+} TB_PlayerLogicSnapshot;
+#pragma pack(pop)
+
+// 逐条写入逻辑快照（避免托管数组 stride 与原生结构不对齐）
+#pragma pack(push, 1)
+typedef struct
+{
+    unsigned int tankId;
+    int wanderHeading;
+    int strafeSign;
+    int strafeSwitchFrames;
+    unsigned int wanderGoalSerial;
+    int pathGoalX;
+    int pathGoalY;
+    unsigned int pathTargetId;
+    unsigned int pathMoveMode;
+    int pathRecalcFrames;
+    int wanderPathGoalX;
+    int wanderPathGoalY;
+    int wanderPathFrames;
+    unsigned int pathWaypointIndex;
+    unsigned int waypointCoordCount; // pathWaypointCoords 有效 int 个数（偶数）
+    int pathWaypointCoords[64];      // 最多 32 个航点
+} TB_AiMemorySnapshot;
+#pragma pack(pop)
+
+TANKBATTLE_API void TB_LogicSnap_Begin(TankBattleGame game, const TB_LogicSnapshotHeader* header);
+TANKBATTLE_API void TB_LogicSnap_AddTank(TankBattleGame game, const TB_TankLogicSnapshot* tank);
+TANKBATTLE_API void TB_LogicSnap_AddBullet(TankBattleGame game, const TB_BulletLogicSnapshot* bullet);
+TANKBATTLE_API void TB_LogicSnap_AddAiMemory(TankBattleGame game, const TB_AiMemorySnapshot* memory);
+TANKBATTLE_API void TB_LogicSnap_AddPlayer(
+    TankBattleGame game,
+    unsigned int id,
+    const char* name,
+    int faction,
+    unsigned int kills,
+    unsigned int score,
+    unsigned char isConnected);
+TANKBATTLE_API unsigned char TB_LogicSnap_Commit(TankBattleGame game);
+TANKBATTLE_API unsigned int TB_LogicSnap_AiMemoryStructSize();
+
+// 调试：原生结构体字节数（应与 C# Marshal.SizeOf 一致）
+TANKBATTLE_API unsigned int TB_LogicSnap_TankStructSize();
+TANKBATTLE_API unsigned int TB_LogicSnap_BulletStructSize();
+TANKBATTLE_API unsigned int TB_LogicSnap_HeaderStructSize();
+
 // 处理玩家输入
 TANKBATTLE_API void TB_ProcessPlayerInput(TankBattleGame game, const TB_PlayerInput* input);
 
 // 开始游戏
 TANKBATTLE_API void TB_StartGame(TankBattleGame game);
+
+// 仅生成各阵营 AI 槽位后开局（接管模式）
+TANKBATTLE_API void TB_StartGameAIOnly(TankBattleGame game);
 
 // 重置游戏
 TANKBATTLE_API void TB_Reset(TankBattleGame game);

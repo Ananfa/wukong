@@ -6,6 +6,8 @@
 #include "../Common/AngleLUT.h"
 #include <algorithm>
 #include <limits>
+#include <sstream>
+#include <string>
 
 namespace TankBattle
 {
@@ -170,6 +172,7 @@ namespace TankBattle
             {
                 if (tankIt->second->GetPlayerId() == playerId)
                 {
+                    m_aiController.RemoveMemory(tankIt->first);
                     tankIt = m_tanks.erase(tankIt);
                 }
                 else
@@ -181,6 +184,375 @@ namespace TankBattle
             // 移除待处理的输入
             m_frameInputs.erase(playerId);
         }
+    }
+
+    void GameCore::SetSlotsPerFaction(uint32_t slots)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        if (slots < 1)
+            slots = 1;
+        if (slots > 16)
+            slots = 16;
+        m_slotsPerFaction = slots;
+    }
+
+    uint32_t GameCore::GetSlotsPerFaction() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_slotsPerFaction;
+    }
+
+    uint32_t GameCore::CountFreeAISlots(Faction faction) const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        uint32_t aiCount = 0;
+        uint32_t total = 0;
+        for (const auto& entry : m_tanks)
+        {
+            const auto& tank = entry.second;
+            if (tank->GetFaction() != faction)
+                continue;
+            ++total;
+            if (tank->GetPlayerId() == 0)
+                ++aiCount;
+        }
+
+        if (total < m_slotsPerFaction)
+            return aiCount + (m_slotsPerFaction - total);
+        return aiCount;
+    }
+
+    uint32_t GameCore::PossessAITank(const std::string& name, Faction faction, uint32_t* outTankId)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (outTankId)
+            *outTankId = 0;
+
+        if (static_cast<int>(faction) < 0 || static_cast<int>(faction) >= kFactionCount)
+            return 0;
+
+        if (m_state == GameState::Playing)
+            GenerateAITanks(); // 已持锁；补齐未刷满的槽位
+
+        // 确定性：选同阵营 playerId==0 且 tankId 最小的一台
+        std::shared_ptr<Tank> target;
+        for (const auto& entry : m_tanks)
+        {
+            const auto& tank = entry.second;
+            if (tank->GetFaction() != faction || tank->GetPlayerId() != 0)
+                continue;
+            if (!target || tank->GetId() < target->GetId())
+                target = tank;
+        }
+        if (!target)
+            return 0;
+
+        uint32_t playerId = m_nextPlayerId++;
+        PlayerInfo player;
+        player.id = playerId;
+        player.name = name;
+        player.faction = faction;
+        player.isConnected = true;
+        m_players[playerId] = player;
+
+        target->SetControlOwner(playerId, true);
+        m_aiController.RemoveMemory(target->GetId());
+
+        if (outTankId)
+            *outTankId = target->GetId();
+        return playerId;
+    }
+
+    bool GameCore::ReleaseToAI(uint32_t playerId)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        bool released = false;
+        for (auto& entry : m_tanks)
+        {
+            auto& tank = entry.second;
+            if (tank->GetPlayerId() != playerId)
+                continue;
+            tank->SetControlOwner(0, false);
+            released = true;
+        }
+
+        m_frameInputs.erase(playerId);
+        auto pit = m_players.find(playerId);
+        if (pit != m_players.end())
+            m_players.erase(pit);
+        (void)released;
+        return true; // 幂等：重复交回视为成功
+    }
+
+    bool GameCore::ApplyPossess(uint32_t playerId, const std::string& name, Faction faction, uint32_t tankId)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (playerId == 0 || tankId == 0)
+            return false;
+        if (static_cast<int>(faction) < 0 || static_cast<int>(faction) >= kFactionCount)
+            return false;
+
+        auto tankIt = m_tanks.find(tankId);
+        if (tankIt == m_tanks.end())
+            return false;
+
+        auto& tank = tankIt->second;
+        if (tank->GetFaction() != faction)
+            return false;
+
+        if (tank->GetPlayerId() == playerId)
+        {
+            auto pit = m_players.find(playerId);
+            if (pit == m_players.end())
+            {
+                PlayerInfo player;
+                player.id = playerId;
+                player.name = name;
+                player.faction = faction;
+                player.isConnected = true;
+                m_players[playerId] = player;
+            }
+            if (m_nextPlayerId <= playerId)
+                m_nextPlayerId = playerId + 1;
+            return true;
+        }
+
+        if (tank->GetPlayerId() != 0)
+            return false;
+
+        PlayerInfo player;
+        player.id = playerId;
+        player.name = name.empty() ? "Player" : name;
+        player.faction = faction;
+        player.isConnected = true;
+        m_players[playerId] = player;
+
+        tank->SetControlOwner(playerId, true);
+        m_aiController.RemoveMemory(tankId);
+        if (m_nextPlayerId <= playerId)
+            m_nextPlayerId = playerId + 1;
+        return true;
+    }
+
+    void GameCore::ClearAiMemory()
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_aiController.Clear();
+    }
+
+    GameLogicSnapshot GameCore::ExportLogicSnapshot() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        GameLogicSnapshot snap;
+        snap.frame = m_frame;
+        snap.gameState = static_cast<int32_t>(m_state);
+        snap.randomSeed = m_rng.GetSeed();
+        snap.slotsPerFaction = m_slotsPerFaction;
+        snap.nextPlayerId = m_nextPlayerId;
+        snap.nextTankId = m_nextTankId;
+        snap.nextBulletId = Tank::GetNextBulletId();
+        for (int i = 0; i < 4; ++i)
+        {
+            snap.factionKills[i] = m_factionKills[i];
+            snap.factionDeaths[i] = m_factionDeaths[i];
+        }
+
+        snap.tanks.reserve(m_tanks.size());
+        for (const auto& entry : m_tanks)
+            snap.tanks.push_back(entry.second->ExportLogicSnapshot());
+
+        snap.bullets.reserve(m_bullets.size());
+        for (const auto& bullet : m_bullets)
+        {
+            if (!bullet)
+                continue;
+            BulletLogicSnapshot b;
+            b.id = bullet->id;
+            b.ownerId = bullet->ownerId;
+            b.posX = bullet->position.x;
+            b.posY = bullet->position.y;
+            b.velX = bullet->velocity.x;
+            b.velY = bullet->velocity.y;
+            b.damage = bullet->damage;
+            b.lifeFrames = bullet->lifeFramesRemaining;
+            b.penetrating = bullet->penetrating;
+            b.damagedTankIds = bullet->damagedTankIds;
+            snap.bullets.push_back(std::move(b));
+        }
+
+        snap.players.reserve(m_players.size());
+        for (const auto& entry : m_players)
+        {
+            PlayerLogicSnapshot p;
+            p.id = entry.second.id;
+            p.name = entry.second.name;
+            p.faction = static_cast<int32_t>(entry.second.faction);
+            p.kills = entry.second.kills;
+            p.score = entry.second.score;
+            p.isConnected = entry.second.isConnected;
+            snap.players.push_back(std::move(p));
+        }
+
+        m_aiController.ExportMemories(snap.aiMemories);
+        return snap;
+    }
+
+    bool GameCore::ApplyLogicSnapshot(const GameLogicSnapshot& snap)
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        m_tanks.clear();
+        m_bullets.clear();
+        m_players.clear();
+        m_frameInputs.clear();
+        m_aiController.Clear();
+
+        m_frame = snap.frame;
+        m_state = static_cast<GameState>(snap.gameState);
+        m_rng.SetSeed(snap.randomSeed == 0 ? 1u : snap.randomSeed);
+        m_slotsPerFaction = snap.slotsPerFaction == 0 ? 2u : snap.slotsPerFaction;
+        m_nextPlayerId = snap.nextPlayerId == 0 ? 1u : snap.nextPlayerId;
+        m_nextTankId = snap.nextTankId == 0 ? 1u : snap.nextTankId;
+        Tank::SetNextBulletId(snap.nextBulletId);
+        for (int i = 0; i < 4; ++i)
+        {
+            m_factionKills[i] = snap.factionKills[i];
+            m_factionDeaths[i] = snap.factionDeaths[i];
+        }
+
+        for (const auto& p : snap.players)
+        {
+            PlayerInfo info;
+            info.id = p.id;
+            info.name = p.name;
+            info.faction = static_cast<Faction>(p.faction);
+            info.kills = p.kills;
+            info.score = p.score;
+            info.isConnected = p.isConnected;
+            m_players[p.id] = info;
+        }
+
+        for (const auto& t : snap.tanks)
+        {
+            FixedVec2 pos{t.posX, t.posY};
+            auto tank = std::make_shared<Tank>(
+                t.id,
+                t.playerId,
+                static_cast<Faction>(t.faction),
+                static_cast<TankType>(t.type),
+                pos,
+                t.isPlayer,
+                t.rotation);
+            tank->ApplyLogicSnapshot(t);
+            m_tanks[t.id] = tank;
+            if (m_nextTankId <= t.id)
+                m_nextTankId = t.id + 1;
+        }
+
+        for (const auto& b : snap.bullets)
+        {
+            auto bullet = std::make_shared<BulletState>();
+            bullet->id = b.id;
+            bullet->ownerId = b.ownerId;
+            bullet->position.x = b.posX;
+            bullet->position.y = b.posY;
+            bullet->velocity.x = b.velX;
+            bullet->velocity.y = b.velY;
+            bullet->damage = b.damage;
+            bullet->lifeFramesRemaining = b.lifeFrames;
+            bullet->penetrating = b.penetrating;
+            bullet->damagedTankIds = b.damagedTankIds;
+            m_bullets.push_back(bullet);
+        }
+
+        m_aiController.ApplyMemories(snap.aiMemories);
+        return true;
+    }
+
+    std::string GameCore::FormatCompareSnapshot(const char* side) const
+    {
+        const GameLogicSnapshot snap = ExportLogicSnapshot();
+        std::ostringstream oss;
+        oss << "[CompareSnap] side=" << (side ? side : "?")
+            << " frame=" << snap.frame
+            << " state=" << snap.gameState
+            << " seed=" << snap.randomSeed
+            << " slots=" << snap.slotsPerFaction
+            << " nextPlayer=" << snap.nextPlayerId
+            << " nextTank=" << snap.nextTankId
+            << " nextBullet=" << snap.nextBulletId
+            << " tanks=" << snap.tanks.size()
+            << " bullets=" << snap.bullets.size()
+            << " aiMem=" << snap.aiMemories.size()
+            << " kills=" << snap.factionKills[0] << "," << snap.factionKills[1]
+            << "," << snap.factionKills[2] << "," << snap.factionKills[3]
+            << " deaths=" << snap.factionDeaths[0] << "," << snap.factionDeaths[1]
+            << "," << snap.factionDeaths[2] << "," << snap.factionDeaths[3]
+            << "\n";
+
+        std::vector<TankLogicSnapshot> tanks = snap.tanks;
+        std::sort(tanks.begin(), tanks.end(),
+            [](const TankLogicSnapshot& a, const TankLogicSnapshot& b) { return a.id < b.id; });
+        for (size_t i = 0; i < tanks.size(); ++i)
+        {
+            const TankLogicSnapshot& t = tanks[i];
+            oss << "  tank id=" << t.id
+                << " player=" << t.playerId
+                << " fac=" << t.faction
+                << " type=" << t.type
+                << " Pos=(" << t.posX << "," << t.posY << ")"
+                << " world=(" << PosToWorld(t.posX) << "," << PosToWorld(t.posY) << ")"
+                << " vel=(" << t.velX << "," << t.velY << ")"
+                << " rot=" << t.rotation
+                << " turret=" << t.turretRotation
+                << " hp=" << t.hp << "/" << t.maxHp
+                << " alive=" << (t.isAlive ? 1 : 0)
+                << " isPlayer=" << (t.isPlayer ? 1 : 0)
+                << " reload=" << t.reloadFrames
+                << " lock=" << t.lockedTargetId
+                << " aiMode=" << t.aiMoveMode
+                << "\n";
+        }
+
+        std::vector<BulletLogicSnapshot> bullets = snap.bullets;
+        std::sort(bullets.begin(), bullets.end(),
+            [](const BulletLogicSnapshot& a, const BulletLogicSnapshot& b) { return a.id < b.id; });
+        for (size_t i = 0; i < bullets.size(); ++i)
+        {
+            const BulletLogicSnapshot& b = bullets[i];
+            oss << "  bullet id=" << b.id
+                << " owner=" << b.ownerId
+                << " Pos=(" << b.posX << "," << b.posY << ")"
+                << " vel=(" << b.velX << "," << b.velY << ")"
+                << " dmg=" << b.damage
+                << " life=" << b.lifeFrames
+                << "\n";
+        }
+
+        std::vector<AiTankMemorySnapshot> mems = snap.aiMemories;
+        std::sort(mems.begin(), mems.end(),
+            [](const AiTankMemorySnapshot& a, const AiTankMemorySnapshot& b) {
+                return a.tankId < b.tankId;
+            });
+        for (size_t i = 0; i < mems.size(); ++i)
+        {
+            const AiTankMemorySnapshot& m = mems[i];
+            oss << "  aiMem tank=" << m.tankId
+                << " wanderH=" << m.wanderHeading
+                << " strafe=" << m.strafeSign
+                << " pathGoal=(" << m.pathGoalX << "," << m.pathGoalY << ")"
+                << " pathIdx=" << m.pathWaypointIndex
+                << " pathN=" << (m.pathWaypointCoords.size() / 2)
+                << " target=" << m.pathTargetId
+                << " mode=" << m.pathMoveMode
+                << "\n";
+        }
+        return oss.str();
     }
     
     void GameCore::ProcessPlayerInput(const PlayerInput& input)
@@ -222,10 +594,32 @@ namespace TankBattle
             m_tanks[tankId] = tank;
         }
         
-        // 生成AI坦克
+        // 按槽位补齐各阵营坦克（不足部分为 AI）
         GenerateAITanks();
         
         m_state = GameState::Playing;
+        m_winner = Faction::Soviet;
+        m_factionKills[0] = m_factionKills[1] = m_factionKills[2] = m_factionKills[3] = 0;
+        m_factionDeaths[0] = m_factionDeaths[1] = m_factionDeaths[2] = m_factionDeaths[3] = 0;
+    }
+
+    void GameCore::StartGameAIOnly()
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+
+        if (m_state != GameState::Waiting) return;
+
+        m_frame = 0;
+        m_frameInputs.clear();
+        m_tanks.clear();
+        m_bullets.clear();
+        m_aiController.Clear();
+        Tank::ResetBulletIdCounter();
+        m_nextTankId = 1;
+
+        m_state = GameState::Playing;
+        GenerateAITanks();
+
         m_winner = Faction::Soviet;
         m_factionKills[0] = m_factionKills[1] = m_factionKills[2] = m_factionKills[3] = 0;
         m_factionDeaths[0] = m_factionDeaths[1] = m_factionDeaths[2] = m_factionDeaths[3] = 0;
@@ -761,41 +1155,25 @@ namespace TankBattle
     void GameCore::GenerateAITanks()
     {
         if (m_state != GameState::Playing) return;
-        
-        // 统计当前AI坦克数量
-        int aiCount = 0;
-        for (const auto& entry : m_tanks)
-        {
-            auto& tank = entry.second;
-            if (tank->GetPlayerId() == 0) // AI坦克的playerId为0
-            {
-                aiCount++;
-            }
-        }
-        
-        // 每个阵营生成2个AI坦克
-        const int aiPerFaction = 2;
+
+        // 每阵营坦克总数补齐到 m_slotsPerFaction；不足部分刷 AI（已被玩家接管的席位不另加）
         for (int f = 0; f < kFactionCount; f++)
         {
             Faction faction = static_cast<Faction>(f);
-            
-            // 统计该阵营的AI坦克
-            int factionAICount = 0;
+
+            uint32_t factionTotal = 0;
             for (const auto& entry : m_tanks)
             {
-                auto& tank = entry.second;
-                if (tank->GetPlayerId() == 0 && tank->GetFaction() == faction)
-                {
-                    factionAICount++;
-                }
+                if (entry.second->GetFaction() == faction)
+                    ++factionTotal;
             }
-            
-            // 生成缺少的AI坦克
-            for (int i = factionAICount; i < aiPerFaction; i++)
+
+            while (factionTotal < m_slotsPerFaction)
             {
                 uint32_t tankId = m_nextTankId++;
                 auto tank = CreateTankInstance(tankId, 0, faction, false);
                 m_tanks[tankId] = tank;
+                ++factionTotal;
             }
         }
     }
